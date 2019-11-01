@@ -1,0 +1,752 @@
+:mod:`opendrift.models.basemodel`
+=================================
+
+.. py:module:: opendrift.models.basemodel
+
+
+Module Contents
+---------------
+
+.. data:: basestring
+   
+
+   
+
+.. py:class:: OpenDriftSimulation(proj4=None, seed=0, iomodule='netcdf', loglevel=logging.DEBUG, logtime='%H:%M:%S', logfile=None)
+
+   Bases: :class:`opendrift.models.physics_methods.PhysicsMethods`
+
+   Generic trajectory model class, to be extended (subclassed).
+
+   This as an Abstract Base Class, meaning that only subclasses can
+   be initiated and used.
+   Any specific subclass ('model') must contain its own (or shared)
+   specific type of particles (ElementType), whose properties are
+   updated at each time_step using method update() on basis of model
+   physics/chemistry/biology and 'required_variables' (environment)
+   which are provided by one or more Reader objects.
+
+   Attributes:
+       ElementType: the type (class) of particles to be used by this model
+       elements: object of the class ElementType, storing the specific
+           particle properties (ndarrays and scalars) of all active particles
+           as named attributes. Elements are added by seeding-functions
+           (presently only one implemented: seed_elements).
+       elements_deactivated: ElementType object containing particles which
+           have been deactivated (and removed from 'elements')
+       elements_scheduled: ElementType object containing particles which
+           have been scheduled, but not yet activated
+       required_variables: list of strings of CF standard_names which is
+           needed by this model (update function) to update properties of
+           particles ('elements') at each time_step. This core class has
+           no required_elements, this is implemented by subclasses/modules.
+       environment: recarray storing environment variables (wind, waves,
+           current etc) as named attributes. Attribute names follow
+           standard_name from CF-convention, allowing any OpenDriftSimulation
+           module/subclass using environment data from any readers which
+           can provide the requested variables. Used in method 'update'
+           to update properties of elements every time_step.
+       proj4: string defining the common spatial reference system (SRS) onto
+           which data from all readers are interpolated
+       proj: Proj object initialised from proj4 string; used for
+           coordinate tranformations
+       time_step: timedelta object, time interval at which element properties
+           are updated (including advection).
+       time_step_output: timedelta object, time interval at which element
+           properties are stored in memory and eventually written to file
+       readers: Dictionary where values are Reader objects, and names are
+           unique reference keywords used to access a given reader (typically
+           filename or URL)
+       priority_list: OrderedDict where names are variable names,
+           and values are lists of names (kewywords) of the reader, in the
+           order of priority (user defined) of which the readers shall be
+           called to retrieve environmental data.
+
+   .. attribute:: __metaclass__
+      
+
+      
+
+   .. attribute:: status_categories
+      :annotation: = ['active']
+
+      
+
+   .. attribute:: status_colors_default
+      
+
+      
+
+   .. attribute:: configspec_basemodel
+      :annotation: = 
+               [general]
+                   use_auto_landmask = boolean(default=True)
+                   coastline_action = option('none', 'stranding', 'previous', default='stranding')
+                   time_step_minutes = integer(min=1, max=1440, default=60)
+                   time_step_output_minutes = integer(min=1, max=1440, default=None)
+               [seed]
+                   ocean_only = boolean(default=True)
+               [drift]
+                   max_age_seconds = float(min=0, default=None)
+                   scheme = option('euler', 'runge-kutta', 'runge-kutta4', default='euler')
+                   stokes_drift = boolean(default=True)
+                   current_uncertainty = float(min=0, max=5, default=0)
+                   current_uncertainty_uniform = float(min=0, max=5, default=0)
+                   wind_uncertainty = float(min=0, max=5, default=0)
+                   relative_wind = boolean(default=False)
+                   lift_to_seafloor = boolean(default=True)
+                   truncate_ocean_model_below_m = float(min=0, max=10000, default=None)
+                   deactivate_north_of = float(min=-90, max=90, default=None)
+                   deactivate_south_of = float(min=-90, max=90, default=None)
+                   deactivate_east_of = float(min=-360, max=360, default=None)
+                   deactivate_west_of = float(min=-360, max=360, default=None)
+                   use_tabularised_stokes_drift = boolean(default=False)
+                   tabularised_stokes_drift_fetch = option(5000, 25000, 50000, default=25000)
+
+      
+
+   .. attribute:: max_speed
+      :annotation: = 1
+
+      
+
+   .. attribute:: required_profiles
+      
+
+      
+
+   .. attribute:: required_profiles_z_range
+      
+
+      
+
+   .. attribute:: plot_comparison_colors
+      :annotation: = ['k', 'r', 'g', 'b', 'm', 'c', 'y']
+
+      
+
+   .. method:: _add_config(self, key, value, comment, overwrite=False)
+
+
+      Add a configuration item to the current model.
+
+
+   .. method:: _merge_config(self, newconf, overwrite=False)
+
+
+
+   .. method:: _add_configstring(self, configstring)
+
+
+      Add several configuration items from string (INI-format).
+
+
+   .. method:: set_config(self, key, value)
+
+
+      Provide a value for a configuration setting
+
+
+   .. method:: _config_hash_to_dict(self, hashstring)
+
+
+      Return configobj-dict from section:section:key format
+
+
+   .. method:: get_config(self, key)
+
+
+      Get value of a configuration setting
+
+
+   .. method:: get_configspec(self, key)
+
+
+      Get configuration specification of a configuration setting
+
+
+   .. method:: get_configspec_default_min_max(self, key)
+
+
+      Get default, min and max config values for configuration setting
+
+
+   .. method:: get_seed_config(self)
+
+
+      Get dictionary with all config options under category seed
+
+
+   .. method:: _config_hashstrings(self)
+
+
+      Get list of strings section:section:key for all config items
+
+
+   .. method:: list_configspec(self)
+
+
+      List all possible configuration settings with specifications
+
+
+   .. method:: list_config(self)
+
+
+      List all possible configuration settings with values
+
+
+   .. method:: add_metadata(self, key, value)
+
+
+      Add item to metadata dictionary, for export as netCDF global attributes
+
+
+   .. method:: prepare_run(self)
+
+
+
+   .. method:: store_present_positions(self, IDs=None, lons=None, lats=None)
+
+
+      Store present element positions, in case they shall be moved back
+
+
+   .. method:: interact_with_coastline(self, final=False)
+
+
+
+   .. method:: update(self)
+      :abstractmethod:
+
+
+      Any trajectory model implementation must define an update method.
+      This method must/can use environment data (self.environment) to
+      update properties (including position) of its particles (self.elements)
+
+
+   .. method:: ElementType(self)
+      :property:
+
+
+      Any trajectory model implementation must define an ElementType.
+
+
+   .. method:: required_variables(self)
+      :property:
+
+
+      Any trajectory model implementation must list needed variables.
+
+
+   .. method:: test_data_folder(self)
+
+
+
+   .. method:: set_projection(self, proj4)
+
+
+      Set the projection onto which data from readers is reprojected.
+
+
+   .. method:: lonlat2xy(self, lon, lat)
+
+
+      Calculate x,y in own projection from given lon,lat (scalars/arrays).
+              
+
+
+   .. method:: xy2lonlat(self, x, y)
+
+
+      Calculate lon,lat from given x,y (scalars/arrays) in own projection.
+              
+
+
+   .. method:: timer_start(self, category)
+
+
+
+   .. method:: timer_end(self, category)
+
+
+
+   .. method:: format_timedelta(self, timedelta)
+
+
+      Format timedelta nicely for display
+
+
+   .. method:: performance(self)
+
+
+      Report the time spent on various tasks
+
+
+   .. method:: add_reader(self, readers, variables=None)
+
+
+      Add one or more readers providing variables used by this model.
+
+      Method may be called subsequently to add more readers
+      for other variables.
+
+      Args:
+          readers: one or more (list) Reader objects.
+          variables: optional, list of strings of standard_name of
+              variables to be provided by this/these reader(s).
+
+
+   .. method:: add_readers_from_list(self, urls, timeout=10, lazy=True)
+
+
+      Make readers from a list of URLs or paths to netCDF datasets
+
+
+   .. method:: add_readers_from_file(self, filename, timeout=10, lazy=True)
+
+
+
+   .. method:: list_environment_variables(self)
+
+
+      Return list of all variables provided by the added readers.
+
+
+   .. method:: missing_variables(self)
+
+
+      Return list of all variables for which no reader has been added.
+
+
+   .. method:: get_reader_groups(self, variables=None)
+
+
+      Find which groups of variables are provided by the same readers.
+
+      This function loops through 'priority_list' (see above) and groups
+      all variables returned by the same readers in the same order. This
+      allows asking readers for several variables simultaneously,
+      improving performance. Used by method 'get_environment'.
+
+      Returns:
+          variable_groups: list of lists of (environment) variables.
+          reader_groups: list of list of reader names, corresponding to
+              each of the variable_groups.
+
+
+   .. method:: _lazy_readers(self)
+
+
+
+   .. method:: _unlazy_readers(self)
+
+
+
+   .. method:: _initialise_next_lazy_reader(self)
+
+
+      Returns reader if successful and None if no more readers
+
+
+   .. method:: earliest_time(self)
+
+
+
+   .. method:: latest_time(self)
+
+
+
+   .. method:: discard_reader_if_not_relevant(self, reader)
+
+
+
+   .. method:: discard_reader(self, reader)
+
+
+
+   .. method:: discard_irrelevant_readers(self)
+
+
+
+   .. method:: get_environment(self, variables, time, lon, lat, z, profiles)
+
+
+      Retrieve environmental variables at requested positions.
+
+      Updates:
+          Buffer (raw data blocks) for each reader stored for performance:
+              [readers].var_block_before (last before requested time)
+              [readers].var_block_after (first after requested time)
+                  - lists of one ReaderBlock per variable group:
+                      - time, x, y, [vars]
+      Returns:
+          environment: recarray with variables as named attributes,
+                       interpolated to requested positions/time.
+
+
+   .. method:: num_elements_active(self)
+
+
+      The number of active elements.
+
+
+   .. method:: num_elements_deactivated(self)
+
+
+      The number of deactivated elements.
+
+
+   .. method:: num_elements_scheduled(self)
+
+
+
+   .. method:: num_elements_total(self)
+
+
+      The total number of scheduled, active and deactivated elements.
+
+
+   .. method:: num_elements_activated(self)
+
+
+      The total number of active and deactivated elements.
+
+
+   .. method:: schedule_elements(self, elements, time)
+
+
+      Schedule elements to be seeded during runtime.
+
+      Also assigns a unique ID to each particle, monotonically increasing.
+
+
+   .. method:: release_elements(self)
+
+
+      Activate elements which are scheduled within following timestep.
+
+
+   .. method:: closest_ocean_points(self, lon, lat)
+
+
+      Return the closest ocean points for given lon, lat
+
+
+   .. method:: seed_elements(self, lon, lat, radius=0, number=None, time=None, cone=False, **kwargs)
+
+
+      Seed a given number of particles around given position(s).
+
+      Arguments:
+          lon: scalar or array, central longitude(s).
+          lat: scalar or array, central latitude(s).
+          radius: scalar or array, radius in meters around each lon-lat
+              pair, within which particles will be randomly seeded.
+          number: integer, total number of particles to be seeded
+              Elements are spread equally among the given lon/lat points.
+              Default is one particle for each lon-lat pair.
+          time: datenum, the time at which particles are seeded/released.
+              If time is an array with two elements, elements are seeded
+              continously from start/first to end/last time.
+          cone: boolean or integer. If True, lon and lat must be two element
+              arrays, interpreted as the start and end position of a cone
+              within which elements will be seeded. Radius may also be a
+              two element array specifying the radius around the points.
+          kwargs: keyword arguments containing properties/attributes and
+              values corresponding to the actual particle type (ElementType).
+              These are forwarded to the ElementType class. All properties
+              for which there are no default value must be specified.
+
+
+   .. method:: seed_within_polygon(self, lons, lats, number, **kwargs)
+
+
+      Seed a number of elements within given polygon.
+
+      Arguments:
+          lon: array of longitudes
+          lat: array of latitudes
+          number: int, number of elements to be seeded
+          kwargs: keyword arguments containing properties/attributes and
+              values corresponding to the actual particle type (ElementType).
+              These are forwarded to method seed_elements(). All properties
+              for which there are no default value must be specified.
+
+
+   .. method:: seed_from_wkt(self, wkt, number, **kwargs)
+
+
+      Seeds elements within (multi)polygons from WKT
+
+
+   .. method:: seed_from_shapefile(self, shapefile, number, layername=None, featurenum=None, **kwargs)
+
+
+      Seeds elements within contours read from a shapefile
+
+
+   .. method:: seed_from_ladim(self, ladimfile, roms)
+
+
+      Seed elements from ladim *.rls text file: [time, x, y, z, name]
+
+
+   .. method:: deactivate_elements(self, indices, reason='deactivated')
+
+
+      Schedule deactivated particles for deletion (at end of step)
+
+
+   .. method:: remove_deactivated_elements(self)
+
+
+      Moving deactivated elements from self.elements
+      to self.elements_deactivated.
+
+
+   .. method:: run(self, time_step=None, steps=None, time_step_output=None, duration=None, end_time=None, outfile=None, export_variables=None, export_buffer_length=100, stop_on_error=False)
+
+
+      Start a trajectory simulation, after initial configuration.
+
+      Performs the main loop:
+          - Obtain environment data for positions of all particles.
+          - Call method 'update' to update (incl advect) particle properties.
+      until one of the following conditions are met:
+          - Maximum number of steps are reached
+          - A needed variable can not be obtained by any reader
+              (outside spatial/temporal domain) and has no fallback
+              (default) value.
+          - All particles have been deactivated (e.g. by stranding)
+          - Occurance of any error, whose trace will be output to terminal.
+
+      Before starting a model run, readers must be added for all
+      required variables, unless fallback values have been specified.
+      Some particles/elements must have been scheduled for seeding, and the
+      run will start at the time when the first element has been scheduled..
+
+      Arguments:
+          time_step: interval between particles updates, in seconds or as
+              timedelta. Default: 3600 seconds (1 hour)
+          time_step_output: Time step at which element properties are stored
+              and eventually written to file.
+              Timedelta object or seconds.
+              Default: same as time_step, meaning that all steps are stored
+          The length of the simulation is specified by defining one
+              (and only one) of the following parameters:
+              - steps: integer, maximum number of steps. End of simulation
+                  will be self.start_time + steps*self.time_step
+              - duration: timedelta defining the length of the simulation
+              - end_time: datetime object defining the end of the simulation
+          export_variables: list of variables and parameter names to be
+              saved to file. Default is None (all variables are saved)
+
+
+   .. method:: increase_age_and_retire(self)
+
+
+      Increase age of elements, and retire if older than config setting.
+
+
+   .. method:: state_to_buffer(self)
+
+
+      Append present state (elements and environment) to recarray.
+
+
+   .. method:: report_missing_variables(self)
+
+
+      Issue warning if some environment variables missing.
+
+
+   .. method:: index_of_activation_and_deactivation(self)
+
+
+      Return the indices when elements were seeded and deactivated.
+
+
+   .. method:: set_up_map(self, corners=None, buffer=0.1, delta_lat=None, lscale=None, fast=False, **kwargs)
+
+
+      Generate Basemap instance on which trajectories are plotted.
+
+      provide corners=[lonmin, lonmax, latmin, latmax] for specific map selection
+
+
+   .. method:: get_lonlats(self)
+
+
+
+   .. method:: animation(self, buffer=0.2, corners=None, filename=None, compare=None, background=None, vmin=None, vmax=None, drifter=None, skip=5, scale=10, color=False, clabel=None, colorbar=True, cmap=None, density=False, show_elements=True, show_trajectories=False, density_pixelsize_m=1000, unitfactor=1, lcs=None, surface_only=False, markersize=20, legend=None, legend_loc='best', fps=10, lscale=None, fast=False)
+
+
+      Animate last run.
+
+
+   .. method:: animation_profile(self, filename=None, compare=None, legend=['', ''], markersize=5, fps=20)
+
+
+      Animate vertical profile of the last run.
+
+
+   .. method:: _get_comparison_xy_for_plots(self, compare)
+
+
+
+   .. method:: plot(self, background=None, buffer=0.2, corners=None, linecolor=None, filename=None, show=True, vmin=None, vmax=None, compare=None, cmap='jet', lvmin=None, lvmax=None, skip=2, scale=10, show_scalar=True, contourlines=False, trajectory_dict=None, colorbar=True, linewidth=1, lcs=None, show_particles=True, density_pixelsize_m=1000, surface_color=None, submerged_color=None, markersize=20, title='auto', legend=True, legend_loc='best', lscale=None, fast=False, **kwargs)
+
+
+      Basic built-in plotting function intended for developing/debugging.
+
+      Plots trajectories of all particles.
+      Positions marked with colored stars:
+      - green: all start positions
+      - red: deactivated particles
+      - blue: particles still active at end of simulation
+
+      Requires availability of Basemap.
+
+      Arguments:
+          background: string, name of variable (standard_name) which will
+              be plotted as background of trajectories, provided that it
+              can be read with one of the available readers.
+          buffer: float; spatial buffer of plot in degrees of
+              longitude/latitude around particle collection.
+          background: name of variable to be plotted as background field.
+                      Use two element list for vector fields, e.g.
+                      ['x_wind', 'y_wind']
+          vmin, vmax: minimum and maximum values for colors of background.
+          linecolor: name of variable to be used for coloring trajectories.
+          lvmin, lvmax: minimum and maximum values for colors of trajectories.
+          lscale (string): resolution of land feature ('c', 'l', 'i', 'h', 'f', 'auto'). default is 'auto'.
+          fast (bool): use some optimizations to speed up plotting at the cost of accuracy
+
+
+   .. method:: _plot_trajectory_dict(self, ax, trajectory_dict)
+
+
+      Plot provided trajectory along with simulated
+
+
+   .. method:: map_make_grid(self, ax, nx, ny)
+
+
+      Returns lon, lats on an equidistant grid on the map projection (within the extents of the axes)
+
+      Emulates Basemap.make_grid(...).
+
+
+   .. method:: get_map_background(self, ax, background, time=None)
+
+
+
+   .. method:: get_density_array(self, pixelsize_m, weight=None)
+
+
+
+   .. method:: get_residence_time(self, pixelsize_m)
+
+
+
+   .. method:: write_netcdf_density_map(self, filename, pixelsize_m='auto')
+
+
+      Write netCDF file with map of particles densities
+
+
+   .. method:: write_geotiff(self, filename, pixelsize_km=0.2)
+
+
+      Write one GeoTiff image per timestep.
+
+      filename should contain date identifiers, e.g. 'img_%Y%m%d_%H%M.tif'
+      https://docs.python.org/2/library/datetime.html#strftime-and-strptime-behavior
+
+
+   .. method:: get_time_array(self)
+
+
+      Return a list of output times of last run.
+
+
+   .. method:: plot_environment(self, filename=None)
+
+
+      Plot mean wind and current velocities of element of last run.
+
+
+   .. method:: plot_property(self, prop, mean=False)
+
+
+      Basic function to plot time series of any element properties.
+
+
+   .. method:: get_property(self, propname)
+
+
+      Get property from history, sorted by status.
+
+
+   .. method:: update_positions(self, x_vel, y_vel)
+
+
+      Move particles according to given velocity components.
+
+      This method shall account for projection metrics (a distance
+      on a map projection does not necessarily correspond to the same
+      distance over true ground (not yet implemented).
+
+      Arguments:
+          x_vel and v_vel: floats, velocities in m/s of particle along
+                           x- and y-axes of the inherit SRS (proj4).
+
+
+   .. method:: __repr__(self)
+
+
+      String representation providing overview of model status.
+
+
+   .. method:: store_message(self, message)
+
+
+      Store important messages to be displayed to user at end.
+
+
+   .. method:: get_messages(self)
+
+
+      Report any messages stored during simulation.
+
+
+   .. method:: add_halo_readers(self)
+
+
+      Adding some Thredds and file readers in prioritised order
+
+
+   .. method:: _save_animation(self, anim, filename, fps)
+
+
+
+   .. method:: calculate_ftle(self, reader=None, delta=None, time=None, time_step=None, duration=None, RLCS=True, ALCS=True)
+
+
+
+   .. method:: center_of_gravity(self, onlysurface=False)
+
+
+      calculate center of mass and variance of all elements
+      returns  (lon,lat), variance
+      where (lon,lat) are the coordinates of the center of mass as
+      function of time
+
+
+   .. method:: reset(self)
+
+
+      Preparing OpenDrift object for new run
+
+
+

@@ -1,0 +1,327 @@
+:mod:`opendrift.readers.basereader`
+===================================
+
+.. py:module:: opendrift.readers.basereader
+
+
+Module Contents
+---------------
+
+.. data:: basestring
+   
+
+   
+
+.. data:: standard_names
+   
+
+   
+
+.. data:: vector_pairs_xy
+   :annotation: = [['x_wind', 'y_wind'], ['sea_ice_x_velocity', 'sea_ice_y_velocity'], ['x_sea_water_velocity', 'y_sea_water_velocity'], ['sea_surface_wave_stokes_drift_x_velocity', 'sea_surface_wave_stokes_drift_y_velocity']]
+
+   
+
+.. py:class:: fakeproj
+
+   .. py:class:: _crs
+
+      .. attribute:: is_geographic
+         :annotation: = False
+
+         
+
+
+   .. attribute:: crs
+      
+
+      
+
+   .. attribute:: srs
+      :annotation: = None
+
+      
+
+   .. method:: __call__(self, x, y, inverse=False)
+
+
+
+
+.. py:class:: BaseReader
+
+   Bases: :class:`object`
+
+   Parent Reader class, to be subclassed by specific readers.
+       
+
+   .. attribute:: __metaclass__
+      
+
+      
+
+   .. attribute:: return_block
+      :annotation: = True
+
+      
+
+   .. attribute:: interpolation
+      :annotation: = linearNDFast
+
+      
+
+   .. attribute:: verticalbuffer
+      :annotation: = 1
+
+      
+
+   .. attribute:: start_time
+      
+
+      
+
+   .. attribute:: variable_aliases
+      
+
+      
+
+   .. attribute:: xy2eastnorth_mapping
+      
+
+      
+
+   .. attribute:: environment_mappers
+      :annotation: = []
+
+      
+
+   .. attribute:: environment_mappings
+      
+
+      
+
+   .. method:: y_is_north(self)
+
+
+
+   .. method:: set_buffer_size(self, max_speed, max_vertical_speed=None)
+
+
+      Adjust buffer to minimise data block size needed to cover elements
+
+
+   .. method:: pixel_size(self)
+
+
+
+   .. method:: timer_start(self, category)
+
+
+
+   .. method:: timer_end(self, category)
+
+
+
+   .. method:: get_variables(self, variables, time=None, x=None, y=None, z=None, block=False)
+      :abstractmethod:
+
+
+      Method which must be invoked by any reader (subclass).
+
+      Obtain and return values of the requested variables at all positions
+      (x, y, z) closest to given time.
+
+      Arguments:
+          variables: string, or list of strings (standard_name) of
+              requested variables. These must be provided by reader.
+          time: datetime or None, time at which data are requested.
+              Can be None (default) if reader/variable has no time
+              dimension (e.g. climatology or landmask).
+          x, y: float or ndarrays; coordinates of requested points in the
+              Spatial Reference System (SRS) of the reader (NB!!)
+          z: float or ndarray; vertical position (in meters, positive up)
+              of requested points.
+              default: 0 m (unless otherwise documented by reader)
+          block: bool, see return below
+
+        Returns:
+          data: Dictionary
+              keywords: variables (string)
+              values:
+                  - 1D ndarray of len(x) if block=False. Nearest values
+                      (neichbour) of requested position are returned.
+                  - 3D ndarray encompassing all requested points in
+                      x,y,z domain if block=True. It is task of invoking
+                      application (OpenDriftSimulation) to perform
+                      interpolation in space and time.
+
+
+   .. method:: get_variables_derived(self, variables, *args, **kwargs)
+
+
+      Wrapper around get_variables, adding derived
+
+
+   .. method:: _get_variables(self, variables, profiles, profiles_depth, time, x, y, z, block)
+
+
+      Wrapper around reader-specific function get_variables()
+
+      Performs some common operations which should not be duplicated:
+      - monitor time spent by this reader
+      - convert any numpy arrays to masked arrays
+
+
+   .. method:: wind_from_speed_and_direction(self, env)
+
+
+
+   .. method:: calculate_derived_environment_variables(self, env)
+
+
+
+   .. method:: get_variables_interpolated(self, variables, profiles=None, profiles_depth=None, time=None, lon=None, lat=None, z=None, block=False, rotate_to_proj=None)
+
+
+
+   .. method:: rotate_variable_dict(self, variables, proj_from='+proj=latlong', proj_to=None)
+
+
+
+   .. method:: rotate_vectors(self, reader_x, reader_y, u_component, v_component, proj_from, proj_to)
+
+
+      Rotate vectors from one srs to another.
+
+
+   .. method:: xy2lonlat(self, x, y)
+
+
+      Calculate x,y in own projection from given lon,lat (scalars/arrays).
+              
+
+
+   .. method:: lonlat2xy(self, lon, lat)
+
+
+      Calculate lon,lat from given x,y (scalars/arrays) in own projection.
+              
+
+
+   .. method:: y_azimuth(self, lon, lat)
+
+
+      Calculate azimuth orientation of the y-axis of the reader SRS.
+
+
+   .. method:: covers_time(self, time)
+
+
+
+   .. method:: covers_positions(self, lon, lat, z=0)
+
+
+      Return indices of input points covered by reader.
+
+
+   .. method:: global_coverage(self)
+
+
+      Return True if global coverage east-west
+
+
+   .. method:: coverage_string(self)
+
+
+      Coverage of reader to be reported as string for debug output
+
+
+   .. method:: check_arguments(self, variables, time, x, y, z)
+
+
+      Check validity of arguments input to method get_variables.
+
+      Checks that requested positions and time are within coverage of
+      this reader, and that it can provide the requested variable(s).
+      Returns the input arguments, possibly modified/corrected (below)
+
+      Arguments:
+          See function get_variables for definition.
+
+      Returns:
+          variables: same as input, but converted to list if given as string.
+          time: same as input, or start_time of reader if given as None.
+          x, y, z: same as input, but converted to ndarrays
+              if given as scalars.
+          outside: boolean array which is True for any particles outside
+              the spatial domain covered by this reader.
+
+      Raises:
+          ValueError:
+              - if requested time is outside coverage of reader.
+              - if all requested positions are outside coverage of reader.
+
+
+   .. method:: nearest_time(self, time)
+
+
+      Return nearest times before and after the requested time.
+
+      Returns:
+          nearest_time: datetime
+          time_before: datetime
+          time_after: datetime
+          indx_nearest: int
+          indx_before: int
+          indx_after: int
+
+
+   .. method:: index_of_closest_z(self, requested_z)
+
+
+      Return (internal) index of z closest to requested z.
+
+      Thickness of layers (of ocean model) are not assumed to be constant.
+
+
+   .. method:: indices_min_max_z(self, z)
+
+
+      Return min and max indices of internal vertical dimension,
+      covering the requested vertical positions.
+      Needed when block is requested (True).
+
+      Arguments:
+          z: ndarray of floats, in meters
+
+
+   .. method:: domain_grid(self, npoints=1000)
+
+
+      Return arrays of lon,lat points spread evenly over reader domain.
+
+
+   .. method:: __repr__(self)
+
+
+      String representation of the current reader.
+
+
+   .. method:: performance(self)
+
+
+      Report the time spent on various tasks
+
+
+   .. method:: clip_boundary_pixels(self, numpix)
+
+
+      Trim some (potentially bad) pixels along boundary
+
+
+   .. method:: plot(self, variable=None, vmin=None, vmax=None, filename=None, title=None)
+
+
+      Plot geographical coverage of reader.
+
+
+

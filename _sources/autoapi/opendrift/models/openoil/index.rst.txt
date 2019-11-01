@@ -1,0 +1,178 @@
+:mod:`opendrift.models.openoil`
+===============================
+
+.. py:module:: opendrift.models.openoil
+
+
+Module Contents
+---------------
+
+.. py:class:: Oil
+
+   Bases: :class:`opendrift.elements.LagrangianArray`
+
+   Extending LagrangianArray with variables relevant for oil particles.
+
+   .. attribute:: variables
+      
+
+      
+
+
+.. py:class:: OpenOil(weathering_model='default', *args, **kwargs)
+
+   Bases: :class:`opendrift.models.basemodel.OpenDriftSimulation`
+
+   Open source oil trajectory model based on the OpenDrift framework.
+
+   Developed at MET Norway based on oil weathering parameterisations
+   found in open/published litterature.
+
+   Under construction.
+
+   .. attribute:: ElementType
+      
+
+      
+
+   .. attribute:: required_variables
+      :annotation: = ['x_sea_water_velocity', 'y_sea_water_velocity', 'sea_surface_wave_significant_height', 'sea_surface_wave_stokes_drift_x_velocity', 'sea_surface_wave_stokes_drift_y_velocity', 'sea_ice_area_fraction', 'sea_water_temperature', 'sea_floor_depth_below_sea_level', 'x_wind', 'y_wind', 'land_binary_mask']
+
+      
+
+   .. attribute:: fallback_values
+      
+
+      
+
+   .. attribute:: status_colors
+      
+
+      
+
+   .. attribute:: configspec
+      :annotation: = 
+           [processes]
+               dispersion = boolean(default=True)
+               evaporation = boolean(default=True)
+               emulsification = boolean(default=True)
+               biodegradation = boolean(default=False)
+               update_oilfilm_thickness = boolean(default=False)
+           [drift]
+               current_uncertainty = float(min=0, max=5, default=0.05)
+               wind_uncertainty = float(min=0, max=5, default=.5)
+       
+
+      
+
+   .. attribute:: duplicate_oils
+      :annotation: = ['ALVHEIM BLEND, STATOIL', 'DRAUGEN, STATOIL', 'EKOFISK BLEND 2000', 'EKOFISK BLEND, STATOIL', 'EKOFISK, CITGO', 'EKOFISK, EXXON', 'EKOFISK, PHILLIPS', 'EKOFISK, STATOIL', 'ELDFISK', 'ELDFISK B', 'GLITNE, STATOIL', 'GOLIAT BLEND, STATOIL', 'GRANE BLEND, STATOIL', 'GUDRUN BLEND, STATOIL', 'GULLFAKS A, STATOIL', 'GULLFAKS C, STATOIL', 'GULLFAKS, SHELL OIL', 'GULLFAKS SOR', 'GULLFAKS, STATOIL', 'HEIDRUN, STATOIL', 'NJORD, STATOIL', 'NORNE, STATOIL', 'OSEBERG BLEND, STATOIL', 'OSEBERG EXXON', 'OSEBERG, PHILLIPS', 'OSEBERG, SHELL OIL', 'SLEIPNER CONDENSATE, STATOIL', 'STATFJORD BLEND, STATOIL', 'VARG, STATOIL']
+
+      
+
+   .. attribute:: max_water_fraction
+      
+
+      
+
+   .. method:: update_surface_oilfilm_thickness(self)
+
+
+      The mass of oil is summed within a grid of 20x20
+      cells covering the oil at a given time. Each oil particle
+      within each cell is given a film thickness as the amount of
+      oil divided by the cell area.
+
+
+   .. method:: evaporate(self)
+
+
+
+   .. method:: emulsification(self)
+
+
+
+   .. method:: biodegradation(self)
+
+
+
+   .. method:: disperse(self)
+
+
+
+   .. method:: oil_weathering(self)
+
+
+
+   .. method:: oil_weathering_default(self)
+
+
+
+   .. method:: prepare_run(self)
+
+
+
+   .. method:: oil_weathering_noaa(self)
+
+
+      Oil weathering scheme adopted from NOAA PyGNOME model:
+      https://github.com/NOAA-ORR-ERD/PyGnome
+
+
+   .. method:: disperse_noaa(self)
+
+
+
+   .. method:: plot_droplet_spectrum(self)
+
+
+      Plotting distribution of droplet radii, for debugging
+
+
+   .. method:: evaporation_noaa(self)
+
+
+
+   .. method:: emulsification_noaa(self)
+
+
+
+   .. method:: advect_oil(self)
+
+
+
+   .. method:: update(self)
+
+
+      Update positions and properties of oil particles.
+
+
+   .. method:: get_oil_budget(self)
+
+
+
+   .. method:: plot_oil_budget(self, filename=None, ax=None)
+
+
+
+   .. method:: set_oiltype(self, oiltype)
+
+
+
+   .. method:: seed_elements(self, *args, **kwargs)
+
+
+
+   .. method:: seed_from_gml(self, gmlfile, num_elements=1000, *args, **kwargs)
+
+
+      Read oil slick contours from GML file, and seed particles within.
+
+
+   .. method:: seed_from_geotiff_thickness(self, filename, number=50000, *args, **kwargs)
+
+
+      Seed from files as provided by Prof. Chuanmin Hu
+
+
+

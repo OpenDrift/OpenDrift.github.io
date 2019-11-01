@@ -1,0 +1,558 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>opendrift.readers.interpolation &mdash; OpenDrift  documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+  <script type="text/javascript" src="../../../_static/js/modernizr.min.js"></script>
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
+        <script type="text/javascript" src="../../../_static/jquery.js"></script>
+        <script type="text/javascript" src="../../../_static/underscore.js"></script>
+        <script type="text/javascript" src="../../../_static/doctools.js"></script>
+        <script type="text/javascript" src="../../../_static/language_data.js"></script>
+    
+    <script type="text/javascript" src="../../../_static/js/theme.js"></script>
+
+    
+
+  
+  <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="../../../index.html" class="icon icon-home"> OpenDrift
+          
+
+          
+            
+            <img src="../../../_static/opendrift_logo.png" class="logo" alt="Logo"/>
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../index.html">OpenDrift</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../install.html">Installing OpenDrift from source or using pip</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../theory/specification.html">Specifications and background requirements</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../theory/data_model.html">Data model</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../models.html">Models</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../autoapi/index.html">API Reference</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">OpenDrift</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../../../index.html">Docs</a> &raquo;</li>
+        
+          <li><a href="../../index.html">Module code</a> &raquo;</li>
+        
+          <li><a href="../../opendrift.html">opendrift</a> &raquo;</li>
+        
+          <li><a href="../readers.html">opendrift.readers</a> &raquo;</li>
+        
+      <li>opendrift.readers.interpolation</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <h1>Source code for opendrift.readers.interpolation</h1><div class="highlight"><pre>
+<span></span><span class="kn">import</span> <span class="nn">logging</span>
+
+<span class="kn">from</span> <span class="nn">future.utils</span> <span class="k">import</span> <span class="n">iteritems</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">from</span> <span class="nn">scipy.ndimage</span> <span class="k">import</span> <span class="n">map_coordinates</span>
+<span class="kn">import</span> <span class="nn">scipy.ndimage</span> <span class="k">as</span> <span class="nn">ndimage</span>
+<span class="kn">from</span> <span class="nn">scipy.interpolate</span> <span class="k">import</span> <span class="n">interp1d</span><span class="p">,</span> <span class="n">LinearNDInterpolator</span>
+
+
+<div class="viewcode-block" id="expand_numpy_array"><a class="viewcode-back" href="../../../autoapi/opendrift/readers/interpolation/index.html#opendrift.readers.interpolation.expand_numpy_array">[docs]</a><span class="k">def</span> <span class="nf">expand_numpy_array</span><span class="p">(</span><span class="n">data</span><span class="p">):</span>
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ma</span><span class="o">.</span><span class="n">MaskedArray</span><span class="p">):</span>
+        <span class="n">logging</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="s1">&#39;Converting masked array to numpy array before interpolating&#39;</span><span class="p">)</span>
+        <span class="n">data</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">ma</span><span class="o">.</span><span class="n">filled</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">fill_value</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">nan</span><span class="p">)</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">np</span><span class="o">.</span><span class="n">isfinite</span><span class="p">(</span><span class="n">data</span><span class="p">)</span><span class="o">.</span><span class="n">any</span><span class="p">():</span>
+        <span class="n">logging</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="s1">&#39;Only NaNs, returning&#39;</span><span class="p">)</span>
+        <span class="k">return</span>
+    <span class="n">mask</span> <span class="o">=</span> <span class="o">~</span><span class="n">np</span><span class="o">.</span><span class="n">isfinite</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
+    <span class="n">data</span><span class="p">[</span><span class="n">mask</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">finfo</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">float64</span><span class="p">)</span><span class="o">.</span><span class="n">min</span>
+    <span class="n">data</span><span class="p">[</span><span class="n">mask</span><span class="p">]</span> <span class="o">=</span> <span class="n">ndimage</span><span class="o">.</span><span class="n">morphology</span><span class="o">.</span><span class="n">grey_dilation</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">size</span><span class="o">=</span><span class="mi">3</span><span class="p">)[</span><span class="n">mask</span><span class="p">]</span>
+    <span class="n">data</span><span class="p">[</span><span class="n">data</span><span class="o">==</span><span class="n">np</span><span class="o">.</span><span class="n">finfo</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">float64</span><span class="p">)</span><span class="o">.</span><span class="n">min</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span></div>
+
+
+<span class="c1">###########################</span>
+<span class="c1"># 2D interpolator classes</span>
+<span class="c1">###########################</span>
+
+<div class="viewcode-block" id="Nearest2DInterpolator"><a class="viewcode-back" href="../../../autoapi/opendrift/readers/interpolation/index.html#opendrift.readers.interpolation.Nearest2DInterpolator">[docs]</a><span class="k">class</span> <span class="nc">Nearest2DInterpolator</span><span class="p">():</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">xgrid</span><span class="p">,</span> <span class="n">ygrid</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">x</span> <span class="o">=</span> <span class="n">x</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">y</span> <span class="o">=</span> <span class="n">y</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">xi</span> <span class="o">=</span> <span class="p">(</span><span class="n">x</span> <span class="o">-</span> <span class="n">xgrid</span><span class="o">.</span><span class="n">min</span><span class="p">())</span><span class="o">/</span><span class="p">(</span><span class="n">xgrid</span><span class="o">.</span><span class="n">max</span><span class="p">()</span><span class="o">-</span><span class="n">xgrid</span><span class="o">.</span><span class="n">min</span><span class="p">())</span><span class="o">*</span><span class="nb">len</span><span class="p">(</span><span class="n">xgrid</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">yi</span> <span class="o">=</span> <span class="p">(</span><span class="n">y</span> <span class="o">-</span> <span class="n">ygrid</span><span class="o">.</span><span class="n">min</span><span class="p">())</span><span class="o">/</span><span class="p">(</span><span class="n">ygrid</span><span class="o">.</span><span class="n">max</span><span class="p">()</span><span class="o">-</span><span class="n">ygrid</span><span class="o">.</span><span class="n">min</span><span class="p">())</span><span class="o">*</span><span class="nb">len</span><span class="p">(</span><span class="n">ygrid</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">xi</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">xi</span><span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">int</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">yi</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">yi</span><span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">int</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">xi</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">xi</span> <span class="o">&gt;=</span> <span class="nb">len</span><span class="p">(</span><span class="n">xgrid</span><span class="p">)]</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">xgrid</span><span class="p">)</span><span class="o">-</span><span class="mi">1</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">yi</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">yi</span> <span class="o">&gt;=</span> <span class="nb">len</span><span class="p">(</span><span class="n">ygrid</span><span class="p">)]</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">ygrid</span><span class="p">)</span><span class="o">-</span><span class="mi">1</span>
+
+<div class="viewcode-block" id="Nearest2DInterpolator.__call__"><a class="viewcode-back" href="../../../autoapi/opendrift/readers/interpolation/index.html#opendrift.readers.interpolation.Nearest2DInterpolator.__call__">[docs]</a>    <span class="k">def</span> <span class="nf">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">array2d</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">array2d</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">yi</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">xi</span><span class="p">]</span></div></div>
+
+
+<div class="viewcode-block" id="NDImage2DInterpolator"><a class="viewcode-back" href="../../../autoapi/opendrift/readers/interpolation/index.html#opendrift.readers.interpolation.NDImage2DInterpolator">[docs]</a><span class="k">class</span> <span class="nc">NDImage2DInterpolator</span><span class="p">():</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">xgrid</span><span class="p">,</span> <span class="n">ygrid</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">x</span> <span class="o">=</span> <span class="n">x</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">y</span> <span class="o">=</span> <span class="n">y</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">xi</span> <span class="o">=</span> <span class="p">(</span><span class="n">x</span> <span class="o">-</span> <span class="n">xgrid</span><span class="o">.</span><span class="n">min</span><span class="p">())</span><span class="o">/</span><span class="p">(</span><span class="n">xgrid</span><span class="o">.</span><span class="n">max</span><span class="p">()</span><span class="o">-</span><span class="n">xgrid</span><span class="o">.</span><span class="n">min</span><span class="p">())</span><span class="o">*</span><span class="nb">len</span><span class="p">(</span><span class="n">xgrid</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">yi</span> <span class="o">=</span> <span class="p">(</span><span class="n">y</span> <span class="o">-</span> <span class="n">ygrid</span><span class="o">.</span><span class="n">min</span><span class="p">())</span><span class="o">/</span><span class="p">(</span><span class="n">ygrid</span><span class="o">.</span><span class="n">max</span><span class="p">()</span><span class="o">-</span><span class="n">ygrid</span><span class="o">.</span><span class="n">min</span><span class="p">())</span><span class="o">*</span><span class="nb">len</span><span class="p">(</span><span class="n">ygrid</span><span class="p">)</span>
+
+<div class="viewcode-block" id="NDImage2DInterpolator.__call__"><a class="viewcode-back" href="../../../autoapi/opendrift/readers/interpolation/index.html#opendrift.readers.interpolation.NDImage2DInterpolator.__call__">[docs]</a>    <span class="k">def</span> <span class="nf">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">array2d</span><span class="p">):</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">array2d</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">ma</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">array2d</span><span class="p">,</span> <span class="n">mask</span><span class="o">=</span><span class="n">array2d</span><span class="o">.</span><span class="n">mask</span><span class="p">)</span>
+            <span class="n">array2d</span><span class="p">[</span><span class="n">array2d</span><span class="o">.</span><span class="n">mask</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span>  <span class="c1"># Gives holes</span>
+        <span class="k">except</span><span class="p">:</span>
+            <span class="k">pass</span>
+        <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">ma</span><span class="o">.</span><span class="n">masked_invalid</span><span class="p">(</span>
+            <span class="n">map_coordinates</span><span class="p">(</span><span class="n">array2d</span><span class="p">,</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">yi</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">xi</span><span class="p">],</span>
+                            <span class="n">cval</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">nan</span><span class="p">,</span> <span class="n">order</span><span class="o">=</span><span class="mi">0</span><span class="p">))</span></div></div>
+
+
+<div class="viewcode-block" id="LinearND2DInterpolator"><a class="viewcode-back" href="../../../autoapi/opendrift/readers/interpolation/index.html#opendrift.readers.interpolation.LinearND2DInterpolator">[docs]</a><span class="k">class</span> <span class="nc">LinearND2DInterpolator</span><span class="p">():</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">xgrid</span><span class="p">,</span> <span class="n">ygrid</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">block_x</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">block_y</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">meshgrid</span><span class="p">(</span><span class="n">xgrid</span><span class="p">,</span> <span class="n">ygrid</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">block_x</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">block_x</span><span class="o">.</span><span class="n">ravel</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">block_y</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">block_y</span><span class="o">.</span><span class="n">ravel</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">x</span> <span class="o">=</span> <span class="n">x</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">y</span> <span class="o">=</span> <span class="n">y</span>
+
+<div class="viewcode-block" id="LinearND2DInterpolator.__call__"><a class="viewcode-back" href="../../../autoapi/opendrift/readers/interpolation/index.html#opendrift.readers.interpolation.LinearND2DInterpolator.__call__">[docs]</a>    <span class="k">def</span> <span class="nf">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">array2d</span><span class="p">):</span>
+        <span class="n">array_ravel</span> <span class="o">=</span> <span class="n">array2d</span><span class="o">.</span><span class="n">ravel</span><span class="p">()</span>
+        <span class="n">valid</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">isfinite</span><span class="p">(</span><span class="n">array_ravel</span><span class="p">)</span>
+        <span class="c1">#if isinstance(array2d.mask, np.ndarray):</span>
+        <span class="c1">#    valid = ~array2d.ravel().mask</span>
+        <span class="c1">#elif array2d.mask == False:</span>
+        <span class="c1">#    valid = np.ones(array_ravel.shape, dtype=bool)</span>
+        <span class="c1">#elif array2d.mask == True:</span>
+        <span class="c1">#    valid = np.zeros(array_ravel.shape, dtype=bool)</span>
+
+        <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s1">&#39;interpolator&#39;</span><span class="p">):</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">np</span><span class="o">.</span><span class="n">array_equal</span><span class="p">(</span><span class="n">valid</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">interpolator</span><span class="o">.</span><span class="n">valid</span><span class="p">):</span>
+                <span class="n">logging</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;Cannot reuse interpolator - validity of &#39;</span>
+                              <span class="s1">&#39;array is different from original.&#39;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s1">&#39;interpolator&#39;</span><span class="p">)</span> <span class="ow">and</span> <span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">array_equal</span><span class="p">(</span>
+                 <span class="n">valid</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">interpolator</span><span class="o">.</span><span class="n">valid</span><span class="p">)):</span>
+            <span class="c1"># Reuse stored interpolator with new data</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">interpolator</span><span class="o">.</span><span class="n">values</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">]</span> <span class="o">=</span> \
+                <span class="p">(</span><span class="n">array_ravel</span><span class="p">[</span><span class="n">valid</span><span class="p">])</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="c1"># Make new interpolator for given x,y</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">interpolator</span> <span class="o">=</span> <span class="n">LinearNDInterpolator</span><span class="p">(</span>
+                <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">block_y</span><span class="p">[</span><span class="n">valid</span><span class="p">],</span>
+                 <span class="bp">self</span><span class="o">.</span><span class="n">block_x</span><span class="p">[</span><span class="n">valid</span><span class="p">]),</span>
+                <span class="n">array_ravel</span><span class="p">[</span><span class="n">valid</span><span class="p">])</span>
+            <span class="c1"># Store valid array, to determine if can be used again</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">interpolator</span><span class="o">.</span><span class="n">valid</span> <span class="o">=</span> <span class="n">valid</span>
+            <span class="c1"># Call interpolator to avoid threading-problem: </span>
+            <span class="c1"># https://github.com/scipy/scipy/issues/8856</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">interpolator</span><span class="p">((</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">))</span>
+
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">interpolator</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">y</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">x</span><span class="p">)</span></div></div>
+        
+        
+<div class="viewcode-block" id="Linear2DInterpolator"><a class="viewcode-back" href="../../../autoapi/opendrift/readers/interpolation/index.html#opendrift.readers.interpolation.Linear2DInterpolator">[docs]</a><span class="k">class</span> <span class="nc">Linear2DInterpolator</span><span class="p">():</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">xgrid</span><span class="p">,</span> <span class="n">ygrid</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">x</span> <span class="o">=</span> <span class="n">x</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">y</span> <span class="o">=</span> <span class="n">y</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">xi</span> <span class="o">=</span> <span class="p">(</span><span class="n">x</span> <span class="o">-</span> <span class="n">xgrid</span><span class="o">.</span><span class="n">min</span><span class="p">())</span><span class="o">/</span><span class="p">(</span><span class="n">xgrid</span><span class="o">.</span><span class="n">max</span><span class="p">()</span><span class="o">-</span><span class="n">xgrid</span><span class="o">.</span><span class="n">min</span><span class="p">())</span><span class="o">*</span><span class="nb">len</span><span class="p">(</span><span class="n">xgrid</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">yi</span> <span class="o">=</span> <span class="p">(</span><span class="n">y</span> <span class="o">-</span> <span class="n">ygrid</span><span class="o">.</span><span class="n">min</span><span class="p">())</span><span class="o">/</span><span class="p">(</span><span class="n">ygrid</span><span class="o">.</span><span class="n">max</span><span class="p">()</span><span class="o">-</span><span class="n">ygrid</span><span class="o">.</span><span class="n">min</span><span class="p">())</span><span class="o">*</span><span class="nb">len</span><span class="p">(</span><span class="n">ygrid</span><span class="p">)</span>
+        
+
+<div class="viewcode-block" id="Linear2DInterpolator.__call__"><a class="viewcode-back" href="../../../autoapi/opendrift/readers/interpolation/index.html#opendrift.readers.interpolation.Linear2DInterpolator.__call__">[docs]</a>    <span class="k">def</span> <span class="nf">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">array2d</span><span class="p">):</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">array2d</span><span class="p">,</span><span class="n">np</span><span class="o">.</span><span class="n">ma</span><span class="o">.</span><span class="n">MaskedArray</span><span class="p">):</span>
+            <span class="n">logging</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;Converting masked array to numpy array for interpolation&#39;</span><span class="p">)</span>
+            <span class="n">array2d</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">ma</span><span class="o">.</span><span class="n">filled</span><span class="p">(</span><span class="n">array2d</span><span class="p">,</span> <span class="n">fill_value</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">nan</span><span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">np</span><span class="o">.</span><span class="n">isfinite</span><span class="p">(</span><span class="n">array2d</span><span class="p">)</span><span class="o">.</span><span class="n">any</span><span class="p">():</span>
+            <span class="n">logging</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="s1">&#39;Only NaNs input to linearNDFast - returning&#39;</span><span class="p">)</span>
+            <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">ones</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">xi</span><span class="p">))</span>
+    
+        <span class="c1"># Fill NaN-values with nearby real values</span>
+        <span class="n">interp</span> <span class="o">=</span> <span class="n">map_coordinates</span><span class="p">(</span><span class="n">array2d</span><span class="p">,</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">yi</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">xi</span><span class="p">],</span>
+                                 <span class="n">cval</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">nan</span><span class="p">,</span> <span class="n">order</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+        <span class="n">missing</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="o">~</span><span class="n">np</span><span class="o">.</span><span class="n">isfinite</span><span class="p">(</span><span class="n">interp</span><span class="p">))[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="n">i</span><span class="o">=</span><span class="mi">0</span>
+        <span class="k">while</span> <span class="nb">len</span><span class="p">(</span><span class="n">missing</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="n">i</span> <span class="o">+=</span> <span class="mi">1</span>
+            <span class="k">if</span> <span class="n">i</span> <span class="o">&gt;</span> <span class="mi">10</span><span class="p">:</span>
+                <span class="n">logging</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="s1">&#39;Still NaN-values after 10 iterations, exiting!&#39;</span><span class="p">)</span>
+                <span class="k">return</span> <span class="n">interp</span>
+            <span class="n">logging</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;NaN values for </span><span class="si">%i</span><span class="s1"> elements, expanding data </span><span class="si">%i</span><span class="s1">&#39;</span> <span class="o">%</span>
+                          <span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">missing</span><span class="p">),</span> <span class="n">i</span><span class="p">))</span>
+            <span class="n">expand_numpy_array</span><span class="p">(</span><span class="n">array2d</span><span class="p">)</span>
+            <span class="n">interp</span><span class="p">[</span><span class="n">missing</span><span class="p">]</span> <span class="o">=</span> <span class="n">map_coordinates</span><span class="p">(</span>
+                <span class="n">array2d</span><span class="p">,</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">yi</span><span class="p">[</span><span class="n">missing</span><span class="p">],</span> <span class="bp">self</span><span class="o">.</span><span class="n">xi</span><span class="p">[</span><span class="n">missing</span><span class="p">]],</span>
+                <span class="n">cval</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">nan</span><span class="p">,</span> <span class="n">order</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="s1">&#39;nearest&#39;</span><span class="p">)</span>
+            <span class="n">missing</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="o">~</span><span class="n">np</span><span class="o">.</span><span class="n">isfinite</span><span class="p">(</span><span class="n">interp</span><span class="p">))[</span><span class="mi">0</span><span class="p">]</span>
+
+        <span class="k">return</span> <span class="n">interp</span></div></div>
+
+
+<span class="n">horizontal_interpolation_methods</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s1">&#39;nearest&#39;</span><span class="p">:</span> <span class="n">Nearest2DInterpolator</span><span class="p">,</span>
+    <span class="s1">&#39;ndimage&#39;</span><span class="p">:</span> <span class="n">NDImage2DInterpolator</span><span class="p">,</span>
+    <span class="s1">&#39;linearND&#39;</span><span class="p">:</span> <span class="n">LinearND2DInterpolator</span><span class="p">,</span>
+    <span class="s1">&#39;linearNDFast&#39;</span><span class="p">:</span> <span class="n">Linear2DInterpolator</span><span class="p">}</span>
+
+
+<span class="c1">###########################</span>
+<span class="c1"># 1D interpolator classes</span>
+<span class="c1">###########################</span>
+
+<div class="viewcode-block" id="Nearest1DInterpolator"><a class="viewcode-back" href="../../../autoapi/opendrift/readers/interpolation/index.html#opendrift.readers.interpolation.Nearest1DInterpolator">[docs]</a><span class="k">class</span> <span class="nc">Nearest1DInterpolator</span><span class="p">():</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">zgrid</span><span class="p">,</span> <span class="n">z</span><span class="p">):</span>
+
+        <span class="c1"># Truncating above and below</span>
+        <span class="n">z</span><span class="p">[</span><span class="n">z</span> <span class="o">&lt;</span> <span class="n">zgrid</span><span class="o">.</span><span class="n">min</span><span class="p">()]</span> <span class="o">=</span> <span class="n">zgrid</span><span class="o">.</span><span class="n">min</span><span class="p">()</span>
+        <span class="n">z</span><span class="p">[</span><span class="n">z</span> <span class="o">&gt;</span> <span class="n">zgrid</span><span class="o">.</span><span class="n">max</span><span class="p">()]</span> <span class="o">=</span> <span class="n">zgrid</span><span class="o">.</span><span class="n">max</span><span class="p">()</span>
+        <span class="c1"># Interpolator zgrid -&gt; index</span>
+        <span class="k">if</span> <span class="n">zgrid</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">&gt;</span> <span class="n">zgrid</span><span class="p">[</span><span class="mi">0</span><span class="p">]:</span>  <span class="c1"># increasing</span>
+            <span class="n">z_interpolator</span> <span class="o">=</span> <span class="n">interp1d</span><span class="p">(</span><span class="n">zgrid</span><span class="p">,</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">zgrid</span><span class="p">)))</span>
+        <span class="k">else</span><span class="p">:</span>  <span class="c1"># decreasing values, must flip for interpolator</span>
+            <span class="n">z_interpolator</span> <span class="o">=</span> <span class="n">interp1d</span><span class="p">(</span><span class="n">zgrid</span><span class="p">[::</span><span class="o">-</span><span class="mi">1</span><span class="p">],</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">zgrid</span><span class="p">))[::</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span>
+        <span class="c1"># Indices corresponding to nearest value in zgrid</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">zi</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="n">z_interpolator</span><span class="p">(</span><span class="n">z</span><span class="p">))</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">int</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">zi</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">zi</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">zi</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">zi</span> <span class="o">&gt;=</span> <span class="nb">len</span><span class="p">(</span><span class="n">zgrid</span><span class="p">)]</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">zgrid</span><span class="p">)</span> <span class="o">-</span> <span class="mi">1</span>
+
+<div class="viewcode-block" id="Nearest1DInterpolator.__call__"><a class="viewcode-back" href="../../../autoapi/opendrift/readers/interpolation/index.html#opendrift.readers.interpolation.Nearest1DInterpolator.__call__">[docs]</a>    <span class="k">def</span> <span class="nf">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">array2d</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">array2d</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">zi</span><span class="p">,</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">zi</span><span class="p">))]</span></div></div>
+
+
+<div class="viewcode-block" id="Linear1DInterpolator"><a class="viewcode-back" href="../../../autoapi/opendrift/readers/interpolation/index.html#opendrift.readers.interpolation.Linear1DInterpolator">[docs]</a><span class="k">class</span> <span class="nc">Linear1DInterpolator</span><span class="p">():</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">zgrid</span><span class="p">,</span> <span class="n">z</span><span class="p">):</span>
+
+        <span class="c1"># Truncating above and below</span>
+        <span class="n">z</span><span class="p">[</span><span class="n">z</span> <span class="o">&lt;</span> <span class="n">zgrid</span><span class="o">.</span><span class="n">min</span><span class="p">()]</span> <span class="o">=</span> <span class="n">zgrid</span><span class="o">.</span><span class="n">min</span><span class="p">()</span>
+        <span class="n">z</span><span class="p">[</span><span class="n">z</span> <span class="o">&gt;</span> <span class="n">zgrid</span><span class="o">.</span><span class="n">max</span><span class="p">()]</span> <span class="o">=</span> <span class="n">zgrid</span><span class="o">.</span><span class="n">max</span><span class="p">()</span>
+        <span class="c1"># Interpolator zgrid -&gt; index</span>
+        <span class="k">if</span> <span class="n">zgrid</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">&gt;</span> <span class="n">zgrid</span><span class="p">[</span><span class="mi">0</span><span class="p">]:</span>  <span class="c1"># increasing</span>
+            <span class="n">z_interpolator</span> <span class="o">=</span> <span class="n">interp1d</span><span class="p">(</span><span class="n">zgrid</span><span class="p">,</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">zgrid</span><span class="p">)))</span>
+        <span class="k">else</span><span class="p">:</span>  <span class="c1"># decreasing values, must flip for interpolator</span>
+            <span class="n">z_interpolator</span> <span class="o">=</span> <span class="n">interp1d</span><span class="p">(</span><span class="n">zgrid</span><span class="p">[::</span><span class="o">-</span><span class="mi">1</span><span class="p">],</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">zgrid</span><span class="p">))[::</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span>
+        <span class="n">z_interpolator</span><span class="p">(</span><span class="n">z</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>  <span class="c1"># to prevent threading issues</span>
+        <span class="c1"># Indices corresponding to layers above and below</span>
+        <span class="n">interp_zi</span> <span class="o">=</span> <span class="n">z_interpolator</span><span class="p">(</span><span class="n">z</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">index_above</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">floor</span><span class="p">(</span><span class="n">interp_zi</span><span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">int</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">index_above</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">index_above</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">index_below</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">minimum</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">index_above</span> <span class="o">+</span> <span class="mi">1</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">zgrid</span><span class="p">)</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">weight_above</span> <span class="o">=</span> <span class="mi">1</span> <span class="o">-</span> <span class="p">(</span><span class="n">interp_zi</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">index_above</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">xi</span> <span class="o">=</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">z</span><span class="p">))</span>
+
+<div class="viewcode-block" id="Linear1DInterpolator.__call__"><a class="viewcode-back" href="../../../autoapi/opendrift/readers/interpolation/index.html#opendrift.readers.interpolation.Linear1DInterpolator.__call__">[docs]</a>    <span class="k">def</span> <span class="nf">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">array2d</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">array2d</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">index_above</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">xi</span><span class="p">]</span><span class="o">*</span><span class="bp">self</span><span class="o">.</span><span class="n">weight_above</span> <span class="o">+</span> \
+               <span class="n">array2d</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">index_below</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">xi</span><span class="p">]</span><span class="o">*</span><span class="p">(</span><span class="mi">1</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">weight_above</span><span class="p">)</span></div></div>
+
+<span class="n">vertical_interpolation_methods</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s1">&#39;nearest&#39;</span><span class="p">:</span> <span class="n">Nearest1DInterpolator</span><span class="p">,</span>
+    <span class="s1">&#39;linear&#39;</span><span class="p">:</span> <span class="n">Linear1DInterpolator</span><span class="p">}</span>
+
+
+<div class="viewcode-block" id="fill_NaN_towards_seafloor"><a class="viewcode-back" href="../../../autoapi/opendrift/readers/interpolation/index.html#opendrift.readers.interpolation.fill_NaN_towards_seafloor">[docs]</a><span class="k">def</span> <span class="nf">fill_NaN_towards_seafloor</span><span class="p">(</span><span class="n">array</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Extrapolate NaN-values (missing) towards seafloor&quot;&quot;&quot;</span>
+    <span class="n">filled</span> <span class="o">=</span> <span class="kc">False</span>
+    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">array</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]):</span>
+        <span class="n">mask</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">isnan</span><span class="p">(</span><span class="n">array</span><span class="p">[</span><span class="n">i</span><span class="p">,:,:])</span>
+        <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">mask</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="n">array</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="n">mask</span><span class="p">]</span> <span class="o">=</span> <span class="n">array</span><span class="p">[</span><span class="n">i</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="n">mask</span><span class="p">]</span>
+            <span class="n">filled</span> <span class="o">=</span> <span class="kc">True</span>
+    <span class="k">return</span> <span class="n">filled</span></div>
+
+
+<span class="c1">###########################</span>
+<span class="c1"># ReaderBlock</span>
+<span class="c1">###########################</span>
+
+<div class="viewcode-block" id="ReaderBlock"><a class="viewcode-back" href="../../../autoapi/opendrift/readers/interpolation/index.html#opendrift.readers.interpolation.ReaderBlock">[docs]</a><span class="k">class</span> <span class="nc">ReaderBlock</span><span class="p">():</span>
+    <span class="sd">&quot;&quot;&quot;Class to store and interpolate the output from a reader.&quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data_dict</span><span class="p">,</span>
+                 <span class="n">interpolation_horizontal</span><span class="o">=</span><span class="s1">&#39;linearNDFast&#39;</span><span class="p">,</span>
+                 <span class="n">interpolation_vertical</span><span class="o">=</span><span class="s1">&#39;linear&#39;</span><span class="p">):</span>
+
+        <span class="c1"># Make pointers to data values, for convenience</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">x</span> <span class="o">=</span> <span class="n">data_dict</span><span class="p">[</span><span class="s1">&#39;x&#39;</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">y</span> <span class="o">=</span> <span class="n">data_dict</span><span class="p">[</span><span class="s1">&#39;y&#39;</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">time</span> <span class="o">=</span> <span class="n">data_dict</span><span class="p">[</span><span class="s1">&#39;time&#39;</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">data_dict</span> <span class="o">=</span> <span class="n">data_dict</span>
+        <span class="k">del</span> <span class="bp">self</span><span class="o">.</span><span class="n">data_dict</span><span class="p">[</span><span class="s1">&#39;x&#39;</span><span class="p">]</span>
+        <span class="k">del</span> <span class="bp">self</span><span class="o">.</span><span class="n">data_dict</span><span class="p">[</span><span class="s1">&#39;y&#39;</span><span class="p">]</span>
+        <span class="k">del</span> <span class="bp">self</span><span class="o">.</span><span class="n">data_dict</span><span class="p">[</span><span class="s1">&#39;time&#39;</span><span class="p">]</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">z</span> <span class="o">=</span> <span class="n">data_dict</span><span class="p">[</span><span class="s1">&#39;z&#39;</span><span class="p">]</span>
+            <span class="k">del</span> <span class="bp">self</span><span class="o">.</span><span class="n">data_dict</span><span class="p">[</span><span class="s1">&#39;z&#39;</span><span class="p">]</span>
+        <span class="k">except</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">z</span> <span class="o">=</span> <span class="kc">None</span>
+
+        <span class="c1"># Mask any extremely large values, e.g. if missing netCDF _Fill_value</span>
+        <span class="n">filled_variables</span> <span class="o">=</span> <span class="nb">set</span><span class="p">()</span>
+        <span class="k">for</span> <span class="n">var</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">data_dict</span><span class="p">:</span>
+            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">data_dict</span><span class="p">[</span><span class="n">var</span><span class="p">],</span> <span class="n">np</span><span class="o">.</span><span class="n">ma</span><span class="o">.</span><span class="n">core</span><span class="o">.</span><span class="n">MaskedArray</span><span class="p">):</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">data_dict</span><span class="p">[</span><span class="n">var</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">ma</span><span class="o">.</span><span class="n">masked_outside</span><span class="p">(</span>
+                    <span class="n">np</span><span class="o">.</span><span class="n">ma</span><span class="o">.</span><span class="n">masked_invalid</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">data_dict</span><span class="p">[</span><span class="n">var</span><span class="p">]),</span> <span class="o">-</span><span class="mf">1E+9</span><span class="p">,</span> <span class="mf">1E+9</span><span class="p">)</span>
+                <span class="c1"># Convert masked arrays to numpy arrays</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">data_dict</span><span class="p">[</span><span class="n">var</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">ma</span><span class="o">.</span><span class="n">filled</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">data_dict</span><span class="p">[</span><span class="n">var</span><span class="p">],</span>
+                                                   <span class="n">fill_value</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">nan</span><span class="p">)</span>
+            <span class="c1"># Fill missing data towards seafloor if 3D</span>
+            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">data_dict</span><span class="p">[</span><span class="n">var</span><span class="p">],</span> <span class="p">(</span><span class="nb">list</span><span class="p">,)):</span>
+                <span class="n">logging</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="s1">&#39;Ensemble data currently not extrapolated towards seafloor&#39;</span><span class="p">)</span>
+            <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">data_dict</span><span class="p">[</span><span class="n">var</span><span class="p">]</span><span class="o">.</span><span class="n">ndim</span> <span class="o">==</span> <span class="mi">3</span><span class="p">:</span>
+                <span class="n">filled</span> <span class="o">=</span> <span class="n">fill_NaN_towards_seafloor</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">data_dict</span><span class="p">[</span><span class="n">var</span><span class="p">])</span>
+                <span class="k">if</span> <span class="n">filled</span> <span class="ow">is</span> <span class="kc">True</span><span class="p">:</span>
+                    <span class="n">filled_variables</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">var</span><span class="p">)</span>
+                
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">filled_variables</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="n">logging</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;Filled NaN-values toward seafloor for :&#39;</span>
+                          <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="n">filled_variables</span><span class="p">)))</span>
+
+        <span class="c1"># Set 1D (vertical) and 2D (horizontal) interpolators</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">Interpolator2DClass</span> <span class="o">=</span> \
+                <span class="n">horizontal_interpolation_methods</span><span class="p">[</span><span class="n">interpolation_horizontal</span><span class="p">]</span>
+        <span class="k">except</span> <span class="ne">Exception</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">(</span>
+                <span class="s1">&#39;Valid interpolation methods are: &#39;</span> <span class="o">+</span>
+                <span class="nb">str</span><span class="p">(</span><span class="n">horizontal_interpolation_methods</span><span class="o">.</span><span class="n">keys</span><span class="p">()))</span>
+
+        <span class="k">try</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">Interpolator1DClass</span> <span class="o">=</span> \
+                <span class="n">vertical_interpolation_methods</span><span class="p">[</span><span class="n">interpolation_vertical</span><span class="p">]</span>
+        <span class="k">except</span> <span class="ne">Exception</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">(</span>
+                <span class="s1">&#39;Valid interpolation methods are: &#39;</span> <span class="o">+</span>
+                <span class="nb">str</span><span class="p">(</span><span class="n">vertical_interpolation_methods</span><span class="o">.</span><span class="n">keys</span><span class="p">()))</span>
+
+        <span class="k">if</span> <span class="s1">&#39;land_binary_mask&#39;</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">data_dict</span><span class="o">.</span><span class="n">keys</span><span class="p">()</span> <span class="ow">and</span> \
+                <span class="n">interpolation_horizontal</span> <span class="o">!=</span> <span class="s1">&#39;nearest&#39;</span><span class="p">:</span>
+            <span class="n">logging</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;Nearest interpolation will be used &#39;</span>
+                          <span class="s1">&#39;for landmask, and </span><span class="si">%s</span><span class="s1"> for other variables&#39;</span>
+                          <span class="o">%</span> <span class="n">interpolation_horizontal</span><span class="p">)</span>
+
+<div class="viewcode-block" id="ReaderBlock._initialize_interpolator"><a class="viewcode-back" href="../../../autoapi/opendrift/readers/interpolation/index.html#opendrift.readers.interpolation.ReaderBlock._initialize_interpolator">[docs]</a>    <span class="k">def</span> <span class="nf">_initialize_interpolator</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">z</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="n">logging</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;Initialising interpolator.&#39;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">interpolator2d</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">Interpolator2DClass</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">x</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">y</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">)</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">z</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="nb">len</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">atleast_1d</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">z</span><span class="p">))</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">interpolator1d</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">Interpolator1DClass</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">z</span><span class="p">,</span> <span class="n">z</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="ReaderBlock.interpolate"><a class="viewcode-back" href="../../../autoapi/opendrift/readers/interpolation/index.html#opendrift.readers.interpolation.ReaderBlock.interpolate">[docs]</a>    <span class="k">def</span> <span class="nf">interpolate</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">z</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">variables</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                    <span class="n">profiles</span><span class="o">=</span><span class="p">[],</span> <span class="n">profiles_depth</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_initialize_interpolator</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">z</span><span class="p">)</span>
+
+        <span class="n">env_dict</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="k">if</span> <span class="n">profiles</span> <span class="ow">is</span> <span class="ow">not</span> <span class="p">[]:</span>
+            <span class="n">profiles_dict</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;z&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">z</span><span class="p">}</span>
+        <span class="k">for</span> <span class="n">varname</span><span class="p">,</span> <span class="n">data</span> <span class="ow">in</span> <span class="n">iteritems</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">data_dict</span><span class="p">):</span>
+            <span class="n">nearest</span> <span class="o">=</span> <span class="kc">False</span>
+            <span class="k">if</span> <span class="n">varname</span> <span class="o">==</span> <span class="s1">&#39;land_binary_mask&#39;</span><span class="p">:</span>
+                <span class="n">nearest</span> <span class="o">=</span> <span class="kc">True</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">interpolator2d_nearest</span> <span class="o">=</span> <span class="n">Nearest2DInterpolator</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">x</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">y</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">)</span>
+            <span class="k">if</span> <span class="nb">type</span><span class="p">(</span><span class="n">data</span><span class="p">)</span> <span class="ow">is</span> <span class="nb">list</span><span class="p">:</span>
+                <span class="n">num_ensembles</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
+                <span class="n">logging</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;Interpolating </span><span class="si">%i</span><span class="s1"> ensembles for </span><span class="si">%s</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">num_ensembles</span><span class="p">,</span> <span class="n">varname</span><span class="p">))</span>
+                <span class="k">if</span> <span class="n">data</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">ndim</span> <span class="o">==</span> <span class="mi">2</span><span class="p">:</span>
+                    <span class="n">horizontal</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">x</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">nan</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">horizontal</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">z</span><span class="p">),</span> <span class="nb">len</span><span class="p">(</span><span class="n">x</span><span class="p">)))</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">nan</span>
+                <span class="n">ensemble_number</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">remainder</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">x</span><span class="p">)),</span> <span class="n">num_ensembles</span><span class="p">)</span>
+                <span class="k">for</span> <span class="n">en</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">num_ensembles</span><span class="p">):</span>
+                    <span class="n">elnum</span> <span class="o">=</span> <span class="n">ensemble_number</span> <span class="o">==</span> <span class="n">en</span>
+                    <span class="n">int_full</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_interpolate_horizontal_layers</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="n">en</span><span class="p">],</span> <span class="n">nearest</span><span class="o">=</span><span class="n">nearest</span><span class="p">)</span>
+                    <span class="k">if</span> <span class="n">int_full</span><span class="o">.</span><span class="n">ndim</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+                        <span class="n">horizontal</span><span class="p">[</span><span class="n">elnum</span><span class="p">]</span> <span class="o">=</span> <span class="n">int_full</span><span class="p">[</span><span class="n">elnum</span><span class="p">]</span>
+                    <span class="k">else</span><span class="p">:</span>
+                        <span class="n">horizontal</span><span class="p">[:,</span> <span class="n">elnum</span><span class="p">]</span> <span class="o">=</span> <span class="n">int_full</span><span class="p">[:,</span> <span class="n">elnum</span><span class="p">]</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">horizontal</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_interpolate_horizontal_layers</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">nearest</span><span class="o">=</span><span class="n">nearest</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">profiles</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">varname</span> <span class="ow">in</span> <span class="n">profiles</span><span class="p">:</span>
+                <span class="n">profiles_dict</span><span class="p">[</span><span class="n">varname</span><span class="p">]</span> <span class="o">=</span> <span class="n">horizontal</span>
+            <span class="k">if</span> <span class="n">horizontal</span><span class="o">.</span><span class="n">ndim</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
+                <span class="n">env_dict</span><span class="p">[</span><span class="n">varname</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">interpolator1d</span><span class="p">(</span><span class="n">horizontal</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">env_dict</span><span class="p">[</span><span class="n">varname</span><span class="p">]</span> <span class="o">=</span> <span class="n">horizontal</span>
+        <span class="k">if</span> <span class="s1">&#39;z&#39;</span> <span class="ow">in</span> <span class="n">profiles_dict</span><span class="p">:</span>
+            <span class="n">profiles_dict</span><span class="p">[</span><span class="s1">&#39;z&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">atleast_1d</span><span class="p">(</span><span class="n">profiles_dict</span><span class="p">[</span><span class="s1">&#39;z&#39;</span><span class="p">])</span>
+
+        <span class="k">return</span> <span class="n">env_dict</span><span class="p">,</span> <span class="n">profiles_dict</span></div>
+
+<div class="viewcode-block" id="ReaderBlock._interpolate_horizontal_layers"><a class="viewcode-back" href="../../../autoapi/opendrift/readers/interpolation/index.html#opendrift.readers.interpolation.ReaderBlock._interpolate_horizontal_layers">[docs]</a>    <span class="k">def</span> <span class="nf">_interpolate_horizontal_layers</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="p">,</span> <span class="n">nearest</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;Interpolate all layers of 3d (or 2d) array.&#39;&#39;&#39;</span>
+
+        <span class="k">if</span> <span class="n">nearest</span> <span class="ow">is</span> <span class="kc">True</span><span class="p">:</span>
+            <span class="n">interpolator2d</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">interpolator2d_nearest</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">interpolator2d</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">interpolator2d</span>
+        <span class="k">if</span> <span class="n">data</span><span class="o">.</span><span class="n">ndim</span> <span class="o">==</span> <span class="mi">2</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">interpolator2d</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">data</span><span class="o">.</span><span class="n">ndim</span> <span class="o">==</span> <span class="mi">3</span><span class="p">:</span>
+            <span class="n">num_layers</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+            <span class="c1"># Allocate output array</span>
+            <span class="n">result</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">ma</span><span class="o">.</span><span class="n">empty</span><span class="p">((</span><span class="n">num_layers</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">interpolator2d</span><span class="o">.</span><span class="n">x</span><span class="p">)))</span>
+            <span class="k">for</span> <span class="n">layer</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">num_layers</span><span class="p">):</span>
+                <span class="n">result</span><span class="p">[</span><span class="n">layer</span><span class="p">,</span> <span class="p">:]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">interpolator2d</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="n">layer</span><span class="p">,</span> <span class="p">:,</span> <span class="p">:])</span>
+            <span class="k">return</span> <span class="n">result</span></div>
+
+<div class="viewcode-block" id="ReaderBlock.covers_positions"><a class="viewcode-back" href="../../../autoapi/opendrift/readers/interpolation/index.html#opendrift.readers.interpolation.ReaderBlock.covers_positions">[docs]</a>    <span class="k">def</span> <span class="nf">covers_positions</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">z</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;Check if given positions are covered by this reader block.&#39;&#39;&#39;</span>
+
+        <span class="n">indices</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">((</span><span class="n">x</span> <span class="o">&gt;=</span> <span class="bp">self</span><span class="o">.</span><span class="n">x</span><span class="o">.</span><span class="n">min</span><span class="p">())</span> <span class="o">&amp;</span> <span class="p">(</span><span class="n">x</span> <span class="o">&lt;=</span> <span class="bp">self</span><span class="o">.</span><span class="n">x</span><span class="o">.</span><span class="n">max</span><span class="p">())</span> <span class="o">&amp;</span>
+                           <span class="p">(</span><span class="n">y</span> <span class="o">&gt;=</span> <span class="bp">self</span><span class="o">.</span><span class="n">y</span><span class="o">.</span><span class="n">min</span><span class="p">())</span> <span class="o">&amp;</span> <span class="p">(</span><span class="n">y</span> <span class="o">&lt;=</span> <span class="bp">self</span><span class="o">.</span><span class="n">y</span><span class="o">.</span><span class="n">max</span><span class="p">()))[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">indices</span><span class="p">)</span> <span class="o">==</span> <span class="nb">len</span><span class="p">(</span><span class="n">x</span><span class="p">):</span>
+            <span class="k">return</span> <span class="kc">True</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="kc">False</span></div></div>
+</pre></div>
+
+           </div>
+           
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2019, Knut-Frode Dagestad et. al.
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

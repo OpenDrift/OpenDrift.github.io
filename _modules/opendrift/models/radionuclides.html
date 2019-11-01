@@ -1,0 +1,792 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>opendrift.models.radionuclides &mdash; OpenDrift  documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+  <script type="text/javascript" src="../../../_static/js/modernizr.min.js"></script>
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
+        <script type="text/javascript" src="../../../_static/jquery.js"></script>
+        <script type="text/javascript" src="../../../_static/underscore.js"></script>
+        <script type="text/javascript" src="../../../_static/doctools.js"></script>
+        <script type="text/javascript" src="../../../_static/language_data.js"></script>
+    
+    <script type="text/javascript" src="../../../_static/js/theme.js"></script>
+
+    
+
+  
+  <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="../../../index.html" class="icon icon-home"> OpenDrift
+          
+
+          
+            
+            <img src="../../../_static/opendrift_logo.png" class="logo" alt="Logo"/>
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../index.html">OpenDrift</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../install.html">Installing OpenDrift from source or using pip</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../theory/specification.html">Specifications and background requirements</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../theory/data_model.html">Data model</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../models.html">Models</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../autoapi/index.html">API Reference</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">OpenDrift</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../../../index.html">Docs</a> &raquo;</li>
+        
+          <li><a href="../../index.html">Module code</a> &raquo;</li>
+        
+          <li><a href="../../opendrift.html">opendrift</a> &raquo;</li>
+        
+      <li>opendrift.models.radionuclides</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <h1>Source code for opendrift.models.radionuclides</h1><div class="highlight"><pre>
+<span></span><span class="c1"># This file is part of OpenDrift.</span>
+<span class="c1">#</span>
+<span class="c1"># OpenDrift is free software: you can redistribute it and/or modify</span>
+<span class="c1"># it under the terms of the GNU General Public License as published by</span>
+<span class="c1"># the Free Software Foundation, version 2</span>
+<span class="c1">#</span>
+<span class="c1"># OpenDrift is distributed in the hope that it will be useful,</span>
+<span class="c1"># but WITHOUT ANY WARRANTY; without even the implied warranty of</span>
+<span class="c1"># MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the</span>
+<span class="c1"># GNU General Public License for more details.</span>
+<span class="c1">#</span>
+<span class="c1"># You should have received a copy of the GNU General Public License</span>
+<span class="c1"># along with OpenDrift.  If not, see &lt;http://www.gnu.org/licenses/&gt;.</span>
+<span class="c1">#</span>
+<span class="c1"># Copyright 2015, Magne Simonsen, MET Norway</span>
+
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+
+<span class="kn">from</span> <span class="nn">opendrift.models.opendrift3D</span> <span class="k">import</span> \
+    <span class="n">OpenDrift3DSimulation</span><span class="p">,</span> <span class="n">Lagrangian3DArray</span>
+<span class="kn">from</span> <span class="nn">opendrift.elements</span> <span class="k">import</span> <span class="n">LagrangianArray</span>
+<span class="kn">import</span> <span class="nn">logging</span>
+
+
+<span class="c1"># Defining the radionuclide element properties</span>
+<div class="viewcode-block" id="Radionuclide"><a class="viewcode-back" href="../../../autoapi/opendrift/models/radionuclides/index.html#opendrift.models.radionuclides.Radionuclide">[docs]</a><span class="k">class</span> <span class="nc">Radionuclide</span><span class="p">(</span><span class="n">Lagrangian3DArray</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Extending Lagrangian3DArray with specific properties for radionuclides</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">variables</span> <span class="o">=</span> <span class="n">LagrangianArray</span><span class="o">.</span><span class="n">add_variables</span><span class="p">([</span>
+        <span class="p">(</span><span class="s1">&#39;diameter&#39;</span><span class="p">,</span> <span class="p">{</span><span class="s1">&#39;dtype&#39;</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">float32</span><span class="p">,</span>
+                      <span class="s1">&#39;units&#39;</span><span class="p">:</span> <span class="s1">&#39;m&#39;</span><span class="p">,</span>
+                      <span class="s1">&#39;default&#39;</span><span class="p">:</span> <span class="mf">0.</span><span class="p">}),</span>
+        <span class="p">(</span><span class="s1">&#39;neutral_buoyancy_salinity&#39;</span><span class="p">,</span> <span class="p">{</span><span class="s1">&#39;dtype&#39;</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">float32</span><span class="p">,</span>
+                                       <span class="s1">&#39;units&#39;</span><span class="p">:</span> <span class="s1">&#39;[]&#39;</span><span class="p">,</span>
+                                       <span class="s1">&#39;default&#39;</span><span class="p">:</span> <span class="mf">31.25</span><span class="p">}),</span>  <span class="c1"># for NEA Cod</span>
+        <span class="p">(</span><span class="s1">&#39;density&#39;</span><span class="p">,</span> <span class="p">{</span><span class="s1">&#39;dtype&#39;</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">float32</span><span class="p">,</span>
+                     <span class="s1">&#39;units&#39;</span><span class="p">:</span> <span class="s1">&#39;kg/m^3&#39;</span><span class="p">,</span>
+                     <span class="s1">&#39;default&#39;</span><span class="p">:</span> <span class="mf">2650.</span><span class="p">}),</span>  <span class="c1"># Mineral particles</span>
+        <span class="p">(</span><span class="s1">&#39;specie&#39;</span><span class="p">,</span> <span class="p">{</span><span class="s1">&#39;dtype&#39;</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">int32</span><span class="p">,</span>
+                    <span class="s1">&#39;units&#39;</span><span class="p">:</span> <span class="s1">&#39;&#39;</span><span class="p">,</span>
+                    <span class="s1">&#39;default&#39;</span><span class="p">:</span> <span class="mi">0</span><span class="p">})</span><span class="c1">#,</span>
+<span class="c1">#         (&#39;transfer_rates1D&#39;, {&#39;dtype&#39;:np.array(3, dtype=np.float32),</span>
+<span class="c1">#                     &#39;units&#39;: &#39;1/s&#39;,</span>
+<span class="c1">#                     &#39;default&#39;: 0.})</span>
+        <span class="p">])</span></div>
+
+
+<div class="viewcode-block" id="RadionuclideDrift"><a class="viewcode-back" href="../../../autoapi/opendrift/models/radionuclides/index.html#opendrift.models.radionuclides.RadionuclideDrift">[docs]</a><span class="k">class</span> <span class="nc">RadionuclideDrift</span><span class="p">(</span><span class="n">OpenDrift3DSimulation</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Radionuclide particle trajectory model based on the OpenDrift framework.</span>
+
+<span class="sd">        Developed at MET Norway</span>
+
+<span class="sd">        Generic module for particles that are subject to vertical turbulent</span>
+<span class="sd">        mixing with the possibility for positive or negative buoyancy</span>
+
+<span class="sd">        Particles could be e.g. oil droplets, plankton, or sediments</span>
+<span class="sd">        </span>
+<span class="sd">        Radionuclide functionality include interactions with solid matter </span>
+<span class="sd">        (particles and sediments) through transformation processes, implemented</span>
+<span class="sd">        with stochastic approach for speciation. </span>
+
+<span class="sd">        Under construction.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">ElementType</span> <span class="o">=</span> <span class="n">Radionuclide</span>
+
+    <span class="n">required_variables</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;x_sea_water_velocity&#39;</span><span class="p">,</span> <span class="s1">&#39;y_sea_water_velocity&#39;</span><span class="p">,</span>
+                          <span class="s1">&#39;sea_surface_wave_significant_height&#39;</span><span class="p">,</span>
+                          <span class="s1">&#39;sea_ice_area_fraction&#39;</span><span class="p">,</span>
+                          <span class="s1">&#39;x_wind&#39;</span><span class="p">,</span> <span class="s1">&#39;y_wind&#39;</span><span class="p">,</span> <span class="s1">&#39;land_binary_mask&#39;</span><span class="p">,</span>
+                          <span class="s1">&#39;sea_floor_depth_below_sea_level&#39;</span><span class="p">,</span>
+                          <span class="s1">&#39;ocean_vertical_diffusivity&#39;</span><span class="p">,</span>
+                          <span class="s1">&#39;sea_water_temperature&#39;</span><span class="p">,</span>
+                          <span class="s1">&#39;sea_water_salinity&#39;</span><span class="p">,</span>
+                          <span class="s1">&#39;surface_downward_x_stress&#39;</span><span class="p">,</span>
+                          <span class="s1">&#39;surface_downward_y_stress&#39;</span><span class="p">,</span>
+                          <span class="s1">&#39;turbulent_kinetic_energy&#39;</span><span class="p">,</span>
+                          <span class="s1">&#39;turbulent_generic_length_scale&#39;</span><span class="p">,</span>
+                          <span class="s1">&#39;upward_sea_water_velocity&#39;</span><span class="p">,</span>
+                          <span class="s1">&#39;conc3&#39;</span>
+                          <span class="p">]</span>
+
+    <span class="c1"># Vertical profiles of the following parameters will be available in</span>
+    <span class="c1"># dictionary self.environment.vertical_profiles</span>
+    <span class="c1"># E.g. self.environment_profiles[&#39;x_sea_water_velocity&#39;]</span>
+    <span class="c1"># will be an array of size [vertical_levels, num_elements]</span>
+    <span class="c1"># The vertical levels are available as</span>
+    <span class="c1"># self.environment_profiles[&#39;z&#39;] or</span>
+    <span class="c1"># self.environment_profiles[&#39;sigma&#39;] (not yet implemented)</span>
+    <span class="n">required_profiles</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;sea_water_temperature&#39;</span><span class="p">,</span>
+                         <span class="s1">&#39;sea_water_salinity&#39;</span><span class="p">,</span>
+                         <span class="s1">&#39;ocean_vertical_diffusivity&#39;</span><span class="p">]</span>
+    <span class="c1"># The depth range (in m) which profiles shall cover</span>
+    <span class="n">required_profiles_z_range</span> <span class="o">=</span> <span class="p">[</span><span class="o">-</span><span class="mi">120</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span>
+
+    <span class="n">fallback_values</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;x_sea_water_velocity&#39;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>
+                       <span class="s1">&#39;y_sea_water_velocity&#39;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>
+                       <span class="s1">&#39;sea_surface_wave_significant_height&#39;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>
+                       <span class="s1">&#39;sea_ice_area_fraction&#39;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>
+                       <span class="s1">&#39;x_wind&#39;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span> <span class="s1">&#39;y_wind&#39;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>
+                       <span class="s1">&#39;sea_floor_depth_below_sea_level&#39;</span><span class="p">:</span> <span class="mi">100</span><span class="p">,</span>
+                       <span class="s1">&#39;ocean_vertical_diffusivity&#39;</span><span class="p">:</span> <span class="mf">0.02</span><span class="p">,</span>  <span class="c1"># m2s-1</span>
+                       <span class="s1">&#39;sea_water_temperature&#39;</span><span class="p">:</span> <span class="mf">10.</span><span class="p">,</span>
+                       <span class="s1">&#39;sea_water_salinity&#39;</span><span class="p">:</span> <span class="mf">34.</span><span class="p">,</span>
+                       <span class="s1">&#39;surface_downward_x_stress&#39;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>
+                       <span class="s1">&#39;surface_downward_y_stress&#39;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>
+                       <span class="s1">&#39;turbulent_kinetic_energy&#39;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>
+                       <span class="s1">&#39;turbulent_generic_length_scale&#39;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>
+                       <span class="s1">&#39;upward_sea_water_velocity&#39;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>
+                       <span class="s1">&#39;conc3&#39;</span><span class="p">:</span> <span class="mf">1.e-3</span>
+                       <span class="p">}</span>
+
+    <span class="c1"># Default colors for plotting</span>
+<span class="c1">#    status_colors = {&#39;initial&#39;: &#39;green&#39;, &#39;active&#39;: &#39;blue&#39;,</span>
+<span class="c1">#                     &#39;hatched&#39;: &#39;red&#39;, &#39;eaten&#39;: &#39;yellow&#39;, &#39;died&#39;: &#39;magenta&#39;, &#39;sedimented&#39;:&#39;sandybrown&#39;}</span>
+    
+<span class="c1">#    specie_colors = {&#39;LMM&#39;:&#39;blue&#39;,</span>
+<span class="c1">#                      &#39;Colloid&#39;:&#39;Sandybrown&#39;,</span>
+<span class="c1">#                      &#39;Particle reversible&#39;: &#39;grey&#39;,</span>
+<span class="c1">#                      &#39;Particle irreversible&#39;:&#39;darkgrey&#39;,</span>
+<span class="c1">#                      &#39;Sediment reversible&#39;:&#39;red&#39;,</span>
+<span class="c1">#                      &#39;Sediment irreversible&#39;:&#39;darkred&#39;</span>
+<span class="c1">#                      }</span>
+    
+
+<span class="c1">#     species_all = {</span>
+<span class="c1">#                     0:{&#39;name&#39;:&#39;LMM&#39;,&#39;color&#39;:&#39;blue&#39;},</span>
+<span class="c1">#                     1:{&#39;name&#39;:&#39;Colloid&#39;,&#39;color&#39;:&#39;Sandybrown&#39;},</span>
+<span class="c1">#                     2:{&#39;name&#39;:&#39;Particle reversible&#39;,&#39;color&#39;:&#39;grey&#39;},</span>
+<span class="c1">#                     3:{&#39;name&#39;:&#39;Particle slowly reversible&#39;,&#39;color&#39;:&#39;darkgrey&#39;},</span>
+<span class="c1">#                     4:{&#39;name&#39;:&#39;Particle irreversible&#39;,&#39;color&#39;:&#39;black&#39;},</span>
+<span class="c1">#                     5:{&#39;name&#39;:&#39;Sediment reversible&#39;,&#39;color&#39;:&#39;red&#39;},</span>
+<span class="c1">#                     6:{&#39;name&#39;:&#39;Sediment slowly reversible&#39;,&#39;color&#39;:&#39;lightred&#39;},</span>
+<span class="c1">#                     7:{&#39;name&#39;:&#39;Sediment irreversible&#39;,&#39;color&#39;:&#39;darkred&#39;}</span>
+<span class="c1">#                     }</span>
+    
+    <span class="n">configspec_radionuclidedrift</span> <span class="o">=</span> <span class="s1">&#39;&#39;&#39;</span>
+<span class="s1">        [radionuclide]</span>
+<span class="s1">            transfer_setup = option(&#39;Bokna_137Cs&#39;, &#39;dummy&#39;, default=&#39;dummy&#39;)</span>
+<span class="s1">            slowly_fraction = boolean(default=False)</span>
+<span class="s1">            irreversible_fraction = boolean(default=False)</span>
+<span class="s1">            dissolved_diameter = float(min=0., max=100.e-6,default=0.)</span>
+<span class="s1">            particle_diameter = float(min=0., max=100.e-6,default=5.e-6)</span>
+<span class="s1">            particle_diameter_uncertainty = float(min=0., max=100.e-6, default=1.e-7)</span>
+<span class="s1">            [[species]]</span>
+<span class="s1">                LMM                        = boolean(default=False)</span>
+<span class="s1">                Colloid                    = boolean(default=False)</span>
+<span class="s1">                Particle_reversible        = boolean(default=False)</span>
+<span class="s1">                Particle_slowly_reversible = boolean(default=False)</span>
+<span class="s1">                Particle_irreversible      = boolean(default=False)</span>
+<span class="s1">                Sediment_reversible        = boolean(default=False)</span>
+<span class="s1">                Sediment_slowly_reversible = boolean(default=False)</span>
+<span class="s1">                Sediment_irreversible      = boolean(default=False)</span>
+<span class="s1">            [[transformations]]</span>
+<span class="s1">                Kd         = float(min=0., max=1.e9, default=0.)</span>
+<span class="s1">                Dc         = float(min=0., max=1.e6, default=1.16e-5)</span>
+<span class="s1">                slow_coeff = float(min=0., max=1.e6, default=1.2e-7)</span>
+<span class="s1">            [[sediment]]</span>
+<span class="s1">                sedmixdepth        = float(min=0., max=100., default=1.)</span>
+<span class="s1">                sediment_density   = float(min=0., max=10000., default=2600.)</span>
+<span class="s1">                effective_fraction = float(min=0., max=1., default=0.9)</span>
+<span class="s1">                corr_factor        = float(min=0., max=10., default=0.1)</span>
+<span class="s1">                porosity           = float(min=0., max=1., default=0.6)</span>
+<span class="s1">                layer_thick        = float(min=0., max=100., default=1.)</span>
+<span class="s1">                desorption_depth   = float(min=0., max=100., default=10.)</span>
+<span class="s1">                desorption_depth_uncert = float(min=0., max=100., default=1.)</span>
+<span class="s1">            &#39;&#39;&#39;</span>
+
+
+<div class="viewcode-block" id="RadionuclideDrift.specie_num2name"><a class="viewcode-back" href="../../../autoapi/opendrift/models/radionuclides/index.html#opendrift.models.radionuclides.RadionuclideDrift.specie_num2name">[docs]</a>    <span class="k">def</span> <span class="nf">specie_num2name</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">num</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">name_species</span><span class="p">[</span><span class="n">num</span><span class="p">]</span></div>
+
+
+
+<div class="viewcode-block" id="RadionuclideDrift.specie_name2num"><a class="viewcode-back" href="../../../autoapi/opendrift/models/radionuclides/index.html#opendrift.models.radionuclides.RadionuclideDrift.specie_name2num">[docs]</a>    <span class="k">def</span> <span class="nf">specie_name2num</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">name</span><span class="p">):</span>
+        <span class="n">num</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">name_species</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="n">name</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">num</span></div>
+<span class="c1">#       </span>
+
+
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_add_configstring</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">configspec_radionuclidedrift</span><span class="p">)</span>
+
+        <span class="c1"># Calling general constructor of parent class</span>
+        <span class="nb">super</span><span class="p">(</span><span class="n">RadionuclideDrift</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+
+        <span class="c1"># By default, eggs do not strand towards coastline</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">set_config</span><span class="p">(</span><span class="s1">&#39;general:coastline_action&#39;</span><span class="p">,</span> <span class="s1">&#39;previous&#39;</span><span class="p">)</span>
+        
+
+        
+    
+    
+        
+
+
+<div class="viewcode-block" id="RadionuclideDrift.prepare_run"><a class="viewcode-back" href="../../../autoapi/opendrift/models/radionuclides/index.html#opendrift.models.radionuclides.RadionuclideDrift.prepare_run">[docs]</a>    <span class="k">def</span> <span class="nf">prepare_run</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        
+        <span class="bp">self</span><span class="o">.</span><span class="n">name_species</span><span class="o">=</span><span class="p">[]</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_config</span><span class="p">(</span><span class="s1">&#39;radionuclide:species:LMM&#39;</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">name_species</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s1">&#39;LMM&#39;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_config</span><span class="p">(</span><span class="s1">&#39;radionuclide:species:Colloid&#39;</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">name_species</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s1">&#39;Colloid&#39;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_config</span><span class="p">(</span><span class="s1">&#39;radionuclide:species:Particle_reversible&#39;</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">name_species</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s1">&#39;Particle reversible&#39;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_config</span><span class="p">(</span><span class="s1">&#39;radionuclide:species:Particle_slowly_reversible&#39;</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">name_species</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s1">&#39;Particle slowly reversible&#39;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_config</span><span class="p">(</span><span class="s1">&#39;radionuclide:species:Particle_irreversible&#39;</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">name_species</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s1">&#39;Particle irreversible&#39;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_config</span><span class="p">(</span><span class="s1">&#39;radionuclide:species:Sediment_reversible&#39;</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">name_species</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s1">&#39;Sediment reversible&#39;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_config</span><span class="p">(</span><span class="s1">&#39;radionuclide:species:Sediment_slowly_reversible&#39;</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">name_species</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s1">&#39;Sediment slowly reversible&#39;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_config</span><span class="p">(</span><span class="s1">&#39;radionuclide:species:Sediment_irreversible&#39;</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">name_species</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s1">&#39;Sediment irreversible&#39;</span><span class="p">)</span>
+
+        
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_config</span><span class="p">(</span><span class="s1">&#39;radionuclide:species:Sediment_slowly_reversible&#39;</span><span class="p">)</span> <span class="ow">and</span> \
+                    <span class="bp">self</span><span class="o">.</span><span class="n">get_config</span><span class="p">(</span><span class="s1">&#39;radionuclide:species:Particle_slowly_reversible&#39;</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">set_config</span><span class="p">(</span><span class="s1">&#39;radionuclide:slowly_fraction&#39;</span><span class="p">,</span> <span class="kc">True</span><span class="p">)</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_config</span><span class="p">(</span><span class="s1">&#39;radionuclide:species:Sediment_irreversible&#39;</span><span class="p">)</span> <span class="ow">and</span> \
+                    <span class="bp">self</span><span class="o">.</span><span class="n">get_config</span><span class="p">(</span><span class="s1">&#39;radionuclide:species:Particle_irreversible&#39;</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">set_config</span><span class="p">(</span><span class="s1">&#39;radionuclide:irreversible_fraction&#39;</span><span class="p">,</span> <span class="kc">True</span><span class="p">)</span>
+        
+        
+        <span class="bp">self</span><span class="o">.</span><span class="n">nspecies</span>      <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">name_species</span><span class="p">)</span>
+        <span class="n">logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span> <span class="s1">&#39;Number of species: </span><span class="si">{}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">nspecies</span><span class="p">)</span> <span class="p">)</span>        
+        <span class="k">for</span> <span class="n">i</span><span class="p">,</span><span class="n">sp</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">name_species</span><span class="p">):</span>
+            <span class="n">logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span> <span class="s1">&#39;</span><span class="si">{:&gt;3}</span><span class="s1"> </span><span class="si">{}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span> <span class="n">i</span><span class="p">,</span> <span class="n">sp</span> <span class="p">)</span> <span class="p">)</span> 
+    
+        <span class="bp">self</span><span class="o">.</span><span class="n">init_transfer_rates</span><span class="p">()</span></div>
+
+
+
+
+<div class="viewcode-block" id="RadionuclideDrift.init_transfer_rates"><a class="viewcode-back" href="../../../autoapi/opendrift/models/radionuclides/index.html#opendrift.models.radionuclides.RadionuclideDrift.init_transfer_rates">[docs]</a>    <span class="k">def</span> <span class="nf">init_transfer_rates</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39; Initialization of background values in the transfer rates 2D array. </span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        
+        <span class="n">transfer_setup</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">get_config</span><span class="p">(</span><span class="s1">&#39;radionuclide:transfer_setup&#39;</span><span class="p">)</span>
+        
+        <span class="n">logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span> <span class="s1">&#39;transfer setup: </span><span class="si">%s</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="n">transfer_setup</span><span class="p">)</span>
+        
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">transfer_rates</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">([</span><span class="bp">self</span><span class="o">.</span><span class="n">nspecies</span><span class="p">,</span><span class="bp">self</span><span class="o">.</span><span class="n">nspecies</span><span class="p">])</span>
+        
+        <span class="k">if</span> <span class="n">transfer_setup</span> <span class="o">==</span> <span class="s1">&#39;Bokna_137Cs&#39;</span><span class="p">:</span>
+            
+            <span class="bp">self</span><span class="o">.</span><span class="n">num_lmm</span>    <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">specie_name2num</span><span class="p">(</span><span class="s1">&#39;LMM&#39;</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">num_prev</span>   <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">specie_name2num</span><span class="p">(</span><span class="s1">&#39;Particle reversible&#39;</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">num_srev</span>   <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">specie_name2num</span><span class="p">(</span><span class="s1">&#39;Sediment reversible&#39;</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">num_psrev</span>  <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">specie_name2num</span><span class="p">(</span><span class="s1">&#39;Particle slowly reversible&#39;</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">num_ssrev</span>  <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">specie_name2num</span><span class="p">(</span><span class="s1">&#39;Sediment slowly reversible&#39;</span><span class="p">)</span>
+            
+            
+            <span class="c1"># Values from Simonsen et al (2019a)</span>
+            <span class="n">Kd</span>         <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_config</span><span class="p">(</span><span class="s1">&#39;radionuclide:transformations:Kd&#39;</span><span class="p">)</span>
+            <span class="n">Dc</span>         <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_config</span><span class="p">(</span><span class="s1">&#39;radionuclide:transformations:Dc&#39;</span><span class="p">)</span>
+            <span class="n">slow_coeff</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_config</span><span class="p">(</span><span class="s1">&#39;radionuclide:transformations:slow_coeff&#39;</span><span class="p">)</span>
+            <span class="n">susp_mat</span>    <span class="o">=</span> <span class="mf">1.e-3</span>   <span class="c1"># concentration of available suspended particulate matter (kg/m3) </span>
+            <span class="n">sedmixdepth</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_config</span><span class="p">(</span><span class="s1">&#39;radionuclide:sediment:sedmixdepth&#39;</span><span class="p">)</span>     <span class="c1"># sediment mixing depth (m)</span>
+            <span class="n">default_density</span> <span class="o">=</span>  <span class="bp">self</span><span class="o">.</span><span class="n">get_config</span><span class="p">(</span><span class="s1">&#39;radionuclide:sediment:sediment_density&#39;</span><span class="p">)</span> <span class="c1"># default particle density (kg/m3)</span>
+            <span class="n">f</span>           <span class="o">=</span>  <span class="bp">self</span><span class="o">.</span><span class="n">get_config</span><span class="p">(</span><span class="s1">&#39;radionuclide:sediment:effective_fraction&#39;</span><span class="p">)</span>      <span class="c1"># fraction of effective sorbents</span>
+            <span class="n">phi</span>         <span class="o">=</span>  <span class="bp">self</span><span class="o">.</span><span class="n">get_config</span><span class="p">(</span><span class="s1">&#39;radionuclide:sediment:corr_factor&#39;</span><span class="p">)</span>      <span class="c1"># sediment correction factor </span>
+            <span class="n">poro</span>        <span class="o">=</span>  <span class="bp">self</span><span class="o">.</span><span class="n">get_config</span><span class="p">(</span><span class="s1">&#39;radionuclide:sediment:porosity&#39;</span><span class="p">)</span>      <span class="c1"># sediment porosity </span>
+            <span class="n">layer_thick</span> <span class="o">=</span>  <span class="bp">self</span><span class="o">.</span><span class="n">get_config</span><span class="p">(</span><span class="s1">&#39;radionuclide:sediment:layer_thick&#39;</span><span class="p">)</span>      <span class="c1"># thickness of seabed interaction layer (m) </span>
+            
+            <span class="bp">self</span><span class="o">.</span><span class="n">transfer_rates</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">num_lmm</span><span class="p">,</span><span class="bp">self</span><span class="o">.</span><span class="n">num_prev</span><span class="p">]</span> <span class="o">=</span> <span class="n">Dc</span> <span class="o">*</span> <span class="n">Kd</span> <span class="o">*</span> <span class="n">susp_mat</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">transfer_rates</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">num_prev</span><span class="p">,</span><span class="bp">self</span><span class="o">.</span><span class="n">num_lmm</span><span class="p">]</span> <span class="o">=</span> <span class="n">Dc</span> 
+            <span class="bp">self</span><span class="o">.</span><span class="n">transfer_rates</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">num_lmm</span><span class="p">,</span><span class="bp">self</span><span class="o">.</span><span class="n">num_srev</span><span class="p">]</span> <span class="o">=</span> \
+                <span class="n">Dc</span> <span class="o">*</span> <span class="n">Kd</span> <span class="o">*</span> <span class="n">sedmixdepth</span> <span class="o">*</span> <span class="n">default_density</span> <span class="o">*</span> <span class="p">(</span><span class="mf">1.</span><span class="o">-</span><span class="n">poro</span><span class="p">)</span> <span class="o">*</span> <span class="n">f</span> <span class="o">*</span> <span class="n">phi</span> <span class="o">/</span> <span class="n">layer_thick</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">transfer_rates</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">num_srev</span><span class="p">,</span><span class="bp">self</span><span class="o">.</span><span class="n">num_lmm</span><span class="p">]</span> <span class="o">=</span> <span class="n">Dc</span> <span class="o">*</span> <span class="n">phi</span> 
+            <span class="bp">self</span><span class="o">.</span><span class="n">transfer_rates</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">num_srev</span><span class="p">,</span><span class="bp">self</span><span class="o">.</span><span class="n">num_ssrev</span><span class="p">]</span> <span class="o">=</span> <span class="n">slow_coeff</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">transfer_rates</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">num_prev</span><span class="p">,</span><span class="bp">self</span><span class="o">.</span><span class="n">num_psrev</span><span class="p">]</span> <span class="o">=</span> <span class="n">slow_coeff</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">transfer_rates</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">num_ssrev</span><span class="p">,</span><span class="bp">self</span><span class="o">.</span><span class="n">num_srev</span><span class="p">]</span> <span class="o">=</span> <span class="n">slow_coeff</span><span class="o">*.</span><span class="mi">1</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">transfer_rates</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">num_psrev</span><span class="p">,</span><span class="bp">self</span><span class="o">.</span><span class="n">num_prev</span><span class="p">]</span> <span class="o">=</span> <span class="n">slow_coeff</span><span class="o">*.</span><span class="mi">1</span>
+
+        <span class="k">elif</span> <span class="n">transfer_setup</span><span class="o">==</span><span class="s1">&#39;dummy&#39;</span><span class="p">:</span>
+        <span class="c1"># Set of dummy values for testing/development</span>
+        
+            <span class="bp">self</span><span class="o">.</span><span class="n">num_lmm</span>   <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">specie_name2num</span><span class="p">(</span><span class="s1">&#39;LMM&#39;</span><span class="p">)</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_config</span><span class="p">(</span><span class="s1">&#39;radionuclide:species:Colloid&#39;</span><span class="p">):</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">num_col</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">specie_name2num</span><span class="p">(</span><span class="s1">&#39;Colloid&#39;</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">num_prev</span>  <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">specie_name2num</span><span class="p">(</span><span class="s1">&#39;Particle reversible&#39;</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">num_srev</span>  <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">specie_name2num</span><span class="p">(</span><span class="s1">&#39;Sediment reversible&#39;</span><span class="p">)</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_config</span><span class="p">(</span><span class="s1">&#39;radionuclide:slowly_fraction&#39;</span><span class="p">):</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">num_psrev</span>  <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">specie_name2num</span><span class="p">(</span><span class="s1">&#39;Particle slowly reversible&#39;</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">num_ssrev</span>  <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">specie_name2num</span><span class="p">(</span><span class="s1">&#39;Sediment slowly reversible&#39;</span><span class="p">)</span>
+            
+
+            <span class="bp">self</span><span class="o">.</span><span class="n">transfer_rates</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">num_lmm</span><span class="p">,</span><span class="bp">self</span><span class="o">.</span><span class="n">num_prev</span><span class="p">]</span> <span class="o">=</span> <span class="mf">1.e-5</span> <span class="c1">#*0.</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">transfer_rates</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">num_srev</span><span class="p">,</span><span class="bp">self</span><span class="o">.</span><span class="n">num_lmm</span><span class="p">]</span> <span class="o">=</span> <span class="mf">5.e-6</span> 
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_config</span><span class="p">(</span><span class="s1">&#39;radionuclide:slowly_fraction&#39;</span><span class="p">):</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">transfer_rates</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">num_prev</span><span class="p">,</span><span class="bp">self</span><span class="o">.</span><span class="n">num_psrev</span><span class="p">]</span> <span class="o">=</span> <span class="mf">2.e-6</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">transfer_rates</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">num_srev</span><span class="p">,</span><span class="bp">self</span><span class="o">.</span><span class="n">num_ssrev</span><span class="p">]</span> <span class="o">=</span> <span class="mf">2.e-6</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">transfer_rates</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">num_psrev</span><span class="p">,</span><span class="bp">self</span><span class="o">.</span><span class="n">num_prev</span><span class="p">]</span> <span class="o">=</span> <span class="mf">2.e-7</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">transfer_rates</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">num_ssrev</span><span class="p">,</span><span class="bp">self</span><span class="o">.</span><span class="n">num_srev</span><span class="p">]</span> <span class="o">=</span> <span class="mf">2.e-7</span>
+            
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">logging</span><span class="o">.</span><span class="n">ERROR</span><span class="p">(</span><span class="s1">&#39;No transfer setup available&#39;</span><span class="p">)</span>
+
+        
+        <span class="c1"># Set diagonal to 0. (not possible to transform to present specie)</span>
+        <span class="n">np</span><span class="o">.</span><span class="n">fill_diagonal</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">transfer_rates</span><span class="p">,</span><span class="mf">0.</span><span class="p">)</span>
+        <span class="n">logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s1">&#39;nspecies: </span><span class="si">%s</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="bp">self</span><span class="o">.</span><span class="n">nspecies</span><span class="p">)</span>
+        <span class="n">logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s1">&#39;Transfer rates:</span><span class="se">\n</span><span class="s1"> </span><span class="si">%s</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="bp">self</span><span class="o">.</span><span class="n">transfer_rates</span><span class="p">)</span></div>
+
+
+
+
+
+
+        
+
+<div class="viewcode-block" id="RadionuclideDrift.update_terminal_velocity"><a class="viewcode-back" href="../../../autoapi/opendrift/models/radionuclides/index.html#opendrift.models.radionuclides.RadionuclideDrift.update_terminal_velocity">[docs]</a>    <span class="k">def</span> <span class="nf">update_terminal_velocity</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">Tprofiles</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                                 <span class="n">Sprofiles</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">z_index</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Calculate terminal velocity for Pelagic Egg</span>
+
+<span class="sd">        according to</span>
+<span class="sd">        S. Sundby (1983): A one-dimensional model for the vertical</span>
+<span class="sd">        distribution of pelagic fish eggs in the mixed layer</span>
+<span class="sd">        Deep Sea Research (30) pp. 645-661</span>
+
+<span class="sd">        Method copied from ibm.f90 module of LADIM:</span>
+<span class="sd">        Vikebo, F., S. Sundby, B. Aadlandsvik and O. Otteraa (2007),</span>
+<span class="sd">        Fish. Oceanogr. (16) pp. 216-228</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">g</span> <span class="o">=</span> <span class="mf">9.81</span>  <span class="c1"># ms-2</span>
+
+        <span class="c1"># Particle properties that determine settling velocity</span>
+        <span class="n">partsize</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">elements</span><span class="o">.</span><span class="n">diameter</span> 
+
+        <span class="c1"># prepare interpolation of temp, salt</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="p">(</span><span class="n">Tprofiles</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">Sprofiles</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">):</span>
+            <span class="k">if</span> <span class="n">z_index</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="n">z_i</span> <span class="o">=</span> <span class="nb">range</span><span class="p">(</span><span class="n">Tprofiles</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>  <span class="c1"># evtl. move out of loop</span>
+                <span class="c1"># evtl. move out of loop</span>
+                <span class="n">z_index</span> <span class="o">=</span> <span class="n">interp1d</span><span class="p">(</span><span class="o">-</span><span class="bp">self</span><span class="o">.</span><span class="n">environment_profiles</span><span class="p">[</span><span class="s1">&#39;z&#39;</span><span class="p">],</span>
+                                   <span class="n">z_i</span><span class="p">,</span> <span class="n">bounds_error</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+            <span class="n">zi</span> <span class="o">=</span> <span class="n">z_index</span><span class="p">(</span><span class="o">-</span><span class="bp">self</span><span class="o">.</span><span class="n">elements</span><span class="o">.</span><span class="n">z</span><span class="p">)</span>
+            <span class="n">upper</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">maximum</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">floor</span><span class="p">(</span><span class="n">zi</span><span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">int</span><span class="p">),</span> <span class="mi">0</span><span class="p">)</span>
+            <span class="n">lower</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">minimum</span><span class="p">(</span><span class="n">upper</span><span class="o">+</span><span class="mi">1</span><span class="p">,</span> <span class="n">Tprofiles</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span>
+            <span class="n">weight_upper</span> <span class="o">=</span> <span class="mi">1</span> <span class="o">-</span> <span class="p">(</span><span class="n">zi</span> <span class="o">-</span> <span class="n">upper</span><span class="p">)</span>
+
+        <span class="c1"># do interpolation of temp, salt if profiles were passed into</span>
+        <span class="c1"># this function, if not, use reader by calling self.environment</span>
+        <span class="k">if</span> <span class="n">Tprofiles</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">T0</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">environment</span><span class="o">.</span><span class="n">sea_water_temperature</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">T0</span> <span class="o">=</span> <span class="n">Tprofiles</span><span class="p">[</span><span class="n">upper</span><span class="p">,</span> <span class="nb">range</span><span class="p">(</span><span class="n">Tprofiles</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">])]</span> <span class="o">*</span> \
+                <span class="n">weight_upper</span> <span class="o">+</span> \
+                <span class="n">Tprofiles</span><span class="p">[</span><span class="n">lower</span><span class="p">,</span> <span class="nb">range</span><span class="p">(</span><span class="n">Tprofiles</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">])]</span> <span class="o">*</span> \
+                <span class="p">(</span><span class="mi">1</span><span class="o">-</span><span class="n">weight_upper</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">Sprofiles</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">S0</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">environment</span><span class="o">.</span><span class="n">sea_water_salinity</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">S0</span> <span class="o">=</span> <span class="n">Sprofiles</span><span class="p">[</span><span class="n">upper</span><span class="p">,</span> <span class="nb">range</span><span class="p">(</span><span class="n">Sprofiles</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">])]</span> <span class="o">*</span> \
+                <span class="n">weight_upper</span> <span class="o">+</span> \
+                <span class="n">Sprofiles</span><span class="p">[</span><span class="n">lower</span><span class="p">,</span> <span class="nb">range</span><span class="p">(</span><span class="n">Sprofiles</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">])]</span> <span class="o">*</span> \
+                <span class="p">(</span><span class="mi">1</span><span class="o">-</span><span class="n">weight_upper</span><span class="p">)</span>
+
+        <span class="n">DENSw</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">sea_water_density</span><span class="p">(</span><span class="n">T</span><span class="o">=</span><span class="n">T0</span><span class="p">,</span> <span class="n">S</span><span class="o">=</span><span class="n">S0</span><span class="p">)</span>
+        <span class="n">DENSpart</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">elements</span><span class="o">.</span><span class="n">density</span>
+        <span class="n">dr</span> <span class="o">=</span> <span class="n">DENSw</span><span class="o">-</span><span class="n">DENSpart</span>  <span class="c1"># density difference</span>
+
+        <span class="c1"># water viscosity</span>
+        <span class="n">my_w</span> <span class="o">=</span> <span class="mf">0.001</span><span class="o">*</span><span class="p">(</span><span class="mf">1.7915</span> <span class="o">-</span> <span class="mf">0.0538</span><span class="o">*</span><span class="n">T0</span> <span class="o">+</span> <span class="mf">0.007</span><span class="o">*</span><span class="p">(</span><span class="n">T0</span><span class="o">**</span><span class="p">(</span><span class="mf">2.0</span><span class="p">))</span> <span class="o">-</span> <span class="mf">0.0023</span><span class="o">*</span><span class="n">S0</span><span class="p">)</span>
+        <span class="c1"># ~0.0014 kg m-1 s-1</span>
+
+        <span class="c1"># terminal velocity for low Reynolds numbers</span>
+        <span class="n">W</span> <span class="o">=</span> <span class="p">(</span><span class="mf">1.0</span><span class="o">/</span><span class="n">my_w</span><span class="p">)</span><span class="o">*</span><span class="p">(</span><span class="mf">1.0</span><span class="o">/</span><span class="mf">18.0</span><span class="p">)</span><span class="o">*</span><span class="n">g</span><span class="o">*</span><span class="n">partsize</span><span class="o">**</span><span class="mi">2</span> <span class="o">*</span> <span class="n">dr</span>
+
+        <span class="c1"># check if we are in a Reynolds regime where Re &gt; 0.5</span>
+        <span class="n">highRe</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">W</span><span class="o">*</span><span class="mi">1000</span><span class="o">*</span><span class="n">partsize</span><span class="o">/</span><span class="n">my_w</span> <span class="o">&gt;</span> <span class="mf">0.5</span><span class="p">)</span>
+
+        <span class="c1"># Use empirical equations for terminal velocity in</span>
+        <span class="c1"># high Reynolds numbers.</span>
+        <span class="c1"># Empirical equations have length units in cm!</span>
+        <span class="n">my_w</span> <span class="o">=</span> <span class="mf">0.01854</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="o">-</span><span class="mf">0.02783</span> <span class="o">*</span> <span class="n">T0</span><span class="p">)</span>  <span class="c1"># in cm2/s</span>
+        <span class="n">d0</span> <span class="o">=</span> <span class="p">(</span><span class="n">partsize</span> <span class="o">*</span> <span class="mi">100</span><span class="p">)</span> <span class="o">-</span> <span class="mf">0.4</span> <span class="o">*</span> \
+            <span class="p">(</span><span class="mf">9.0</span> <span class="o">*</span> <span class="n">my_w</span><span class="o">**</span><span class="mi">2</span> <span class="o">/</span> <span class="p">(</span><span class="mi">100</span> <span class="o">*</span> <span class="n">g</span><span class="p">)</span> <span class="o">*</span> <span class="n">DENSw</span> <span class="o">/</span> <span class="n">dr</span><span class="p">)</span><span class="o">**</span><span class="p">(</span><span class="mf">1.0</span> <span class="o">/</span> <span class="mf">3.0</span><span class="p">)</span>  <span class="c1"># cm</span>
+        <span class="n">W2</span> <span class="o">=</span> <span class="mf">19.0</span><span class="o">*</span><span class="n">d0</span><span class="o">*</span><span class="p">(</span><span class="mf">0.001</span><span class="o">*</span><span class="n">dr</span><span class="p">)</span><span class="o">**</span><span class="p">(</span><span class="mf">2.0</span><span class="o">/</span><span class="mf">3.0</span><span class="p">)</span><span class="o">*</span><span class="p">(</span><span class="n">my_w</span><span class="o">*</span><span class="mf">0.001</span><span class="o">*</span><span class="n">DENSw</span><span class="p">)</span><span class="o">**</span><span class="p">(</span><span class="o">-</span><span class="mf">1.0</span><span class="o">/</span><span class="mf">3.0</span><span class="p">)</span>
+        <span class="c1"># cm/s</span>
+        <span class="n">W2</span> <span class="o">=</span> <span class="n">W2</span><span class="o">/</span><span class="mf">100.</span>  <span class="c1"># back to m/s</span>
+
+        <span class="n">W</span><span class="p">[</span><span class="n">highRe</span><span class="p">]</span> <span class="o">=</span> <span class="n">W2</span><span class="p">[</span><span class="n">highRe</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">elements</span><span class="o">.</span><span class="n">terminal_velocity</span> <span class="o">=</span> <span class="n">W</span></div>
+
+
+<div class="viewcode-block" id="RadionuclideDrift.update_transfer_rates"><a class="viewcode-back" href="../../../autoapi/opendrift/models/radionuclides/index.html#opendrift.models.radionuclides.RadionuclideDrift.update_transfer_rates">[docs]</a>    <span class="k">def</span> <span class="nf">update_transfer_rates</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;Pick out the correct row from transfer_rates for each element. Modify the </span>
+<span class="sd">        transfer rates according to local environmental conditions &#39;&#39;&#39;</span>
+
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">elements</span><span class="o">.</span><span class="n">transfer_rates1D</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">transfer_rates</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">elements</span><span class="o">.</span><span class="n">specie</span><span class="p">,:]</span>
+        
+        <span class="c1"># Only LMM radionuclides close to seabed are allowed to interact with sediments </span>
+        <span class="c1"># minimum height/maximum depth for each particle</span>
+        <span class="n">Zmin</span> <span class="o">=</span> <span class="o">-</span><span class="mf">1.</span><span class="o">*</span><span class="bp">self</span><span class="o">.</span><span class="n">environment</span><span class="o">.</span><span class="n">sea_floor_depth_below_sea_level</span>
+        <span class="n">interaction_thick</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_config</span><span class="p">(</span><span class="s1">&#39;radionuclide:sediment:layer_thick&#39;</span><span class="p">)</span>      <span class="c1"># thickness of seabed interaction layer (m)  </span>
+        <span class="n">dist_to_seabed</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">elements</span><span class="o">.</span><span class="n">z</span> <span class="o">-</span> <span class="n">Zmin</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">elements</span><span class="o">.</span><span class="n">transfer_rates1D</span><span class="p">[(</span><span class="bp">self</span><span class="o">.</span><span class="n">elements</span><span class="o">.</span><span class="n">specie</span> <span class="o">==</span> <span class="bp">self</span><span class="o">.</span><span class="n">num_lmm</span><span class="p">)</span> <span class="o">&amp;</span> 
+                         <span class="p">(</span><span class="n">dist_to_seabed</span> <span class="o">&gt;</span> <span class="n">interaction_thick</span><span class="p">),</span> <span class="bp">self</span><span class="o">.</span><span class="n">num_srev</span><span class="p">]</span> <span class="o">=</span> <span class="mf">0.</span> 
+        
+                         
+        <span class="c1"># Modify particle adsorption according to local particle concentration </span>
+        <span class="c1"># (LMM -&gt; reversible particles)</span>
+        <span class="n">kktmp</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">elements</span><span class="o">.</span><span class="n">specie</span> <span class="o">==</span> <span class="bp">self</span><span class="o">.</span><span class="n">num_lmm</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">elements</span><span class="o">.</span><span class="n">transfer_rates1D</span><span class="p">[</span><span class="n">kktmp</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">num_prev</span><span class="p">]</span> <span class="o">=</span> \
+                    <span class="bp">self</span><span class="o">.</span><span class="n">elements</span><span class="o">.</span><span class="n">transfer_rates1D</span><span class="p">[</span><span class="n">kktmp</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">num_prev</span><span class="p">]</span> <span class="o">*</span> \
+                    <span class="bp">self</span><span class="o">.</span><span class="n">environment</span><span class="o">.</span><span class="n">conc3</span><span class="p">[</span><span class="n">kktmp</span><span class="p">]</span> <span class="o">/</span> <span class="mf">1.e-3</span></div>
+<span class="c1">#                    self.environment.particle_conc[kktmp] / 1.e-3</span>
+
+
+
+<div class="viewcode-block" id="RadionuclideDrift.update_speciation"><a class="viewcode-back" href="../../../autoapi/opendrift/models/radionuclides/index.html#opendrift.models.radionuclides.RadionuclideDrift.update_speciation">[docs]</a>    <span class="k">def</span> <span class="nf">update_speciation</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>        
+        <span class="sd">&#39;&#39;&#39;Check if transformation processes shall occur</span>
+<span class="sd">        Do transformation (change value of self.elements.specie)</span>
+<span class="sd">        Update element properties for the transformed elements</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+
+        <span class="n">specie_in</span>  <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">elements</span><span class="o">.</span><span class="n">specie</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>    <span class="c1"># for storage of the out speciation</span>
+        <span class="n">specie_out</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">elements</span><span class="o">.</span><span class="n">specie</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>    <span class="c1"># for storage of the out speciation</span>
+        <span class="n">deltat</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">time_step</span><span class="o">.</span><span class="n">seconds</span>             <span class="c1"># length of a time step</span>
+        <span class="n">phaseshift</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">num_elements_active</span><span class="p">()</span><span class="o">*</span><span class="p">[</span><span class="kc">False</span><span class="p">])</span>  <span class="c1"># Denotes which trajectory that shall be transformed</span>
+
+        <span class="n">p</span> <span class="o">=</span> <span class="mf">1.</span> <span class="o">-</span> <span class="n">np</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="o">-</span><span class="bp">self</span><span class="o">.</span><span class="n">elements</span><span class="o">.</span><span class="n">transfer_rates1D</span><span class="o">*</span><span class="n">deltat</span><span class="p">)</span>  <span class="c1"># Probability for transformation</span>
+        <span class="n">psum</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">p</span><span class="p">,</span><span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+        
+        <span class="n">ran1</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">random</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">num_elements_active</span><span class="p">())</span>
+        
+        <span class="c1"># Transformation where ran1 &lt; total probability for transformation</span>
+        <span class="n">phaseshift</span><span class="p">[</span> <span class="n">ran1</span> <span class="o">&lt;</span> <span class="n">psum</span> <span class="p">]</span> <span class="o">=</span> <span class="kc">True</span>
+        
+        <span class="n">logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s1">&#39;Number of transformations: </span><span class="si">%s</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="nb">sum</span><span class="p">(</span><span class="n">phaseshift</span><span class="p">))</span>
+        <span class="k">if</span> <span class="nb">sum</span><span class="p">(</span><span class="n">phaseshift</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="k">return</span>
+        
+        <span class="n">ran4</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">random</span><span class="p">(</span><span class="nb">sum</span><span class="p">(</span><span class="n">phaseshift</span><span class="p">))</span> <span class="c1"># New random number to decide which specie to end up in</span>
+        
+        <span class="n">ttmp</span><span class="o">=</span><span class="p">[]</span>  <span class="c1"># list for storing the out specie</span>
+        <span class="c1"># Loop through each trajectory</span>
+        <span class="k">for</span> <span class="n">ii</span> <span class="ow">in</span> <span class="n">xrange</span><span class="p">(</span><span class="nb">sum</span><span class="p">(</span><span class="n">phaseshift</span><span class="p">)):</span>
+            <span class="c1"># Compare random number to the relative probability for each transfer process</span>
+            <span class="n">ttmp</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">searchsorted</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">cumsum</span><span class="p">(</span><span class="n">p</span><span class="p">[</span><span class="n">phaseshift</span><span class="p">][</span><span class="n">ii</span><span class="p">]</span><span class="o">/</span><span class="n">psum</span><span class="p">[</span><span class="n">phaseshift</span><span class="p">][</span><span class="n">ii</span><span class="p">]),</span><span class="n">ran4</span><span class="p">[</span><span class="n">ii</span><span class="p">]))</span>        
+        <span class="n">specie_out</span><span class="p">[</span><span class="n">phaseshift</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">ttmp</span><span class="p">)</span>
+        
+        
+        <span class="c1"># Set the new speciation</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">elements</span><span class="o">.</span><span class="n">specie</span><span class="o">=</span><span class="n">specie_out</span>
+        
+        <span class="n">logging</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;old species: </span><span class="si">%s</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="n">specie_in</span><span class="p">[</span><span class="n">phaseshift</span><span class="p">])</span>
+        <span class="n">logging</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;new species: </span><span class="si">%s</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="n">specie_out</span><span class="p">[</span><span class="n">phaseshift</span><span class="p">])</span>
+        
+        <span class="c1"># Update radionuclide properties after transformations</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">update_radionuclide_diameter</span><span class="p">(</span><span class="n">specie_in</span><span class="p">,</span> <span class="n">specie_out</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">sorption_to_sediments</span><span class="p">(</span><span class="n">specie_in</span><span class="p">,</span> <span class="n">specie_out</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">desorption_from_sediments</span><span class="p">(</span><span class="n">specie_in</span><span class="p">,</span> <span class="n">specie_out</span><span class="p">)</span></div>
+        
+    
+
+<div class="viewcode-block" id="RadionuclideDrift.sorption_to_sediments"><a class="viewcode-back" href="../../../autoapi/opendrift/models/radionuclides/index.html#opendrift.models.radionuclides.RadionuclideDrift.sorption_to_sediments">[docs]</a>    <span class="k">def</span> <span class="nf">sorption_to_sediments</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">sp_in</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span><span class="n">sp_out</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;Update radionuclide properties  when sorption to sediments occurs&#39;&#39;&#39;</span>
+        
+        
+        <span class="c1"># Set z to local sea depth</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">elements</span><span class="o">.</span><span class="n">z</span><span class="p">[(</span><span class="n">sp_out</span><span class="o">==</span><span class="bp">self</span><span class="o">.</span><span class="n">num_srev</span><span class="p">)</span> <span class="o">&amp;</span> <span class="p">(</span><span class="n">sp_in</span><span class="o">==</span><span class="bp">self</span><span class="o">.</span><span class="n">num_lmm</span><span class="p">)]</span> <span class="o">=</span> \
+         <span class="o">-</span><span class="mf">1.</span><span class="o">*</span><span class="bp">self</span><span class="o">.</span><span class="n">environment</span><span class="o">.</span><span class="n">sea_floor_depth_below_sea_level</span><span class="p">[(</span><span class="n">sp_out</span><span class="o">==</span><span class="bp">self</span><span class="o">.</span><span class="n">num_srev</span><span class="p">)</span> <span class="o">&amp;</span> <span class="p">(</span><span class="n">sp_in</span><span class="o">==</span><span class="bp">self</span><span class="o">.</span><span class="n">num_lmm</span><span class="p">)]</span></div>
+
+
+
+<div class="viewcode-block" id="RadionuclideDrift.desorption_from_sediments"><a class="viewcode-back" href="../../../autoapi/opendrift/models/radionuclides/index.html#opendrift.models.radionuclides.RadionuclideDrift.desorption_from_sediments">[docs]</a>    <span class="k">def</span> <span class="nf">desorption_from_sediments</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">sp_in</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span><span class="n">sp_out</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;Update radionuclide properties when desorption from sediments occurs&#39;&#39;&#39;</span>
+        
+        <span class="n">desorption_depth</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_config</span><span class="p">(</span><span class="s1">&#39;radionuclide:sediment:desorption_depth&#39;</span><span class="p">)</span>
+        <span class="n">std</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_config</span><span class="p">(</span><span class="s1">&#39;radionuclide:sediment:desorption_depth_uncert&#39;</span><span class="p">)</span>
+
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">elements</span><span class="o">.</span><span class="n">z</span><span class="p">[(</span><span class="n">sp_out</span><span class="o">==</span><span class="bp">self</span><span class="o">.</span><span class="n">num_lmm</span><span class="p">)</span> <span class="o">&amp;</span> <span class="p">(</span><span class="n">sp_in</span><span class="o">==</span><span class="bp">self</span><span class="o">.</span><span class="n">num_srev</span><span class="p">)]</span> <span class="o">=</span> \
+            <span class="bp">self</span><span class="o">.</span><span class="n">environment</span><span class="o">.</span><span class="n">sea_floor_depth_below_sea_level</span><span class="p">[(</span><span class="n">sp_out</span><span class="o">==</span><span class="bp">self</span><span class="o">.</span><span class="n">num_lmm</span><span class="p">)</span> <span class="o">&amp;</span> <span class="p">(</span><span class="n">sp_in</span><span class="o">==</span><span class="bp">self</span><span class="o">.</span><span class="n">num_srev</span><span class="p">)]</span> <span class="o">+</span> <span class="n">desorption_depth</span>
+        <span class="k">if</span> <span class="n">std</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="n">logging</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;Adding uncertainty for desorption from sediments: </span><span class="si">%s</span><span class="s1"> m&#39;</span> <span class="o">%</span> <span class="n">std</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">elements</span><span class="o">.</span><span class="n">z</span><span class="p">[(</span><span class="n">sp_out</span><span class="o">==</span><span class="bp">self</span><span class="o">.</span><span class="n">num_lmm</span><span class="p">)</span> <span class="o">&amp;</span> <span class="p">(</span><span class="n">sp_in</span><span class="o">==</span><span class="bp">self</span><span class="o">.</span><span class="n">num_srev</span><span class="p">)]</span> <span class="o">+=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">normal</span><span class="p">(</span>
+                    <span class="mi">0</span><span class="p">,</span> <span class="n">std</span><span class="p">,</span> <span class="nb">sum</span><span class="p">((</span><span class="n">sp_out</span><span class="o">==</span><span class="bp">self</span><span class="o">.</span><span class="n">num_lmm</span><span class="p">)</span> <span class="o">&amp;</span> <span class="p">(</span><span class="n">sp_in</span><span class="o">==</span><span class="bp">self</span><span class="o">.</span><span class="n">num_srev</span><span class="p">)))</span></div>
+
+
+
+
+
+<div class="viewcode-block" id="RadionuclideDrift.update_radionuclide_diameter"><a class="viewcode-back" href="../../../autoapi/opendrift/models/radionuclides/index.html#opendrift.models.radionuclides.RadionuclideDrift.update_radionuclide_diameter">[docs]</a>    <span class="k">def</span> <span class="nf">update_radionuclide_diameter</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">sp_in</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span><span class="n">sp_out</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;Update the diameter of the radionuclides when specie is changed&#39;&#39;&#39;</span>
+        
+        
+        <span class="n">dia_part</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">get_config</span><span class="p">(</span><span class="s1">&#39;radionuclide:particle_diameter&#39;</span><span class="p">)</span>
+        <span class="n">dia_diss</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">get_config</span><span class="p">(</span><span class="s1">&#39;radionuclide:dissolved_diameter&#39;</span><span class="p">)</span>
+        
+        
+        <span class="c1"># Transfer to reversible particles</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">elements</span><span class="o">.</span><span class="n">diameter</span><span class="p">[(</span><span class="n">sp_out</span><span class="o">==</span><span class="bp">self</span><span class="o">.</span><span class="n">num_prev</span><span class="p">)</span> <span class="o">&amp;</span> <span class="p">(</span><span class="n">sp_in</span><span class="o">!=</span><span class="bp">self</span><span class="o">.</span><span class="n">num_prev</span><span class="p">)]</span> <span class="o">=</span> <span class="n">dia_part</span> 
+        <span class="n">std</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_config</span><span class="p">(</span><span class="s1">&#39;radionuclide:particle_diameter_uncertainty&#39;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">std</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="n">logging</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;Adding uncertainty for particle diameter: </span><span class="si">%s</span><span class="s1"> m&#39;</span> <span class="o">%</span> <span class="n">std</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">elements</span><span class="o">.</span><span class="n">diameter</span><span class="p">[(</span><span class="n">sp_out</span><span class="o">==</span><span class="bp">self</span><span class="o">.</span><span class="n">num_prev</span><span class="p">)</span> <span class="o">&amp;</span> <span class="p">(</span><span class="n">sp_in</span><span class="o">!=</span><span class="bp">self</span><span class="o">.</span><span class="n">num_prev</span><span class="p">)]</span> <span class="o">+=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">normal</span><span class="p">(</span>
+                    <span class="mi">0</span><span class="p">,</span> <span class="n">std</span><span class="p">,</span> <span class="nb">sum</span><span class="p">((</span><span class="n">sp_out</span><span class="o">==</span><span class="bp">self</span><span class="o">.</span><span class="n">num_prev</span><span class="p">)</span> <span class="o">&amp;</span> <span class="p">(</span><span class="n">sp_in</span><span class="o">!=</span><span class="bp">self</span><span class="o">.</span><span class="n">num_prev</span><span class="p">)))</span>
+
+        <span class="c1"># Transfer to slowly reversible particles</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_config</span><span class="p">(</span><span class="s1">&#39;radionuclide:slowly_fraction&#39;</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">elements</span><span class="o">.</span><span class="n">diameter</span><span class="p">[(</span><span class="n">sp_out</span><span class="o">==</span><span class="bp">self</span><span class="o">.</span><span class="n">num_psrev</span><span class="p">)</span> <span class="o">&amp;</span> <span class="p">(</span><span class="n">sp_in</span><span class="o">!=</span><span class="bp">self</span><span class="o">.</span><span class="n">num_psrev</span><span class="p">)]</span> <span class="o">=</span> <span class="n">dia_part</span> 
+            <span class="k">if</span> <span class="n">std</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="n">logging</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;Adding uncertainty for slowly rev particle diameter: </span><span class="si">%s</span><span class="s1"> m&#39;</span> <span class="o">%</span> <span class="n">std</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">elements</span><span class="o">.</span><span class="n">diameter</span><span class="p">[(</span><span class="n">sp_out</span><span class="o">==</span><span class="bp">self</span><span class="o">.</span><span class="n">num_psrev</span><span class="p">)</span> <span class="o">&amp;</span> <span class="p">(</span><span class="n">sp_in</span><span class="o">!=</span><span class="bp">self</span><span class="o">.</span><span class="n">num_psrev</span><span class="p">)]</span> <span class="o">+=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">normal</span><span class="p">(</span>
+                    <span class="mi">0</span><span class="p">,</span> <span class="n">std</span><span class="p">,</span> <span class="nb">sum</span><span class="p">((</span><span class="n">sp_out</span><span class="o">==</span><span class="bp">self</span><span class="o">.</span><span class="n">num_psrev</span><span class="p">)</span> <span class="o">&amp;</span> <span class="p">(</span><span class="n">sp_in</span><span class="o">!=</span><span class="bp">self</span><span class="o">.</span><span class="n">num_psrev</span><span class="p">)))</span>
+
+        <span class="c1"># Transfer to irreversible particles</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_config</span><span class="p">(</span><span class="s1">&#39;radionuclide:irreversible_fraction&#39;</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">elements</span><span class="o">.</span><span class="n">diameter</span><span class="p">[(</span><span class="n">sp_out</span><span class="o">==</span><span class="bp">self</span><span class="o">.</span><span class="n">num_pirrev</span><span class="p">)</span> <span class="o">&amp;</span> <span class="p">(</span><span class="n">sp_in</span><span class="o">!=</span><span class="bp">self</span><span class="o">.</span><span class="n">num_pirrev</span><span class="p">)]</span> <span class="o">=</span> <span class="n">dia_part</span> 
+            <span class="k">if</span> <span class="n">std</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="n">logging</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;Adding uncertainty for irrev particle diameter: </span><span class="si">%s</span><span class="s1"> m&#39;</span> <span class="o">%</span> <span class="n">std</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">elements</span><span class="o">.</span><span class="n">diameter</span><span class="p">[(</span><span class="n">sp_out</span><span class="o">==</span><span class="bp">self</span><span class="o">.</span><span class="n">num_pirrev</span><span class="p">)</span> <span class="o">&amp;</span> <span class="p">(</span><span class="n">sp_in</span><span class="o">!=</span><span class="bp">self</span><span class="o">.</span><span class="n">num_pirrev</span><span class="p">)]</span> <span class="o">+=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">normal</span><span class="p">(</span>
+                    <span class="mi">0</span><span class="p">,</span> <span class="n">std</span><span class="p">,</span> <span class="nb">sum</span><span class="p">((</span><span class="n">sp_out</span><span class="o">==</span><span class="bp">self</span><span class="o">.</span><span class="n">num_pirrev</span><span class="p">)</span> <span class="o">&amp;</span> <span class="p">(</span><span class="n">sp_in</span><span class="o">!=</span><span class="bp">self</span><span class="o">.</span><span class="n">num_pirrev</span><span class="p">)))</span>
+ 
+        <span class="c1"># Transfer to LMM</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">elements</span><span class="o">.</span><span class="n">diameter</span><span class="p">[(</span><span class="n">sp_out</span><span class="o">==</span><span class="bp">self</span><span class="o">.</span><span class="n">num_lmm</span><span class="p">)</span> <span class="o">&amp;</span> <span class="p">(</span><span class="n">sp_in</span><span class="o">!=</span><span class="bp">self</span><span class="o">.</span><span class="n">num_lmm</span><span class="p">)]</span> <span class="o">=</span> <span class="n">dia_diss</span>
+        
+        <span class="c1"># Transfer to colloids</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_config</span><span class="p">(</span><span class="s1">&#39;radionuclide:species:Colloid&#39;</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">elements</span><span class="o">.</span><span class="n">diameter</span><span class="p">[(</span><span class="n">sp_out</span><span class="o">==</span><span class="bp">self</span><span class="o">.</span><span class="n">num_col</span><span class="p">)</span> <span class="o">&amp;</span> <span class="p">(</span><span class="n">sp_in</span><span class="o">!=</span><span class="bp">self</span><span class="o">.</span><span class="n">num_col</span><span class="p">)]</span> <span class="o">=</span> <span class="n">dia_diss</span></div>
+
+
+
+
+<div class="viewcode-block" id="RadionuclideDrift.bottom_interaction"><a class="viewcode-back" href="../../../autoapi/opendrift/models/radionuclides/index.html#opendrift.models.radionuclides.RadionuclideDrift.bottom_interaction">[docs]</a>    <span class="k">def</span> <span class="nf">bottom_interaction</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">Zmin</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39; Change speciation of radionuclides that reach bottom due to settling. </span>
+<span class="sd">        particle specie -&gt; sediment specie &#39;&#39;&#39;</span>
+        <span class="n">bottom</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">elements</span><span class="o">.</span><span class="n">z</span> <span class="o">&lt;=</span> <span class="n">Zmin</span><span class="p">)[</span><span class="mi">0</span><span class="p">])</span>
+        <span class="n">kktmp</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">elements</span><span class="o">.</span><span class="n">specie</span><span class="p">[</span><span class="n">bottom</span><span class="p">]</span> <span class="o">==</span> <span class="bp">self</span><span class="o">.</span><span class="n">num_prev</span><span class="p">)[</span><span class="mi">0</span><span class="p">])</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">elements</span><span class="o">.</span><span class="n">specie</span><span class="p">[</span><span class="n">bottom</span><span class="p">[</span><span class="n">kktmp</span><span class="p">]]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">num_srev</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_config</span><span class="p">(</span><span class="s1">&#39;radionuclide:slowly_fraction&#39;</span><span class="p">):</span>
+            <span class="n">kktmp</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">elements</span><span class="o">.</span><span class="n">specie</span><span class="p">[</span><span class="n">bottom</span><span class="p">]</span> <span class="o">==</span> <span class="bp">self</span><span class="o">.</span><span class="n">num_psrev</span><span class="p">)[</span><span class="mi">0</span><span class="p">])</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">elements</span><span class="o">.</span><span class="n">specie</span><span class="p">[</span><span class="n">bottom</span><span class="p">[</span><span class="n">kktmp</span><span class="p">]]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">num_ssrev</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_config</span><span class="p">(</span><span class="s1">&#39;radionuclide:irreversible_fraction&#39;</span><span class="p">):</span>
+            <span class="n">kktmp</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">elements</span><span class="o">.</span><span class="n">specie</span><span class="p">[</span><span class="n">bottom</span><span class="p">]</span> <span class="o">==</span> <span class="bp">self</span><span class="o">.</span><span class="n">num_pirrev</span><span class="p">)[</span><span class="mi">0</span><span class="p">])</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">elements</span><span class="o">.</span><span class="n">specie</span><span class="p">[</span><span class="n">bottom</span><span class="p">[</span><span class="n">kktmp</span><span class="p">]]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">num_sirrev</span></div>
+
+
+
+
+
+
+    
+<div class="viewcode-block" id="RadionuclideDrift.update"><a class="viewcode-back" href="../../../autoapi/opendrift/models/radionuclides/index.html#opendrift.models.radionuclides.RadionuclideDrift.update">[docs]</a>    <span class="k">def</span> <span class="nf">update</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Update positions and properties of radionuclide particles.&quot;&quot;&quot;</span>
+        
+
+        <span class="c1"># Radionuclide speciation</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">update_transfer_rates</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">update_speciation</span><span class="p">()</span>
+        <span class="n">logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s1">&#39;Speciation: </span><span class="si">{}</span><span class="s1"> </span><span class="si">{}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">([</span><span class="nb">sum</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">elements</span><span class="o">.</span><span class="n">specie</span><span class="o">==</span><span class="n">ii</span><span class="p">)</span> <span class="k">for</span> <span class="n">ii</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">nspecies</span><span class="p">)],</span><span class="bp">self</span><span class="o">.</span><span class="n">name_species</span><span class="p">))</span>
+
+
+        <span class="c1"># Turbulent Mixing</span>
+        <span class="n">z_before</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">elements</span><span class="o">.</span><span class="n">z</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">update_terminal_velocity</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">vertical_mixing</span><span class="p">()</span>
+
+        <span class="c1"># Horizontal advection</span>
+        <span class="n">lon</span><span class="p">,</span> <span class="n">lat</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">elements</span><span class="o">.</span><span class="n">lon</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">elements</span><span class="o">.</span><span class="n">lat</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">advect_ocean_current</span><span class="p">()</span>
+        
+        <span class="c1"># Reset lat lon for sedimented trajectories (reject hor. advection)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">elements</span><span class="o">.</span><span class="n">lon</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">elements</span><span class="o">.</span><span class="n">specie</span><span class="o">==</span><span class="bp">self</span><span class="o">.</span><span class="n">num_srev</span><span class="p">]</span>   <span class="o">=</span> <span class="n">lon</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">elements</span><span class="o">.</span><span class="n">specie</span><span class="o">==</span><span class="bp">self</span><span class="o">.</span><span class="n">num_srev</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">elements</span><span class="o">.</span><span class="n">lat</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">elements</span><span class="o">.</span><span class="n">specie</span><span class="o">==</span><span class="bp">self</span><span class="o">.</span><span class="n">num_srev</span><span class="p">]</span>   <span class="o">=</span> <span class="n">lat</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">elements</span><span class="o">.</span><span class="n">specie</span><span class="o">==</span><span class="bp">self</span><span class="o">.</span><span class="n">num_srev</span><span class="p">]</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_config</span><span class="p">(</span><span class="s1">&#39;radionuclide:slowly_fraction&#39;</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">elements</span><span class="o">.</span><span class="n">lon</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">elements</span><span class="o">.</span><span class="n">specie</span><span class="o">==</span><span class="bp">self</span><span class="o">.</span><span class="n">num_ssrev</span><span class="p">]</span> <span class="o">=</span> <span class="n">lon</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">elements</span><span class="o">.</span><span class="n">specie</span><span class="o">==</span><span class="bp">self</span><span class="o">.</span><span class="n">num_ssrev</span><span class="p">]</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">elements</span><span class="o">.</span><span class="n">lat</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">elements</span><span class="o">.</span><span class="n">specie</span><span class="o">==</span><span class="bp">self</span><span class="o">.</span><span class="n">num_ssrev</span><span class="p">]</span> <span class="o">=</span> <span class="n">lat</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">elements</span><span class="o">.</span><span class="n">specie</span><span class="o">==</span><span class="bp">self</span><span class="o">.</span><span class="n">num_ssrev</span><span class="p">]</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_config</span><span class="p">(</span><span class="s1">&#39;radionuclide:irreversible_fraction&#39;</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">elements</span><span class="o">.</span><span class="n">lon</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">elements</span><span class="o">.</span><span class="n">specie</span><span class="o">==</span><span class="bp">self</span><span class="o">.</span><span class="n">num_sirrev</span><span class="p">]</span> <span class="o">=</span> <span class="n">lon</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">elements</span><span class="o">.</span><span class="n">specie</span><span class="o">==</span><span class="bp">self</span><span class="o">.</span><span class="n">num_sirrev</span><span class="p">]</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">elements</span><span class="o">.</span><span class="n">lat</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">elements</span><span class="o">.</span><span class="n">specie</span><span class="o">==</span><span class="bp">self</span><span class="o">.</span><span class="n">num_sirrev</span><span class="p">]</span> <span class="o">=</span> <span class="n">lat</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">elements</span><span class="o">.</span><span class="n">specie</span><span class="o">==</span><span class="bp">self</span><span class="o">.</span><span class="n">num_sirrev</span><span class="p">]</span>
+
+        <span class="c1"># Vertical advection</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_config</span><span class="p">(</span><span class="s1">&#39;processes:verticaladvection&#39;</span><span class="p">)</span> <span class="ow">is</span> <span class="kc">True</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">vertical_advection</span><span class="p">()</span>
+
+        <span class="c1"># Reset z for sedimented trajectories (reject vertical advection and mixing)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">elements</span><span class="o">.</span><span class="n">z</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">elements</span><span class="o">.</span><span class="n">specie</span><span class="o">==</span><span class="bp">self</span><span class="o">.</span><span class="n">num_srev</span><span class="p">]</span>   <span class="o">=</span> <span class="n">z_before</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">elements</span><span class="o">.</span><span class="n">specie</span><span class="o">==</span><span class="bp">self</span><span class="o">.</span><span class="n">num_srev</span><span class="p">]</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_config</span><span class="p">(</span><span class="s1">&#39;radionuclide:slowly_fraction&#39;</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">elements</span><span class="o">.</span><span class="n">z</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">elements</span><span class="o">.</span><span class="n">specie</span><span class="o">==</span><span class="bp">self</span><span class="o">.</span><span class="n">num_ssrev</span><span class="p">]</span> <span class="o">=</span> <span class="n">z_before</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">elements</span><span class="o">.</span><span class="n">specie</span><span class="o">==</span><span class="bp">self</span><span class="o">.</span><span class="n">num_ssrev</span><span class="p">]</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_config</span><span class="p">(</span><span class="s1">&#39;radionuclide:irreversible_fraction&#39;</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">elements</span><span class="o">.</span><span class="n">z</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">elements</span><span class="o">.</span><span class="n">specie</span><span class="o">==</span><span class="bp">self</span><span class="o">.</span><span class="n">num_sirrev</span><span class="p">]</span> <span class="o">=</span> <span class="n">z_before</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">elements</span><span class="o">.</span><span class="n">specie</span><span class="o">==</span><span class="bp">self</span><span class="o">.</span><span class="n">num_sirrev</span><span class="p">]</span></div></div>
+
+</pre></div>
+
+           </div>
+           
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2019, Knut-Frode Dagestad et. al.
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>
