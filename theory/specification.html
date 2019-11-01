@@ -1,0 +1,277 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>Specifications and background requirements &mdash; OpenDrift  documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+  <script type="text/javascript" src="../_static/js/modernizr.min.js"></script>
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+        <script type="text/javascript" src="../_static/jquery.js"></script>
+        <script type="text/javascript" src="../_static/underscore.js"></script>
+        <script type="text/javascript" src="../_static/doctools.js"></script>
+        <script type="text/javascript" src="../_static/language_data.js"></script>
+    
+    <script type="text/javascript" src="../_static/js/theme.js"></script>
+
+    
+
+  
+  <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Data model" href="data_model.html" />
+    <link rel="prev" title="Installing OpenDrift from source or using pip" href="../install.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="../index.html" class="icon icon-home"> OpenDrift
+          
+
+          
+            
+            <img src="../_static/opendrift_logo.png" class="logo" alt="Logo"/>
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="../index.html">OpenDrift</a></li>
+</ul>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../install.html">Installing OpenDrift from source or using pip</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Specifications and background requirements</a></li>
+<li class="toctree-l1"><a class="reference internal" href="data_model.html">Data model</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../models.html">Models</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../autoapi/index.html">API Reference</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">OpenDrift</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../index.html">Docs</a> &raquo;</li>
+        
+      <li>Specifications and background requirements</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            <a href="../_sources/theory/specification.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="specifications-and-background-requirements">
+<h1>Specifications and background requirements<a class="headerlink" href="#specifications-and-background-requirements" title="Permalink to this headline">¶</a></h1>
+<p><strong>The goal is to develop a generic, open source trajectory model for any kind of particles (Lagrangian Elements) drifting in the ocean (or even in atmosphere).</strong></p>
+<p>Some desired features are:
+* <strong>Modular</strong></p>
+<blockquote>
+<div><ul class="simple">
+<li><p>Can read input (driver) data (currents, wind, waves etc) from any source/model in any projection and file format (including OPeNDAP/Thredds)
+* reads data only for the relevant locations/times where the active drifting objects are located
+* should be easy to add “readers” for new sources/models
+* parameters referred to by their CF standard-names, for consistency</p></li>
+<li><p>A <strong>core module</strong> will contain everything common to all types of particles
+* fetch driver data (wind, wave, current, water temp, air temp, diffusivity, etc)
+* check beaching/stranding
+* export output, with possibility to import for continued simulation
+* switch between “trajectory view” (history for each particle) and “field view” (particle positions/properties at given time)
+* plot figure (trajectories, or spatial distribution at given time; density maps, convex hull, …)</p></li>
+<li><p><strong>Separate modules</strong> with functions to advect and update the properties of specific types of particles:
+* oil (based on OD3D)
+* rigid objects (based on Leeway)
+* plankton, fish eggs, larvae (based on Ladim)</p></li>
+<li><p>Generic module for <strong>seeding of particles</strong> (point source, line, cone, shapefile, satellite image initialisation etc)</p></li>
+</ul>
+</div></blockquote>
+<ul>
+<li><p><strong>Robust</strong>
+* using priority list of driver data in case a source is missing, or if the particles exits the coverage in space or time. Using climatology or constant values as last option.
+* gracious error handling (try-except)</p></li>
+<li><p><strong>Fast</strong> (enough)
+* Using vectorized code (performance similar to c and fortran)</p></li>
+<li><p><strong>Flexible</strong>
+* Can be run for at any location worldwide where driver data are available
+* Option to run both forwards and backwards in time
+* Modules and functions/parameterisations can be modified easily by the user, e.g. for sensitivity tests and scientific studies</p></li>
+<li><p><strong>Stochastic</strong>
+* Take into account uncertainty:</p>
+<blockquote>
+<div><ul class="simple">
+<li><p>ensemble input</p></li>
+<li><p>multi-driver ensemble</p></li>
+<li><p>error, standard deviation</p></li>
+</ul>
+</div></blockquote>
+<ul class="simple">
+<li><p>Yet reproducible, using pseudo-random numbers, allowing sensitivity tests (various parameterisations, driver data sources etc)</p></li>
+</ul>
+</li>
+<li><p><strong>Programmed in Python</strong>
+* with optional possibility to implement specific modules og bottlenecks in other laguages, e.g. c or fortran
+* platform independent and easy (no) installation</p>
+<blockquote>
+<div><ul class="simple">
+<li><p>based on as few (standard) packages as possible:
+* scipy for scientific functions.
+* matplotlib for plotting functions.
+* basemap for GSHHS coastline for plots and for checking if particles should be stranded.</p></li>
+</ul>
+</div></blockquote>
+<ul class="simple">
+<li><p>clean code, following the [PEP8](<a class="reference external" href="http://www.python.org/dev/peps/pep-0008/">http://www.python.org/dev/peps/pep-0008/</a>) and [PEP257](<a class="reference external" href="https://www.python.org/dev/peps/pep-0257/">https://www.python.org/dev/peps/pep-0257/</a>) style guides.</p></li>
+</ul>
+</li>
+</ul>
+<p><a href="#id1"><span class="problematic" id="id2">**</span></a><a href="#id3"><span class="problematic" id="id4">*</span></a></p>
+<p>See presentations from NOAA regarding GNOME/ADIOS models, with several similar ideas:</p>
+<p><a class="reference external" href="https://ceprofs.civil.tamu.edu/ssocolofsky/nfm/Downloads/Workshop_2012/Plenary_Gnome.ppt.pdf">https://ceprofs.civil.tamu.edu/ssocolofsky/nfm/Downloads/Workshop_2012/Plenary_Gnome.ppt.pdf</a>
+<a class="reference external" href="http://www.youtube.com/watch?v=3pJlgQRn1jY">http://www.youtube.com/watch?v=3pJlgQRn1jY</a></p>
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="data_model.html" class="btn btn-neutral float-right" title="Data model" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+        <a href="../install.html" class="btn btn-neutral float-left" title="Installing OpenDrift from source or using pip" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2019, Knut-Frode Dagestad et. al.
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

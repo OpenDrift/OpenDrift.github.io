@@ -1,0 +1,445 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>opendrift.models.openberg &mdash; OpenDrift  documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+  <script type="text/javascript" src="../../../_static/js/modernizr.min.js"></script>
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
+        <script type="text/javascript" src="../../../_static/jquery.js"></script>
+        <script type="text/javascript" src="../../../_static/underscore.js"></script>
+        <script type="text/javascript" src="../../../_static/doctools.js"></script>
+        <script type="text/javascript" src="../../../_static/language_data.js"></script>
+    
+    <script type="text/javascript" src="../../../_static/js/theme.js"></script>
+
+    
+
+  
+  <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="../../../index.html" class="icon icon-home"> OpenDrift
+          
+
+          
+            
+            <img src="../../../_static/opendrift_logo.png" class="logo" alt="Logo"/>
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../index.html">OpenDrift</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../install.html">Installing OpenDrift from source or using pip</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../theory/specification.html">Specifications and background requirements</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../theory/data_model.html">Data model</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../models.html">Models</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../autoapi/index.html">API Reference</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">OpenDrift</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../../../index.html">Docs</a> &raquo;</li>
+        
+          <li><a href="../../index.html">Module code</a> &raquo;</li>
+        
+          <li><a href="../../opendrift.html">opendrift</a> &raquo;</li>
+        
+      <li>opendrift.models.openberg</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <h1>Source code for opendrift.models.openberg</h1><div class="highlight"><pre>
+<span></span><span class="c1"># This file is part of OpenDrift.</span>
+<span class="c1">#</span>
+<span class="c1"># OpenDrift is free software: you can redistribute it and/or modify</span>
+<span class="c1"># it under the terms of the GNU General Public License as published by</span>
+<span class="c1"># the Free Software Foundation, version 2</span>
+<span class="c1">#</span>
+<span class="c1"># OpenDrift is distributed in the hope that it will be useful,</span>
+<span class="c1"># but WITHOUT ANY WARRANTY; without even the implied warranty of</span>
+<span class="c1"># MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the</span>
+<span class="c1"># GNU General Public License for more details.</span>
+<span class="c1">#</span>
+<span class="c1"># You should have received a copy of the GNU General Public License</span>
+<span class="c1"># along with OpenDrift.  If not, see &lt;http://www.gnu.org/licenses/&gt;.</span>
+<span class="c1">#</span>
+<span class="c1"># Copyright 2019, Ole Baadshaug, MET Norway &amp; Ron Saper, Carleton University Canada.</span>
+<span class="c1">#</span>
+<span class="c1"># Caveat: This copyright will not interfere with the open nature of OpenDrift and OpenBerg</span>
+
+<span class="kn">import</span> <span class="nn">logging</span>
+
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">sys</span>
+<span class="kn">from</span> <span class="nn">scipy.interpolate</span> <span class="k">import</span> <span class="n">interp1d</span>
+
+<span class="k">try</span><span class="p">:</span>
+    <span class="kn">from</span> <span class="nn">mpl_toolkits.basemap</span> <span class="k">import</span> <span class="n">Basemap</span>
+    <span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="k">as</span> <span class="nn">plt</span>
+    <span class="kn">from</span> <span class="nn">matplotlib</span> <span class="k">import</span> <span class="n">animation</span>
+<span class="k">except</span><span class="p">:</span>
+    <span class="n">logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s1">&#39;Basemap is not available, can not make plots&#39;</span><span class="p">)</span>
+
+
+<span class="kn">from</span> <span class="nn">opendrift.models.basemodel</span> <span class="k">import</span> <span class="n">OpenDriftSimulation</span>
+<span class="kn">from</span> <span class="nn">opendrift.elements.elements</span> <span class="k">import</span> <span class="n">LagrangianArray</span>
+<span class="kn">from</span> <span class="nn">opendrift.readers.basereader</span> <span class="k">import</span> <span class="n">pyproj</span><span class="p">,</span> <span class="n">BaseReader</span>
+
+
+
+<span class="c1"># Defining the iceberg element properties</span>
+<div class="viewcode-block" id="IcebergObj"><a class="viewcode-back" href="../../../autoapi/opendrift/models/openberg/index.html#opendrift.models.openberg.IcebergObj">[docs]</a><span class="k">class</span> <span class="nc">IcebergObj</span><span class="p">(</span><span class="n">LagrangianArray</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Extending LagrangianArray with variables relevant for iceberg objects.</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    
+    <span class="c1"># We add the properties to the element class</span>
+    <span class="n">variables</span> <span class="o">=</span> <span class="n">LagrangianArray</span><span class="o">.</span><span class="n">add_variables</span><span class="p">([</span>
+        <span class="p">(</span><span class="s1">&#39;wind_drift_factor&#39;</span><span class="p">,</span> <span class="p">{</span><span class="s1">&#39;dtype&#39;</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">float32</span><span class="p">,</span>				<span class="c1"># The fraction of the wind speed at which an iceberg is moved</span>
+                       	     		<span class="s1">&#39;unit&#39;</span><span class="p">:</span> <span class="s1">&#39;%&#39;</span><span class="p">,</span>
+                       	        	<span class="s1">&#39;default&#39;</span><span class="p">:</span> <span class="mf">0.018</span><span class="p">}),</span>
+        <span class="p">(</span><span class="s1">&#39;water_line_length&#39;</span><span class="p">,</span> <span class="p">{</span><span class="s1">&#39;dtype&#39;</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">float32</span><span class="p">,</span>				<span class="c1"># Iceberg size</span>
+        							<span class="s1">&#39;unit&#39;</span><span class="p">:</span> <span class="s1">&#39;m&#39;</span><span class="p">,</span>
+                       	        	<span class="s1">&#39;default&#39;</span><span class="p">:</span> <span class="mf">90.5</span><span class="p">}),</span>
+        <span class="p">(</span><span class="s1">&#39;keel_depth&#39;</span><span class="p">,</span> <span class="p">{</span><span class="s1">&#39;dtype&#39;</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">float32</span><span class="p">,</span>					<span class="c1"># Iceberg keel depth</span>
+        							<span class="s1">&#39;unit&#39;</span><span class="p">:</span> <span class="s1">&#39;m&#39;</span><span class="p">,</span>
+                       	        	<span class="s1">&#39;default&#39;</span><span class="p">:</span> <span class="mi">60</span><span class="p">})])</span></div>
+
+<div class="viewcode-block" id="OpenBerg"><a class="viewcode-back" href="../../../autoapi/opendrift/models/openberg/index.html#opendrift.models.openberg.OpenBerg">[docs]</a><span class="k">class</span> <span class="nc">OpenBerg</span><span class="p">(</span><span class="n">OpenDriftSimulation</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;The Deterministic iceberg model in the OpenDrift framework.</span>
+
+<span class="sd">        Advects an iceberg with the current at all available depths and</span>
+<span class="sd">        as a function of the wind vector according to the above and below</span>
+<span class="sd">        water cross-sectional profile of the object.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">ElementType</span> <span class="o">=</span> <span class="n">IcebergObj</span>
+    
+    <span class="n">required_variables</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;x_wind&#39;</span><span class="p">,</span> <span class="s1">&#39;y_wind&#39;</span><span class="p">,</span>
+                          <span class="s1">&#39;x_sea_water_velocity&#39;</span><span class="p">,</span> <span class="s1">&#39;y_sea_water_velocity&#39;</span><span class="p">,</span>
+                          <span class="s1">&#39;land_binary_mask&#39;</span><span class="p">]</span> 
+
+    <span class="n">fallback_values</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;x_wind&#39;</span><span class="p">:</span> <span class="mf">0.0</span><span class="p">,</span>
+                       <span class="s1">&#39;y_wind&#39;</span><span class="p">:</span> <span class="mf">0.0</span><span class="p">,</span>
+                       <span class="s1">&#39;x_sea_water_velocity&#39;</span><span class="p">:</span> <span class="mf">0.0</span><span class="p">,</span>
+                       <span class="s1">&#39;y_sea_water_velocity&#39;</span><span class="p">:</span> <span class="mf">0.0</span><span class="p">}</span>
+
+    <span class="c1"># Default colors for plotting</span>
+    <span class="n">status_colors</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;initial&#39;</span><span class="p">:</span> <span class="s1">&#39;green&#39;</span><span class="p">,</span> <span class="s1">&#39;active&#39;</span><span class="p">:</span> <span class="s1">&#39;red&#39;</span><span class="p">,</span>
+                     <span class="s1">&#39;missing_data&#39;</span><span class="p">:</span> <span class="s1">&#39;gray&#39;</span><span class="p">,</span> <span class="s1">&#39;stranded&#39;</span><span class="p">:</span> <span class="s1">&#39;blue&#39;</span><span class="p">}</span>
+
+    <span class="c1"># Configuration</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">d</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="s1">&#39;OpenBerg&#39;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">label</span><span class="o">=</span><span class="n">label</span>                                                                
+                
+        <span class="bp">self</span><span class="o">.</span><span class="n">required_profiles</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;x_sea_water_velocity&#39;</span><span class="p">,</span>
+                                  <span class="s1">&#39;y_sea_water_velocity&#39;</span><span class="p">]</span>  <span class="c1"># Get vertical current profiles</span>
+                                  
+        <span class="bp">self</span><span class="o">.</span><span class="n">required_profiles_z_range</span> <span class="o">=</span> <span class="p">[</span><span class="o">-</span><span class="mi">190</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span> <span class="c1"># [min_depth, max_depth]</span>
+
+        <span class="c1"># Calling general constructor of parent class</span>
+        <span class="nb">super</span><span class="p">(</span><span class="n">OpenBerg</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+
+
+<div class="viewcode-block" id="OpenBerg.update"><a class="viewcode-back" href="../../../autoapi/opendrift/models/openberg/index.html#opendrift.models.openberg.OpenBerg.update">[docs]</a>    <span class="k">def</span> <span class="nf">update</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Update positions and properties of icebergs.&quot;&quot;&quot;</span>     
+		<span class="c1"># Move icebergs at given % of wind speed</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">advect_wind</span><span class="p">()</span>
+
+        <span class="c1"># Move icebergs as per Anne Barker et al, 2004, with weighted average of current  </span>
+        <span class="c1"># down to draft of berg.</span>
+        <span class="c1"># For current 10n meters down, where n is the depth index from 0 to 19</span>
+
+        <span class="c1"># RETRIEVE CURRENT SPEED:</span>
+        <span class="n">y_sea_water_vel</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">environment_profiles</span><span class="p">[</span><span class="s1">&#39;y_sea_water_velocity&#39;</span><span class="p">]</span>
+        <span class="n">x_sea_water_vel</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">environment_profiles</span><span class="p">[</span><span class="s1">&#39;x_sea_water_velocity&#39;</span><span class="p">]</span>        
+
+		<span class="c1"># FIND THE WEIGHTED AVERAGE CURRENT SPEED ACROSS THE ICEBERG KEEL        </span>
+        <span class="n">net_x_swv</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">x_sea_water_vel</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
+        <span class="n">net_y_swv</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">y_sea_water_vel</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
+        <span class="k">for</span> <span class="n">indx</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">uw_weighting</span><span class="p">)):</span>
+            <span class="n">net_y_swv</span> <span class="o">=</span> <span class="n">net_y_swv</span> <span class="o">+</span><span class="n">y_sea_water_vel</span><span class="p">[</span><span class="n">indx</span><span class="p">,:]</span><span class="o">*</span><span class="bp">self</span><span class="o">.</span><span class="n">uw_weighting</span><span class="p">[</span><span class="n">indx</span><span class="p">]</span>
+            <span class="n">net_x_swv</span> <span class="o">=</span> <span class="n">net_x_swv</span> <span class="o">+</span><span class="n">x_sea_water_vel</span><span class="p">[</span><span class="n">indx</span><span class="p">,:]</span><span class="o">*</span><span class="bp">self</span><span class="o">.</span><span class="n">uw_weighting</span><span class="p">[</span><span class="n">indx</span><span class="p">]</span>
+            
+        <span class="bp">self</span><span class="o">.</span><span class="n">update_positions</span><span class="p">(</span><span class="n">net_x_swv</span><span class="p">,</span><span class="n">net_y_swv</span><span class="p">)</span></div>
+            
+
+<div class="viewcode-block" id="OpenBerg.prepare_run"><a class="viewcode-back" href="../../../autoapi/opendrift/models/openberg/index.html#opendrift.models.openberg.OpenBerg.prepare_run">[docs]</a>    <span class="k">def</span> <span class="nf">prepare_run</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;	Model spesific preparations.</span>
+<span class="sd">         	Set the weighting for modelled current depths as per Table 5 of Barker 2004,</span>
+<span class="sd">        	&#39;Determination of Iceberg Draft, Mass and Cross-Sectional Areas&#39;,</span>
+<span class="sd">        	Proceedings of The Fourteenth (2004) International Offshore and </span>
+<span class="sd">        	Polar Engineering Conference.</span>
+<span class="sd">        	</span>
+<span class="sd">        	NB! This version of OpenBerg does not allow for seeding of iceberg elements</span>
+<span class="sd">        	of different sizes.</span>
+<span class="sd">        	</span>
+<span class="sd">        	Also controles that the model handles readers without block data correctly.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># Retrieve profile provided in z dimension by reader  </span>
+        <span class="n">variable_groups</span><span class="p">,</span> <span class="n">reader_groups</span><span class="p">,</span> <span class="n">missing_variables</span> <span class="o">=</span> \
+         	<span class="bp">self</span><span class="o">.</span><span class="n">get_reader_groups</span><span class="p">([</span><span class="s1">&#39;x_sea_water_velocity&#39;</span><span class="p">,</span><span class="s1">&#39;y_sea_water_velocity&#39;</span><span class="p">])</span> 
+        
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">reader_groups</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+        	<span class="c1"># No current data -&gt; fallback values used</span>
+        	<span class="bp">self</span><span class="o">.</span><span class="n">uw_weighting</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mi">1</span><span class="p">])</span>
+        	<span class="k">return</span> 
+        	
+		<span class="c1"># Obtain depth levels from reader:</span>
+        <span class="n">reader_name</span> <span class="o">=</span> <span class="n">reader_groups</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span>
+        <span class="n">profile</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">ma</span><span class="o">.</span><span class="n">filled</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">readers</span><span class="p">[</span><span class="n">reader_name</span><span class="p">]</span><span class="o">.</span><span class="n">z</span><span class="p">))</span>
+        
+       <span class="c1"># Make sure that interpolation is left to reader if no blocks are used . </span>
+       <span class="c1"># NB! This is a workaround, two additional points should be removed in basereader!      </span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">readers</span><span class="p">[</span><span class="n">reader_name</span><span class="p">]</span><span class="o">.</span><span class="n">return_block</span> <span class="o">==</span> <span class="kc">False</span><span class="p">:</span>
+        	<span class="bp">self</span><span class="o">.</span><span class="n">use_block</span> <span class="o">=</span> <span class="kc">False</span>
+        
+        <span class="c1"># If current data is missing in at least one dimension, no weighting is performed:</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">missing_variables</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+        	<span class="n">logging</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="s1">&#39;Missing current data, weigthing array set to [1]&#39;</span><span class="p">)</span>
+        	<span class="bp">self</span><span class="o">.</span><span class="n">uw_weighting</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mi">1</span><span class="p">])</span>
+        	<span class="k">return</span>       
+        	  		
+        <span class="c1"># No need to create weighting array if only one z-level is provided:</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">profile</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+        	<span class="bp">self</span><span class="o">.</span><span class="n">uw_weighting</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mi">1</span><span class="p">])</span>
+        	<span class="k">return</span>
+        	        	
+        <span class="c1"># Make copies to prevent outside value to be modified</span>
+        <span class="n">water_line_length</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">elements_scheduled</span><span class="o">.</span><span class="n">water_line_length</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+        <span class="n">depth</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">elements_scheduled</span><span class="o">.</span><span class="n">keel_depth</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+
+        <span class="c1"># Calculate the weighting array corresponding to the iceberg profile</span>
+        <span class="n">uw_weighting</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">composite_iceberg</span><span class="p">(</span><span class="n">water_line_length</span><span class="o">=</span><span class="n">water_line_length</span><span class="p">,</span> <span class="n">depth</span><span class="o">=</span><span class="n">depth</span><span class="p">)</span>
+             
+
+            
+        <span class="c1">#### Interpolate weighting array to match z-dimension of current reader ###</span>
+        
+        <span class="c1"># Array of &quot;Barker-depths&quot; (10n)m, , where n is the depth index from 0 to 19</span>
+        <span class="n">x</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="mi">0</span><span class="p">,(</span><span class="nb">len</span><span class="p">(</span><span class="n">uw_weighting</span><span class="p">)</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span><span class="o">*</span><span class="mi">10</span><span class="p">,</span><span class="nb">len</span><span class="p">(</span><span class="n">uw_weighting</span><span class="p">))</span> 
+        
+        <span class="c1"># Create a linear interpolator</span>
+        <span class="n">interpol</span> <span class="o">=</span> <span class="n">interp1d</span><span class="p">(</span><span class="n">x</span><span class="p">,</span><span class="n">uw_weighting</span><span class="p">)</span> 
+        
+        <span class="c1"># Obtain corresponding depth levels from reader:        </span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">reader_z_profile</span> <span class="o">=</span> <span class="n">profile</span><span class="p">[(</span><span class="n">profile</span> <span class="o">&gt;=</span> <span class="mi">0</span><span class="p">)</span> <span class="o">&amp;</span> <span class="p">(</span><span class="n">profile</span> <span class="o">&lt;=</span> <span class="n">x</span><span class="o">.</span><span class="n">max</span><span class="p">())]</span>
+        
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">profile</span><span class="p">[</span><span class="n">profile</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="p">])</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+        	<span class="n">logging</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="s1">&#39;Current reader containing currents above water!&#39;</span>
+        						<span class="s1">&#39;Weighting of current profile may not work!&#39;</span><span class="p">)</span>
+        
+        <span class="c1"># Interpolate and normalize weights:</span>
+        
+        <span class="c1">###### NB!  Interpolator only includes values from reader within the range of the </span>
+        <span class="c1">######		Barker-depth array. Meaning values just outside is not used for interpolation.</span>
+        <span class="c1">######		Ex.: If x.max=195 and the current reader includes data for </span>
+        <span class="c1">######		the z-profile: [0,3,10,15,25,50,75,100,150,200] only data from the </span>
+        <span class="c1">######		z-levels [0,3,10,15,25,50,75,100,150] are used.</span>
+        
+        <span class="n">interpol_weight</span> <span class="o">=</span> <span class="n">interpol</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">reader_z_profile</span><span class="p">)</span> 
+        <span class="n">normalized_weight</span> <span class="o">=</span> <span class="n">interpol_weight</span><span class="o">/</span><span class="n">interpol_weight</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span>
+        
+        <span class="k">if</span> <span class="n">normalized_weight</span><span class="o">.</span><span class="n">all</span><span class="p">():</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">uw_weighting</span> <span class="o">=</span> <span class="n">normalized_weight</span>
+                              	
+        <span class="nb">super</span><span class="p">(</span><span class="n">OpenBerg</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">prepare_run</span><span class="p">()</span></div>
+
+<div class="viewcode-block" id="OpenBerg.composite_iceberg"><a class="viewcode-back" href="../../../autoapi/opendrift/models/openberg/index.html#opendrift.models.openberg.OpenBerg.composite_iceberg">[docs]</a>    <span class="k">def</span> <span class="nf">composite_iceberg</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">water_line_length</span><span class="o">=</span><span class="mf">90.5</span><span class="p">,</span> <span class="n">depth</span><span class="o">=</span><span class="mi">60</span><span class="p">):</span>
+
+    	<span class="sd">&quot;&quot;&quot;This function creates a weigthing array for the current across the keel of an</span>
+<span class="sd">	    	iceberg based on waterline length and keel depth. The function uses the parameters</span>
+<span class="sd">    		in table 5 from Barker et. al.(2004).</span>
+<span class="sd">    	&quot;&quot;&quot;</span>
+		<span class="c1"># Parameters from Baker et. al.:</span>
+		
+    	<span class="n">a_param</span> <span class="o">=</span> <span class="p">[</span><span class="mf">9.5173</span><span class="p">,</span><span class="mf">11.1717</span><span class="p">,</span><span class="mf">12.4798</span><span class="p">,</span><span class="mf">13.6010</span><span class="p">,</span><span class="mf">14.3249</span><span class="p">,</span><span class="mf">13.7432</span><span class="p">,</span><span class="mf">13.4527</span><span class="p">,</span><span class="mf">15.7579</span><span class="p">,</span>
+    				<span class="mf">14.7259</span><span class="p">,</span><span class="mf">11.8195</span><span class="p">,</span><span class="mf">11.3610</span><span class="p">,</span><span class="mf">10.9202</span><span class="p">,</span><span class="mf">10.4966</span><span class="p">,</span><span class="mf">10.0893</span><span class="p">,</span><span class="mf">9.6979</span><span class="p">,</span><span class="mf">9.3216</span><span class="p">,</span><span class="mf">8.9600</span><span class="p">,</span>
+    				<span class="mf">8.6124</span><span class="p">,</span><span class="mf">8.2783</span><span class="p">,</span><span class="mf">7.9571</span><span class="p">]</span>
+				
+    	<span class="n">b_param</span> <span class="o">=</span> <span class="p">[</span><span class="o">-</span><span class="mf">25.94</span><span class="p">,</span><span class="o">-</span><span class="mf">107.50</span><span class="p">,</span><span class="o">-</span><span class="mf">232.01</span><span class="p">,</span><span class="o">-</span><span class="mf">344.60</span><span class="p">,</span><span class="o">-</span><span class="mf">456.57</span><span class="p">,</span><span class="o">-</span><span class="mf">433.33</span><span class="p">,</span><span class="o">-</span><span class="mf">519.56</span><span class="p">,</span><span class="o">-</span><span class="mf">1111.57</span><span class="p">,</span><span class="o">-</span><span class="mf">1125.00</span><span class="p">,</span>
+    					<span class="o">-</span><span class="mf">852.90</span><span class="p">,</span><span class="o">-</span><span class="mf">931.48</span><span class="p">,</span><span class="o">-</span><span class="mf">1007.02</span><span class="p">,</span><span class="o">-</span><span class="mf">1079.62</span><span class="p">,</span><span class="o">-</span><span class="mf">1149.41</span><span class="p">,</span><span class="o">-</span><span class="mf">1216.49</span><span class="p">,</span><span class="o">-</span><span class="mf">1280.97</span><span class="p">,</span>
+    					<span class="o">-</span><span class="mf">1342.95</span><span class="p">,</span><span class="o">-</span><span class="mf">1402.52</span><span class="p">,</span><span class="o">-</span><span class="mf">1459.78</span><span class="p">,</span><span class="o">-</span><span class="mf">1514.82</span><span class="p">]</span>
+				
+    	<span class="n">d</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="nb">round</span><span class="p">(</span><span class="n">depth</span><span class="o">/</span><span class="mi">10</span><span class="p">))</span>
+
+    	<span class="k">if</span> <span class="n">d</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="p">:</span> <span class="c1">#Incase depth is given as a negative value</span>
+    		<span class="n">d</span> <span class="o">=</span> <span class="o">-</span><span class="n">d</span> 
+
+
+    	<span class="k">if</span> <span class="n">d</span> <span class="o">&gt;</span> <span class="nb">len</span><span class="p">(</span><span class="n">a_param</span><span class="p">):</span>
+    		<span class="n">d</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">a_param</span><span class="p">)</span>
+    		<span class="nb">print</span><span class="p">(</span><span class="s1">&#39;##### OpenBerg does not support icebergs with keel depths greater than 200m!</span><span class="se">\n</span><span class="s1">&#39;</span> <span class="o">+</span>
+				<span class="s1">&#39;Using a composite iceberg with given waterline length and keel depth 200m&#39;</span><span class="p">)</span>  
+
+    	<span class="n">area_list</span><span class="o">=</span><span class="p">[]</span>
+
+    	<span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="n">d</span><span class="p">):</span>
+	
+    		<span class="n">A</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">lin_func</span><span class="p">(</span><span class="n">a_param</span><span class="p">[</span><span class="n">i</span><span class="p">],</span><span class="n">b_param</span><span class="p">[</span><span class="n">i</span><span class="p">],</span><span class="n">water_line_length</span><span class="p">)</span>
+    		<span class="n">area_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">A</span><span class="p">)</span>
+
+    	<span class="n">A_list</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">area_list</span><span class="p">)</span>
+
+    	<span class="c1"># Normalize array such that it sums to 1:</span>
+
+    	<span class="n">weigthing_array</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">area_list</span><span class="p">)</span><span class="o">/</span><span class="nb">sum</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">area_list</span><span class="p">))</span>
+
+    	<span class="k">return</span> <span class="n">weigthing_array</span></div>
+	
+	
+<div class="viewcode-block" id="OpenBerg.lin_func"><a class="viewcode-back" href="../../../autoapi/opendrift/models/openberg/index.html#opendrift.models.openberg.OpenBerg.lin_func">[docs]</a>    <span class="k">def</span> <span class="nf">lin_func</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">a</span><span class="p">,</span><span class="n">b</span><span class="p">,</span><span class="n">L</span><span class="p">):</span>
+    	<span class="sd">&quot;&quot;&quot;Returns value of linear function A=aL+b.&quot;&quot;&quot;</span>
+    	<span class="n">A</span> <span class="o">=</span> <span class="n">a</span><span class="o">*</span><span class="n">L</span> <span class="o">+</span> <span class="n">b</span>
+	
+    	<span class="k">return</span> <span class="n">A</span></div></div>
+</pre></div>
+
+           </div>
+           
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2019, Knut-Frode Dagestad et. al.
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

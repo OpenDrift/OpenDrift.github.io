@@ -1,0 +1,187 @@
+:mod:`opendrift.models.openoil3D`
+=================================
+
+.. py:module:: opendrift.models.openoil3D
+
+
+Module Contents
+---------------
+
+.. data:: basestring
+   
+
+   
+
+.. py:class:: Oil3D
+
+   Bases: :class:`opendrift.models.openoil.Oil`
+
+   Defining properties of an oil object/particles.
+
+   .. attribute:: variables
+      
+
+      
+
+
+.. py:class:: OpenOil3D(*args, **kwargs)
+
+   Bases: :class:`opendrift.models.opendrift3D.OpenDrift3DSimulation`, :class:`opendrift.models.openoil.OpenOil`
+
+   Open source oil trajectory model based on the OpenDrift framework.
+
+   The OpenOil oil drift model is described e.g. in 
+   Rohrs, J., Dagestad, K.-F., Asbjornsen, H., Nordam, T., Skancke, J.,
+   Jones, C. E., and Brekke, C.: The effect of vertical mixing on the 
+   horizontal drift of oil spills, Ocean Sci., 14, 1581-1601,
+   https://doi.org/10.5194/os-14-1581-2018, 2018.
+
+   Example usage:
+
+   .. code-block:: python
+
+      from opendrift.models.openoil3D import OpenOil3D
+      o = OpenOil3D()
+
+   Normal text.
+
+   .. attribute:: ElementType
+      
+
+      
+
+   .. attribute:: required_variables
+      :annotation: = ['x_sea_water_velocity', 'y_sea_water_velocity', 'sea_surface_wave_significant_height', 'sea_surface_wave_stokes_drift_x_velocity', 'sea_surface_wave_stokes_drift_y_velocity', 'sea_surface_wave_period_at_variance_spectral_density_maximum', 'sea_surface_wave_mean_period_from_variance_spectral_density_second_frequency_moment', 'sea_ice_area_fraction', 'x_wind', 'y_wind', 'land_binary_mask', 'sea_floor_depth_below_sea_level', 'ocean_vertical_diffusivity', 'sea_water_temperature', 'sea_water_salinity', 'upward_sea_water_velocity']
+
+      
+
+   .. attribute:: desired_variables
+      :annotation: = ['sea_surface_wave_significant_height', 'sea_surface_wave_stokes_drift_x_velocity', 'sea_surface_wave_stokes_drift_y_velocity', 'sea_surface_wave_period_at_variance_spectral_density_maximum', 'sea_surface_wave_mean_period_from_variance_spectral_density_second_frequency_moment', 'sea_ice_area_fraction', 'ocean_vertical_diffusivity', 'upward_sea_water_velocity']
+
+      
+
+   .. attribute:: required_profiles
+      :annotation: = ['sea_water_temperature', 'sea_water_salinity', 'ocean_vertical_diffusivity']
+
+      
+
+   .. attribute:: required_profiles_z_range
+      
+
+      
+
+   .. attribute:: fallback_values
+      
+
+      
+
+   .. attribute:: max_speed
+      :annotation: = 1.3
+
+      
+
+   .. attribute:: oil_types
+      
+
+      
+
+   .. attribute:: default_oil
+      
+
+      
+
+   .. attribute:: configspecOO3D
+      
+
+      
+
+   .. method:: seed_elements(self, *args, **kwargs)
+
+
+
+   .. method:: prepare_run(self)
+
+
+
+   .. method:: particle_radius(self)
+
+
+      Calculate radius of entained particles.
+
+      Per now a fixed radius, should later use a distribution.
+
+
+   .. method:: update_terminal_velocity(self, Tprofiles=None, Sprofiles=None, z_index=None)
+
+
+      Calculate terminal velocity for oil droplets
+
+      according to
+      Tkalich et al. (2002): Vertical mixing of oil droplets
+                             by breaking waves
+      Marine Pollution Bulletin 44, 1219-1229
+
+      If profiles of temperature and salt are passed into this function,
+      they will be interpolated from the profiles.
+      if not, T,S will be fetched from reader.
+
+
+   .. method:: oil_wave_entrainment_rate(self)
+
+
+
+   .. method:: oil_wave_entrainment_rate_li2017(self)
+
+
+
+   .. method:: oil_wave_entrainment_rate_tkalich2002(self)
+
+
+
+   .. method:: prepare_vertical_mixing(self)
+
+
+      Calculate entrainment probability before main loop
+
+
+   .. method:: surface_wave_mixing(self, time_step_seconds)
+
+
+      Mix surface oil into water column.
+
+
+   .. method:: surface_stick(self)
+
+
+      set surfaced particles to exactly zero depth to let them form a slick 
+
+
+   .. method:: get_wave_breaking_droplet_diameter(self)
+
+
+
+   .. method:: get_wave_breaking_droplet_diameter_exponential(self)
+
+
+
+   .. method:: get_wave_breaking_droplet_diameter_liz2017(self)
+
+
+
+   .. method:: get_wave_breaking_droplet_diameter_johansen2015(self)
+
+
+
+   .. method:: resurface_elements(self, minimum_depth=None)
+
+
+      Oil elements reaching surface (or above) form slick, not droplet
+
+
+   .. method:: update(self)
+
+
+      Update positions and properties of oil particles.
+
+
+

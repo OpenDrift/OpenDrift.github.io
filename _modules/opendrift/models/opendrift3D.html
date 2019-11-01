@@ -1,0 +1,587 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>opendrift.models.opendrift3D &mdash; OpenDrift  documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+  <script type="text/javascript" src="../../../_static/js/modernizr.min.js"></script>
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
+        <script type="text/javascript" src="../../../_static/jquery.js"></script>
+        <script type="text/javascript" src="../../../_static/underscore.js"></script>
+        <script type="text/javascript" src="../../../_static/doctools.js"></script>
+        <script type="text/javascript" src="../../../_static/language_data.js"></script>
+    
+    <script type="text/javascript" src="../../../_static/js/theme.js"></script>
+
+    
+
+  
+  <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="../../../index.html" class="icon icon-home"> OpenDrift
+          
+
+          
+            
+            <img src="../../../_static/opendrift_logo.png" class="logo" alt="Logo"/>
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../index.html">OpenDrift</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../install.html">Installing OpenDrift from source or using pip</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../theory/specification.html">Specifications and background requirements</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../theory/data_model.html">Data model</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../models.html">Models</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../autoapi/index.html">API Reference</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">OpenDrift</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../../../index.html">Docs</a> &raquo;</li>
+        
+          <li><a href="../../index.html">Module code</a> &raquo;</li>
+        
+          <li><a href="../../opendrift.html">opendrift</a> &raquo;</li>
+        
+      <li>opendrift.models.opendrift3D</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <h1>Source code for opendrift.models.opendrift3D</h1><div class="highlight"><pre>
+<span></span><span class="c1"># This file is part of OpenDrift.</span>
+<span class="c1">#</span>
+<span class="c1"># OpenDrift is free software: you can redistribute it and/or modify</span>
+<span class="c1"># it under the terms of the GNU General Public License as published by</span>
+<span class="c1"># the Free Software Foundation, version 2</span>
+<span class="c1">#</span>
+<span class="c1"># OpenDrift is distributed in the hope that it will be useful,</span>
+<span class="c1"># but WITHOUT ANY WARRANTY; without even the implied warranty of</span>
+<span class="c1"># MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the</span>
+<span class="c1"># GNU General Public License for more details.</span>
+<span class="c1">#</span>
+<span class="c1"># You should have received a copy of the GNU General Public License</span>
+<span class="c1"># along with OpenDrift.  If not, see &lt;http://www.gnu.org/licenses/&gt;.</span>
+<span class="c1">#</span>
+<span class="c1"># Copyright 2015, Knut-Frode Dagestad, MET Norway</span>
+
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">logging</span>
+<span class="kn">from</span> <span class="nn">scipy.interpolate</span> <span class="k">import</span> <span class="n">interp1d</span>
+<span class="kn">from</span> <span class="nn">opendrift.models.basemodel</span> <span class="k">import</span> <span class="n">OpenDriftSimulation</span>
+<span class="kn">from</span> <span class="nn">opendrift.elements</span> <span class="k">import</span> <span class="n">LagrangianArray</span>
+
+
+<span class="c1"># Defining the oil element properties</span>
+<div class="viewcode-block" id="Lagrangian3DArray"><a class="viewcode-back" href="../../../autoapi/opendrift/models/opendrift3D/index.html#opendrift.models.opendrift3D.Lagrangian3DArray">[docs]</a><span class="k">class</span> <span class="nc">Lagrangian3DArray</span><span class="p">(</span><span class="n">LagrangianArray</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Extending LagrangianArray for elements moving in 3 dimensions</span>
+<span class="sd">    The Particle may be buoyant and/or subject to vertical mixing</span>
+<span class="sd">    buoyant bahaviour is described by terminal velocity</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">variables</span> <span class="o">=</span> <span class="n">LagrangianArray</span><span class="o">.</span><span class="n">add_variables</span><span class="p">([</span>
+        <span class="p">(</span><span class="s1">&#39;terminal_velocity&#39;</span><span class="p">,</span> <span class="p">{</span><span class="s1">&#39;dtype&#39;</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">float32</span><span class="p">,</span>
+                               <span class="s1">&#39;units&#39;</span><span class="p">:</span> <span class="s1">&#39;m/s&#39;</span><span class="p">,</span>
+                               <span class="s1">&#39;default&#39;</span><span class="p">:</span> <span class="mf">0.</span><span class="p">})])</span></div>
+
+
+<div class="viewcode-block" id="OpenDrift3DSimulation"><a class="viewcode-back" href="../../../autoapi/opendrift/models/opendrift3D/index.html#opendrift.models.opendrift3D.OpenDrift3DSimulation">[docs]</a><span class="k">class</span> <span class="nc">OpenDrift3DSimulation</span><span class="p">(</span><span class="n">OpenDriftSimulation</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Open source buoyant particle trajectory model based on OpenDrift.</span>
+
+<span class="sd">        Developed at MET Norway</span>
+
+<span class="sd">        Generic module for particles that move in 3 dimensions</span>
+<span class="sd">        and may be to vertical turbulent mixing</span>
+<span class="sd">        with the possibility for positive or negative buoyancy</span>
+
+<span class="sd">        Particles could be e.g. oil droplets, plankton, nutrients or sediments</span>
+
+<span class="sd">        Under construction.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">max_speed</span> <span class="o">=</span> <span class="mi">1</span>  <span class="c1"># m/s</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+
+        <span class="n">configspec_oceandrift3D</span> <span class="o">=</span> <span class="s1">&#39;&#39;&#39;</span>
+<span class="s1">            [processes]</span>
+<span class="s1">                turbulentmixing = boolean(default=True)</span>
+<span class="s1">                verticaladvection = boolean(default=True)</span>
+<span class="s1">            [turbulentmixing]</span>
+<span class="s1">                timestep = float(min=0.1, max=3600, default=60.)</span>
+<span class="s1">                diffusivitymodel = option(&#39;environment&#39;, &#39;zero&#39;, &#39;stepfunction&#39;, &#39;windspeed_Sundby1983&#39;, &#39;windspeed_Large1994&#39;, &#39;gls_tke&#39;, default=&#39;environment&#39;)</span>
+<span class="s1">                TSprofiles = boolean(default=False)</span>
+<span class="s1">                &#39;&#39;&#39;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_add_configstring</span><span class="p">(</span><span class="n">configspec_oceandrift3D</span><span class="p">)</span>
+
+        <span class="c1"># Calling general constructor of parent class</span>
+        <span class="nb">super</span><span class="p">(</span><span class="n">OpenDrift3DSimulation</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span> 
+
+<div class="viewcode-block" id="OpenDrift3DSimulation.update_terminal_velocity"><a class="viewcode-back" href="../../../autoapi/opendrift/models/opendrift3D/index.html#opendrift.models.opendrift3D.OpenDrift3DSimulation.update_terminal_velocity">[docs]</a>    <span class="k">def</span> <span class="nf">update_terminal_velocity</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">Tprofiles</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">Sprofiles</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                                 <span class="n">z_index</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Calculate terminal velocity due to bouyancy from own properties</span>
+<span class="sd">        and environmental variables</span>
+<span class="sd">        overload this function to create particle-specific behaviour</span>
+<span class="sd">        &quot;&quot;&quot;</span></div>
+        <span class="c1">#self.elements.terminal_velocity = 0.00</span>
+
+<div class="viewcode-block" id="OpenDrift3DSimulation.vertical_advection"><a class="viewcode-back" href="../../../autoapi/opendrift/models/opendrift3D/index.html#opendrift.models.opendrift3D.OpenDrift3DSimulation.vertical_advection">[docs]</a>    <span class="k">def</span> <span class="nf">vertical_advection</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Move particles vertically according to vertical ocean current</span>
+
+<span class="sd">            Vertical advection by ocean currents is small compared to</span>
+<span class="sd">            termical velocity</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_config</span><span class="p">(</span><span class="s1">&#39;processes:verticaladvection&#39;</span><span class="p">)</span> <span class="ow">is</span> <span class="kc">False</span><span class="p">:</span>
+            <span class="n">logging</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;Vertical advection deactivated&#39;</span><span class="p">)</span>
+            <span class="k">return</span>
+
+        <span class="n">in_ocean</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">elements</span><span class="o">.</span><span class="n">z</span><span class="o">&lt;</span><span class="mi">0</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">in_ocean</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="n">w</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">environment</span><span class="o">.</span><span class="n">upward_sea_water_velocity</span><span class="p">[</span><span class="n">in_ocean</span><span class="p">]</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">elements</span><span class="o">.</span><span class="n">z</span><span class="p">[</span><span class="n">in_ocean</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">minimum</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">elements</span><span class="o">.</span><span class="n">z</span><span class="p">[</span><span class="n">in_ocean</span><span class="p">]</span> <span class="o">+</span> <span class="n">w</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">time_step</span><span class="o">.</span><span class="n">total_seconds</span><span class="p">())</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">logging</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;No vertical advection for elements at surface&#39;</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="OpenDrift3DSimulation.prepare_vertical_mixing"><a class="viewcode-back" href="../../../autoapi/opendrift/models/opendrift3D/index.html#opendrift.models.opendrift3D.OpenDrift3DSimulation.prepare_vertical_mixing">[docs]</a>    <span class="k">def</span> <span class="nf">prepare_vertical_mixing</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">pass</span>  <span class="c1"># To be implemented by subclasses as needed</span></div>
+
+<div class="viewcode-block" id="OpenDrift3DSimulation.surface_stick"><a class="viewcode-back" href="../../../autoapi/opendrift/models/opendrift3D/index.html#opendrift.models.opendrift3D.OpenDrift3DSimulation.surface_stick">[docs]</a>    <span class="k">def</span> <span class="nf">surface_stick</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;To be overloaded by subclasses, e.g. downward mixing of oil&#39;&#39;&#39;</span>
+
+        <span class="c1"># keep particle just below the surface</span>
+        <span class="n">surface</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">elements</span><span class="o">.</span><span class="n">z</span> <span class="o">&gt;=</span> <span class="mi">0</span><span class="p">)</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">surface</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">elements</span><span class="o">.</span><span class="n">z</span><span class="p">[</span><span class="n">surface</span><span class="p">]</span> <span class="o">=</span> <span class="o">-</span><span class="mf">0.01</span></div>
+            
+<div class="viewcode-block" id="OpenDrift3DSimulation.bottom_interaction"><a class="viewcode-back" href="../../../autoapi/opendrift/models/opendrift3D/index.html#opendrift.models.opendrift3D.OpenDrift3DSimulation.bottom_interaction">[docs]</a>    <span class="k">def</span> <span class="nf">bottom_interaction</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">Zmin</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;To be overloaded by subclasses, e.g. radionuclides in sediments&#39;&#39;&#39;</span>
+        <span class="c1"># do nothing</span>
+        <span class="k">pass</span></div>
+
+<div class="viewcode-block" id="OpenDrift3DSimulation.surface_wave_mixing"><a class="viewcode-back" href="../../../autoapi/opendrift/models/opendrift3D/index.html#opendrift.models.opendrift3D.OpenDrift3DSimulation.surface_wave_mixing">[docs]</a>    <span class="k">def</span> <span class="nf">surface_wave_mixing</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">time_step_seconds</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;To be overloaded by subclasses, e.g. downward mixing of oil&#39;&#39;&#39;</span>
+
+        <span class="c1"># do nothing </span>
+        <span class="k">pass</span></div>
+
+<div class="viewcode-block" id="OpenDrift3DSimulation.vertical_mixing"><a class="viewcode-back" href="../../../autoapi/opendrift/models/opendrift3D/index.html#opendrift.models.opendrift3D.OpenDrift3DSimulation.vertical_mixing">[docs]</a>    <span class="k">def</span> <span class="nf">vertical_mixing</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Mix particles vertically according to eddy diffusivity and buoyancy</span>
+
+<span class="sd">            Buoyancy is expressed as terminal velocity, which is the</span>
+<span class="sd">            steady-state vertical velocity due to positive or negative</span>
+<span class="sd">            buoyant behaviour. It is usually a function of particle density,</span>
+<span class="sd">            diameter, and shape.</span>
+
+<span class="sd">            Vertical particle displacemend du to turbulent mixing is</span>
+<span class="sd">            calculated using a random walk scheme&quot; (Visser et al. 1996)</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_config</span><span class="p">(</span><span class="s1">&#39;processes:turbulentmixing&#39;</span><span class="p">)</span> <span class="ow">is</span> <span class="kc">False</span><span class="p">:</span>
+            <span class="n">logging</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;Turbulent mixing deactivated&#39;</span><span class="p">)</span>
+            <span class="k">return</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">timer_start</span><span class="p">(</span><span class="s1">&#39;main loop:updating elements:vertical mixing&#39;</span><span class="p">)</span>
+        <span class="kn">from</span> <span class="nn">opendrift.models</span> <span class="k">import</span> <span class="n">eddydiffusivity</span>
+
+        <span class="n">dt_mix</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_config</span><span class="p">(</span><span class="s1">&#39;turbulentmixing:timestep&#39;</span><span class="p">)</span>
+
+        <span class="c1"># minimum height/maximum depth for each particle</span>
+        <span class="n">Zmin</span> <span class="o">=</span> <span class="o">-</span><span class="mf">1.</span><span class="o">*</span><span class="bp">self</span><span class="o">.</span><span class="n">environment</span><span class="o">.</span><span class="n">sea_floor_depth_below_sea_level</span>
+
+        <span class="c1"># Eventual model specific preparions</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">prepare_vertical_mixing</span><span class="p">()</span>
+
+        <span class="c1"># get profile of eddy diffusivity</span>
+        <span class="c1"># get vertical eddy diffusivity from environment or specific model</span>
+        <span class="k">if</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">get_config</span><span class="p">(</span><span class="s1">&#39;turbulentmixing:diffusivitymodel&#39;</span><span class="p">)</span> <span class="o">==</span>
+                <span class="s1">&#39;environment&#39;</span><span class="p">):</span>
+            <span class="k">if</span> <span class="s1">&#39;ocean_vertical_diffusivity&#39;</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">environment_profiles</span><span class="p">:</span>
+                <span class="n">Kprofiles</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">environment_profiles</span><span class="p">[</span>
+                    <span class="s1">&#39;ocean_vertical_diffusivity&#39;</span><span class="p">]</span>
+                <span class="n">logging</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;Using diffusivity from ocean model&#39;</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="c1"># NB: using constant diffusivity, and value from first</span>
+                <span class="c1"># element only - this should be checked/improved!</span>
+                <span class="n">Kprofiles</span> <span class="o">=</span> \
+                    <span class="bp">self</span><span class="o">.</span><span class="n">environment</span><span class="o">.</span><span class="n">ocean_vertical_diffusivity</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">*</span> \
+                    <span class="n">np</span><span class="o">.</span><span class="n">ones</span><span class="p">((</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">environment_profiles</span><span class="p">[</span><span class="s1">&#39;z&#39;</span><span class="p">]),</span>
+                             <span class="bp">self</span><span class="o">.</span><span class="n">num_elements_active</span><span class="p">()))</span>
+                <span class="n">logging</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;Using constant diffusivity&#39;</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">logging</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;Using functional expression for diffusivity&#39;</span><span class="p">)</span>
+            <span class="n">Kprofiles</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span>
+                <span class="n">eddydiffusivity</span><span class="p">,</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">get_config</span><span class="p">(</span><span class="s1">&#39;turbulentmixing:diffusivitymodel&#39;</span><span class="p">))(</span><span class="bp">self</span><span class="p">)</span>
+
+        <span class="n">logging</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;Diffiusivities are in range </span><span class="si">%s</span><span class="s1"> to </span><span class="si">%s</span><span class="s1">&#39;</span> <span class="o">%</span>
+                      <span class="p">(</span><span class="n">Kprofiles</span><span class="o">.</span><span class="n">min</span><span class="p">(),</span> <span class="n">Kprofiles</span><span class="o">.</span><span class="n">max</span><span class="p">()))</span>
+
+        <span class="c1"># get profiles of salinity and temperature</span>
+        <span class="c1"># (to save interpolation time in the inner loop)</span>
+        <span class="k">if</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">get_config</span><span class="p">(</span><span class="s1">&#39;turbulentmixing:TSprofiles&#39;</span><span class="p">)</span> <span class="ow">is</span> <span class="kc">True</span> 
+            <span class="ow">and</span> <span class="s1">&#39;sea_water_salinity&#39;</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">required_variables</span><span class="p">):</span>
+            <span class="n">Sprofiles</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">environment_profiles</span><span class="p">[</span><span class="s1">&#39;sea_water_salinity&#39;</span><span class="p">]</span>
+            <span class="n">Tprofiles</span> <span class="o">=</span> \
+                <span class="bp">self</span><span class="o">.</span><span class="n">environment_profiles</span><span class="p">[</span><span class="s1">&#39;sea_water_temperature&#39;</span><span class="p">]</span>
+            <span class="k">if</span> <span class="p">(</span><span class="s1">&#39;sea_water_salinity&#39;</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">fallback_values</span> <span class="ow">and</span>
+                <span class="n">Sprofiles</span><span class="o">.</span><span class="n">min</span><span class="p">()</span> <span class="o">==</span> <span class="n">Sprofiles</span><span class="o">.</span><span class="n">max</span><span class="p">()):</span>
+                <span class="n">logging</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;Salinity and temperature are fallback&#39;</span>
+                              <span class="s1">&#39;values, skipping TSprofile&#39;</span><span class="p">)</span>
+                <span class="n">Sprofiles</span> <span class="o">=</span> <span class="kc">None</span>
+                <span class="n">Tprofiles</span> <span class="o">=</span> <span class="kc">None</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">logging</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;Using TSprofiles for vertical mixing&#39;</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">logging</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;TSprofiles deactivated for vertical mixing&#39;</span><span class="p">)</span>
+            <span class="n">Sprofiles</span> <span class="o">=</span> <span class="kc">None</span>
+            <span class="n">Tprofiles</span> <span class="o">=</span> <span class="kc">None</span>
+
+        <span class="c1"># prepare vertical interpolation coordinates</span>
+        <span class="c1">#z_i = range(Kprofiles.shape[0])</span>
+        <span class="n">z_i</span> <span class="o">=</span> <span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">environment_profiles</span><span class="p">[</span><span class="s1">&#39;z&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">z_i</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="n">z_index</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">z_index</span> <span class="o">=</span> <span class="n">interp1d</span><span class="p">(</span><span class="o">-</span><span class="bp">self</span><span class="o">.</span><span class="n">environment_profiles</span><span class="p">[</span><span class="s1">&#39;z&#39;</span><span class="p">],</span>
+                               <span class="n">z_i</span><span class="p">,</span> <span class="n">bounds_error</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+                               <span class="n">fill_value</span><span class="o">=</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="nb">len</span><span class="p">(</span><span class="n">z_i</span><span class="p">)</span><span class="o">-</span><span class="mi">1</span><span class="p">))</span>  <span class="c1"># Extrapolation</span>
+
+        <span class="c1"># internal loop for fast time step of vertical mixing model</span>
+        <span class="c1"># random walk needs faster time step compared</span>
+        <span class="c1"># to horizontal advection</span>
+        <span class="n">logging</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;Vertical mixing module:&#39;</span><span class="p">)</span>
+        <span class="n">ntimes_mix</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">time_step</span><span class="o">.</span><span class="n">total_seconds</span><span class="p">()</span><span class="o">/</span><span class="n">dt_mix</span><span class="p">))</span>
+        <span class="n">logging</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;Turbulent diffusion with random walk &#39;</span>
+                      <span class="s1">&#39;scheme using &#39;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">ntimes_mix</span><span class="p">)</span> <span class="o">+</span>
+                      <span class="s1">&#39; fast time steps of dt=&#39;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">dt_mix</span><span class="p">)</span> <span class="o">+</span> <span class="s1">&#39;s&#39;</span><span class="p">)</span>
+
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">ntimes_mix</span><span class="p">):</span>
+            <span class="c1">#remember which particles belong to the exact surface</span>
+            <span class="n">surface</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">elements</span><span class="o">.</span><span class="n">z</span> <span class="o">==</span> <span class="mi">0</span>
+
+            <span class="c1"># update terminal velocity according to environmental variables</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_config</span><span class="p">(</span><span class="s1">&#39;turbulentmixing:TSprofiles&#39;</span><span class="p">)</span> <span class="ow">is</span> <span class="kc">True</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">update_terminal_velocity</span><span class="p">(</span><span class="n">Tprofiles</span><span class="o">=</span><span class="n">Tprofiles</span><span class="p">,</span>
+                                              <span class="n">Sprofiles</span><span class="o">=</span><span class="n">Sprofiles</span><span class="p">,</span>
+                                              <span class="n">z_index</span><span class="o">=</span><span class="n">z_index</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="c1"># this is faster, but ignores density gradients in</span>
+                <span class="c1"># water column for the inner loop</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">update_terminal_velocity</span><span class="p">()</span>
+
+            <span class="n">w</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">elements</span><span class="o">.</span><span class="n">terminal_velocity</span>
+
+            <span class="c1"># diffusivity K at depth z+dz</span>
+
+
+            <span class="n">dz</span> <span class="o">=</span> <span class="mf">1e-3</span>
+            <span class="k">if</span> <span class="n">z_index</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="n">zi</span> <span class="o">=</span> <span class="mi">0</span><span class="o">*</span><span class="bp">self</span><span class="o">.</span><span class="n">elements</span><span class="o">.</span><span class="n">z</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">zi</span> <span class="o">=</span> <span class="n">z_index</span><span class="p">(</span><span class="o">-</span><span class="bp">self</span><span class="o">.</span><span class="n">elements</span><span class="o">.</span><span class="n">z</span><span class="o">+</span><span class="mf">0.5</span><span class="o">*</span><span class="n">dz</span><span class="p">)</span>
+            <span class="n">upper</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">maximum</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">floor</span><span class="p">(</span><span class="n">zi</span><span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">int</span><span class="p">),</span> <span class="mi">0</span><span class="p">)</span>
+            <span class="n">lower</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">minimum</span><span class="p">(</span><span class="n">upper</span><span class="o">+</span><span class="mi">1</span><span class="p">,</span> <span class="n">Kprofiles</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span>
+            <span class="n">weight_upper</span> <span class="o">=</span> <span class="mi">1</span> <span class="o">-</span> <span class="p">(</span><span class="n">zi</span> <span class="o">-</span> <span class="n">upper</span><span class="p">)</span>
+            <span class="n">weight_upper</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">isnan</span><span class="p">(</span><span class="n">weight_upper</span><span class="p">)]</span> <span class="o">=</span> <span class="mi">1</span>
+            <span class="n">K1</span> <span class="o">=</span> <span class="n">Kprofiles</span><span class="p">[</span><span class="n">upper</span><span class="p">,</span> <span class="nb">range</span><span class="p">(</span><span class="n">Kprofiles</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">])]</span> <span class="o">*</span> \
+                <span class="n">weight_upper</span> <span class="o">+</span> \
+                <span class="n">Kprofiles</span><span class="p">[</span><span class="n">lower</span><span class="p">,</span> <span class="nb">range</span><span class="p">(</span><span class="n">Kprofiles</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">])]</span> <span class="o">*</span> \
+                <span class="p">(</span><span class="mi">1</span><span class="o">-</span><span class="n">weight_upper</span><span class="p">)</span>
+
+            <span class="c1"># diffusivity K at depth z-dz</span>
+            <span class="k">if</span> <span class="n">z_index</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="n">zi</span> <span class="o">=</span> <span class="mi">0</span><span class="o">*</span><span class="bp">self</span><span class="o">.</span><span class="n">elements</span><span class="o">.</span><span class="n">z</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">zi</span> <span class="o">=</span> <span class="n">z_index</span><span class="p">(</span><span class="o">-</span><span class="bp">self</span><span class="o">.</span><span class="n">elements</span><span class="o">.</span><span class="n">z</span><span class="o">-</span><span class="mf">0.5</span><span class="o">*</span><span class="n">dz</span><span class="p">)</span>
+            <span class="n">upper</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">maximum</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">floor</span><span class="p">(</span><span class="n">zi</span><span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">int</span><span class="p">),</span> <span class="mi">0</span><span class="p">)</span>
+            <span class="n">lower</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">minimum</span><span class="p">(</span><span class="n">upper</span><span class="o">+</span><span class="mi">1</span><span class="p">,</span> <span class="n">Kprofiles</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span>
+            <span class="n">weight_upper</span> <span class="o">=</span> <span class="mi">1</span> <span class="o">-</span> <span class="p">(</span><span class="n">zi</span> <span class="o">-</span> <span class="n">upper</span><span class="p">)</span>
+            <span class="n">weight_upper</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">isnan</span><span class="p">(</span><span class="n">weight_upper</span><span class="p">)]</span> <span class="o">=</span> <span class="mi">1</span>
+            <span class="n">K2</span> <span class="o">=</span> <span class="n">Kprofiles</span><span class="p">[</span><span class="n">upper</span><span class="p">,</span> <span class="nb">range</span><span class="p">(</span><span class="n">Kprofiles</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">])]</span> <span class="o">*</span> \
+                <span class="n">weight_upper</span> <span class="o">+</span> \
+                <span class="n">Kprofiles</span><span class="p">[</span><span class="n">lower</span><span class="p">,</span> <span class="nb">range</span><span class="p">(</span><span class="n">Kprofiles</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">])]</span> <span class="o">*</span> \
+                <span class="p">(</span><span class="mi">1</span><span class="o">-</span><span class="n">weight_upper</span><span class="p">)</span>
+
+            <span class="c1"># diffusivity gradient</span>
+            <span class="n">dKdz</span> <span class="o">=</span> <span class="p">(</span><span class="n">K1</span> <span class="o">-</span> <span class="n">K2</span><span class="p">)</span> <span class="o">/</span> <span class="n">dz</span>
+
+            <span class="c1"># K at depth z+dKdz*dt/2 </span>
+            <span class="k">if</span> <span class="n">z_index</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="n">zi</span> <span class="o">=</span> <span class="mi">0</span><span class="o">*</span><span class="bp">self</span><span class="o">.</span><span class="n">elements</span><span class="o">.</span><span class="n">z</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">zi</span> <span class="o">=</span> <span class="n">z_index</span><span class="p">(</span><span class="o">-</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">elements</span><span class="o">.</span><span class="n">z</span><span class="o">+</span><span class="n">dKdz</span><span class="o">*</span><span class="n">dt_mix</span><span class="o">/</span><span class="mi">2</span><span class="p">))</span>
+            <span class="n">upper</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">maximum</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">floor</span><span class="p">(</span><span class="n">zi</span><span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">int</span><span class="p">),</span> <span class="mi">0</span><span class="p">)</span>
+            <span class="n">lower</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">minimum</span><span class="p">(</span><span class="n">upper</span><span class="o">+</span><span class="mi">1</span><span class="p">,</span> <span class="n">Kprofiles</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span>
+            <span class="n">weight_upper</span> <span class="o">=</span> <span class="mi">1</span> <span class="o">-</span> <span class="p">(</span><span class="n">zi</span> <span class="o">-</span> <span class="n">upper</span><span class="p">)</span>
+            <span class="n">weight_upper</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">isnan</span><span class="p">(</span><span class="n">weight_upper</span><span class="p">)]</span> <span class="o">=</span> <span class="mi">1</span>
+            <span class="n">K3</span> <span class="o">=</span> <span class="n">Kprofiles</span><span class="p">[</span><span class="n">upper</span><span class="p">,</span> <span class="nb">range</span><span class="p">(</span><span class="n">Kprofiles</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">])]</span> <span class="o">*</span> \
+                <span class="n">weight_upper</span> <span class="o">+</span> \
+                <span class="n">Kprofiles</span><span class="p">[</span><span class="n">lower</span><span class="p">,</span> <span class="nb">range</span><span class="p">(</span><span class="n">Kprofiles</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">])]</span> <span class="o">*</span> \
+                <span class="p">(</span><span class="mi">1</span><span class="o">-</span><span class="n">weight_upper</span><span class="p">)</span>
+
+
+            <span class="c1"># Visser et al. 1996 random walk mixing</span>
+            <span class="c1"># requires an inner loop time step dt such that</span>
+            <span class="c1"># dt &lt;&lt; (d2K/dz2)^-1, e.g. typically dt &lt;&lt; 15min</span>
+            <span class="n">R</span> <span class="o">=</span> <span class="mi">2</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">random</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">num_elements_active</span><span class="p">())</span> <span class="o">-</span> <span class="mi">1</span>            
+            <span class="n">r</span> <span class="o">=</span> <span class="mf">1.0</span><span class="o">/</span><span class="mi">3</span>
+            <span class="c1"># new position  =  old position   - up_K_flux   + random walk</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">elements</span><span class="o">.</span><span class="n">z</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">elements</span><span class="o">.</span><span class="n">z</span> <span class="o">-</span> <span class="n">dKdz</span><span class="o">*</span><span class="n">dt_mix</span> <span class="o">+</span> <span class="n">R</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">((</span> <span class="n">K3</span><span class="o">*</span><span class="n">dt_mix</span><span class="o">*</span><span class="mi">2</span><span class="o">/</span><span class="n">r</span><span class="p">))</span>
+ 
+            <span class="c1"># Reflect from surface </span>
+            <span class="n">reflect</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">elements</span><span class="o">.</span><span class="n">z</span> <span class="o">&gt;=</span> <span class="mi">0</span><span class="p">)</span>
+            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">reflect</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">elements</span><span class="o">.</span><span class="n">z</span><span class="p">[</span><span class="n">reflect</span><span class="p">]</span> <span class="o">=</span> <span class="o">-</span><span class="bp">self</span><span class="o">.</span><span class="n">elements</span><span class="o">.</span><span class="n">z</span><span class="p">[</span><span class="n">reflect</span><span class="p">]</span>
+
+            <span class="c1"># reflect elements going below seafloor</span>
+            <span class="n">bottom</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">elements</span><span class="o">.</span><span class="n">z</span> <span class="o">&lt;</span> <span class="n">Zmin</span><span class="p">)</span>
+            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">bottom</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="n">logging</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;</span><span class="si">%s</span><span class="s1"> elements penetrated seafloor, lifting up&#39;</span> <span class="o">%</span> <span class="nb">len</span><span class="p">(</span><span class="n">bottom</span><span class="p">[</span><span class="mi">0</span><span class="p">]))</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">elements</span><span class="o">.</span><span class="n">z</span><span class="p">[</span><span class="n">bottom</span><span class="p">]</span> <span class="o">=</span> <span class="mi">2</span><span class="o">*</span><span class="n">Zmin</span><span class="p">[</span><span class="n">bottom</span><span class="p">]</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">elements</span><span class="o">.</span><span class="n">z</span><span class="p">[</span><span class="n">bottom</span><span class="p">]</span>
+           
+            <span class="c1"># advect due to buoyancy</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">elements</span><span class="o">.</span><span class="n">z</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">elements</span><span class="o">.</span><span class="n">z</span> <span class="o">+</span> <span class="n">w</span><span class="o">*</span><span class="n">dt_mix</span>
+
+            <span class="c1"># put the particles that belonged to the surface slick (if present) back to the surface</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">elements</span><span class="o">.</span><span class="n">z</span><span class="p">[</span><span class="n">surface</span><span class="p">]</span> <span class="o">=</span> <span class="mf">0.</span>
+
+            <span class="c1"># formation of slick and wave mixing for surfaced particles if implemented for this class</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">surface_stick</span><span class="p">()</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">surface_wave_mixing</span><span class="p">(</span><span class="n">dt_mix</span><span class="p">)</span>
+
+            <span class="c1"># let particles stick to bottom </span>
+            <span class="n">bottom</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">elements</span><span class="o">.</span><span class="n">z</span> <span class="o">&lt;</span> <span class="n">Zmin</span><span class="p">)</span>
+            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">bottom</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="n">logging</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;</span><span class="si">%s</span><span class="s1"> elements reached seafloor, set to bottom&#39;</span> <span class="o">%</span> <span class="nb">len</span><span class="p">(</span><span class="n">bottom</span><span class="p">[</span><span class="mi">0</span><span class="p">]))</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">elements</span><span class="o">.</span><span class="n">z</span><span class="p">[</span><span class="n">bottom</span><span class="p">]</span> <span class="o">=</span> <span class="n">Zmin</span><span class="p">[</span><span class="n">bottom</span><span class="p">]</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">bottom_interaction</span><span class="p">(</span><span class="n">Zmin</span><span class="p">)</span>
+ 
+        <span class="bp">self</span><span class="o">.</span><span class="n">timer_end</span><span class="p">(</span><span class="s1">&#39;main loop:updating elements:vertical mixing&#39;</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="OpenDrift3DSimulation.plot_vertical_distribution"><a class="viewcode-back" href="../../../autoapi/opendrift/models/opendrift3D/index.html#opendrift.models.opendrift3D.OpenDrift3DSimulation.plot_vertical_distribution">[docs]</a>    <span class="k">def</span> <span class="nf">plot_vertical_distribution</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Function to plot vertical distribution of particles&quot;&quot;&quot;</span>
+        <span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="k">as</span> <span class="nn">plt</span>
+        <span class="kn">from</span> <span class="nn">matplotlib.widgets</span> <span class="k">import</span> <span class="n">Slider</span><span class="p">,</span> <span class="n">Button</span><span class="p">,</span> <span class="n">RadioButtons</span>
+        <span class="kn">from</span> <span class="nn">pylab</span> <span class="k">import</span> <span class="n">axes</span><span class="p">,</span> <span class="n">draw</span>
+        <span class="kn">from</span> <span class="nn">matplotlib</span> <span class="k">import</span> <span class="n">dates</span>
+
+        <span class="n">fig</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">()</span>
+        <span class="n">mainplot</span> <span class="o">=</span> <span class="n">fig</span><span class="o">.</span><span class="n">add_axes</span><span class="p">([</span><span class="o">.</span><span class="mi">15</span><span class="p">,</span> <span class="o">.</span><span class="mi">3</span><span class="p">,</span> <span class="o">.</span><span class="mi">8</span><span class="p">,</span> <span class="o">.</span><span class="mi">5</span><span class="p">])</span>
+        <span class="n">sliderax</span> <span class="o">=</span> <span class="n">fig</span><span class="o">.</span><span class="n">add_axes</span><span class="p">([</span><span class="o">.</span><span class="mi">15</span><span class="p">,</span> <span class="o">.</span><span class="mi">08</span><span class="p">,</span> <span class="o">.</span><span class="mi">75</span><span class="p">,</span> <span class="o">.</span><span class="mi">05</span><span class="p">])</span>
+        <span class="n">data</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">history</span><span class="p">[</span><span class="s1">&#39;z&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">T</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="p">:]</span>
+        <span class="n">tslider</span> <span class="o">=</span> <span class="n">Slider</span><span class="p">(</span><span class="n">sliderax</span><span class="p">,</span> <span class="s1">&#39;Timestep&#39;</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">steps_output</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span>
+                         <span class="n">valinit</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">steps_output</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="n">valfmt</span><span class="o">=</span><span class="s1">&#39;</span><span class="si">%0.0f</span><span class="s1">&#39;</span><span class="p">)</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">dz</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_config</span><span class="p">(</span><span class="s1">&#39;turbulentmixing:verticalresolution&#39;</span><span class="p">)</span>
+        <span class="k">except</span><span class="p">:</span>
+            <span class="n">dz</span> <span class="o">=</span> <span class="mf">1.</span>
+        <span class="n">maxrange</span> <span class="o">=</span> <span class="o">-</span><span class="mi">100</span>
+
+        <span class="k">def</span> <span class="nf">update</span><span class="p">(</span><span class="n">val</span><span class="p">):</span>
+            <span class="n">tindex</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">int</span><span class="p">(</span><span class="n">tslider</span><span class="o">.</span><span class="n">val</span><span class="p">)</span>
+            <span class="n">mainplot</span><span class="o">.</span><span class="n">cla</span><span class="p">()</span>
+            <span class="n">mainplot</span><span class="o">.</span><span class="n">grid</span><span class="p">()</span>
+            <span class="n">mainplot</span><span class="o">.</span><span class="n">hist</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">history</span><span class="p">[</span><span class="s1">&#39;z&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">T</span><span class="p">[</span><span class="n">tindex</span><span class="p">,</span> <span class="p">:],</span> <span class="n">bins</span><span class="o">=</span><span class="nb">int</span><span class="p">(</span><span class="o">-</span><span class="n">maxrange</span><span class="o">/</span><span class="n">dz</span><span class="p">),</span>
+                          <span class="nb">range</span><span class="o">=</span><span class="p">[</span><span class="n">maxrange</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span> <span class="n">orientation</span><span class="o">=</span><span class="s1">&#39;horizontal&#39;</span><span class="p">)</span>
+            <span class="n">mainplot</span><span class="o">.</span><span class="n">set_ylim</span><span class="p">([</span><span class="n">maxrange</span><span class="p">,</span> <span class="mi">0</span><span class="p">])</span>
+            <span class="n">mainplot</span><span class="o">.</span><span class="n">set_xlabel</span><span class="p">(</span><span class="s1">&#39;number of particles&#39;</span><span class="p">)</span>
+            <span class="n">mainplot</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="s1">&#39;depth [m]&#39;</span><span class="p">)</span>
+            <span class="n">x_wind</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">history</span><span class="p">[</span><span class="s1">&#39;x_wind&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">T</span><span class="p">[</span><span class="n">tindex</span><span class="p">,</span> <span class="p">:]</span>
+            <span class="n">y_wind</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">history</span><span class="p">[</span><span class="s1">&#39;y_wind&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">T</span><span class="p">[</span><span class="n">tindex</span><span class="p">,</span> <span class="p">:]</span>
+            <span class="n">windspeed</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">x_wind</span><span class="o">**</span><span class="mi">2</span> <span class="o">+</span> <span class="n">y_wind</span><span class="o">**</span><span class="mi">2</span><span class="p">))</span>
+            <span class="n">mainplot</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">get_time_array</span><span class="p">()[</span><span class="mi">0</span><span class="p">][</span><span class="n">tindex</span><span class="p">])</span> <span class="o">+</span>
+                               <span class="c1">#&#39;   Percent at surface: %.1f %&#39; % percent_at_surface)</span>
+                               <span class="s1">&#39;   Mean windspeed: </span><span class="si">%.1f</span><span class="s1"> m/s&#39;</span> <span class="o">%</span> <span class="n">windspeed</span><span class="p">)</span>
+            <span class="n">draw</span><span class="p">()</span>
+
+        <span class="n">update</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>  <span class="c1"># Plot initial distribution</span>
+        <span class="n">tslider</span><span class="o">.</span><span class="n">on_changed</span><span class="p">(</span><span class="n">update</span><span class="p">)</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span></div>
+
+<div class="viewcode-block" id="OpenDrift3DSimulation.plotter_vertical_distribution_time"><a class="viewcode-back" href="../../../autoapi/opendrift/models/opendrift3D/index.html#opendrift.models.opendrift3D.OpenDrift3DSimulation.plotter_vertical_distribution_time">[docs]</a>    <span class="k">def</span> <span class="nf">plotter_vertical_distribution_time</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ax</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">mask</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">dz</span><span class="o">=</span><span class="mf">1.</span><span class="p">,</span> <span class="n">maxrange</span><span class="o">=-</span><span class="mi">100</span><span class="p">,</span> <span class="n">bins</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">step</span><span class="o">=</span><span class="mi">1</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Function to plot vertical distribution of particles</span>
+<span class="sd">	</span>
+<span class="sd">	use mask to plot any selection of particles</span>
+<span class="sd">	&quot;&quot;&quot;</span>
+        <span class="kn">from</span> <span class="nn">pylab</span> <span class="k">import</span> <span class="n">axes</span><span class="p">,</span> <span class="n">draw</span>
+        <span class="kn">from</span> <span class="nn">matplotlib</span> <span class="k">import</span> <span class="n">dates</span><span class="p">,</span> <span class="n">pyplot</span>
+
+        <span class="k">if</span> <span class="n">ax</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">fig</span> <span class="o">=</span> <span class="n">pyplot</span><span class="o">.</span><span class="n">figure</span><span class="p">()</span>
+            <span class="n">ax</span> <span class="o">=</span> <span class="n">fig</span><span class="o">.</span><span class="n">gca</span><span class="p">()</span>
+            <span class="n">show</span> <span class="o">=</span> <span class="kc">True</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">show</span> <span class="o">=</span> <span class="kc">False</span>
+
+        <span class="k">if</span> <span class="n">mask</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span> <span class="c1"># create a mask that is True for all particles</span>
+            <span class="n">mask</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">history</span><span class="p">[</span><span class="s1">&#39;z&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">T</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="bp">self</span><span class="o">.</span><span class="n">history</span><span class="p">[</span><span class="s1">&#39;z&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">T</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> 
+
+        <span class="k">if</span> <span class="n">bins</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">bins</span><span class="o">=</span><span class="nb">int</span><span class="p">(</span><span class="o">-</span><span class="n">maxrange</span><span class="o">/</span><span class="n">dz</span><span class="p">)</span>
+
+        <span class="n">ax</span><span class="o">.</span><span class="n">hist</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">history</span><span class="p">[</span><span class="s1">&#39;z&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">T</span><span class="p">[</span><span class="n">step</span><span class="p">,</span><span class="n">mask</span><span class="p">],</span> <span class="n">bins</span><span class="o">=</span><span class="n">bins</span><span class="p">,</span>
+                <span class="nb">range</span><span class="o">=</span><span class="p">[</span><span class="n">maxrange</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span> <span class="n">orientation</span><span class="o">=</span><span class="s1">&#39;horizontal&#39;</span><span class="p">)</span>
+        <span class="n">ax</span><span class="o">.</span><span class="n">set_ylim</span><span class="p">([</span><span class="n">maxrange</span><span class="p">,</span> <span class="mi">0</span><span class="p">])</span>
+        <span class="n">ax</span><span class="o">.</span><span class="n">grid</span><span class="p">()</span>
+        <span class="c1">#ax.set_xlim([0, mask.sum()*.15])</span>
+        <span class="n">ax</span><span class="o">.</span><span class="n">set_xlabel</span><span class="p">(</span><span class="s1">&#39;Number of particles&#39;</span><span class="p">)</span>
+        <span class="n">ax</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="s1">&#39;Depth [m]&#39;</span><span class="p">)</span>
+        <span class="n">x_wind</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">history</span><span class="p">[</span><span class="s1">&#39;x_wind&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">T</span><span class="p">[</span><span class="n">step</span><span class="p">,</span> <span class="p">:]</span>
+        <span class="n">y_wind</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">history</span><span class="p">[</span><span class="s1">&#39;x_wind&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">T</span><span class="p">[</span><span class="n">step</span><span class="p">,</span> <span class="p">:]</span>
+        <span class="n">windspeed</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">x_wind</span><span class="o">**</span><span class="mi">2</span> <span class="o">+</span> <span class="n">y_wind</span><span class="o">**</span><span class="mi">2</span><span class="p">))</span>
+        <span class="n">ax</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">get_time_array</span><span class="p">()[</span><span class="mi">0</span><span class="p">][</span><span class="n">step</span><span class="p">])</span> <span class="o">+</span>
+                     <span class="s1">&#39;   Mean windspeed: </span><span class="si">%.1f</span><span class="s1"> m/s&#39;</span> <span class="o">%</span> <span class="n">windspeed</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">show</span> <span class="ow">is</span> <span class="kc">True</span><span class="p">:</span>
+            <span class="n">pyplot</span><span class="o">.</span><span class="n">show</span><span class="p">()</span></div></div>
+
+
+</pre></div>
+
+           </div>
+           
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2019, Knut-Frode Dagestad et. al.
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>
