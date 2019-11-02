@@ -179,7 +179,6 @@
 <span class="c1"># and presently not fully functional</span>
 <span class="c1">#####################################</span>
 
-<span class="kn">import</span> <span class="nn">logging</span>
 
 <span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
 <span class="kn">from</span> <span class="nn">netCDF4</span> <span class="k">import</span> <span class="n">Dataset</span><span class="p">,</span> <span class="n">MFDataset</span><span class="p">,</span> <span class="n">num2date</span>
@@ -223,12 +222,12 @@
 
         <span class="k">try</span><span class="p">:</span>
             <span class="c1"># Open file, check that everything is ok</span>
-            <span class="n">logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s1">&#39;Opening dataset: &#39;</span> <span class="o">+</span> <span class="n">filestr</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s1">&#39;Opening dataset: &#39;</span> <span class="o">+</span> <span class="n">filestr</span><span class="p">)</span>
             <span class="k">if</span> <span class="p">(</span><span class="s1">&#39;*&#39;</span> <span class="ow">in</span> <span class="n">filestr</span><span class="p">)</span> <span class="ow">or</span> <span class="p">(</span><span class="s1">&#39;?&#39;</span> <span class="ow">in</span> <span class="n">filestr</span><span class="p">)</span> <span class="ow">or</span> <span class="p">(</span><span class="s1">&#39;[&#39;</span> <span class="ow">in</span> <span class="n">filestr</span><span class="p">):</span>
-                <span class="n">logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s1">&#39;Opening files with MFDataset&#39;</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s1">&#39;Opening files with MFDataset&#39;</span><span class="p">)</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">Dataset</span> <span class="o">=</span> <span class="n">MFDataset</span><span class="p">(</span><span class="n">filename</span><span class="p">)</span>
             <span class="k">else</span><span class="p">:</span>
-                <span class="n">logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s1">&#39;Opening file with Dataset&#39;</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s1">&#39;Opening file with Dataset&#39;</span><span class="p">)</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">Dataset</span> <span class="o">=</span> <span class="n">Dataset</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="s1">&#39;r&#39;</span><span class="p">)</span>
         <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="n">e</span><span class="p">)</span>
@@ -237,7 +236,7 @@
         <span class="c1"># and not any projected coordinates</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">proj4</span> <span class="o">=</span>  <span class="s1">&#39;+proj=latlong&#39;</span>
 
-        <span class="n">logging</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;Finding coordinate variables.&#39;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;Finding coordinate variables.&#39;</span><span class="p">)</span>
         <span class="c1"># Find x, y and z coordinates</span>
         <span class="k">for</span> <span class="n">var_name</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">Dataset</span><span class="o">.</span><span class="n">variables</span><span class="p">:</span>
             <span class="n">var</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">Dataset</span><span class="o">.</span><span class="n">variables</span><span class="p">[</span><span class="n">var_name</span><span class="p">]</span>
@@ -394,7 +393,7 @@
                                  <span class="p">(</span><span class="n">var_name</span><span class="p">,</span> <span class="n">var</span><span class="o">.</span><span class="n">ndim</span><span class="p">))</span>
 
             <span class="k">if</span> <span class="s1">&#39;interpolator&#39;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="nb">locals</span><span class="p">():</span>
-                <span class="n">logging</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;Making interpolator...&#39;</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;Making interpolator...&#39;</span><span class="p">)</span>
                 <span class="n">interpolator</span> <span class="o">=</span> <span class="n">LinearNDInterpolator</span><span class="p">((</span><span class="bp">self</span><span class="o">.</span><span class="n">lat</span><span class="p">[</span><span class="n">c</span><span class="p">],</span>
                                                      <span class="bp">self</span><span class="o">.</span><span class="n">lon</span><span class="p">[</span><span class="n">c</span><span class="p">]),</span>
                                                     <span class="n">data</span><span class="p">)</span>

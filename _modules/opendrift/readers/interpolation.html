@@ -158,7 +158,6 @@
             
   <h1>Source code for opendrift.readers.interpolation</h1><div class="highlight"><pre>
 <span></span><span class="kn">import</span> <span class="nn">logging</span>
-
 <span class="kn">from</span> <span class="nn">future.utils</span> <span class="k">import</span> <span class="n">iteritems</span>
 <span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
 <span class="kn">from</span> <span class="nn">scipy.ndimage</span> <span class="k">import</span> <span class="n">map_coordinates</span>
@@ -166,12 +165,14 @@
 <span class="kn">from</span> <span class="nn">scipy.interpolate</span> <span class="k">import</span> <span class="n">interp1d</span><span class="p">,</span> <span class="n">LinearNDInterpolator</span>
 
 
+<span class="n">logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="s1">&#39;opendrift&#39;</span><span class="p">)</span>  <span class="c1"># using common logger</span>
+
 <div class="viewcode-block" id="expand_numpy_array"><a class="viewcode-back" href="../../../autoapi/opendrift/readers/interpolation/index.html#opendrift.readers.interpolation.expand_numpy_array">[docs]</a><span class="k">def</span> <span class="nf">expand_numpy_array</span><span class="p">(</span><span class="n">data</span><span class="p">):</span>
     <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ma</span><span class="o">.</span><span class="n">MaskedArray</span><span class="p">):</span>
-        <span class="n">logging</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="s1">&#39;Converting masked array to numpy array before interpolating&#39;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="s1">&#39;Converting masked array to numpy array before interpolating&#39;</span><span class="p">)</span>
         <span class="n">data</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">ma</span><span class="o">.</span><span class="n">filled</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">fill_value</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">nan</span><span class="p">)</span>
     <span class="k">if</span> <span class="ow">not</span> <span class="n">np</span><span class="o">.</span><span class="n">isfinite</span><span class="p">(</span><span class="n">data</span><span class="p">)</span><span class="o">.</span><span class="n">any</span><span class="p">():</span>
-        <span class="n">logging</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="s1">&#39;Only NaNs, returning&#39;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="s1">&#39;Only NaNs, returning&#39;</span><span class="p">)</span>
         <span class="k">return</span>
     <span class="n">mask</span> <span class="o">=</span> <span class="o">~</span><span class="n">np</span><span class="o">.</span><span class="n">isfinite</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
     <span class="n">data</span><span class="p">[</span><span class="n">mask</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">finfo</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">float64</span><span class="p">)</span><span class="o">.</span><span class="n">min</span>
@@ -220,6 +221,9 @@
 
 <div class="viewcode-block" id="LinearND2DInterpolator"><a class="viewcode-back" href="../../../autoapi/opendrift/readers/interpolation/index.html#opendrift.readers.interpolation.LinearND2DInterpolator">[docs]</a><span class="k">class</span> <span class="nc">LinearND2DInterpolator</span><span class="p">():</span>
 
+
+    <span class="n">logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="s1">&#39;opendrift&#39;</span><span class="p">)</span>
+
     <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">xgrid</span><span class="p">,</span> <span class="n">ygrid</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">block_x</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">block_y</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">meshgrid</span><span class="p">(</span><span class="n">xgrid</span><span class="p">,</span> <span class="n">ygrid</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">block_x</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">block_x</span><span class="o">.</span><span class="n">ravel</span><span class="p">()</span>
@@ -239,7 +243,7 @@
 
         <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s1">&#39;interpolator&#39;</span><span class="p">):</span>
             <span class="k">if</span> <span class="ow">not</span> <span class="n">np</span><span class="o">.</span><span class="n">array_equal</span><span class="p">(</span><span class="n">valid</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">interpolator</span><span class="o">.</span><span class="n">valid</span><span class="p">):</span>
-                <span class="n">logging</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;Cannot reuse interpolator - validity of &#39;</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;Cannot reuse interpolator - validity of &#39;</span>
                               <span class="s1">&#39;array is different from original.&#39;</span><span class="p">)</span>
         <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s1">&#39;interpolator&#39;</span><span class="p">)</span> <span class="ow">and</span> <span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">array_equal</span><span class="p">(</span>
                  <span class="n">valid</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">interpolator</span><span class="o">.</span><span class="n">valid</span><span class="p">)):</span>
@@ -263,6 +267,8 @@
         
 <div class="viewcode-block" id="Linear2DInterpolator"><a class="viewcode-back" href="../../../autoapi/opendrift/readers/interpolation/index.html#opendrift.readers.interpolation.Linear2DInterpolator">[docs]</a><span class="k">class</span> <span class="nc">Linear2DInterpolator</span><span class="p">():</span>
 
+    <span class="n">logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="s1">&#39;opendrift&#39;</span><span class="p">)</span>
+
     <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">xgrid</span><span class="p">,</span> <span class="n">ygrid</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">x</span> <span class="o">=</span> <span class="n">x</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">y</span> <span class="o">=</span> <span class="n">y</span>
@@ -272,10 +278,10 @@
 
 <div class="viewcode-block" id="Linear2DInterpolator.__call__"><a class="viewcode-back" href="../../../autoapi/opendrift/readers/interpolation/index.html#opendrift.readers.interpolation.Linear2DInterpolator.__call__">[docs]</a>    <span class="k">def</span> <span class="nf">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">array2d</span><span class="p">):</span>
         <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">array2d</span><span class="p">,</span><span class="n">np</span><span class="o">.</span><span class="n">ma</span><span class="o">.</span><span class="n">MaskedArray</span><span class="p">):</span>
-            <span class="n">logging</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;Converting masked array to numpy array for interpolation&#39;</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;Converting masked array to numpy array for interpolation&#39;</span><span class="p">)</span>
             <span class="n">array2d</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">ma</span><span class="o">.</span><span class="n">filled</span><span class="p">(</span><span class="n">array2d</span><span class="p">,</span> <span class="n">fill_value</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">nan</span><span class="p">)</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="n">np</span><span class="o">.</span><span class="n">isfinite</span><span class="p">(</span><span class="n">array2d</span><span class="p">)</span><span class="o">.</span><span class="n">any</span><span class="p">():</span>
-            <span class="n">logging</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="s1">&#39;Only NaNs input to linearNDFast - returning&#39;</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="s1">&#39;Only NaNs input to linearNDFast - returning&#39;</span><span class="p">)</span>
             <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">ones</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">xi</span><span class="p">))</span>
     
         <span class="c1"># Fill NaN-values with nearby real values</span>
@@ -286,9 +292,9 @@
         <span class="k">while</span> <span class="nb">len</span><span class="p">(</span><span class="n">missing</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
             <span class="n">i</span> <span class="o">+=</span> <span class="mi">1</span>
             <span class="k">if</span> <span class="n">i</span> <span class="o">&gt;</span> <span class="mi">10</span><span class="p">:</span>
-                <span class="n">logging</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="s1">&#39;Still NaN-values after 10 iterations, exiting!&#39;</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="s1">&#39;Still NaN-values after 10 iterations, exiting!&#39;</span><span class="p">)</span>
                 <span class="k">return</span> <span class="n">interp</span>
-            <span class="n">logging</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;NaN values for </span><span class="si">%i</span><span class="s1"> elements, expanding data </span><span class="si">%i</span><span class="s1">&#39;</span> <span class="o">%</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;NaN values for </span><span class="si">%i</span><span class="s1"> elements, expanding data </span><span class="si">%i</span><span class="s1">&#39;</span> <span class="o">%</span>
                           <span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">missing</span><span class="p">),</span> <span class="n">i</span><span class="p">))</span>
             <span class="n">expand_numpy_array</span><span class="p">(</span><span class="n">array2d</span><span class="p">)</span>
             <span class="n">interp</span><span class="p">[</span><span class="n">missing</span><span class="p">]</span> <span class="o">=</span> <span class="n">map_coordinates</span><span class="p">(</span>
@@ -379,6 +385,8 @@
 <div class="viewcode-block" id="ReaderBlock"><a class="viewcode-back" href="../../../autoapi/opendrift/readers/interpolation/index.html#opendrift.readers.interpolation.ReaderBlock">[docs]</a><span class="k">class</span> <span class="nc">ReaderBlock</span><span class="p">():</span>
     <span class="sd">&quot;&quot;&quot;Class to store and interpolate the output from a reader.&quot;&quot;&quot;</span>
 
+    <span class="n">logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="s1">&#39;opendrift&#39;</span><span class="p">)</span>  <span class="c1"># using common logger</span>
+
     <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data_dict</span><span class="p">,</span>
                  <span class="n">interpolation_horizontal</span><span class="o">=</span><span class="s1">&#39;linearNDFast&#39;</span><span class="p">,</span>
                  <span class="n">interpolation_vertical</span><span class="o">=</span><span class="s1">&#39;linear&#39;</span><span class="p">):</span>
@@ -408,14 +416,14 @@
                                                    <span class="n">fill_value</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">nan</span><span class="p">)</span>
             <span class="c1"># Fill missing data towards seafloor if 3D</span>
             <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">data_dict</span><span class="p">[</span><span class="n">var</span><span class="p">],</span> <span class="p">(</span><span class="nb">list</span><span class="p">,)):</span>
-                <span class="n">logging</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="s1">&#39;Ensemble data currently not extrapolated towards seafloor&#39;</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="s1">&#39;Ensemble data currently not extrapolated towards seafloor&#39;</span><span class="p">)</span>
             <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">data_dict</span><span class="p">[</span><span class="n">var</span><span class="p">]</span><span class="o">.</span><span class="n">ndim</span> <span class="o">==</span> <span class="mi">3</span><span class="p">:</span>
                 <span class="n">filled</span> <span class="o">=</span> <span class="n">fill_NaN_towards_seafloor</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">data_dict</span><span class="p">[</span><span class="n">var</span><span class="p">])</span>
                 <span class="k">if</span> <span class="n">filled</span> <span class="ow">is</span> <span class="kc">True</span><span class="p">:</span>
                     <span class="n">filled_variables</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">var</span><span class="p">)</span>
                 
         <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">filled_variables</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
-            <span class="n">logging</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;Filled NaN-values toward seafloor for :&#39;</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;Filled NaN-values toward seafloor for :&#39;</span>
                           <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="n">filled_variables</span><span class="p">)))</span>
 
         <span class="c1"># Set 1D (vertical) and 2D (horizontal) interpolators</span>
@@ -437,12 +445,12 @@
 
         <span class="k">if</span> <span class="s1">&#39;land_binary_mask&#39;</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">data_dict</span><span class="o">.</span><span class="n">keys</span><span class="p">()</span> <span class="ow">and</span> \
                 <span class="n">interpolation_horizontal</span> <span class="o">!=</span> <span class="s1">&#39;nearest&#39;</span><span class="p">:</span>
-            <span class="n">logging</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;Nearest interpolation will be used &#39;</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;Nearest interpolation will be used &#39;</span>
                           <span class="s1">&#39;for landmask, and </span><span class="si">%s</span><span class="s1"> for other variables&#39;</span>
                           <span class="o">%</span> <span class="n">interpolation_horizontal</span><span class="p">)</span>
 
 <div class="viewcode-block" id="ReaderBlock._initialize_interpolator"><a class="viewcode-back" href="../../../autoapi/opendrift/readers/interpolation/index.html#opendrift.readers.interpolation.ReaderBlock._initialize_interpolator">[docs]</a>    <span class="k">def</span> <span class="nf">_initialize_interpolator</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">z</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
-        <span class="n">logging</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;Initialising interpolator.&#39;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;Initialising interpolator.&#39;</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">interpolator2d</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">Interpolator2DClass</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">x</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">y</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">)</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">z</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="nb">len</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">atleast_1d</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">z</span><span class="p">))</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">interpolator1d</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">Interpolator1DClass</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">z</span><span class="p">,</span> <span class="n">z</span><span class="p">)</span></div>
@@ -462,7 +470,7 @@
                 <span class="bp">self</span><span class="o">.</span><span class="n">interpolator2d_nearest</span> <span class="o">=</span> <span class="n">Nearest2DInterpolator</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">x</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">y</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">)</span>
             <span class="k">if</span> <span class="nb">type</span><span class="p">(</span><span class="n">data</span><span class="p">)</span> <span class="ow">is</span> <span class="nb">list</span><span class="p">:</span>
                 <span class="n">num_ensembles</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
-                <span class="n">logging</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;Interpolating </span><span class="si">%i</span><span class="s1"> ensembles for </span><span class="si">%s</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">num_ensembles</span><span class="p">,</span> <span class="n">varname</span><span class="p">))</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;Interpolating </span><span class="si">%i</span><span class="s1"> ensembles for </span><span class="si">%s</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">num_ensembles</span><span class="p">,</span> <span class="n">varname</span><span class="p">))</span>
                 <span class="k">if</span> <span class="n">data</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">ndim</span> <span class="o">==</span> <span class="mi">2</span><span class="p">:</span>
                     <span class="n">horizontal</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">x</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">nan</span>
                 <span class="k">else</span><span class="p">:</span>
