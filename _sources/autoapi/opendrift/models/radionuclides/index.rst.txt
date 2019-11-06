@@ -45,7 +45,7 @@ Module Contents
       
 
    .. attribute:: required_variables
-      :annotation: = ['x_sea_water_velocity', 'y_sea_water_velocity', 'sea_surface_wave_significant_height', 'sea_ice_area_fraction', 'x_wind', 'y_wind', 'land_binary_mask', 'sea_floor_depth_below_sea_level', 'ocean_vertical_diffusivity', 'sea_water_temperature', 'sea_water_salinity', 'surface_downward_x_stress', 'surface_downward_y_stress', 'turbulent_kinetic_energy', 'turbulent_generic_length_scale', 'upward_sea_water_velocity', 'conc3']
+      :annotation: = ['x_sea_water_velocity', 'y_sea_water_velocity', 'x_wind', 'y_wind', 'land_binary_mask', 'sea_floor_depth_below_sea_level', 'ocean_vertical_diffusivity', 'sea_water_temperature', 'sea_water_salinity', 'surface_downward_x_stress', 'surface_downward_y_stress', 'turbulent_kinetic_energy', 'turbulent_generic_length_scale', 'upward_sea_water_velocity', 'conc3']
 
       
 
@@ -67,7 +67,7 @@ Module Contents
    .. attribute:: configspec_radionuclidedrift
       :annotation: = 
            [radionuclide]
-               transfer_setup = option('Bokna_137Cs', 'dummy', default='dummy')
+               transfer_setup = option('Sandnesfj_Al','Bokna_137Cs', 'dummy', default='dummy')
                slowly_fraction = boolean(default=False)
                irreversible_fraction = boolean(default=False)
                dissolved_diameter = float(min=0., max=100.e-6,default=0.)
@@ -75,7 +75,11 @@ Module Contents
                particle_diameter_uncertainty = float(min=0., max=100.e-6, default=1.e-7)
                [[species]]
                    LMM                        = boolean(default=False)
+                   LMMcation                  = boolean(default=False)
+                   LMManion                   = boolean(default=False)
                    Colloid                    = boolean(default=False)
+                   Humic_colloid              = boolean(default=False)
+                   Polymer                    = boolean(default=False)
                    Particle_reversible        = boolean(default=False)
                    Particle_slowly_reversible = boolean(default=False)
                    Particle_irreversible      = boolean(default=False)
@@ -93,8 +97,11 @@ Module Contents
                    corr_factor        = float(min=0., max=10., default=0.1)
                    porosity           = float(min=0., max=1., default=0.6)
                    layer_thick        = float(min=0., max=100., default=1.)
-                   desorption_depth   = float(min=0., max=100., default=10.)
-                   desorption_depth_uncert = float(min=0., max=100., default=1.)
+                   desorption_depth          = float(min=0., max=100., default=1.)
+                   desorption_depth_uncert   = float(min=0., max=100., default=.5)
+                   resuspension_depth        = float(min=0., max=100., default=1.)
+                   resuspension_depth_uncert = float(min=0., max=100., default=.5)
+                   resuspension_critvel      = float(min=0., max=1., default=.01)
                
 
       
@@ -171,6 +178,14 @@ Module Contents
 
       Change speciation of radionuclides that reach bottom due to settling. 
       particle specie -> sediment specie 
+
+
+   .. method:: resuspension(self)
+
+
+      Simple method to estimate the resuspension of sedimented particles, 
+      checking whether the current speed near the bottom is above a critical velocity 
+      Sediment species -> Particle specie
 
 
    .. method:: update(self)

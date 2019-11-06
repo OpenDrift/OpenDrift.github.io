@@ -87,6 +87,8 @@
 </ul>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../../install.html">Installing OpenDrift</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../install.html#using-miniconda-recommended">Using Miniconda (recommended)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../install.html#id2">Using pip</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../tutorial.html">Tutorial</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../theory/index.html">Theory</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../choosing_a_model.html">How to choose which model to use</a></li>
@@ -217,8 +219,18 @@
         <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
             <span class="c1"># Error code 400 is expected!</span>
             <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">e</span><span class="p">,</span> <span class="n">urllib_request</span><span class="o">.</span><span class="n">HTTPError</span><span class="p">)</span> <span class="ow">or</span> <span class="n">e</span><span class="o">.</span><span class="n">code</span> <span class="o">!=</span> <span class="mi">400</span><span class="p">:</span>
-                <span class="n">logging</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="s1">&#39;ULR </span><span class="si">%s</span><span class="s1"> not accessible: &#39;</span> <span class="o">%</span> <span class="n">url</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">e</span><span class="p">))</span>
-                <span class="k">return</span> <span class="kc">None</span>
+                <span class="n">status_code</span> <span class="o">=</span> <span class="kc">None</span>
+                <span class="k">try</span><span class="p">:</span>  <span class="c1"># Trying with requests library (should be default)</span>
+                    <span class="kn">import</span> <span class="nn">requests</span>
+                    <span class="n">resp</span> <span class="o">=</span> <span class="n">requests</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">url</span> <span class="o">+</span> <span class="s1">&#39;.das&#39;</span><span class="p">)</span>
+                    <span class="n">status_code</span> <span class="o">=</span> <span class="n">resp</span><span class="o">.</span><span class="n">status_code</span>
+                <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+                    <span class="n">logging</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="s1">&#39;ULR </span><span class="si">%s</span><span class="s1"> not accessible: &#39;</span> <span class="o">%</span> <span class="n">url</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">e</span><span class="p">))</span>
+                    <span class="k">return</span> <span class="kc">None</span>
+
+                <span class="k">if</span> <span class="n">status_code</span> <span class="o">&gt;=</span> <span class="mi">400</span><span class="p">:</span>
+                    <span class="n">logging</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="s1">&#39;ULR </span><span class="si">%s</span><span class="s1"> not accessible: &#39;</span> <span class="o">%</span> <span class="n">url</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">e</span><span class="p">))</span>
+                    <span class="k">return</span> <span class="kc">None</span>
             <span class="k">try</span><span class="p">:</span>
                 <span class="n">r</span> <span class="o">=</span> <span class="n">Reader</span><span class="p">(</span><span class="n">url</span><span class="p">)</span>
                 <span class="k">return</span> <span class="n">r</span>
