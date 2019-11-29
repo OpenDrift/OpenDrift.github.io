@@ -1,0 +1,214 @@
+.. note::
+    :class: sphx-glr-download-link-note
+
+    Click :ref:`here <sphx_glr_download_gallery_example_generic.py>` to download the full example code
+.. rst-class:: sphx-glr-example-title
+
+.. _sphx_glr_gallery_example_generic.py:
+
+
+Generic example
+===============
+
+
+.. code-block:: default
+
+
+    from datetime import datetime, timedelta
+
+    from opendrift.readers import reader_netCDF_CF_generic
+    from opendrift.models.openoil import OpenOil
+
+    o = OpenOil(loglevel=0)  # Set loglevel to 0 for debug information
+
+    # Arome atmospheric model
+    reader_arome = reader_netCDF_CF_generic.Reader(o.test_data_folder() + '16Nov2015_NorKyst_z_surface/arome_subset_16Nov2015.nc')
+    # Norkyst ocean model
+    reader_norkyst = reader_netCDF_CF_generic.Reader(o.test_data_folder() + '16Nov2015_NorKyst_z_surface/norkyst800_subset_16Nov2015.nc')
+
+    # Uncomment to use live data from thredds
+    #reader_arome = reader_netCDF_CF_generic.Reader('http://thredds.met.no/thredds/dodsC/meps25files/meps_det_extracted_2_5km_latest.nc')
+    #reader_norkyst = reader_netCDF_CF_generic.Reader('http://thredds.met.no/thredds/dodsC/sea/norkyst800m/1h/aggregate_be')
+
+    o.add_reader([reader_norkyst, reader_arome])
+
+    # Seeding some particles
+    lon = 4.6; lat = 60.0; # Outside Bergen
+
+    #time = datetime(2015, 9, 22, 6, 0, 0)
+    time = [reader_arome.start_time,
+            reader_arome.start_time + timedelta(hours=30)]
+    #time = reader_arome.start_time
+
+    # Seed oil elements at defined position and time
+    o.seed_elements(lon, lat, radius=50, number=3000, time=time,
+                    wind_drift_factor=.02)
+
+    # Adjusting some configuration
+    o.set_config('processes:dispersion', True)
+    o.set_config('processes:evaporation', True)
+    o.set_config('processes:emulsification', True)
+    o.set_config('drift:current_uncertainty', .1)
+    o.set_config('drift:wind_uncertainty', 1)
+
+
+
+
+
+.. rst-class:: sphx-glr-script-out
+
+ Out:
+
+ .. code-block:: none
+
+    08:07:55 INFO: OpenDriftSimulation initialised (version 1.1.1)
+    08:07:55 INFO: Opening dataset: /root/project/tests/test_data/16Nov2015_NorKyst_z_surface/arome_subset_16Nov2015.nc
+    08:07:55 INFO: Opening file with Dataset
+    08:07:55 DEBUG: Finding coordinate variables.
+    08:07:55 DEBUG: Parsing variable: latitude
+    08:07:55 DEBUG: Parsing variable: longitude
+    08:07:55 DEBUG: Parsing variable: projection_lambert
+    08:07:55 DEBUG: Parsing CF grid mapping dictionary: {'grid_mapping_name': 'lambert_conformal_conic', 'standard_parallel': array([63., 63.]), 'longitude_of_central_meridian': 15.0, 'latitude_of_projection_origin': 63.0, 'earth_radius': 6371000.0, 'proj4': '+proj=lcc +lon_0=15 +lat_0=63 +lat_1=63 +lat_2=63 +R=6.371e+06 +units=m +no_defs'}
+    08:07:55 INFO: Could not parse CF grid_mapping
+    08:07:55 DEBUG: Parsing variable: time
+    08:07:55 DEBUG: Parsing variable: x
+    08:07:55 DEBUG: Parsing variable: x_wind_10m
+    08:07:55 DEBUG: Parsing variable: y
+    08:07:55 DEBUG: Parsing variable: y_wind_10m
+    08:07:55 DEBUG: Setting buffer size 10 for reader /root/project/tests/test_data/16Nov2015_NorKyst_z_surface/arome_subset_16Nov2015.nc, assuming a maximum average speed of 5 m/s.
+    08:07:55 DEBUG: Adding new variable mappings
+    08:07:55 INFO: Opening dataset: /root/project/tests/test_data/16Nov2015_NorKyst_z_surface/norkyst800_subset_16Nov2015.nc
+    08:07:55 INFO: Opening file with Dataset
+    08:07:55 DEBUG: Finding coordinate variables.
+    08:07:55 DEBUG: Parsing variable: X
+    08:07:55 DEBUG: Parsing variable: Y
+    08:07:55 DEBUG: Parsing variable: depth
+    08:07:55 DEBUG: Parsing variable: projection_stere
+    08:07:55 DEBUG: Parsing CF grid mapping dictionary: {'grid_mapping_name': 'polar_stereographic', 'scale_factor_at_projection_origin': 0.9330127018922193, 'straight_vertical_longitude_from_pole': 70.0, 'latitude_of_projection_origin': 90.0, 'earth_radius': 6371000.0, 'proj4': '+proj=stere +lat_0=90 +lon_0=70 +lat_ts=60 +units=m +a=6.371e+06 +e=0 +no_defs'}
+    08:07:55 INFO: Could not parse CF grid_mapping
+    08:07:55 DEBUG: Parsing variable: time
+    08:07:55 DEBUG: Parsing variable: u
+    08:07:55 DEBUG: Parsing variable: v
+    08:07:55 DEBUG: Setting buffer size 25 for reader /root/project/tests/test_data/16Nov2015_NorKyst_z_surface/norkyst800_subset_16Nov2015.nc, assuming a maximum average speed of 5 m/s.
+    08:07:55 DEBUG: Adding new variable mappings
+    08:07:55 DEBUG: Setting buffer size 7 for reader /root/project/tests/test_data/16Nov2015_NorKyst_z_surface/norkyst800_subset_16Nov2015.nc, assuming a maximum average speed of 1 m/s.
+    08:07:55 DEBUG: Calculation SRS set to: +proj=stere +lat_0=90 +lat_ts=60 +lon_0=70 +x_0=0 +y_0=0 +a=6371000 +rf=298.257223563 +units=m +no_defs
+    08:07:55 DEBUG: Using srs for common grid: +proj=stere +lat_0=90 +lon_0=70 +lat_ts=60 +units=m +a=6.371e+06 +e=0 +no_defs
+    08:07:55 DEBUG: Added reader /root/project/tests/test_data/16Nov2015_NorKyst_z_surface/norkyst800_subset_16Nov2015.nc
+    08:07:55 DEBUG: Setting buffer size 4 for reader /root/project/tests/test_data/16Nov2015_NorKyst_z_surface/arome_subset_16Nov2015.nc, assuming a maximum average speed of 1 m/s.
+    08:07:55 DEBUG: Added reader /root/project/tests/test_data/16Nov2015_NorKyst_z_surface/arome_subset_16Nov2015.nc
+
+
+
+
+Running model
+
+
+.. code-block:: default
+
+
+
+    # Running model
+    o.run(end_time=reader_norkyst.end_time, time_step=1800,
+          time_step_output=3600, outfile='openoil.nc',
+          export_variables=['mass_oil'])
+
+    # Print and plot results
+    # print(o)
+    #o.plot(background=['x_sea_water_velocity', 'y_sea_water_velocity'], buffer=.5)
+    # o.animation(fast=True)
+    # o.animation(density=True, show_elements=False, fast=True)
+    o.plot(fast=True)
+
+
+
+
+.. image:: /gallery/images/sphx_glr_example_generic_001.png
+    :class: sphx-glr-single-img
+
+
+.. rst-class:: sphx-glr-script-out
+
+ Out:
+
+ .. code-block:: none
+
+    generating memmap landmask from tif..
+    /root/project/opendrift/models/basemodel.py:3220: UserWarning: Tight layout not applied. The left and right margins cannot be made large enough to accommodate all axes decorations. 
+      fig.canvas.draw()
+
+    (<cartopy.mpl.geoaxes.GeoAxesSubplot object at 0x7f4d301279d0>, <module 'matplotlib.pyplot' from '/opt/conda/envs/opendrift_docs/lib/python3.8/site-packages/matplotlib/pyplot.py'>)
+
+
+
+Or an animation can be done with:
+
+
+.. code-block:: default
+
+
+    o.animation(fast=True, filename='openoil_time_seed.gif')
+
+
+
+
+
+.. rst-class:: sphx-glr-script-out
+
+ Out:
+
+ .. code-block:: none
+
+    /root/project/opendrift/models/basemodel.py:2804: UserWarning: Tight layout not applied. The left and right margins cannot be made large enough to accommodate all axes decorations. 
+      fig.canvas.draw()
+
+
+
+
+.. image:: /gallery/animations/openoil_time_seed.gif
+
+
+.. code-block:: default
+
+
+    #o.plot_property('mass_oil')
+    #o.plot_property('x_sea_water_velocity')
+
+
+
+
+
+
+
+
+.. rst-class:: sphx-glr-timing
+
+   **Total running time of the script:** ( 0 minutes  48.685 seconds)
+
+
+.. _sphx_glr_download_gallery_example_generic.py:
+
+
+.. only :: html
+
+ .. container:: sphx-glr-footer
+    :class: sphx-glr-footer-example
+
+
+
+  .. container:: sphx-glr-download
+
+     :download:`Download Python source code: example_generic.py <example_generic.py>`
+
+
+
+  .. container:: sphx-glr-download
+
+     :download:`Download Jupyter notebook: example_generic.ipynb <example_generic.ipynb>`
+
+
+.. only:: html
+
+ .. rst-class:: sphx-glr-signature
+
+    `Gallery generated by Sphinx-Gallery <https://sphinx-gallery.github.io>`_
