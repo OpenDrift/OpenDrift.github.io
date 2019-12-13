@@ -177,7 +177,6 @@
 <span class="c1"># Copyright 2015, Knut-Frode Dagestad, MET Norway</span>
 
 <span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
-<span class="kn">import</span> <span class="nn">logging</span>
 <span class="kn">from</span> <span class="nn">scipy.interpolate</span> <span class="kn">import</span> <span class="n">interp1d</span>
 <span class="kn">from</span> <span class="nn">opendrift.models.basemodel</span> <span class="kn">import</span> <span class="n">OpenDriftSimulation</span>
 <span class="kn">from</span> <span class="nn">opendrift.elements</span> <span class="kn">import</span> <span class="n">LagrangianArray</span>
@@ -243,7 +242,7 @@
 <span class="sd">            termical velocity</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_config</span><span class="p">(</span><span class="s1">&#39;processes:verticaladvection&#39;</span><span class="p">)</span> <span class="ow">is</span> <span class="kc">False</span><span class="p">:</span>
-            <span class="n">logging</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;Vertical advection deactivated&#39;</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;Vertical advection deactivated&#39;</span><span class="p">)</span>
             <span class="k">return</span>
 
         <span class="n">in_ocean</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">elements</span><span class="o">.</span><span class="n">z</span><span class="o">&lt;</span><span class="mi">0</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
@@ -252,7 +251,7 @@
             <span class="bp">self</span><span class="o">.</span><span class="n">elements</span><span class="o">.</span><span class="n">z</span><span class="p">[</span><span class="n">in_ocean</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">minimum</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">elements</span><span class="o">.</span><span class="n">z</span><span class="p">[</span><span class="n">in_ocean</span><span class="p">]</span> <span class="o">+</span> <span class="n">w</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">time_step</span><span class="o">.</span><span class="n">total_seconds</span><span class="p">())</span>
         <span class="k">else</span><span class="p">:</span>
-            <span class="n">logging</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;No vertical advection for elements at surface&#39;</span><span class="p">)</span></div>
+            <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;No vertical advection for elements at surface&#39;</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="OpenDrift3DSimulation.prepare_vertical_mixing"><a class="viewcode-back" href="../../../autoapi/opendrift/models/opendrift3D/index.html#opendrift.models.opendrift3D.OpenDrift3DSimulation.prepare_vertical_mixing">[docs]</a>    <span class="k">def</span> <span class="nf">prepare_vertical_mixing</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">pass</span>  <span class="c1"># To be implemented by subclasses as needed</span></div>
@@ -289,7 +288,7 @@
 <span class="sd">        &quot;&quot;&quot;</span>
 
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_config</span><span class="p">(</span><span class="s1">&#39;processes:turbulentmixing&#39;</span><span class="p">)</span> <span class="ow">is</span> <span class="kc">False</span><span class="p">:</span>
-            <span class="n">logging</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;Turbulent mixing deactivated&#39;</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;Turbulent mixing deactivated&#39;</span><span class="p">)</span>
             <span class="k">return</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">timer_start</span><span class="p">(</span><span class="s1">&#39;main loop:updating elements:vertical mixing&#39;</span><span class="p">)</span>
@@ -310,7 +309,7 @@
             <span class="k">if</span> <span class="s1">&#39;ocean_vertical_diffusivity&#39;</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">environment_profiles</span><span class="p">:</span>
                 <span class="n">Kprofiles</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">environment_profiles</span><span class="p">[</span>
                     <span class="s1">&#39;ocean_vertical_diffusivity&#39;</span><span class="p">]</span>
-                <span class="n">logging</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;Using diffusivity from ocean model&#39;</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;Using diffusivity from ocean model&#39;</span><span class="p">)</span>
             <span class="k">else</span><span class="p">:</span>
                 <span class="c1"># NB: using constant diffusivity, and value from first</span>
                 <span class="c1"># element only - this should be checked/improved!</span>
@@ -318,14 +317,14 @@
                     <span class="bp">self</span><span class="o">.</span><span class="n">environment</span><span class="o">.</span><span class="n">ocean_vertical_diffusivity</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">*</span> \
                     <span class="n">np</span><span class="o">.</span><span class="n">ones</span><span class="p">((</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">environment_profiles</span><span class="p">[</span><span class="s1">&#39;z&#39;</span><span class="p">]),</span>
                              <span class="bp">self</span><span class="o">.</span><span class="n">num_elements_active</span><span class="p">()))</span>
-                <span class="n">logging</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;Using constant diffusivity&#39;</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;Using constant diffusivity&#39;</span><span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
-            <span class="n">logging</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;Using functional expression for diffusivity&#39;</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;Using functional expression for diffusivity&#39;</span><span class="p">)</span>
             <span class="n">Kprofiles</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span>
                 <span class="n">eddydiffusivity</span><span class="p">,</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">get_config</span><span class="p">(</span><span class="s1">&#39;turbulentmixing:diffusivitymodel&#39;</span><span class="p">))(</span><span class="bp">self</span><span class="p">)</span>
 
-        <span class="n">logging</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;Diffiusivities are in range </span><span class="si">%s</span><span class="s1"> to </span><span class="si">%s</span><span class="s1">&#39;</span> <span class="o">%</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;Diffiusivities are in range </span><span class="si">%s</span><span class="s1"> to </span><span class="si">%s</span><span class="s1">&#39;</span> <span class="o">%</span>
                       <span class="p">(</span><span class="n">Kprofiles</span><span class="o">.</span><span class="n">min</span><span class="p">(),</span> <span class="n">Kprofiles</span><span class="o">.</span><span class="n">max</span><span class="p">()))</span>
 
         <span class="c1"># get profiles of salinity and temperature</span>
@@ -337,14 +336,14 @@
                 <span class="bp">self</span><span class="o">.</span><span class="n">environment_profiles</span><span class="p">[</span><span class="s1">&#39;sea_water_temperature&#39;</span><span class="p">]</span>
             <span class="k">if</span> <span class="p">(</span><span class="s1">&#39;sea_water_salinity&#39;</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">fallback_values</span> <span class="ow">and</span>
                 <span class="n">Sprofiles</span><span class="o">.</span><span class="n">min</span><span class="p">()</span> <span class="o">==</span> <span class="n">Sprofiles</span><span class="o">.</span><span class="n">max</span><span class="p">()):</span>
-                <span class="n">logging</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;Salinity and temperature are fallback&#39;</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;Salinity and temperature are fallback&#39;</span>
                               <span class="s1">&#39;values, skipping TSprofile&#39;</span><span class="p">)</span>
                 <span class="n">Sprofiles</span> <span class="o">=</span> <span class="kc">None</span>
                 <span class="n">Tprofiles</span> <span class="o">=</span> <span class="kc">None</span>
             <span class="k">else</span><span class="p">:</span>
-                <span class="n">logging</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;Using TSprofiles for vertical mixing&#39;</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;Using TSprofiles for vertical mixing&#39;</span><span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
-            <span class="n">logging</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;TSprofiles deactivated for vertical mixing&#39;</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;TSprofiles deactivated for vertical mixing&#39;</span><span class="p">)</span>
             <span class="n">Sprofiles</span> <span class="o">=</span> <span class="kc">None</span>
             <span class="n">Tprofiles</span> <span class="o">=</span> <span class="kc">None</span>
 
@@ -361,9 +360,9 @@
         <span class="c1"># internal loop for fast time step of vertical mixing model</span>
         <span class="c1"># random walk needs faster time step compared</span>
         <span class="c1"># to horizontal advection</span>
-        <span class="n">logging</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;Vertical mixing module:&#39;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;Vertical mixing module:&#39;</span><span class="p">)</span>
         <span class="n">ntimes_mix</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">time_step</span><span class="o">.</span><span class="n">total_seconds</span><span class="p">()</span><span class="o">/</span><span class="n">dt_mix</span><span class="p">))</span>
-        <span class="n">logging</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;Turbulent diffusion with random walk &#39;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;Turbulent diffusion with random walk &#39;</span>
                       <span class="s1">&#39;scheme using &#39;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">ntimes_mix</span><span class="p">)</span> <span class="o">+</span>
                       <span class="s1">&#39; fast time steps of dt=&#39;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">dt_mix</span><span class="p">)</span> <span class="o">+</span> <span class="s1">&#39;s&#39;</span><span class="p">)</span>
 
@@ -448,7 +447,7 @@
             <span class="c1"># reflect elements going below seafloor</span>
             <span class="n">bottom</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">elements</span><span class="o">.</span><span class="n">z</span> <span class="o">&lt;</span> <span class="n">Zmin</span><span class="p">)</span>
             <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">bottom</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
-                <span class="n">logging</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;</span><span class="si">%s</span><span class="s1"> elements penetrated seafloor, lifting up&#39;</span> <span class="o">%</span> <span class="nb">len</span><span class="p">(</span><span class="n">bottom</span><span class="p">[</span><span class="mi">0</span><span class="p">]))</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;</span><span class="si">%s</span><span class="s1"> elements penetrated seafloor, lifting up&#39;</span> <span class="o">%</span> <span class="nb">len</span><span class="p">(</span><span class="n">bottom</span><span class="p">[</span><span class="mi">0</span><span class="p">]))</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">elements</span><span class="o">.</span><span class="n">z</span><span class="p">[</span><span class="n">bottom</span><span class="p">]</span> <span class="o">=</span> <span class="mi">2</span><span class="o">*</span><span class="n">Zmin</span><span class="p">[</span><span class="n">bottom</span><span class="p">]</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">elements</span><span class="o">.</span><span class="n">z</span><span class="p">[</span><span class="n">bottom</span><span class="p">]</span>
            
             <span class="c1"># advect due to buoyancy</span>
@@ -464,7 +463,7 @@
             <span class="c1"># let particles stick to bottom </span>
             <span class="n">bottom</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">elements</span><span class="o">.</span><span class="n">z</span> <span class="o">&lt;</span> <span class="n">Zmin</span><span class="p">)</span>
             <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">bottom</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
-                <span class="n">logging</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;</span><span class="si">%s</span><span class="s1"> elements reached seafloor, set to bottom&#39;</span> <span class="o">%</span> <span class="nb">len</span><span class="p">(</span><span class="n">bottom</span><span class="p">[</span><span class="mi">0</span><span class="p">]))</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;</span><span class="si">%s</span><span class="s1"> elements reached seafloor, set to bottom&#39;</span> <span class="o">%</span> <span class="nb">len</span><span class="p">(</span><span class="n">bottom</span><span class="p">[</span><span class="mi">0</span><span class="p">]))</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">elements</span><span class="o">.</span><span class="n">z</span><span class="p">[</span><span class="n">bottom</span><span class="p">]</span> <span class="o">=</span> <span class="n">Zmin</span><span class="p">[</span><span class="n">bottom</span><span class="p">]</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">bottom_interaction</span><span class="p">(</span><span class="n">Zmin</span><span class="p">)</span>
  
