@@ -33,7 +33,7 @@
   
   <link rel="stylesheet" href="../../../../_static/css/theme.css" type="text/css" />
   <link rel="stylesheet" href="../../../../_static/pygments.css" type="text/css" />
-  <link rel="stylesheet" href="../../../../_static/gallery.css" type="text/css" />
+  <link rel="stylesheet" href="../../../../_static/theme_overrides.css" type="text/css" />
     <link rel="index" title="Index" href="../../../../genindex.html" />
     <link rel="search" title="Search" href="../../../../search.html" />
     <link rel="next" title="opendrift.models.openoil3D" href="../openoil3D/index.html" />
@@ -88,6 +88,7 @@
 <li class="toctree-l1"><a class="reference internal" href="../../../../index.html">Introduction to OpenDrift</a></li>
 </ul>
 <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../../../../history_link.html">History</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../../install.html">Installing OpenDrift</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../../tutorial.html">Tutorial</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../../theory/index.html">Theory</a></li>
@@ -96,6 +97,7 @@
 <li class="toctree-l1"><a class="reference internal" href="../../../../gallery/index.html">Gallery</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../../oil_types.html">Oil types</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../../interaction_with_coastline.html">Interaction with coastline</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../gui.html">Graphical User Interface</a></li>
 <li class="toctree-l1 current"><a class="reference internal" href="../../../index.html">API Reference</a><ul class="current">
 <li class="toctree-l2 current"><a class="reference internal" href="../../index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">opendrift</span></code></a><ul class="current">
 <li class="toctree-l3 current"><a class="reference internal" href="../../index.html#subpackages">Subpackages</a><ul class="current">
@@ -109,12 +111,12 @@
 <li class="toctree-l3"><a class="reference internal" href="../../index.html#package-contents">Package Contents</a></li>
 </ul>
 </li>
-<li class="toctree-l2"><a class="reference internal" href="../../../opendrift_animate/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">opendrift_animate</span></code></a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../../opendrift_animate_profile/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">opendrift_animate_profile</span></code></a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../../hodograph/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">hodograph</span></code></a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../../readerinfo/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">readerinfo</span></code></a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../../opendrift_gui/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">opendrift_gui</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../hodograph/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">hodograph</span></code></a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../../opendrift_plot/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">opendrift_plot</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../opendrift_animate_profile/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">opendrift_animate_profile</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../opendrift_animate/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">opendrift_animate</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../opendrift_gui/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">opendrift_gui</span></code></a></li>
 </ul>
 </li>
 </ul>
@@ -189,6 +191,24 @@
             
   <div class="section" id="module-opendrift.models.openoil">
 <span id="opendrift-models-openoil"></span><h1><a class="reference internal" href="#module-opendrift.models.openoil" title="opendrift.models.openoil"><code class="xref py py-mod docutils literal notranslate"><span class="pre">opendrift.models.openoil</span></code></a><a class="headerlink" href="#module-opendrift.models.openoil" title="Permalink to this headline">¶</a></h1>
+<p><p>OpenOil is an oil drift module bundled within the OpenDrift framework. There is both a 2D-version, and 3D-version which adds turbulent vertical mixing.</p>
+<p>The oil weathering calculations is based on the NOAA-ERR-ERD OilLibrary package, which must be installed as a dependency. The code for evaporation and emulsification in OpenOil is borrowed from the NOAA PyGnome code, and adapted to the OpenDrift architecture.</p>
+<p>Oil properties affecting the drift
+The vertical (and thus indirectly also the horisontal) motion of oil (droplets) is affected by oil density and droplet diameters.</p>
+<p>When using the NOAA oil weathering model (o = OpenOil3D(weathering_model=’noaa’)), the density is obtained from the NOAA database according to the oiltype selected when seeding. This value can not be overridden by the user, and it will also change during the simulation due to oil weathering processes (evaporation and emulsification). When using the default (primitive) weathering model (o = OpenOil3D()), the parameter ‘density’ may be set when seeding (default is 880 kg/m3).</p>
+<p>The droplet diameter may be given explicitly when seeding, e.g.:</p>
+<p>o.seed_elements(4, 60, number=100, time=datetime.now(), diameter=1e-5)
+In this case, the diameter will not change during the simulation, which is useful e.g. for sensitivity tests. The same diameter will be used for all elements for this example, but an array of the same length as the number of elements may also be provided.</p>
+<p>If a constant droplet diameter is not given by the user, it will be chosen randomly within given config limits for a subsea spill (‘blowout’), and modified after any later wave breaking event. Oil droplets seeded under sea surface (z&lt;0) will be assigned initial diameters between the following limits, typical for a subsea blowout (Johansen, 2000):</p>
+<p>o.config[‘input’][‘spill’][‘droplet_diameter_min_subsea’] = 0.0005  # 0.5 mm
+o.config[‘input’][‘spill’][‘droplet_diameter_max_subsea’] = 0.005   # 5 mm</p>
+<p>After each wave breaking event, a new diameter will be chosen between configurable limits and exponent:</p>
+<p>o.config[‘turbulentmixing’][‘droplet_diameter_min_wavebreaking’] = 1e-5
+o.config[‘turbulentmixing’][‘droplet_diameter_max_wavebreaking’] = 1e-3
+o.config[‘turbulentmixing’][‘droplet_size_exponent] = 0</p>
+<p>In this case a logarithmic distribution is used, with N ~ diameter^s, where s is the droplet_size_exponent. A droplet_size_exponent of 0 (default) gives uniform distribution. A value of -2.3 corresponds to the empirical number distribution as found by Delvigne and Sweeney, and 0.7 gives the corresponding volume distribution (number distribution multiplied by diameter3, since volume is proportinal to diameter3).</p>
+<p>The droplet size limits could also have been calculated dynamically from oil viscosity, but this is not yet implemented. The limits above should eventually be adjusted before the time of seeding.</p>
+</p>
 <div class="section" id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Permalink to this headline">¶</a></h2>
 <dl class="class">
@@ -341,7 +361,29 @@ oil divided by the cell area.</p>
 <dl class="method">
 <dt id="opendrift.models.openoil.OpenOil.get_oil_budget">
 <code class="sig-name descname">get_oil_budget</code><span class="sig-paren">(</span><em class="sig-param">self</em><span class="sig-paren">)</span><a class="reference internal" href="../../../../_modules/opendrift/models/openoil.html#OpenOil.get_oil_budget"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#opendrift.models.openoil.OpenOil.get_oil_budget" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><p>Get oil budget for the current simulation</p>
+<p>The oil budget consists of the following categories:</p>
+<ul class="simple">
+<li><p>surface: the sum of variable mass_oil for all active elements where z = 0</p></li>
+<li><p>submerged: the sum of variable mass_oil for all active elements where z &lt; 0</p></li>
+<li><p>stranded: the sum of variable mass_oil for all elements which are stranded</p></li>
+<li><p>evaporated: the sum of variable mass_evaporated for all elements</p></li>
+<li><p>dispersed: the sum of variable mass_dispersed for all elements</p></li>
+</ul>
+<p>The sum (total mass) shall equal the mass released. Note that the mass of oil
+is conserved, whereas the volume may change with changes in density and
+water uptake (emulsification). Therefore mass should be used for budgets,
+eventually converted to volume (by dividing on density) in the final step
+before presentation.</p>
+<p>Note that mass_oil is the mass of pure oil. The mass of oil emulsion
+(oil containing entrained water droplets) can be calculated as:</p>
+<blockquote>
+<div><p>mass_emulsion = mass_oil / (1 - water_fraction)</p>
+</div></blockquote>
+<p>I.e. water_fraction = 0 means pure oil, water_fraction = 0.5 means mixture of
+50% oil and 50% water, and water_fraction = 0.9 (which is maximum)
+means 10% oil and 90% water.</p>
+</dd></dl>
 
 <dl class="method">
 <dt id="opendrift.models.openoil.OpenOil.plot_oil_budget">

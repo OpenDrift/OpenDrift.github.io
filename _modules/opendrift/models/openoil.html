@@ -33,7 +33,7 @@
   
   <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
   <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
-  <link rel="stylesheet" href="../../../_static/gallery.css" type="text/css" />
+  <link rel="stylesheet" href="../../../_static/theme_overrides.css" type="text/css" />
     <link rel="index" title="Index" href="../../../genindex.html" />
     <link rel="search" title="Search" href="../../../search.html" /> 
 </head>
@@ -86,6 +86,7 @@
 <li class="toctree-l1"><a class="reference internal" href="../../../index.html">Introduction to OpenDrift</a></li>
 </ul>
 <ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../history_link.html">History</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../install.html">Installing OpenDrift</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../tutorial.html">Tutorial</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../theory/index.html">Theory</a></li>
@@ -94,6 +95,7 @@
 <li class="toctree-l1"><a class="reference internal" href="../../../gallery/index.html">Gallery</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../oil_types.html">Oil types</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../interaction_with_coastline.html">Interaction with coastline</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../gui.html">Graphical User Interface</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../autoapi/index.html">API Reference</a></li>
 </ul>
 
@@ -176,6 +178,38 @@
 <span class="c1">#</span>
 <span class="c1"># Copyright 2015, Knut-Frode Dagestad, MET Norway</span>
 
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">OpenOil is an oil drift module bundled within the OpenDrift framework. There is both a 2D-version, and 3D-version which adds turbulent vertical mixing.</span>
+
+<span class="sd">The oil weathering calculations is based on the NOAA-ERR-ERD OilLibrary package, which must be installed as a dependency. The code for evaporation and emulsification in OpenOil is borrowed from the NOAA PyGnome code, and adapted to the OpenDrift architecture.</span>
+
+
+<span class="sd">Oil properties affecting the drift</span>
+<span class="sd">The vertical (and thus indirectly also the horisontal) motion of oil (droplets) is affected by oil density and droplet diameters.</span>
+
+<span class="sd">When using the NOAA oil weathering model (o = OpenOil3D(weathering_model=&#39;noaa&#39;)), the density is obtained from the NOAA database according to the oiltype selected when seeding. This value can not be overridden by the user, and it will also change during the simulation due to oil weathering processes (evaporation and emulsification). When using the default (primitive) weathering model (o = OpenOil3D()), the parameter &#39;density&#39; may be set when seeding (default is 880 kg/m3).</span>
+
+<span class="sd">The droplet diameter may be given explicitly when seeding, e.g.:</span>
+
+<span class="sd">o.seed_elements(4, 60, number=100, time=datetime.now(), diameter=1e-5)</span>
+<span class="sd">In this case, the diameter will not change during the simulation, which is useful e.g. for sensitivity tests. The same diameter will be used for all elements for this example, but an array of the same length as the number of elements may also be provided.</span>
+
+<span class="sd">If a constant droplet diameter is not given by the user, it will be chosen randomly within given config limits for a subsea spill (&#39;blowout&#39;), and modified after any later wave breaking event. Oil droplets seeded under sea surface (z&lt;0) will be assigned initial diameters between the following limits, typical for a subsea blowout (Johansen, 2000)::</span>
+
+<span class="sd">o.config[&#39;input&#39;][&#39;spill&#39;][&#39;droplet_diameter_min_subsea&#39;] = 0.0005  # 0.5 mm</span>
+<span class="sd">o.config[&#39;input&#39;][&#39;spill&#39;][&#39;droplet_diameter_max_subsea&#39;] = 0.005   # 5 mm</span>
+
+<span class="sd">After each wave breaking event, a new diameter will be chosen between configurable limits and exponent::</span>
+
+<span class="sd">o.config[&#39;turbulentmixing&#39;][&#39;droplet_diameter_min_wavebreaking&#39;] = 1e-5</span>
+<span class="sd">o.config[&#39;turbulentmixing&#39;][&#39;droplet_diameter_max_wavebreaking&#39;] = 1e-3</span>
+<span class="sd">o.config[&#39;turbulentmixing&#39;][&#39;droplet_size_exponent] = 0</span>
+
+<span class="sd">In this case a logarithmic distribution is used, with N ~ diameter^s, where s is the droplet_size_exponent. A droplet_size_exponent of 0 (default) gives uniform distribution. A value of -2.3 corresponds to the empirical number distribution as found by Delvigne and Sweeney, and 0.7 gives the corresponding volume distribution (number distribution multiplied by diameter3, since volume is proportinal to diameter3).</span>
+
+<span class="sd">The droplet size limits could also have been calculated dynamically from oil viscosity, but this is not yet implemented. The limits above should eventually be adjusted before the time of seeding.</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
 <span class="kn">from</span> <span class="nn">io</span> <span class="kn">import</span> <span class="nb">open</span>
 <span class="kn">import</span> <span class="nn">os</span>
 <span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
@@ -191,6 +225,7 @@
     <span class="kn">from</span> <span class="nn">itertools</span> <span class="kn">import</span> <span class="n">izip</span> <span class="k">as</span> <span class="nb">zip</span>
 <span class="k">except</span> <span class="ne">ImportError</span><span class="p">:</span>
     <span class="k">pass</span>
+
 
 <span class="c1"># Defining the oil element properties</span>
 <div class="viewcode-block" id="Oil"><a class="viewcode-back" href="../../../autoapi/opendrift/models/openoil/index.html#opendrift.models.openoil.Oil">[docs]</a><span class="k">class</span> <span class="nc">Oil</span><span class="p">(</span><span class="n">LagrangianArray</span><span class="p">):</span>
@@ -824,6 +859,29 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">advect_oil</span><span class="p">()</span></div>
 
 <div class="viewcode-block" id="OpenOil.get_oil_budget"><a class="viewcode-back" href="../../../autoapi/opendrift/models/openoil/index.html#opendrift.models.openoil.OpenOil.get_oil_budget">[docs]</a>    <span class="k">def</span> <span class="nf">get_oil_budget</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Get oil budget for the current simulation</span>
+
+<span class="sd">        The oil budget consists of the following categories:</span>
+
+<span class="sd">        * surface: the sum of variable mass_oil for all active elements where z = 0</span>
+<span class="sd">        * submerged: the sum of variable mass_oil for all active elements where z &lt; 0</span>
+<span class="sd">        * stranded: the sum of variable mass_oil for all elements which are stranded</span>
+<span class="sd">        * evaporated: the sum of variable mass_evaporated for all elements</span>
+<span class="sd">        * dispersed: the sum of variable mass_dispersed for all elements</span>
+
+<span class="sd">        The sum (total mass) shall equal the mass released. Note that the mass of oil</span>
+<span class="sd">        is conserved, whereas the volume may change with changes in density and</span>
+<span class="sd">        water uptake (emulsification). Therefore mass should be used for budgets,</span>
+<span class="sd">        eventually converted to volume (by dividing on density) in the final step</span>
+<span class="sd">        before presentation.</span>
+
+<span class="sd">        Note that mass_oil is the mass of pure oil. The mass of oil emulsion</span>
+<span class="sd">        (oil containing entrained water droplets) can be calculated as:</span>
+<span class="sd">            mass_emulsion = mass_oil / (1 - water_fraction)</span>
+<span class="sd">        I.e. water_fraction = 0 means pure oil, water_fraction = 0.5 means mixture of</span>
+<span class="sd">        50% oil and 50% water, and water_fraction = 0.9 (which is maximum)</span>
+<span class="sd">        means 10% oil and 90% water.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
 
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">time_step</span><span class="o">.</span><span class="n">days</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="p">:</span>  <span class="c1"># Backwards simulation</span>
             <span class="k">return</span> <span class="kc">None</span>
