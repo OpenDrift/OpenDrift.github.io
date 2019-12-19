@@ -172,67 +172,109 @@
   <div class="section" id="specifications-and-background-requirements">
 <h1>Specifications and background requirements<a class="headerlink" href="#specifications-and-background-requirements" title="Permalink to this headline">¶</a></h1>
 <p><strong>The goal is to develop a generic, open source trajectory model for any kind of particles (Lagrangian Elements) drifting in the ocean (or even in atmosphere).</strong></p>
-<p>Some desired features are:
-* <strong>Modular</strong></p>
-<blockquote>
-<div><ul class="simple">
-<li><p>Can read input (driver) data (currents, wind, waves etc) from any source/model in any projection and file format (including OPeNDAP/Thredds)
-* reads data only for the relevant locations/times where the active drifting objects are located
-* should be easy to add “readers” for new sources/models
-* parameters referred to by their CF standard-names, for consistency</p></li>
-<li><p>A <strong>core module</strong> will contain everything common to all types of particles
-* fetch driver data (wind, wave, current, water temp, air temp, diffusivity, etc)
-* check beaching/stranding
-* export output, with possibility to import for continued simulation
-* switch between “trajectory view” (history for each particle) and “field view” (particle positions/properties at given time)
-* plot figure (trajectories, or spatial distribution at given time; density maps, convex hull, …)</p></li>
-<li><p><strong>Separate modules</strong> with functions to advect and update the properties of specific types of particles:
-* oil (based on OD3D)
-* rigid objects (based on Leeway)
-* plankton, fish eggs, larvae (based on Ladim)</p></li>
+<p>Some desired features are:</p>
+<ul class="simple">
+<li><p><strong>Modular</strong></p>
+<ul>
+<li><p>Can read input (driver) data (currents, wind, waves etc) from any source/model in any projection and file format (including OPeNDAP/Thredds)</p>
+<ul>
+<li><p>reads data only for the relevant locations/times where the active drifting objects are located</p></li>
+<li><p>should be easy to add “readers” for new sources/models</p></li>
+<li><p>parameters referred to by their CF standard-names, for consistency</p></li>
+</ul>
+</li>
+<li><p>A <strong>core module</strong> will contain everything common to all types of particles</p>
+<ul>
+<li><p>fetch driver data (wind, wave, current, water temp, air temp, diffusivity, etc)</p></li>
+<li><p>check beaching/stranding</p></li>
+<li><p>export output, with possibility to import for continued simulation</p></li>
+<li><p>switch between “trajectory view” (history for each particle) and “field view” (particle positions/properties at given time)</p></li>
+<li><p>plot figure (trajectories, or spatial distribution at given time; density maps, convex hull, …)</p></li>
+</ul>
+</li>
+<li><p><strong>Separate modules</strong> with functions to advect and update the properties of specific types of particles:</p>
+<ul>
+<li><p>oil (based on OD3D)</p></li>
+<li><p>rigid objects (based on Leeway)</p></li>
+<li><p>plankton, fish eggs, larvae (based on Ladim)</p></li>
+</ul>
+</li>
 <li><p>Generic module for <strong>seeding of particles</strong> (point source, line, cone, shapefile, satellite image initialisation etc)</p></li>
 </ul>
-</div></blockquote>
+</li>
+</ul>
+<div class="line-block">
+<div class="line"><br /></div>
+</div>
+<ul class="simple">
+<li><p><strong>Robust</strong></p>
 <ul>
-<li><p><strong>Robust</strong>
-* using priority list of driver data in case a source is missing, or if the particles exits the coverage in space or time. Using climatology or constant values as last option.
-* gracious error handling (try-except)</p></li>
-<li><p><strong>Fast</strong> (enough)
-* Using vectorized code (performance similar to c and fortran)</p></li>
-<li><p><strong>Flexible</strong>
-* Can be run for at any location worldwide where driver data are available
-* Option to run both forwards and backwards in time
-* Modules and functions/parameterisations can be modified easily by the user, e.g. for sensitivity tests and scientific studies</p></li>
-<li><p><strong>Stochastic</strong>
-* Take into account uncertainty:</p>
-<blockquote>
-<div><ul class="simple">
+<li><p>using priority list of driver data in case a source is missing, or if the particles exits the coverage in space or time. Using climatology or constant values as last option.</p></li>
+<li><p>gracious error handling (try-except)</p></li>
+</ul>
+</li>
+</ul>
+<div class="line-block">
+<div class="line"><br /></div>
+</div>
+<ul class="simple">
+<li><p><strong>Fast</strong> (enough)</p>
+<ul>
+<li><p>Using vectorized code (performance similar to c and fortran)</p></li>
+</ul>
+</li>
+</ul>
+<div class="line-block">
+<div class="line"><br /></div>
+</div>
+<ul class="simple">
+<li><p><strong>Flexible</strong></p>
+<ul>
+<li><p>Can be run for at any location worldwide where driver data are available</p></li>
+<li><p>Option to run both forwards and backwards in time</p></li>
+<li><p>Modules and functions/parameterisations can be modified easily by the user, e.g. for sensitivity tests and scientific studies</p></li>
+</ul>
+</li>
+</ul>
+<div class="line-block">
+<div class="line"><br /></div>
+</div>
+<ul class="simple">
+<li><p><strong>Stochastic</strong></p>
+<ul>
+<li><p>Take into account uncertainty:</p>
+<ul>
 <li><p>ensemble input</p></li>
 <li><p>multi-driver ensemble</p></li>
 <li><p>error, standard deviation</p></li>
 </ul>
-</div></blockquote>
-<ul class="simple">
+</li>
 <li><p>Yet reproducible, using pseudo-random numbers, allowing sensitivity tests (various parameterisations, driver data sources etc)</p></li>
 </ul>
 </li>
-<li><p><strong>Programmed in Python</strong>
-* with optional possibility to implement specific modules og bottlenecks in other laguages, e.g. c or fortran
-* platform independent and easy (no) installation</p>
-<blockquote>
-<div><ul class="simple">
-<li><p>based on as few (standard) packages as possible:
-* scipy for scientific functions.
-* matplotlib for plotting functions.
-* basemap for GSHHS coastline for plots and for checking if particles should be stranded.</p></li>
 </ul>
-</div></blockquote>
+<div class="line-block">
+<div class="line"><br /></div>
+</div>
 <ul class="simple">
-<li><p>clean code, following the [PEP8](<a class="reference external" href="http://www.python.org/dev/peps/pep-0008/">http://www.python.org/dev/peps/pep-0008/</a>) and [PEP257](<a class="reference external" href="https://www.python.org/dev/peps/pep-0257/">https://www.python.org/dev/peps/pep-0257/</a>) style guides.</p></li>
+<li><p><strong>Programmed in Python</strong></p>
+<ul>
+<li><p>with optional possibility to implement specific modules og bottlenecks in other laguages, e.g. c or fortran</p></li>
+<li><p>platform independent and easy (no) installation</p>
+<ul>
+<li><p>based on as few (standard) packages as possible:</p>
+<ul>
+<li><p>scipy for scientific functions.</p></li>
+<li><p>matplotlib for plotting functions.</p></li>
+<li><p>basemap for GSHHS coastline for plots and for checking if particles should be stranded.</p></li>
 </ul>
 </li>
 </ul>
-<p><a href="#id1"><span class="problematic" id="id2">**</span></a><a href="#id3"><span class="problematic" id="id4">*</span></a></p>
+</li>
+<li><p>clean code, following the <a class="reference external" href="http://www.python.org/dev/peps/pep-0008">PEP8</a> and <a class="reference external" href="https://www.python.org/dev/peps/pep-0257/">PEP257</a> style guides.</p></li>
+</ul>
+</li>
+</ul>
 <p>See presentations from NOAA regarding GNOME/ADIOS models, with several similar ideas:</p>
 <p><a class="reference external" href="https://ceprofs.civil.tamu.edu/ssocolofsky/nfm/Downloads/Workshop_2012/Plenary_Gnome.ppt.pdf">https://ceprofs.civil.tamu.edu/ssocolofsky/nfm/Downloads/Workshop_2012/Plenary_Gnome.ppt.pdf</a>
 <a class="reference external" href="http://www.youtube.com/watch?v=3pJlgQRn1jY">http://www.youtube.com/watch?v=3pJlgQRn1jY</a></p>

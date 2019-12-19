@@ -91,8 +91,17 @@
 <li class="toctree-l1"><a class="reference internal" href="history_link.html">History</a></li>
 <li class="toctree-l1"><a class="reference internal" href="install.html">Installing OpenDrift</a></li>
 <li class="toctree-l1 current"><a class="current reference internal" href="#">Tutorial</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="#projection-proj-latlong">Projection: +proj=latlong</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#projection-proj-stere-lat-0-90-lon-0-70-lat-ts-60-units-m-a-6-371e-06-e-0-no-defs">Projection: +proj=stere +lat_0=90 +lon_0=70 +lat_ts=60 +units=m +a=6.371e+06 +e=0 +no_defs</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#import-a-specific-model-for-the-relevant-application">1. Import a specific <strong>model</strong> for the relevant application</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#adding-readers">2. Adding <strong>Readers</strong></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#projection-proj-latlong">Projection: +proj=latlong</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#seeding-elements">3. Seeding elements</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#configuration">4. Configuration</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#running-the-model">5. Running the model</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#projection-proj-stere-lat-0-90-lon-0-70-lat-ts-60-units-m-a-6-371e-06-e-0-no-defs">Projection: +proj=stere +lat_0=90 +lon_0=70 +lat_ts=60 +units=m +a=6.371e+06 +e=0 +no_defs</a></li>
+</ul>
+</li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="theory/index.html">Theory</a></li>
@@ -169,10 +178,11 @@
             
   <div class="section" id="tutorial">
 <h1>Tutorial<a class="headerlink" href="#tutorial" title="Permalink to this headline">¶</a></h1>
-<p>OpenDrift does come with a basic [graphical user interface](<a class="reference external" href="https://github.com/OpenDrift/opendrift/wiki/Graphical-User-Interface">https://github.com/OpenDrift/opendrift/wiki/Graphical-User-Interface</a>), but the most flexible and powerful way to operate the model is through a set of Python commands. This requires only basic knowledge of Python.</p>
-<p>The best way to get familiar with OpenDrift is to run and examine/edit the example-scripts located in the [examples](<a class="reference external" href="https://github.com/OpenDrift/opendrift/tree/master/examples">https://github.com/OpenDrift/opendrift/tree/master/examples</a>) folder. The main steps involved are explained below.</p>
-<p>### 1. Import a specific <strong>model</strong> for the relevant application</p>
-<p>The first step is to decide which model to use, based on your application. All available models are stored in the subfolder [models](<a class="reference external" href="https://github.com/knutfrode/opendrift/tree/master/opendrift/models">https://github.com/knutfrode/opendrift/tree/master/opendrift/models</a>). The .py files in this folder (except files starting with <a href="#id61"><span class="problematic" id="id62">test_</span></a>) are Python “modules” containing a class which is a subclass (specialisation) of the generic class [OpenDriftSimulation](<a class="reference external" href="https://github.com/knutfrode/opendrift/blob/master/opendrift/models/basemodel.py#L54">https://github.com/knutfrode/opendrift/blob/master/opendrift/models/basemodel.py#L54</a>).</p>
+<p>OpenDrift does come with a basic <a class="reference internal" href="gui.html"><span class="doc">graphical user interface</span></a>, but the most flexible and powerful way to operate the model is through a set of Python commands. This requires only basic knowledge of Python.</p>
+<p>The best way to get familiar with OpenDrift is to run and examine/edit the example-scripts located in the <a class="reference external" href="https://github.com/OpenDrift/opendrift/tree/master/examples">examples</a> folder. The main steps involved are explained below.</p>
+<div class="section" id="import-a-specific-model-for-the-relevant-application">
+<h2>1. Import a specific <strong>model</strong> for the relevant application<a class="headerlink" href="#import-a-specific-model-for-the-relevant-application" title="Permalink to this headline">¶</a></h2>
+<p>The first step is to decide which model to use, based on your application. All available models are stored in the subfolder <a class="reference external" href="opendrift.models">models</a>. The .py files in this folder (except files starting with <a href="#id61"><span class="problematic" id="id62">test_</span></a>) are Python “modules” containing a class which is a subclass (specialisation) of the generic class [OpenDriftSimulation](<a class="reference external" href="https://github.com/knutfrode/opendrift/blob/master/opendrift/models/basemodel.py#L54">https://github.com/knutfrode/opendrift/blob/master/opendrift/models/basemodel.py#L54</a>).</p>
 <p>The most basic model, [OceanDrift](<a class="reference external" href="https://github.com/knutfrode/opendrift/blob/master/opendrift/models/oceandrift.py#L30">https://github.com/knutfrode/opendrift/blob/master/opendrift/models/oceandrift.py#L30</a>), is suitable for passive tracers (substances with no properties except for position, flowing with the ocean current) or objects at the ocean surface which may be subject to an additional wind drag. <strong>OceanDrift</strong> may be imported with the command:
 <code class="docutils literal notranslate"><span class="pre">`</span>
 <span class="pre">&gt;&gt;&gt;</span> <span class="pre">from</span> <span class="pre">opendrift.models.oceandrift</span> <span class="pre">import</span> <span class="pre">OceanDrift</span>
@@ -195,8 +205,10 @@ The argument loglevel is optional, and 0 (debug mode, default) means that a lot 
 <p>Any <strong>model</strong> contains at least the function <strong>update()</strong> which is called at each step of the model run to update the positions and properties of particles (added when seeding, see below) using environmental data (wind, current, temperature…) provided by some <strong>readers</strong> (below).
 A specific model implementation does not need to worry about map projections, vector orientations, how data are obtained, etc - it will focus on the advection/physical/chemical processes only.</p>
 <p>With OpenDrift it is fairly easy to [make your own model/class](<a class="reference external" href="https://github.com/knutfrode/opendrift/wiki/How-to-write-a-new-module">https://github.com/knutfrode/opendrift/wiki/How-to-write-a-new-module</a>) by simply defining element properties and an update function to describe the desired advection and other processes.</p>
-<p>### 2. Adding <strong>Readers</strong>
-Readers are independent Python objects which provide the variables (e.g. current, wind, temperature…) needed by the model to update particle properties. Readers normally read from a file (hence the name) or from a remote URL, or use some analytical function such as [this idealistic eddy](<a class="reference external" href="https://github.com/knutfrode/opendrift/blob/master/opendrift/readers/reader_ArtificialOceanEddy.py">https://github.com/knutfrode/opendrift/blob/master/opendrift/readers/reader_ArtificialOceanEddy.py</a>).
+</div>
+<div class="section" id="adding-readers">
+<h2>2. Adding <strong>Readers</strong><a class="headerlink" href="#adding-readers" title="Permalink to this headline">¶</a></h2>
+<p>Readers are independent Python objects which provide the variables (e.g. current, wind, temperature…) needed by the model to update particle properties. Readers normally read from a file (hence the name) or from a remote URL, or use some analytical function such as [this idealistic eddy](<a class="reference external" href="https://github.com/knutfrode/opendrift/blob/master/opendrift/readers/reader_ArtificialOceanEddy.py">https://github.com/knutfrode/opendrift/blob/master/opendrift/readers/reader_ArtificialOceanEddy.py</a>).
 Different reader classes exist for different file types. E.g. for data following the NetCDF CF-convention, use the following class:
 <code class="docutils literal notranslate"><span class="pre">`</span>
 <span class="pre">&gt;&gt;&gt;</span> <span class="pre">from</span> <span class="pre">opendrift.readers</span> <span class="pre">import</span> <span class="pre">reader_netCDF_CF_generic</span>
@@ -340,7 +352,7 @@ Model:  OceanDrift     (OpenDrift version 1.0.5)</p>
 <div><p>0 active PassiveTracer particles  (0 deactivated, 0 scheduled)</p>
 </div></blockquote>
 <div class="section" id="projection-proj-latlong">
-<h2>Projection: +proj=latlong<a class="headerlink" href="#projection-proj-latlong" title="Permalink to this headline">¶</a></h2>
+<h3>Projection: +proj=latlong<a class="headerlink" href="#projection-proj-latlong" title="Permalink to this headline">¶</a></h3>
 <dl class="simple">
 <dt>Environment variables:</dt><dd></dd>
 <dt>Readers not added for the following variables:</dt><dd><p>land_binary_mask
@@ -360,7 +372,10 @@ LazyReader: <a class="reference external" href="http://thredds.met.no/thredds/do
 <p>If <code class="docutils literal notranslate"><span class="pre">`somelocalfile.nc`</span></code> contains the required variables for the element positions throughout the simulation, the Thredds-readers will never be initialised, thus saving time.
 If you want readers to be intialised immediately, you may provide the keyword <code class="docutils literal notranslate"><span class="pre">`lazy=False`</span></code> to <code class="docutils literal notranslate"><span class="pre">`add_readers_from_list()`</span></code> or <code class="docutils literal notranslate"><span class="pre">`add_readers_from_file()`</span></code>.
 These methods are robust regarding nonexisting files or URLs, which will then be marked as “Discarded readers” during the simulation.</p>
-<p>### 3. Seeding elements</p>
+</div>
+</div>
+<div class="section" id="seeding-elements">
+<h2>3. Seeding elements<a class="headerlink" href="#seeding-elements" title="Permalink to this headline">¶</a></h2>
 <p>Before starting a model run, some elements must be seeded (released).
 The simplest case is to seed a single element at a given position and time:
 <code class="docutils literal notranslate"><span class="pre">`</span>
@@ -414,7 +429,9 @@ time=[norkyst.start_time, norkyst.start_time+timedelta(hours=5)])</p>
 <p>Specific OpenDrift models may have additional seed-functions. E.g. OpenOil contains a function (seed_from_gml) to seed oil elements within contours from satellite detected oil slicks read from a GML-file. The Leeway model overloads the generic seed_elements function since it needs to read some object properties from a text-file.</p>
 <p>The seed functions may also be called repeatedly before starting the simulation, try [example_grid_time.py](<a class="reference external" href="https://github.com/knutfrode/opendrift/blob/master/examples/example_grid_time.py">https://github.com/knutfrode/opendrift/blob/master/examples/example_grid_time.py</a>) for an example of this.</p>
 <p>Run the script [example_seed_demonstration.py](<a class="reference external" href="https://github.com/knutfrode/opendrift/blob/master/examples/example_seed_demonstration.py">https://github.com/knutfrode/opendrift/blob/master/examples/example_seed_demonstration.py</a>) for a demonstration of various ways to seed elements.</p>
-<p>### 4. Configuration</p>
+</div>
+<div class="section" id="configuration">
+<h2>4. Configuration<a class="headerlink" href="#configuration" title="Permalink to this headline">¶</a></h2>
 <p>OpenDrift allows for configuration of the model using the package [ConfigObj](<a class="reference external" href="http://www.voidspace.org.uk/python/configobj.html">http://www.voidspace.org.uk/python/configobj.html</a>). The properties which can be configured can be listed by the command:
 <code class="docutils literal notranslate"><span class="pre">`</span>
 <span class="pre">&gt;&gt;&gt;</span> <span class="pre">o.list_configspec()</span>
@@ -433,7 +450,9 @@ The configuration value is retrieved by
 <span class="pre">&gt;&gt;&gt;</span> <span class="pre">wind_drift_factor</span> <span class="pre">=</span> <span class="pre">o.get_config('drift:wind_drift_factor')</span>
 <span class="pre">`</span></code></p>
 <p>See the example-files for more examples of configuration.</p>
-<p>### 5. Running the model</p>
+</div>
+<div class="section" id="running-the-model">
+<h2>5. Running the model<a class="headerlink" href="#running-the-model" title="Permalink to this headline">¶</a></h2>
 <p>After initialisation, adding readers and seeding elements, a model run (simulation) can be started by calling the function run:
 <code class="docutils literal notranslate"><span class="pre">`</span>
 <span class="pre">&gt;&gt;&gt;</span> <span class="pre">o.run()</span>
@@ -502,9 +521,8 @@ Model:  OpenOil</p>
 <blockquote>
 <div><p>83 active Oil particles  (17 deactivated)</p>
 </div></blockquote>
-</div>
 <div class="section" id="projection-proj-stere-lat-0-90-lon-0-70-lat-ts-60-units-m-a-6-371e-06-e-0-no-defs">
-<h2>Projection: +proj=stere +lat_0=90 +lon_0=70 +lat_ts=60 +units=m +a=6.371e+06 +e=0 +no_defs<a class="headerlink" href="#projection-proj-stere-lat-0-90-lon-0-70-lat-ts-60-units-m-a-6-371e-06-e-0-no-defs" title="Permalink to this headline">¶</a></h2>
+<h3>Projection: +proj=stere +lat_0=90 +lon_0=70 +lat_ts=60 +units=m +a=6.371e+06 +e=0 +no_defs<a class="headerlink" href="#projection-proj-stere-lat-0-90-lon-0-70-lat-ts-60-units-m-a-6-371e-06-e-0-no-defs" title="Permalink to this headline">¶</a></h3>
 <dl>
 <dt>Environment variables:</dt><dd><p>x_sea_water_velocity
 y_sea_water_velocity</p>
@@ -564,6 +582,7 @@ When exporting animation to mp4, an additional parameter <code class="docutils l
 <p>Specific models may define specific plotting functions. One example is <code class="docutils literal notranslate"><span class="pre">`OpenOil.plot_oil_budget()`</span></code> which plots the oil mass budget of a simulation.
 The examples example_codegg.py and example_oil3d_verticalmixing.py demonstrate the function plot_vertical_distribution() to show a histogram of the element depths, with an interactive time slider.</p>
 <p>See the Gallery-items in the menu at the top right of this page for some examples of output figures and animations.</p>
+</div>
 </div>
 </div>
 
