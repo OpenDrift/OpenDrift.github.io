@@ -93,7 +93,12 @@
 <li class="toctree-l1"><a class="reference internal" href="tutorial.html">Tutorial</a></li>
 <li class="toctree-l1"><a class="reference internal" href="theory/index.html">Theory</a></li>
 <li class="toctree-l1"><a class="reference internal" href="choosing_a_model.html">How to choose which model to use</a></li>
-<li class="toctree-l1 current"><a class="current reference internal" href="#">How to write a new module</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">How to write a new module</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#moving-elements">1. Moving elements</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#modifying-element-properties">2. Modifying element properties</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#deactivating-elements">3. Deactivating elements</a></li>
+</ul>
+</li>
 <li class="toctree-l1"><a class="reference internal" href="gallery/index.html">Gallery</a></li>
 <li class="toctree-l1"><a class="reference internal" href="oil_types.html">Oil types</a></li>
 <li class="toctree-l1"><a class="reference internal" href="interaction_with_coastline.html">Interaction with coastline</a></li>
@@ -165,66 +170,72 @@
             
   <div class="section" id="how-to-write-a-new-module">
 <h1>How to write a new module<a class="headerlink" href="#how-to-write-a-new-module" title="Permalink to this headline">¶</a></h1>
-<p>The best way to get started in developing a new model, is to copy and modify an existing working model/module (e.g. [oceandrift](<a class="reference external" href="https://github.com/knutfrode/opendrift/blob/master/opendrift/models/oceandrift.py">https://github.com/knutfrode/opendrift/blob/master/opendrift/models/oceandrift.py</a>)) or look at the [model_template](<a class="reference external" href="https://github.com/knutfrode/opendrift/blob/master/opendrift/models/model_template.py">https://github.com/knutfrode/opendrift/blob/master/opendrift/models/model_template.py</a>) which contains instructions/comments. A general explanation is given below.</p>
-<p>The main class of the OpenDrift framework is the <strong>OpenDriftSimulation</strong> class in the module [basemodel.py](<a class="reference external" href="https://github.com/knutfrode/opendrift/blob/master/opendrift/models/basemodel.py">https://github.com/knutfrode/opendrift/blob/master/opendrift/models/basemodel.py</a>), stored in the folder [models](<a class="reference external" href="https://github.com/knutfrode/opendrift/blob/master/opendrift/models/">https://github.com/knutfrode/opendrift/blob/master/opendrift/models/</a>).</p>
-<p>A purpose specific trajectory model is made by subclassing <strong>OpenDriftSimulation</strong> (or any of its subclasses/models), mainly by:
-* defining (or importing/reusing) a particle/element type (e.g. oil particle, larvae particle…), by specifying names and default values of the (additional) properties the elements shall have.
-* defining which environment variables (wind, waves, current…) shall be needed by the model to update positions and properties of elements (below).</p>
+<p>The best way to get started in developing a new model, is to copy and modify an existing working model/module (e.g. <a class="reference external" href="https://github.com/opendrift/opendrift/blob/master/opendrift/models/oceandrift.py">oceandrift</a>) or look at the <a class="reference external" href="https://github.com/opendrift/opendrift/blob/master/opendrift/models/model_template.py">model_template</a> which contains instructions/comments. A general explanation is given below.</p>
+<p>The main class of the OpenDrift framework is the <strong>OpenDriftSimulation</strong> class in the module <a class="reference external" href="https://github.com/opendrift/opendrift/blob/master/opendrift/models/basemodel.py">basemodel.py</a>, stored in the folder <a class="reference external" href="https://github.com/opendrift/opendrift/blob/master/opendrift/models/">models</a>.</p>
+<p>A purpose specific trajectory model is made by subclassing <strong>OpenDriftSimulation</strong> (or any of its subclasses/models), mainly by:</p>
 <blockquote>
 <div><ul class="simple">
-<li><p>these environment variables are obtained by [Readers](<a class="reference external" href="https://github.com/knutfrode/opendrift/wiki/Data-model">https://github.com/knutfrode/opendrift/wiki/Data-model</a>); however, when writing a model/module one do not need to worry about how environment variables are obtained.</p></li>
+<li><p>defining (or importing/reusing) a particle/element type (e.g. oil particle, larvae particle…), by specifying names and default values of the (additional) properties the elements shall have.</p></li>
+<li><p>defining which environment variables (wind, waves, current…) shall be needed by the model to update positions and properties of elements (below).</p>
+<ul>
+<li><p>these environment variables are obtained by <span class="xref std std-doc">Readers</span>, however, when writing a model/module one do not need to worry about how environment variables are obtained.</p></li>
 </ul>
-</div></blockquote>
-<ul class="simple">
+</li>
 <li><p>defining a class method <strong>update()</strong> to be called at each model time step.</p></li>
 </ul>
+</div></blockquote>
 <p>The method <strong>update()</strong> will in principle do three different things, regardless of the specific application:</p>
-<p>### 1. Moving elements</p>
-<p>The positions of elements are stored as the element properties <code class="docutils literal notranslate"><span class="pre">`longitude`</span></code> and <code class="docutils literal notranslate"><span class="pre">`latitude`</span></code> with units of degrees, as well as the vertical coordinate <code class="docutils literal notranslate"><span class="pre">`z`</span></code> with units of meters, negative in the ocean. These properties might in principle be modified directly within the update() method, however, it is both safer and simpler to rather use the built in convenience methods, such as</p>
-<blockquote>
-<div><p>self.update_positions(x_velocity, y_velocity)</p>
-</div></blockquote>
+<div class="section" id="moving-elements">
+<h2>1. Moving elements<a class="headerlink" href="#moving-elements" title="Permalink to this headline">¶</a></h2>
+<p>The positions of elements are stored as the element properties <code class="docutils literal notranslate"><span class="pre">longitude</span></code> and <code class="docutils literal notranslate"><span class="pre">latitude</span></code> with units of degrees, as well as the vertical coordinate <code class="docutils literal notranslate"><span class="pre">z</span></code> with units of meters, negative in the ocean. These properties might in principle be modified directly within the update() method, however, it is both safer and simpler to rather use the built in convenience methods, such as:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="bp">self</span><span class="o">.</span><span class="n">update_positions</span><span class="p">(</span><span class="n">x_velocity</span><span class="p">,</span> <span class="n">y_velocity</span><span class="p">)</span>
+</pre></div>
+</div>
 <p>This method takes care of e.g. rotation of vectors from the specific x-y coordinate system of the simulation (Pyproj projection) to determine the correct update of the position (longitude and latitude), also taking the simulation time_step into account.
-The <code class="docutils literal notranslate"><span class="pre">`x_velocity`</span></code> and <code class="docutils literal notranslate"><span class="pre">`y_velocity`</span></code> might be any velocity provided by the readers (currents, wind, stokes drift…) possibly scaled by the model application (e.g. 0.02 times the wind, which is often used for wind drift at ocean surface).</p>
-<p>By inheritance, models may also reuse higher level advection methods inherited from their superclasses. E.g. the model [OceanDrift](<a class="reference external" href="https://github.com/knutfrode/opendrift/blob/master/opendrift/models/oceandrift.py">https://github.com/knutfrode/opendrift/blob/master/opendrift/models/oceandrift.py</a>) uses very simple methods which takes care of everything needed for a correct and efficient advection:</p>
-<blockquote>
-<div><p># Simply move particles with ambient current
-self.advect_ocean_current()</p>
-<p># Advect particles due to wind drag (according to specified wind_drift_factor)
-self.advect_wind()</p>
-</div></blockquote>
-<p>Notice that these (convenience) methods are inherited in the specific model [OceanDrift](<a class="reference external" href="https://github.com/knutfrode/opendrift/blob/master/opendrift/models/oceandrift.py">https://github.com/knutfrode/opendrift/blob/master/opendrift/models/oceandrift.py</a>) from the generic model [OpenDrift](<a class="reference external" href="https://github.com/knutfrode/opendrift/blob/master/opendrift/models/opendrift.py">https://github.com/knutfrode/opendrift/blob/master/opendrift/models/opendrift.py</a>), which again inherits them from the helper class [PhysicsMethods](<a class="reference external" href="https://github.com/knutfrode/opendrift/blob/master/opendrift/models/physics_methods.py">https://github.com/knutfrode/opendrift/blob/master/opendrift/models/physics_methods.py</a>).
+The <code class="docutils literal notranslate"><span class="pre">x_velocity</span></code> and <code class="docutils literal notranslate"><span class="pre">y_velocity</span></code> might be any velocity provided by the readers (currents, wind, stokes drift…) possibly scaled by the model application (e.g. 0.02 times the wind, which is often used for wind drift at ocean surface).</p>
+<p>By inheritance, models may also reuse higher level advection methods inherited from their superclasses. E.g. the model <a class="reference external" href="https://github.com/opendrift/opendrift/blob/master/opendrift/models/oceandrift.py">OceanDrift</a>) uses very simple methods which takes care of everything needed for a correct and efficient advection:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="c1"># Simply move particles with ambient current</span>
+<span class="bp">self</span><span class="o">.</span><span class="n">advect_ocean_current</span><span class="p">()</span>
+
+<span class="c1"># Advect particles due to wind drag (according to specified wind_drift_factor)</span>
+<span class="bp">self</span><span class="o">.</span><span class="n">advect_wind</span><span class="p">()</span>
+</pre></div>
+</div>
+<p>Notice that these (convenience) methods are inherited in the specific model <a class="reference external" href="https://github.com/opendrift/opendrift/blob/master/opendrift/models/oceandrift.py">OceanDrift</a> from the generic model <a class="reference external" href="https://github.com/opendrift/opendrift/blob/master/opendrift/models/opendrift.py">OpenDrift</a>, which again inherits them from the helper class <a class="reference external" href="https://github.com/opendrift/opendrift/blob/master/opendrift/models/physics_methods.py">PhysicsMethods</a>).
 Reusing functionality by inheritance makes it simpler and faster to develop and maintain new models and functionality.
-The vertical coordinate (z) is modified e.g. by turbulence scheme [in 3D models](<a class="reference external" href="https://github.com/knutfrode/opendrift/wiki/How-to-choose-which-model-to-use">https://github.com/knutfrode/opendrift/wiki/How-to-choose-which-model-to-use</a>).</p>
-<p>### 2. Modifying element properties</p>
-<dl class="simple">
-<dt>Element properties may be modified freely and directly within the method <strong>update()</strong>. The main “resources” available are the Python recarrays:</dt><dd><ul class="simple">
-<li><p><code class="docutils literal notranslate"><span class="pre">`self.elements`</span></code> which has any element properties (mass, length, orientation, age…) as attributes, and</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">`self.environment`</span></code> which has any environment variables (x_wind, y_wind, sea_water_temperature) as attributes.</p></li>
+The vertical coordinate (z) is modified e.g. by common turbulence schemes.</p>
+</div>
+<div class="section" id="modifying-element-properties">
+<h2>2. Modifying element properties<a class="headerlink" href="#modifying-element-properties" title="Permalink to this headline">¶</a></h2>
+<p>Element properties may be modified freely and directly within the method <strong>update()</strong>. The main “resources” available are the Python recarrays:</p>
+<blockquote>
+<div><ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">self.elements</span></code> which has any element properties (mass, length, orientation, age…) as attributes, and</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">self.environment</span></code> which has any environment variables (x_wind, y_wind, sea_water_temperature) as attributes.</p></li>
 </ul>
-</dd>
-</dl>
+</div></blockquote>
 <p>E.g. if one (for some reason) would like to set the length of the elements equal to half of the seawater temperature:</p>
-<blockquote>
-<div><p>self.elements.length = self.environment.sea_water_temperature / 2</p>
-</div></blockquote>
-<p>Inheritance is also used for modifying properties, e.g. [OpenOil3D](<a class="reference external" href="https://github.com/knutfrode/opendrift/blob/master/opendrift/models/openoil3D.py">https://github.com/knutfrode/opendrift/blob/master/opendrift/models/openoil3D.py</a>) which inherits the full oil weathering from [OpenOil](<a class="reference external" href="https://github.com/knutfrode/opendrift/blob/master/opendrift/models/openoil.py">https://github.com/knutfrode/opendrift/blob/master/opendrift/models/openoil.py</a>), and simply calls the method self.oil_weathering() within its own <strong>update()</strong> method (in addition to the vertical advection not found in the 3D version OpenOil).</p>
-<p>### 3. Deactivating elements</p>
-<p>Deactivation of elements must always be done with the special class method <code class="docutils literal notranslate"><span class="pre">`deactivate_elements(indices,</span> <span class="pre">reason)`</span></code>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="bp">self</span><span class="o">.</span><span class="n">elements</span><span class="o">.</span><span class="n">length</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">environment</span><span class="o">.</span><span class="n">sea_water_temperature</span> <span class="o">/</span> <span class="mi">2</span>
+</pre></div>
+</div>
+<p>Inheritance is also used for modifying properties, e.g. <a class="reference external" href="https://github.com/opendrift/opendrift/blob/master/opendrift/models/openoil3D.py">OpenOil3D</a> which inherits the full oil weathering from <a class="reference external" href="https://github.com/opendrift/opendrift/blob/master/opendrift/models/openoil.py">OpenOil</a>, and simply calls the method <code class="docutils literal notranslate"><span class="pre">self.oil_weathering()</span></code> within its own <code class="docutils literal notranslate"><span class="pre">update()</span></code> method (in addition to the vertical advection not found in the 3D version OpenOil).</p>
+</div>
+<div class="section" id="deactivating-elements">
+<h2>3. Deactivating elements<a class="headerlink" href="#deactivating-elements" title="Permalink to this headline">¶</a></h2>
+<p>Deactivation of elements must always be done with the special class method <code class="docutils literal notranslate"><span class="pre">deactivate_elements(indices,</span> <span class="pre">reason)</span></code>
 Elements may be deactivated for any reason as determined by the model developer, and an arbitrary text string is provided as explanation. E.g. if one want to deactivate all elements whose mass is below, say 0.5 kg:</p>
-<blockquote>
-<div><p>self.deactivate_elements(self.elements.mass &lt; 0.5, reason=’vanished’)</p>
-</div></blockquote>
-<p><code class="docutils literal notranslate"><span class="pre">`self.elements.mass`</span></code> is a numpy array with one value per element/particle, and thus <code class="docutils literal notranslate"><span class="pre">`self.elements.mass</span> <span class="pre">&lt;</span> <span class="pre">0.5`</span></code> returns the indices of the elements for which the mass is below 0.5 kg (units are specified in element type declaration above).
-The text string <code class="docutils literal notranslate"><span class="pre">`reason`</span></code> serves as an explanation of why the element was deactivated, and is used e.g. for labeling figures and when analysing results. The element property <code class="docutils literal notranslate"><span class="pre">`status`</span></code> will be updated accordingly, as the element is deactivated. All elements have status 0 (integer) as default, meaning <code class="docutils literal notranslate"><span class="pre">`active`</span></code>. Each time (in method <strong>update()</strong>) a new deactivation reason is used, the string (reason) is added to the list <code class="docutils literal notranslate"><span class="pre">`status_categories`</span></code>. The list of deactivation reason is also added to the metadata in exported netCDF files, e.g:</p>
-<blockquote>
-<div><dl class="simple">
-<dt>int status(trajectory, time) ;</dt><dd><p>status:flag_values = 0, 1, 2 ;
-status:flag_meanings = “active evaporated stranded” ;</p>
-</dd>
-</dl>
-</div></blockquote>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="bp">self</span><span class="o">.</span><span class="n">deactivate_elements</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">elements</span><span class="o">.</span><span class="n">mass</span> <span class="o">&lt;</span> <span class="mf">0.5</span><span class="p">,</span> <span class="n">reason</span><span class="o">=</span><span class="s1">&#39;vanished&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p><code class="docutils literal notranslate"><span class="pre">self.elements.mass</span></code> is a numpy array with one value per element/particle, and thus <code class="docutils literal notranslate"><span class="pre">self.elements.mass</span> <span class="pre">&lt;</span> <span class="pre">0.5</span></code> returns the indices of the elements for which the mass is below 0.5 kg (units are specified in element type declaration above).
+The text string <code class="docutils literal notranslate"><span class="pre">reason</span></code> serves as an explanation of why the element was deactivated, and is used e.g. for labeling figures and when analysing results. The element property <code class="docutils literal notranslate"><span class="pre">status</span></code> will be updated accordingly, as the element is deactivated. All elements have status 0 (integer) as default, meaning <code class="docutils literal notranslate"><span class="pre">active</span></code>. Each time (in method <strong>update()</strong>) a new deactivation reason is used, the string (reason) is added to the list <code class="docutils literal notranslate"><span class="pre">status_categories</span></code>. The list of deactivation reason is also added to the metadata in exported netCDF files, e.g:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="nb">int</span> <span class="n">status</span><span class="p">(</span><span class="n">trajectory</span><span class="p">,</span> <span class="n">time</span><span class="p">)</span> <span class="p">;</span>
+                <span class="n">status</span><span class="p">:</span><span class="n">flag_values</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">2</span> <span class="p">;</span>
+                <span class="n">status</span><span class="p">:</span><span class="n">flag_meanings</span> <span class="o">=</span> <span class="s2">&quot;active evaporated stranded&quot;</span> <span class="p">;</span>
+</pre></div>
+</div>
 <p>where one can see that elements have been deactivated for two different reasons (‘evaporated’ <strong>1</strong>, and ‘stranded’ <strong>2</strong>).</p>
+</div>
 </div>
 
 
