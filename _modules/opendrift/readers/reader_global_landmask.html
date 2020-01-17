@@ -186,11 +186,32 @@
 <span class="kn">import</span> <span class="nn">warnings</span>
 <span class="kn">import</span> <span class="nn">pyproj</span>
 
+
 <div class="viewcode-block" id="Reader"><a class="viewcode-back" href="../../../autoapi/opendrift/readers/reader_global_landmask/index.html#opendrift.readers.reader_global_landmask.Reader">[docs]</a><span class="k">class</span> <span class="nc">Reader</span><span class="p">(</span><span class="n">BaseReader</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    The global landmask reader is based on the coastline data from</span>
 <span class="sd">    GSHHG (https://www.ngdc.noaa.gov/mgg/shorelines/) optimized for</span>
 <span class="sd">    checking against landmasks.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        :param extent: minx, miny, maxx, maxy bounding box in source CRS for which to include</span>
+<span class="sd">            geometries. Default None (all geometries).</span>
+<span class="sd">        :type extent: array of floats, optional</span>
+
+<span class="sd">        :param llcrnrlon: minx.</span>
+<span class="sd">        :type llcrnrlon: float, optional, deprecated in favor of extent.</span>
+
+<span class="sd">        :param llcrnrlat: miny.</span>
+<span class="sd">        :type llcrnrlat: float, optional, deprecated in favor of extent.</span>
+
+<span class="sd">        :param urcrnrlon: maxx.</span>
+<span class="sd">        :type urcrnrlon: float, optional, deprecated in favor of extent.</span>
+
+<span class="sd">        :param urcrnrlat: maxy.</span>
+<span class="sd">        :type urcrnrlat: float, optional, deprecated in favor of extent.</span>
+
+<span class="sd">        :param skippoly: use only rasterized landmask to determine whether points are on land.</span>
+<span class="sd">        :type skippoly: bool, optional, default False.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">name</span> <span class="o">=</span> <span class="s1">&#39;global_landmask&#39;</span>
     <span class="n">return_block</span> <span class="o">=</span> <span class="kc">False</span>
@@ -206,24 +227,6 @@
                  <span class="n">urcrnrlon</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
                  <span class="n">urcrnrlat</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
                  <span class="n">skippoly</span> <span class="o">=</span> <span class="kc">False</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Initialize land mask using GSHHS dataset.</span>
-
-<span class="sd">        Args:</span>
-<span class="sd">            extent (array): minx, miny, maxx, maxy bounding box in source CRS for which to include</span>
-<span class="sd">                geometries. Default None (all geometries).</span>
-
-<span class="sd">            llcrnrlon (float): minx (Deprecated in favor of extent).</span>
-
-<span class="sd">            llcrnrlat (float): miny (Deprecated in favor of extent).</span>
-
-<span class="sd">            urcrnrlon (float): maxx (Deprecated in favor of extent).</span>
-
-<span class="sd">            urcrnrlat (float): maxy (Deprecated in favor of extent).</span>
-
-<span class="sd">            skippoly (bool): use only rasterized landmask to determine whether points are on land.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
-
         <span class="bp">self</span><span class="o">.</span><span class="n">proj4</span> <span class="o">=</span> <span class="s1">&#39;+proj=lonlat +ellps=WGS84&#39;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">crs</span> <span class="o">=</span> <span class="n">pyproj</span><span class="o">.</span><span class="n">CRS</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">proj4</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">skippoly</span> <span class="o">=</span> <span class="n">skippoly</span>
