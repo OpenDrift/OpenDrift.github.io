@@ -1,0 +1,507 @@
+.. note::
+    :class: sphx-glr-download-link-note
+
+    Click :ref:`here <sphx_glr_download_gallery_example_plast.py>` to download the full example code
+.. rst-class:: sphx-glr-example-title
+
+.. _sphx_glr_gallery_example_plast.py:
+
+
+Plastic
+==================================
+
+
+.. code-block:: default
+
+
+    from datetime import timedelta
+    from opendrift.readers import reader_netCDF_CF_generic
+    from opendrift.models.plastdrift import PlastDrift
+
+    o = PlastDrift(loglevel=20)
+    o.list_configspec()  # to see available configuration options
+
+    # Arome atmospheric model
+    reader_arome = reader_netCDF_CF_generic.Reader(o.test_data_folder() + '16Nov2015_NorKyst_z_surface/arome_subset_16Nov2015.nc')
+    # Norkyst ocean model
+    reader_norkyst = reader_netCDF_CF_generic.Reader(o.test_data_folder() + '16Nov2015_NorKyst_z_surface/norkyst800_subset_16Nov2015.nc')
+
+    o.add_reader([reader_norkyst, reader_arome])
+    start_time = reader_arome.start_time
+    end_time = reader_arome.start_time + timedelta(hours=5)
+    end_time = reader_arome.end_time
+    time = [start_time, start_time + timedelta(hours=5)]
+
+    # Seeding some particles
+    lon = 4.6; lat = 60.0; # Outside Bergen
+    o.seed_elements(lon, lat, radius=50, number=3000, time=time)
+    o.run(end_time=end_time, time_step=1800, time_step_output=3600)
+
+    # Second run, without wind/Stokes drift
+    o2 = PlastDrift(loglevel=20)
+    o2.add_reader([reader_norkyst])
+    o2.seed_elements(lon, lat, radius=50, number=3000, time=time)
+    o2.run(end_time=end_time, time_step=1800, time_step_output=3600)
+
+    # Print and plot results
+    print(o)
+    o.animation(compare=o2, filename='plast_current_Stokes.gif', fast=True,
+                legend=['Current + wind/Stokes drift', 'Current only'])
+    #o.animation(color='depth')
+    #o.plot_property('depth')
+
+
+
+
+
+.. rst-class:: sphx-glr-script-out
+
+ Out:
+
+ .. code-block:: none
+
+    17:03:13 INFO: OpenDriftSimulation initialised (version 1.2.0)
+    17:03:13 INFO: 
+    ==============================================
+    processes:turbulentmixing [False] boolean(default=True)
+    processes:verticaladvection [True] boolean(default=True)
+    turbulentmixing:timestep [60.0] float(min=0.1, max=3600, default=60.)
+    turbulentmixing:diffusivitymodel [windspeed_Large1994] option('environment', 'stepfunction', 'windspeed_Sundby1983', 'windspeed_Large1994', 'gls_tke', default='windspeed_Large1994')
+    turbulentmixing:TSprofiles [False] boolean(default=False)
+    turbulentmixing:mixingmodel [analytical] option('randomwalk', 'analytical', default='analytical')
+    general:use_auto_landmask [True] boolean(default=True)
+    general:coastline_action [previous] option('none', 'stranding', 'previous', default='previous')
+    general:time_step_minutes [60] integer(min=1, max=1440, default=60)
+    general:time_step_output_minutes [None] integer(min=1, max=1440, default=None)
+    seed:ocean_only [True] boolean(default=True)
+    drift:max_age_seconds [None] float(min=0, default=None)
+    drift:scheme [euler] option('euler', 'runge-kutta', 'runge-kutta4', default='euler')
+    drift:stokes_drift [True] boolean(default=True)
+    drift:current_uncertainty [0.0] float(min=0, max=5, default=0)
+    drift:current_uncertainty_uniform [0.0] float(min=0, max=5, default=0)
+    drift:wind_uncertainty [0.0] float(min=0, max=5, default=0)
+    drift:relative_wind [False] boolean(default=False)
+    drift:lift_to_seafloor [True] boolean(default=True)
+    drift:truncate_ocean_model_below_m [None] float(min=0, max=10000, default=None)
+    drift:deactivate_north_of [None] float(min=-90, max=90, default=None)
+    drift:deactivate_south_of [None] float(min=-90, max=90, default=None)
+    drift:deactivate_east_of [None] float(min=-360, max=360, default=None)
+    drift:deactivate_west_of [None] float(min=-360, max=360, default=None)
+    drift:use_tabularised_stokes_drift [True] boolean(default=True)
+    drift:tabularised_stokes_drift_fetch [25000] option(5000, 25000, 50000, default=25000)
+    drift:verticaladvection [True] boolean(default=True)
+    drift:wind_drift_depth [0.1] float(min=0, max=10, default=0.1)
+    ==============================================
+
+    17:03:13 INFO: Opening dataset: /root/project/tests/test_data/16Nov2015_NorKyst_z_surface/arome_subset_16Nov2015.nc
+    17:03:13 INFO: Opening file with Dataset
+    17:03:13 INFO: Could not parse CF grid_mapping
+    17:03:13 INFO: Opening dataset: /root/project/tests/test_data/16Nov2015_NorKyst_z_surface/norkyst800_subset_16Nov2015.nc
+    17:03:13 INFO: Opening file with Dataset
+    17:03:13 INFO: Config validation OK
+    17:03:13 INFO: Fallback values will be used for the following variables which have no readers: 
+    17:03:13 INFO:  sea_surface_wave_stokes_drift_x_velocity: 0.000000
+    17:03:13 INFO:  sea_surface_wave_stokes_drift_y_velocity: 0.000000
+    17:03:13 INFO:  sea_surface_wave_significant_height: 0.000000
+    17:03:13 INFO:  ocean_vertical_diffusivity: 0.020000
+    17:03:13 INFO:  sea_floor_depth_below_sea_level: 10000.000000
+    17:03:13 INFO: Adding a dynamical landmask with max. priority based on assumed maximum speed of 1 m/s. Adding a customised landmask may be faster...
+    17:03:16 INFO: Using existing reader for land_binary_mask
+    17:03:16 INFO: All points are in ocean
+    17:03:16 INFO: 2015-11-16 00:00:00 - step 1 of 132 - 300 active elements (0 deactivated)
+    17:03:16 INFO: 2015-11-16 00:30:00 - step 2 of 132 - 600 active elements (0 deactivated)
+    17:03:16 INFO: 2015-11-16 01:00:00 - step 3 of 132 - 900 active elements (0 deactivated)
+    17:03:16 INFO: 2015-11-16 01:30:00 - step 4 of 132 - 1200 active elements (0 deactivated)
+    17:03:17 INFO: 2015-11-16 02:00:00 - step 5 of 132 - 1500 active elements (0 deactivated)
+    17:03:17 INFO: 2015-11-16 02:30:00 - step 6 of 132 - 1800 active elements (0 deactivated)
+    17:03:17 INFO: 2015-11-16 03:00:00 - step 7 of 132 - 2100 active elements (0 deactivated)
+    17:03:17 INFO: 2015-11-16 03:30:00 - step 8 of 132 - 2400 active elements (0 deactivated)
+    17:03:17 INFO: 2015-11-16 04:00:00 - step 9 of 132 - 2700 active elements (0 deactivated)
+    17:03:17 INFO: 2015-11-16 04:30:00 - step 10 of 132 - 2999 active elements (0 deactivated)
+    17:03:18 INFO: 2015-11-16 05:00:00 - step 11 of 132 - 3000 active elements (0 deactivated)
+    17:03:18 INFO: 2015-11-16 05:30:00 - step 12 of 132 - 3000 active elements (0 deactivated)
+    17:03:18 INFO: 2015-11-16 06:00:00 - step 13 of 132 - 3000 active elements (0 deactivated)
+    17:03:18 INFO: 2015-11-16 06:30:00 - step 14 of 132 - 3000 active elements (0 deactivated)
+    17:03:18 INFO: 2015-11-16 07:00:00 - step 15 of 132 - 3000 active elements (0 deactivated)
+    17:03:18 INFO: 2015-11-16 07:30:00 - step 16 of 132 - 3000 active elements (0 deactivated)
+    17:03:19 INFO: 2015-11-16 08:00:00 - step 17 of 132 - 3000 active elements (0 deactivated)
+    17:03:19 INFO: 2015-11-16 08:30:00 - step 18 of 132 - 3000 active elements (0 deactivated)
+    17:03:19 INFO: 2015-11-16 09:00:00 - step 19 of 132 - 3000 active elements (0 deactivated)
+    17:03:19 INFO: 2015-11-16 09:30:00 - step 20 of 132 - 3000 active elements (0 deactivated)
+    17:03:19 INFO: 2015-11-16 10:00:00 - step 21 of 132 - 3000 active elements (0 deactivated)
+    17:03:19 INFO: 2015-11-16 10:30:00 - step 22 of 132 - 3000 active elements (0 deactivated)
+    17:03:20 INFO: 2015-11-16 11:00:00 - step 23 of 132 - 3000 active elements (0 deactivated)
+    17:03:20 INFO: 2015-11-16 11:30:00 - step 24 of 132 - 3000 active elements (0 deactivated)
+    17:03:20 INFO: 2015-11-16 12:00:00 - step 25 of 132 - 3000 active elements (0 deactivated)
+    17:03:20 INFO: 2015-11-16 12:30:00 - step 26 of 132 - 3000 active elements (0 deactivated)
+    17:03:20 INFO: 2015-11-16 13:00:00 - step 27 of 132 - 3000 active elements (0 deactivated)
+    17:03:21 INFO: 2015-11-16 13:30:00 - step 28 of 132 - 3000 active elements (0 deactivated)
+    17:03:21 INFO: 2015-11-16 14:00:00 - step 29 of 132 - 3000 active elements (0 deactivated)
+    17:03:21 INFO: 2015-11-16 14:30:00 - step 30 of 132 - 3000 active elements (0 deactivated)
+    17:03:21 INFO: 2015-11-16 15:00:00 - step 31 of 132 - 3000 active elements (0 deactivated)
+    17:03:21 INFO: 2015-11-16 15:30:00 - step 32 of 132 - 3000 active elements (0 deactivated)
+    17:03:22 INFO: 2015-11-16 16:00:00 - step 33 of 132 - 3000 active elements (0 deactivated)
+    17:03:22 INFO: 2015-11-16 16:30:00 - step 34 of 132 - 3000 active elements (0 deactivated)
+    17:03:22 INFO: 2015-11-16 17:00:00 - step 35 of 132 - 3000 active elements (0 deactivated)
+    17:03:22 INFO: 2015-11-16 17:30:00 - step 36 of 132 - 3000 active elements (0 deactivated)
+    17:03:22 INFO: 2015-11-16 18:00:00 - step 37 of 132 - 3000 active elements (0 deactivated)
+    17:03:23 INFO: 2015-11-16 18:30:00 - step 38 of 132 - 3000 active elements (0 deactivated)
+    17:03:23 INFO: 2015-11-16 19:00:00 - step 39 of 132 - 3000 active elements (0 deactivated)
+    17:03:23 INFO: 2015-11-16 19:30:00 - step 40 of 132 - 3000 active elements (0 deactivated)
+    17:03:23 INFO: 2015-11-16 20:00:00 - step 41 of 132 - 3000 active elements (0 deactivated)
+    17:03:23 INFO: 2015-11-16 20:30:00 - step 42 of 132 - 3000 active elements (0 deactivated)
+    17:03:23 INFO: 2015-11-16 21:00:00 - step 43 of 132 - 3000 active elements (0 deactivated)
+    17:03:24 INFO: 2015-11-16 21:30:00 - step 44 of 132 - 3000 active elements (0 deactivated)
+    17:03:24 INFO: 2015-11-16 22:00:00 - step 45 of 132 - 3000 active elements (0 deactivated)
+    17:03:24 INFO: 2015-11-16 22:30:00 - step 46 of 132 - 3000 active elements (0 deactivated)
+    17:03:24 INFO: 2015-11-16 23:00:00 - step 47 of 132 - 3000 active elements (0 deactivated)
+    17:03:24 INFO: 2015-11-16 23:30:00 - step 48 of 132 - 3000 active elements (0 deactivated)
+    17:03:24 INFO: 2015-11-17 00:00:00 - step 49 of 132 - 3000 active elements (0 deactivated)
+    17:03:25 INFO: 2015-11-17 00:30:00 - step 50 of 132 - 3000 active elements (0 deactivated)
+    17:03:25 INFO: 2015-11-17 01:00:00 - step 51 of 132 - 3000 active elements (0 deactivated)
+    17:03:25 INFO: 2015-11-17 01:30:00 - step 52 of 132 - 3000 active elements (0 deactivated)
+    17:03:25 INFO: 2015-11-17 02:00:00 - step 53 of 132 - 3000 active elements (0 deactivated)
+    17:03:25 INFO: 2015-11-17 02:30:00 - step 54 of 132 - 3000 active elements (0 deactivated)
+    17:03:26 INFO: 2015-11-17 03:00:00 - step 55 of 132 - 3000 active elements (0 deactivated)
+    17:03:26 INFO: 2015-11-17 03:30:00 - step 56 of 132 - 3000 active elements (0 deactivated)
+    17:03:26 INFO: 2015-11-17 04:00:00 - step 57 of 132 - 3000 active elements (0 deactivated)
+    17:03:26 INFO: 2015-11-17 04:30:00 - step 58 of 132 - 3000 active elements (0 deactivated)
+    17:03:26 INFO: 2015-11-17 05:00:00 - step 59 of 132 - 3000 active elements (0 deactivated)
+    17:03:27 INFO: 2015-11-17 05:30:00 - step 60 of 132 - 3000 active elements (0 deactivated)
+    17:03:27 INFO: 2015-11-17 06:00:00 - step 61 of 132 - 3000 active elements (0 deactivated)
+    17:03:27 INFO: 2015-11-17 06:30:00 - step 62 of 132 - 3000 active elements (0 deactivated)
+    17:03:27 INFO: 2015-11-17 07:00:00 - step 63 of 132 - 3000 active elements (0 deactivated)
+    17:03:27 INFO: 2015-11-17 07:30:00 - step 64 of 132 - 3000 active elements (0 deactivated)
+    17:03:27 INFO: 2015-11-17 08:00:00 - step 65 of 132 - 3000 active elements (0 deactivated)
+    17:03:28 INFO: 2015-11-17 08:30:00 - step 66 of 132 - 3000 active elements (0 deactivated)
+    17:03:28 INFO: 2015-11-17 09:00:00 - step 67 of 132 - 3000 active elements (0 deactivated)
+    17:03:28 INFO: 2015-11-17 09:30:00 - step 68 of 132 - 3000 active elements (0 deactivated)
+    17:03:28 INFO: 2015-11-17 10:00:00 - step 69 of 132 - 3000 active elements (0 deactivated)
+    17:03:29 INFO: 2015-11-17 10:30:00 - step 70 of 132 - 3000 active elements (0 deactivated)
+    17:03:29 INFO: 2015-11-17 11:00:00 - step 71 of 132 - 3000 active elements (0 deactivated)
+    17:03:29 INFO: 2015-11-17 11:30:00 - step 72 of 132 - 3000 active elements (0 deactivated)
+    17:03:30 INFO: 2015-11-17 12:00:00 - step 73 of 132 - 3000 active elements (0 deactivated)
+    17:03:30 INFO: 2015-11-17 12:30:00 - step 74 of 132 - 3000 active elements (0 deactivated)
+    17:03:30 INFO: 2015-11-17 13:00:00 - step 75 of 132 - 3000 active elements (0 deactivated)
+    17:03:30 INFO: 2015-11-17 13:30:00 - step 76 of 132 - 3000 active elements (0 deactivated)
+    17:03:30 INFO: 2015-11-17 14:00:00 - step 77 of 132 - 3000 active elements (0 deactivated)
+    17:03:30 INFO: 2015-11-17 14:30:00 - step 78 of 132 - 3000 active elements (0 deactivated)
+    17:03:31 INFO: 2015-11-17 15:00:00 - step 79 of 132 - 3000 active elements (0 deactivated)
+    17:03:31 INFO: 2015-11-17 15:30:00 - step 80 of 132 - 3000 active elements (0 deactivated)
+    17:03:31 INFO: 2015-11-17 16:00:00 - step 81 of 132 - 3000 active elements (0 deactivated)
+    17:03:31 INFO: 2015-11-17 16:30:00 - step 82 of 132 - 3000 active elements (0 deactivated)
+    17:03:31 INFO: 2015-11-17 17:00:00 - step 83 of 132 - 3000 active elements (0 deactivated)
+    17:03:31 INFO: 2015-11-17 17:30:00 - step 84 of 132 - 3000 active elements (0 deactivated)
+    17:03:32 INFO: 2015-11-17 18:00:00 - step 85 of 132 - 3000 active elements (0 deactivated)
+    17:03:32 INFO: 2015-11-17 18:30:00 - step 86 of 132 - 3000 active elements (0 deactivated)
+    17:03:32 INFO: 2015-11-17 19:00:00 - step 87 of 132 - 3000 active elements (0 deactivated)
+    17:03:32 INFO: 2015-11-17 19:30:00 - step 88 of 132 - 3000 active elements (0 deactivated)
+    17:03:33 INFO: 2015-11-17 20:00:00 - step 89 of 132 - 3000 active elements (0 deactivated)
+    17:03:33 INFO: 2015-11-17 20:30:00 - step 90 of 132 - 3000 active elements (0 deactivated)
+    17:03:33 INFO: 2015-11-17 21:00:00 - step 91 of 132 - 3000 active elements (0 deactivated)
+    17:03:33 INFO: 2015-11-17 21:30:00 - step 92 of 132 - 3000 active elements (0 deactivated)
+    17:03:33 INFO: 2015-11-17 22:00:00 - step 93 of 132 - 3000 active elements (0 deactivated)
+    17:03:33 INFO: 2015-11-17 22:30:00 - step 94 of 132 - 3000 active elements (0 deactivated)
+    17:03:34 INFO: 2015-11-17 23:00:00 - step 95 of 132 - 3000 active elements (0 deactivated)
+    17:03:34 INFO: 2015-11-17 23:30:00 - step 96 of 132 - 3000 active elements (0 deactivated)
+    17:03:34 INFO: 2015-11-18 00:00:00 - step 97 of 132 - 3000 active elements (0 deactivated)
+    17:03:34 INFO: 2015-11-18 00:30:00 - step 98 of 132 - 3000 active elements (0 deactivated)
+    17:03:34 INFO: 2015-11-18 01:00:00 - step 99 of 132 - 3000 active elements (0 deactivated)
+    17:03:35 INFO: 2015-11-18 01:30:00 - step 100 of 132 - 3000 active elements (0 deactivated)
+    17:03:35 INFO: 2015-11-18 02:00:00 - step 101 of 132 - 3000 active elements (0 deactivated)
+    17:03:35 INFO: 2015-11-18 02:30:00 - step 102 of 132 - 3000 active elements (0 deactivated)
+    17:03:35 INFO: 2015-11-18 03:00:00 - step 103 of 132 - 3000 active elements (0 deactivated)
+    17:03:35 INFO: 2015-11-18 03:30:00 - step 104 of 132 - 3000 active elements (0 deactivated)
+    17:03:36 INFO: 2015-11-18 04:00:00 - step 105 of 132 - 3000 active elements (0 deactivated)
+    17:03:36 INFO: 2015-11-18 04:30:00 - step 106 of 132 - 3000 active elements (0 deactivated)
+    17:03:36 INFO: 2015-11-18 05:00:00 - step 107 of 132 - 3000 active elements (0 deactivated)
+    17:03:36 INFO: 2015-11-18 05:30:00 - step 108 of 132 - 3000 active elements (0 deactivated)
+    17:03:36 INFO: 2015-11-18 06:00:00 - step 109 of 132 - 3000 active elements (0 deactivated)
+    17:03:37 INFO: 2015-11-18 06:30:00 - step 110 of 132 - 3000 active elements (0 deactivated)
+    17:03:37 INFO: 2015-11-18 07:00:00 - step 111 of 132 - 3000 active elements (0 deactivated)
+    17:03:37 INFO: 2015-11-18 07:30:00 - step 112 of 132 - 3000 active elements (0 deactivated)
+    17:03:37 INFO: 2015-11-18 08:00:00 - step 113 of 132 - 3000 active elements (0 deactivated)
+    17:03:37 INFO: 2015-11-18 08:30:00 - step 114 of 132 - 3000 active elements (0 deactivated)
+    17:03:37 INFO: 2015-11-18 09:00:00 - step 115 of 132 - 3000 active elements (0 deactivated)
+    17:03:38 INFO: 2015-11-18 09:30:00 - step 116 of 132 - 3000 active elements (0 deactivated)
+    17:03:38 INFO: 2015-11-18 10:00:00 - step 117 of 132 - 3000 active elements (0 deactivated)
+    17:03:38 INFO: 2015-11-18 10:30:00 - step 118 of 132 - 3000 active elements (0 deactivated)
+    17:03:38 INFO: 2015-11-18 11:00:00 - step 119 of 132 - 3000 active elements (0 deactivated)
+    17:03:39 INFO: 2015-11-18 11:30:00 - step 120 of 132 - 3000 active elements (0 deactivated)
+    17:03:39 INFO: 2015-11-18 12:00:00 - step 121 of 132 - 3000 active elements (0 deactivated)
+    17:03:39 INFO: 2015-11-18 12:30:00 - step 122 of 132 - 3000 active elements (0 deactivated)
+    17:03:39 INFO: 2015-11-18 13:00:00 - step 123 of 132 - 3000 active elements (0 deactivated)
+    17:03:39 INFO: 2015-11-18 13:30:00 - step 124 of 132 - 3000 active elements (0 deactivated)
+    17:03:40 INFO: 2015-11-18 14:00:00 - step 125 of 132 - 3000 active elements (0 deactivated)
+    17:03:40 INFO: 2015-11-18 14:30:00 - step 126 of 132 - 3000 active elements (0 deactivated)
+    17:03:40 INFO: 2015-11-18 15:00:00 - step 127 of 132 - 3000 active elements (0 deactivated)
+    17:03:40 INFO: 2015-11-18 15:30:00 - step 128 of 132 - 3000 active elements (0 deactivated)
+    17:03:40 INFO: 2015-11-18 16:00:00 - step 129 of 132 - 3000 active elements (0 deactivated)
+    17:03:41 INFO: 2015-11-18 16:30:00 - step 130 of 132 - 3000 active elements (0 deactivated)
+    17:03:41 INFO: 2015-11-18 17:00:00 - step 131 of 132 - 3000 active elements (0 deactivated)
+    17:03:41 INFO: 2015-11-18 17:30:00 - step 132 of 132 - 3000 active elements (0 deactivated)
+    17:03:41 INFO: OpenDriftSimulation initialised (version 1.2.0)
+    17:03:41 INFO: Config validation OK
+    17:03:41 INFO: Fallback values will be used for the following variables which have no readers: 
+    17:03:41 INFO:  sea_surface_wave_stokes_drift_x_velocity: 0.000000
+    17:03:41 INFO:  sea_surface_wave_stokes_drift_y_velocity: 0.000000
+    17:03:41 INFO:  sea_surface_wave_significant_height: 0.000000
+    17:03:41 INFO:  x_wind: 0.000000
+    17:03:41 INFO:  y_wind: 0.000000
+    17:03:41 INFO:  ocean_vertical_diffusivity: 0.020000
+    17:03:41 INFO:  sea_floor_depth_below_sea_level: 10000.000000
+    17:03:41 INFO: Adding a dynamical landmask with max. priority based on assumed maximum speed of 1 m/s. Adding a customised landmask may be faster...
+    17:03:44 INFO: Using existing reader for land_binary_mask
+    17:03:44 INFO: All points are in ocean
+    17:03:44 INFO: 2015-11-16 00:00:00 - step 1 of 132 - 300 active elements (0 deactivated)
+    17:03:44 WARNING: Data block from /root/project/tests/test_data/16Nov2015_NorKyst_z_surface/norkyst800_subset_16Nov2015.nc not large enough to cover element positions within timestep. Buffer size (7) must be increased.
+    17:03:44 INFO: 2015-11-16 00:30:00 - step 2 of 132 - 600 active elements (0 deactivated)
+    17:03:44 INFO: 2015-11-16 01:00:00 - step 3 of 132 - 900 active elements (0 deactivated)
+    17:03:45 INFO: 2015-11-16 01:30:00 - step 4 of 132 - 1200 active elements (0 deactivated)
+    17:03:45 INFO: 2015-11-16 02:00:00 - step 5 of 132 - 1500 active elements (0 deactivated)
+    17:03:45 INFO: 2015-11-16 02:30:00 - step 6 of 132 - 1800 active elements (0 deactivated)
+    17:03:45 INFO: 2015-11-16 03:00:00 - step 7 of 132 - 2100 active elements (0 deactivated)
+    17:03:45 INFO: 2015-11-16 03:30:00 - step 8 of 132 - 2400 active elements (0 deactivated)
+    17:03:45 INFO: 2015-11-16 04:00:00 - step 9 of 132 - 2700 active elements (0 deactivated)
+    17:03:45 INFO: 2015-11-16 04:30:00 - step 10 of 132 - 2999 active elements (0 deactivated)
+    17:03:45 INFO: 2015-11-16 05:00:00 - step 11 of 132 - 3000 active elements (0 deactivated)
+    17:03:45 INFO: 2015-11-16 05:30:00 - step 12 of 132 - 3000 active elements (0 deactivated)
+    17:03:45 INFO: 2015-11-16 06:00:00 - step 13 of 132 - 3000 active elements (0 deactivated)
+    17:03:45 INFO: 2015-11-16 06:30:00 - step 14 of 132 - 3000 active elements (0 deactivated)
+    17:03:46 INFO: 2015-11-16 07:00:00 - step 15 of 132 - 3000 active elements (0 deactivated)
+    17:03:46 INFO: 2015-11-16 07:30:00 - step 16 of 132 - 3000 active elements (0 deactivated)
+    17:03:46 INFO: 2015-11-16 08:00:00 - step 17 of 132 - 3000 active elements (0 deactivated)
+    17:03:46 INFO: 2015-11-16 08:30:00 - step 18 of 132 - 3000 active elements (0 deactivated)
+    17:03:46 INFO: 2015-11-16 09:00:00 - step 19 of 132 - 3000 active elements (0 deactivated)
+    17:03:46 INFO: 2015-11-16 09:30:00 - step 20 of 132 - 3000 active elements (0 deactivated)
+    17:03:46 INFO: 2015-11-16 10:00:00 - step 21 of 132 - 3000 active elements (0 deactivated)
+    17:03:46 INFO: 2015-11-16 10:30:00 - step 22 of 132 - 3000 active elements (0 deactivated)
+    17:03:46 INFO: 2015-11-16 11:00:00 - step 23 of 132 - 3000 active elements (0 deactivated)
+    17:03:46 INFO: 2015-11-16 11:30:00 - step 24 of 132 - 3000 active elements (0 deactivated)
+    17:03:47 INFO: 2015-11-16 12:00:00 - step 25 of 132 - 3000 active elements (0 deactivated)
+    17:03:47 INFO: 2015-11-16 12:30:00 - step 26 of 132 - 3000 active elements (0 deactivated)
+    17:03:47 INFO: 2015-11-16 13:00:00 - step 27 of 132 - 3000 active elements (0 deactivated)
+    17:03:47 INFO: 2015-11-16 13:30:00 - step 28 of 132 - 3000 active elements (0 deactivated)
+    17:03:47 INFO: 2015-11-16 14:00:00 - step 29 of 132 - 3000 active elements (0 deactivated)
+    17:03:47 INFO: 2015-11-16 14:30:00 - step 30 of 132 - 3000 active elements (0 deactivated)
+    17:03:47 INFO: 2015-11-16 15:00:00 - step 31 of 132 - 3000 active elements (0 deactivated)
+    17:03:47 INFO: 2015-11-16 15:30:00 - step 32 of 132 - 3000 active elements (0 deactivated)
+    17:03:47 INFO: 2015-11-16 16:00:00 - step 33 of 132 - 3000 active elements (0 deactivated)
+    17:03:47 INFO: 2015-11-16 16:30:00 - step 34 of 132 - 3000 active elements (0 deactivated)
+    17:03:48 INFO: 2015-11-16 17:00:00 - step 35 of 132 - 3000 active elements (0 deactivated)
+    17:03:48 INFO: 2015-11-16 17:30:00 - step 36 of 132 - 3000 active elements (0 deactivated)
+    17:03:48 INFO: 2015-11-16 18:00:00 - step 37 of 132 - 3000 active elements (0 deactivated)
+    17:03:48 INFO: 2015-11-16 18:30:00 - step 38 of 132 - 3000 active elements (0 deactivated)
+    17:03:48 INFO: 2015-11-16 19:00:00 - step 39 of 132 - 3000 active elements (0 deactivated)
+    17:03:48 INFO: 2015-11-16 19:30:00 - step 40 of 132 - 3000 active elements (0 deactivated)
+    17:03:48 INFO: 2015-11-16 20:00:00 - step 41 of 132 - 3000 active elements (0 deactivated)
+    17:03:48 INFO: 2015-11-16 20:30:00 - step 42 of 132 - 3000 active elements (0 deactivated)
+    17:03:48 INFO: 2015-11-16 21:00:00 - step 43 of 132 - 3000 active elements (0 deactivated)
+    17:03:48 INFO: 2015-11-16 21:30:00 - step 44 of 132 - 3000 active elements (0 deactivated)
+    17:03:48 INFO: 2015-11-16 22:00:00 - step 45 of 132 - 3000 active elements (0 deactivated)
+    17:03:49 INFO: 2015-11-16 22:30:00 - step 46 of 132 - 3000 active elements (0 deactivated)
+    17:03:49 INFO: 2015-11-16 23:00:00 - step 47 of 132 - 3000 active elements (0 deactivated)
+    17:03:49 INFO: 2015-11-16 23:30:00 - step 48 of 132 - 3000 active elements (0 deactivated)
+    17:03:49 INFO: 2015-11-17 00:00:00 - step 49 of 132 - 3000 active elements (0 deactivated)
+    17:03:49 INFO: 2015-11-17 00:30:00 - step 50 of 132 - 3000 active elements (0 deactivated)
+    17:03:49 INFO: 2015-11-17 01:00:00 - step 51 of 132 - 3000 active elements (0 deactivated)
+    17:03:49 INFO: 2015-11-17 01:30:00 - step 52 of 132 - 3000 active elements (0 deactivated)
+    17:03:49 INFO: 2015-11-17 02:00:00 - step 53 of 132 - 3000 active elements (0 deactivated)
+    17:03:49 INFO: 2015-11-17 02:30:00 - step 54 of 132 - 3000 active elements (0 deactivated)
+    17:03:49 INFO: 2015-11-17 03:00:00 - step 55 of 132 - 3000 active elements (0 deactivated)
+    17:03:49 INFO: 2015-11-17 03:30:00 - step 56 of 132 - 3000 active elements (0 deactivated)
+    17:03:50 INFO: 2015-11-17 04:00:00 - step 57 of 132 - 3000 active elements (0 deactivated)
+    17:03:50 INFO: 2015-11-17 04:30:00 - step 58 of 132 - 3000 active elements (0 deactivated)
+    17:03:50 INFO: 2015-11-17 05:00:00 - step 59 of 132 - 3000 active elements (0 deactivated)
+    17:03:50 INFO: 2015-11-17 05:30:00 - step 60 of 132 - 3000 active elements (0 deactivated)
+    17:03:50 INFO: 2015-11-17 06:00:00 - step 61 of 132 - 3000 active elements (0 deactivated)
+    17:03:50 INFO: 2015-11-17 06:30:00 - step 62 of 132 - 3000 active elements (0 deactivated)
+    17:03:50 INFO: 2015-11-17 07:00:00 - step 63 of 132 - 3000 active elements (0 deactivated)
+    17:03:50 INFO: 2015-11-17 07:30:00 - step 64 of 132 - 3000 active elements (0 deactivated)
+    17:03:50 INFO: 2015-11-17 08:00:00 - step 65 of 132 - 3000 active elements (0 deactivated)
+    17:03:50 INFO: 2015-11-17 08:30:00 - step 66 of 132 - 3000 active elements (0 deactivated)
+    17:03:51 INFO: 2015-11-17 09:00:00 - step 67 of 132 - 3000 active elements (0 deactivated)
+    17:03:51 INFO: 2015-11-17 09:30:00 - step 68 of 132 - 3000 active elements (0 deactivated)
+    17:03:51 INFO: 2015-11-17 10:00:00 - step 69 of 132 - 3000 active elements (0 deactivated)
+    17:03:51 INFO: 2015-11-17 10:30:00 - step 70 of 132 - 3000 active elements (0 deactivated)
+    17:03:51 INFO: 2015-11-17 11:00:00 - step 71 of 132 - 3000 active elements (0 deactivated)
+    17:03:51 INFO: 2015-11-17 11:30:00 - step 72 of 132 - 3000 active elements (0 deactivated)
+    17:03:51 INFO: 2015-11-17 12:00:00 - step 73 of 132 - 3000 active elements (0 deactivated)
+    17:03:51 INFO: 2015-11-17 12:30:00 - step 74 of 132 - 3000 active elements (0 deactivated)
+    17:03:51 INFO: 2015-11-17 13:00:00 - step 75 of 132 - 3000 active elements (0 deactivated)
+    17:03:51 INFO: 2015-11-17 13:30:00 - step 76 of 132 - 3000 active elements (0 deactivated)
+    17:03:52 INFO: 2015-11-17 14:00:00 - step 77 of 132 - 3000 active elements (0 deactivated)
+    17:03:52 INFO: 2015-11-17 14:30:00 - step 78 of 132 - 3000 active elements (0 deactivated)
+    17:03:52 INFO: 2015-11-17 15:00:00 - step 79 of 132 - 3000 active elements (0 deactivated)
+    17:03:52 INFO: 2015-11-17 15:30:00 - step 80 of 132 - 3000 active elements (0 deactivated)
+    17:03:52 INFO: 2015-11-17 16:00:00 - step 81 of 132 - 3000 active elements (0 deactivated)
+    17:03:53 INFO: 2015-11-17 16:30:00 - step 82 of 132 - 3000 active elements (0 deactivated)
+    17:03:53 INFO: 2015-11-17 17:00:00 - step 83 of 132 - 3000 active elements (0 deactivated)
+    17:03:53 INFO: 2015-11-17 17:30:00 - step 84 of 132 - 3000 active elements (0 deactivated)
+    17:03:53 INFO: 2015-11-17 18:00:00 - step 85 of 132 - 3000 active elements (0 deactivated)
+    17:03:53 INFO: 2015-11-17 18:30:00 - step 86 of 132 - 3000 active elements (0 deactivated)
+    17:03:53 INFO: 2015-11-17 19:00:00 - step 87 of 132 - 3000 active elements (0 deactivated)
+    17:03:53 INFO: 2015-11-17 19:30:00 - step 88 of 132 - 3000 active elements (0 deactivated)
+    17:03:53 INFO: 2015-11-17 20:00:00 - step 89 of 132 - 3000 active elements (0 deactivated)
+    17:03:53 INFO: 2015-11-17 20:30:00 - step 90 of 132 - 3000 active elements (0 deactivated)
+    17:03:54 INFO: 2015-11-17 21:00:00 - step 91 of 132 - 3000 active elements (0 deactivated)
+    17:03:54 INFO: 2015-11-17 21:30:00 - step 92 of 132 - 3000 active elements (0 deactivated)
+    17:03:54 INFO: 2015-11-17 22:00:00 - step 93 of 132 - 3000 active elements (0 deactivated)
+    17:03:54 INFO: 2015-11-17 22:30:00 - step 94 of 132 - 3000 active elements (0 deactivated)
+    17:03:54 INFO: 2015-11-17 23:00:00 - step 95 of 132 - 3000 active elements (0 deactivated)
+    17:03:54 INFO: 2015-11-17 23:30:00 - step 96 of 132 - 3000 active elements (0 deactivated)
+    17:03:54 INFO: 2015-11-18 00:00:00 - step 97 of 132 - 3000 active elements (0 deactivated)
+    17:03:54 INFO: 2015-11-18 00:30:00 - step 98 of 132 - 3000 active elements (0 deactivated)
+    17:03:54 INFO: 2015-11-18 01:00:00 - step 99 of 132 - 3000 active elements (0 deactivated)
+    17:03:54 INFO: 2015-11-18 01:30:00 - step 100 of 132 - 3000 active elements (0 deactivated)
+    17:03:55 INFO: 2015-11-18 02:00:00 - step 101 of 132 - 3000 active elements (0 deactivated)
+    17:03:55 INFO: 2015-11-18 02:30:00 - step 102 of 132 - 3000 active elements (0 deactivated)
+    17:03:55 INFO: 2015-11-18 03:00:00 - step 103 of 132 - 3000 active elements (0 deactivated)
+    17:03:55 INFO: 2015-11-18 03:30:00 - step 104 of 132 - 3000 active elements (0 deactivated)
+    17:03:55 INFO: 2015-11-18 04:00:00 - step 105 of 132 - 3000 active elements (0 deactivated)
+    17:03:55 INFO: 2015-11-18 04:30:00 - step 106 of 132 - 3000 active elements (0 deactivated)
+    17:03:55 INFO: 2015-11-18 05:00:00 - step 107 of 132 - 3000 active elements (0 deactivated)
+    17:03:55 INFO: 2015-11-18 05:30:00 - step 108 of 132 - 3000 active elements (0 deactivated)
+    17:03:55 INFO: 2015-11-18 06:00:00 - step 109 of 132 - 3000 active elements (0 deactivated)
+    17:03:56 INFO: 2015-11-18 06:30:00 - step 110 of 132 - 3000 active elements (0 deactivated)
+    17:03:56 INFO: 2015-11-18 07:00:00 - step 111 of 132 - 3000 active elements (0 deactivated)
+    17:03:56 INFO: 2015-11-18 07:30:00 - step 112 of 132 - 3000 active elements (0 deactivated)
+    17:03:56 INFO: 2015-11-18 08:00:00 - step 113 of 132 - 3000 active elements (0 deactivated)
+    17:03:56 INFO: 2015-11-18 08:30:00 - step 114 of 132 - 3000 active elements (0 deactivated)
+    17:03:56 INFO: 2015-11-18 09:00:00 - step 115 of 132 - 3000 active elements (0 deactivated)
+    17:03:56 INFO: 2015-11-18 09:30:00 - step 116 of 132 - 3000 active elements (0 deactivated)
+    17:03:56 INFO: 2015-11-18 10:00:00 - step 117 of 132 - 3000 active elements (0 deactivated)
+    17:03:56 INFO: 2015-11-18 10:30:00 - step 118 of 132 - 3000 active elements (0 deactivated)
+    17:03:56 INFO: 2015-11-18 11:00:00 - step 119 of 132 - 3000 active elements (0 deactivated)
+    17:03:57 INFO: 2015-11-18 11:30:00 - step 120 of 132 - 3000 active elements (0 deactivated)
+    17:03:57 INFO: 2015-11-18 12:00:00 - step 121 of 132 - 3000 active elements (0 deactivated)
+    17:03:57 INFO: 2015-11-18 12:30:00 - step 122 of 132 - 3000 active elements (0 deactivated)
+    17:03:57 INFO: 2015-11-18 13:00:00 - step 123 of 132 - 3000 active elements (0 deactivated)
+    17:03:57 INFO: 2015-11-18 13:30:00 - step 124 of 132 - 3000 active elements (0 deactivated)
+    17:03:57 INFO: 2015-11-18 14:00:00 - step 125 of 132 - 3000 active elements (0 deactivated)
+    17:03:57 INFO: 2015-11-18 14:30:00 - step 126 of 132 - 3000 active elements (0 deactivated)
+    17:03:57 INFO: 2015-11-18 15:00:00 - step 127 of 132 - 3000 active elements (0 deactivated)
+    17:03:57 INFO: 2015-11-18 15:30:00 - step 128 of 132 - 3000 active elements (0 deactivated)
+    17:03:57 INFO: 2015-11-18 16:00:00 - step 129 of 132 - 3000 active elements (0 deactivated)
+    17:03:58 INFO: 2015-11-18 16:30:00 - step 130 of 132 - 3000 active elements (0 deactivated)
+    17:03:58 INFO: 2015-11-18 17:00:00 - step 131 of 132 - 3000 active elements (0 deactivated)
+    17:03:58 INFO: 2015-11-18 17:30:00 - step 132 of 132 - 3000 active elements (0 deactivated)
+    ===========================
+    --------------------
+    Reader performance:
+    --------------------
+    /root/project/tests/test_data/16Nov2015_NorKyst_z_surface/norkyst800_subset_16Nov2015.nc
+     0:00:20.1  total
+     0:00:00.2  preparing
+     0:00:00.5  reading
+     0:00:00.2  interpolation
+     0:00:00.0  interpolation_time
+     0:00:19.0  rotating vectors
+     0:00:00.0  masking
+    --------------------
+    /root/project/tests/test_data/16Nov2015_NorKyst_z_surface/arome_subset_16Nov2015.nc
+     0:00:09.7  total
+     0:00:00.1  preparing
+     0:00:00.1  reading
+     0:00:00.1  interpolation
+     0:00:00.0  interpolation_time
+     0:00:09.3  rotating vectors
+     0:00:00.0  masking
+    --------------------
+    global_landmask
+     0:00:00.6  total
+     0:00:00.0  preparing
+     0:00:00.6  reading
+     0:00:00.0  interpolation_time
+     0:00:00.0  masking
+    --------------------
+    Performance:
+       28.5 total time
+        0.0 configuration
+        3.2 preparing main loop
+          3.1 making dynamical landmask
+          0.0 moving elements to ocean
+         21.4 readers
+            0.6 global_landmask
+            0.6 postprocessing
+       25.2 main loop
+           10.0 /root/project/tests/test_data/16Nov2015_NorKyst_z_surface/norkyst800_subset_16Nov2015.nc
+            9.8 /root/project/tests/test_data/16Nov2015_NorKyst_z_surface/arome_subset_16Nov2015.nc
+          3.0 updating elements
+        0.0 cleaning up
+    --------------------
+    ===========================
+    Model:  PlastDrift     (OpenDrift version 1.2.0)
+            3000 active PassiveTracer particles  (0 deactivated, 0 scheduled)
+    Projection: +proj=stere +lat_0=90 +lon_0=70 +lat_ts=60 +units=m +a=6.371e+06 +e=0 +no_defs
+    -------------------
+    Environment variables:
+      -----
+      x_sea_water_velocity
+      y_sea_water_velocity
+         1) /root/project/tests/test_data/16Nov2015_NorKyst_z_surface/norkyst800_subset_16Nov2015.nc
+      -----
+      x_wind
+      y_wind
+         1) /root/project/tests/test_data/16Nov2015_NorKyst_z_surface/arome_subset_16Nov2015.nc
+      -----
+      land_binary_mask
+         1) global_landmask
+      -----
+    Readers not added for the following variables:
+      ocean_vertical_diffusivity
+      sea_floor_depth_below_sea_level
+      sea_surface_wave_significant_height
+      sea_surface_wave_stokes_drift_x_velocity
+      sea_surface_wave_stokes_drift_y_velocity
+
+    Time:
+            Start: 2015-11-16 00:00:00
+            Present: 2015-11-18 18:00:00
+            Calculation steps: 132 * 0:30:00 - total time: 2 days, 18:00:00
+            Output steps: 67 * 1:00:00
+    ===========================
+
+    17:03:58 WARNING: plotting fast. this will make your plots less accurate.
+    /root/project/opendrift/models/basemodel.py:2828: UserWarning: Tight layout not applied. The left and right margins cannot be made large enough to accommodate all axes decorations. 
+      fig.canvas.draw()
+    17:03:59 INFO: Saving animation to plast_current_Stokes.gif...
+    17:03:59 INFO: Making animated gif...
+
+
+
+
+.. image:: /gallery/animations/plast_current_Stokes.gif
+
+
+.. rst-class:: sphx-glr-timing
+
+   **Total running time of the script:** ( 1 minutes  12.876 seconds)
+
+
+.. _sphx_glr_download_gallery_example_plast.py:
+
+
+.. only :: html
+
+ .. container:: sphx-glr-footer
+    :class: sphx-glr-footer-example
+
+
+
+  .. container:: sphx-glr-download
+
+     :download:`Download Python source code: example_plast.py <example_plast.py>`
+
+
+
+  .. container:: sphx-glr-download
+
+     :download:`Download Jupyter notebook: example_plast.ipynb <example_plast.ipynb>`
+
+
+.. only:: html
+
+ .. rst-class:: sphx-glr-signature
+
+    `Gallery generated by Sphinx-Gallery <https://sphinx-gallery.github.io>`_

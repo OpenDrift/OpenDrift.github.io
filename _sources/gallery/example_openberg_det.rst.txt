@@ -1,0 +1,246 @@
+.. note::
+    :class: sphx-glr-download-link-note
+
+    Click :ref:`here <sphx_glr_download_gallery_example_openberg_det.py>` to download the full example code
+.. rst-class:: sphx-glr-example-title
+
+.. _sphx_glr_gallery_example_openberg_det.py:
+
+
+Ice berg (openberg) deterministic
+==================================
+
+
+.. code-block:: default
+
+
+    from opendrift.readers import reader_netCDF_CF_generic
+    from opendrift.models.openberg import OpenBerg
+
+
+
+
+
+
+
+
+Initialize model
+#####################
+
+
+.. code-block:: default
+
+    steps = 60  # This is the number of forecast steps
+
+    o = OpenBerg()  # Basic drift model suitable for icebergs
+
+
+
+
+
+.. rst-class:: sphx-glr-script-out
+
+ Out:
+
+ .. code-block:: none
+
+    17:00:16 INFO: OpenDriftSimulation initialised (version 1.2.0)
+
+
+
+
+Preparing Readers
+###########################################
+
+
+.. code-block:: default
+
+
+    reader_current = reader_netCDF_CF_generic.Reader(o.test_data_folder() +
+       '16Nov2015_NorKyst_z_surface/norkyst800_subset_16Nov2015.nc')
+
+    reader_wind = reader_netCDF_CF_generic.Reader(o.test_data_folder() +
+       '16Nov2015_NorKyst_z_surface/arome_subset_16Nov2015.nc')
+
+    o.add_reader([reader_current, reader_wind])
+
+
+
+
+
+
+
+
+Seeding elements
+######################
+
+
+.. code-block:: default
+
+
+    # Icebergs are moved with the ocean current as per Barker et al (2004),
+    # in addition to a fraction of the wind speed (wind_drift_factor).
+    # This factor depends on the properties of the elements.
+    # Default empirical values are:
+    # - Wind drift fraction: 0.018 (1.8 %) (Garret 1985)
+    # - Iceberg size: 	Keel dept = 60m
+    #					Waterline length = 90.5m
+
+
+    o.seed_elements(3.3, 60., radius=3000,
+                    time=reader_current.start_time,
+                    water_line_length=100,
+                    keel_depth=90, number=100)
+
+
+    print('Starting free run .../n')
+
+    print('Start time: ' + str(o.start_time))
+
+
+
+
+
+.. rst-class:: sphx-glr-script-out
+
+ Out:
+
+ .. code-block:: none
+
+    Starting free run .../n
+    Start time: 2015-11-16 00:00:00
+
+
+
+
+Running model
+######################
+
+
+.. code-block:: default
+
+
+    o.run(time_step=3600, steps=steps)
+
+
+
+
+
+
+
+
+Print and plot results
+########################
+
+
+.. code-block:: default
+
+    o.plot(fast=True)
+    o.animation(filename='example_det.gif', fast=True)
+
+
+
+
+
+
+.. rst-class:: sphx-glr-script-out
+
+ Out:
+
+ .. code-block:: none
+
+    /root/project/opendrift/models/basemodel.py:3244: UserWarning: Tight layout not applied. The left and right margins cannot be made large enough to accommodate all axes decorations. 
+      fig.canvas.draw()
+    /root/project/opendrift/models/basemodel.py:2828: UserWarning: Tight layout not applied. The left and right margins cannot be made large enough to accommodate all axes decorations. 
+      fig.canvas.draw()
+
+
+
+
+.. image:: /gallery/animations/example_det.gif
+
+
+.. code-block:: default
+
+
+    print('############## Latitudes:', o.history['lat'])
+    print('############## Longitudes:',o.history['lon'])
+
+
+
+
+
+
+
+
+
+
+
+.. rst-class:: sphx-glr-script-out
+
+ Out:
+
+ .. code-block:: none
+
+    ############## Latitudes: [[60.05067443847656 60.05649185180664 60.06324768066406 ...
+      60.566715240478516 60.57300567626953 60.58220672607422]
+     [59.963706970214844 59.969635009765625 59.97255325317383 ...
+      60.33256530761719 60.338844299316406 60.34823989868164]
+     [59.96577835083008 59.96918869018555 59.97787857055664 ...
+      60.337066650390625 60.343692779541016 60.35319137573242]
+     ...
+     [60.02214050292969 60.030696868896484 60.03630065917969 ...
+      60.52967834472656 60.53425216674805 60.5435791015625]
+     [60.058250427246094 60.063838958740234 60.071163177490234 ...
+      60.508304595947266 60.513587951660156 60.52415084838867]
+     [60.035987854003906 60.04010772705078 60.04695129394531 ...
+      60.51449966430664 60.51931381225586 60.529273986816406]]
+    ############## Longitudes: [[3.394986867904663 3.387014865875244 3.3763885498046875 ...
+      4.087124347686768 4.0673828125 4.056945323944092]
+     [3.3214902877807617 3.310892343521118 3.31257700920105 ...
+      4.095721244812012 4.092062473297119 4.087961673736572]
+     [3.3525660037994385 3.3384125232696533 3.325371503829956 ...
+      4.098323345184326 4.094338417053223 4.089682579040527]
+     ...
+     [3.3960788249969482 3.391643524169922 3.3821890354156494 ...
+      4.089152812957764 4.071928977966309 4.061285018920898]
+     [3.306835174560547 3.3038218021392822 3.299640655517578 ...
+      4.118673801422119 4.109294414520264 4.101760387420654]
+     [3.3216357231140137 3.3136258125305176 3.3043086528778076 ...
+      4.112560272216797 4.100641250610352 4.092845439910889]]
+
+
+
+
+
+.. rst-class:: sphx-glr-timing
+
+   **Total running time of the script:** ( 0 minutes  34.225 seconds)
+
+
+.. _sphx_glr_download_gallery_example_openberg_det.py:
+
+
+.. only :: html
+
+ .. container:: sphx-glr-footer
+    :class: sphx-glr-footer-example
+
+
+
+  .. container:: sphx-glr-download
+
+     :download:`Download Python source code: example_openberg_det.py <example_openberg_det.py>`
+
+
+
+  .. container:: sphx-glr-download
+
+     :download:`Download Jupyter notebook: example_openberg_det.ipynb <example_openberg_det.ipynb>`
+
+
+.. only:: html
+
+ .. rst-class:: sphx-glr-signature
+
+    `Gallery generated by Sphinx-Gallery <https://sphinx-gallery.github.io>`_

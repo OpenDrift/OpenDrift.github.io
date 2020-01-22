@@ -1,0 +1,820 @@
+.. note::
+    :class: sphx-glr-download-link-note
+
+    Click :ref:`here <sphx_glr_download_gallery_example_radionuclides.py>` to download the full example code
+.. rst-class:: sphx-glr-example-title
+
+.. _sphx_glr_gallery_example_radionuclides.py:
+
+
+Radionuclides
+=============
+
+
+.. code-block:: default
+
+
+    from opendrift.readers import reader_netCDF_CF_generic, reader_ROMS_native
+    from opendrift.models.radionuclides import RadionuclideDrift
+    from datetime import timedelta, datetime
+    import numpy as np
+    from numpy import dtype
+
+
+    o = RadionuclideDrift(loglevel=20, seed=0)  # Set loglevel to 0 for debug information
+
+    # Norkyst
+    #reader_norkyst = reader_netCDF_CF_generic.Reader(o.test_data_folder() + '/14Jan2016_NorKyst_z_3d/NorKyst-800m_ZDEPTHS_his_00_3Dsubset.nc')
+    reader_norkyst = reader_netCDF_CF_generic.Reader('http://thredds.met.no/thredds/dodsC/sea/norkyst800m/1h/aggregate_be')
+
+    o.add_reader([reader_norkyst])
+
+    td=datetime.today()
+    time = datetime(td.year, td.month, td.day, 0)
+
+    #latseed= 61.2; lonseed= 4.3    # Sognesjen
+    latseed= 59.0;   lonseed= 10.75 # Hvaler/Koster
+
+    ntraj=2000
+    iniz=np.random.rand(ntraj) * -10. # seeding the radionuclides in the upper 10m
+    init_speciation = np.ones(ntraj)*0
+    diam=np.zeros_like(init_speciation,dtype=np.float32)
+    o.seed_elements(lonseed, latseed, z=iniz, radius=100,number=ntraj,
+                    time=time, diameter=diam, specie=init_speciation)
+
+    init_speciation = np.ones(ntraj)*1
+    diam=np.zeros_like(init_speciation,dtype=np.float32) * 5.e-6
+    o.seed_elements(lonseed, latseed, z=iniz, radius=100,number=ntraj,
+                    time=time,
+                    diameter=diam, specie=init_speciation)
+
+    # init_speciation = np.ones(ntraj)*2
+    # o.seed_elements(lonseed, latseed, z=iniz, radius=100,number=ntraj,
+    #                 time=time,
+    #                 diameter=diam, specie=init_speciation)
+
+    # Adjusting some configuration
+    o.set_config('processes:turbulentmixing', True)
+    o.set_config('turbulentmixing:diffusivitymodel','zero')  # include settling without vertical turbulent mixing
+    #o.set_config('turbulentmixing:diffusivitymodel','environment')  # include settling without vertical turbulent mixing
+    # Vertical mixing requires fast time step
+    o.set_config('turbulentmixing:timestep', 600.) # seconds
+
+    # Activate the desired species
+    o.set_config('radionuclide:species:LMM', True)
+    #o.set_config('radionuclide:species:LMMcation', True)
+    #o.set_config('radionuclide:species:LMManion', True)
+    #o.set_config('radionuclide:species:Colloid', True)
+    #o.set_config('radionuclide:species:Humic_colloid', True)
+    #o.set_config('radionuclide:species:Polymer', True)
+    o.set_config('radionuclide:species:Particle_reversible', True)
+    #o.set_config('radionuclide:species:Particle_irreversible', True)
+    o.set_config('radionuclide:species:Particle_slowly_reversible', True)
+
+    o.set_config('radionuclide:species:Sediment_reversible', True)
+    #o.set_config('radionuclide:species:Sediment_irreversible', True)
+    o.set_config('radionuclide:species:Sediment_slowly_reversible', True)
+
+    o.set_config('radionuclide:particle_diameter',5.e-6)  # m
+    #o.set_config('radionuclide:particle_diameter_uncertainty',1.e-7) # m
+    o.set_config('radionuclide:transformations:Kd',2.e0) # (m3/kg)
+    #o.set_config('radionuclide:transformations:slow_coeff',1.e-6)
+
+    o.set_config('radionuclide:sediment:resuspension_depth',2.)
+    o.set_config('radionuclide:sediment:resuspension_depth_uncert',0.1)
+    o.set_config('radionuclide:sediment:resuspension_critvel',0.15)
+
+
+    #
+    #o.set_config('radionuclide:transfer_setup','dummy')
+    o.set_config('radionuclide:transfer_setup','Bokna_137Cs')
+    #o.set_config('radionuclide:transfer_setup','Sandnesfj_Al')
+
+    # By default, radionuclides do not strand towards coastline
+    o.set_config('general:coastline_action', 'previous')
+
+    #o.set_config('general:use_auto_landmask',False)
+
+    o.list_configspec()
+
+    # Running model (until end of driver data)
+    o.run(steps=48*2, time_step=1800, time_step_output=3600,
+          outfile='radio.nc')
+
+
+    # Print and plot results
+    print(o)
+    print('Final speciation:')
+    for isp,sp in enumerate(o.name_species):
+        print ('{:32}: {:>6}'.format(sp,sum(o.elements.specie==isp)))
+
+    print('Number of transformations:')
+    print (o.ntransformations)
+
+    o.animation(color='specie',
+                vmin=0,vmax=o.nspecies-1,
+                colorbar=True,
+                filename='radionuclides.gif',
+                fast = True
+                )
+
+
+
+
+.. rst-class:: sphx-glr-script-out
+
+ Out:
+
+ .. code-block:: none
+
+    17:32:20 INFO: OpenDriftSimulation initialised (version 1.2.0)
+    17:32:20 INFO: Opening dataset: http://thredds.met.no/thredds/dodsC/sea/norkyst800m/1h/aggregate_be
+    17:32:20 INFO: Opening file with Dataset
+    17:32:27 INFO: 
+    ==============================================
+    radionuclide:transfer_setup [Bokna_137Cs] option('Sandnesfj_Al','Bokna_137Cs', 'dummy', default='dummy')
+    radionuclide:slowly_fraction [False] boolean(default=False)
+    radionuclide:irreversible_fraction [False] boolean(default=False)
+    radionuclide:dissolved_diameter [0.0] float(min=0., max=100.e-6,default=0.)
+    radionuclide:particle_diameter [5e-06] float(min=0., max=100.e-6,default=5.e-6)
+    radionuclide:particle_diameter_uncertainty [1e-07] float(min=0., max=100.e-6, default=1.e-7)
+    radionuclide:species:LMM [True] boolean(default=False)
+    radionuclide:species:LMMcation [False] boolean(default=False)
+    radionuclide:species:LMManion [False] boolean(default=False)
+    radionuclide:species:Colloid [False] boolean(default=False)
+    radionuclide:species:Humic_colloid [False] boolean(default=False)
+    radionuclide:species:Polymer [False] boolean(default=False)
+    radionuclide:species:Particle_reversible [True] boolean(default=False)
+    radionuclide:species:Particle_slowly_reversible [True] boolean(default=False)
+    radionuclide:species:Particle_irreversible [False] boolean(default=False)
+    radionuclide:species:Sediment_reversible [True] boolean(default=False)
+    radionuclide:species:Sediment_slowly_reversible [True] boolean(default=False)
+    radionuclide:species:Sediment_irreversible [False] boolean(default=False)
+    radionuclide:transformations:Kd [2.0] float(min=0., max=1.e9, default=0.)
+    radionuclide:transformations:Dc [1.16e-05] float(min=0., max=1.e6, default=1.16e-5)
+    radionuclide:transformations:slow_coeff [1.2e-07] float(min=0., max=1.e6, default=1.2e-7)
+    radionuclide:sediment:sedmixdepth [1.0] float(min=0., max=100., default=1.)
+    radionuclide:sediment:sediment_density [2600.0] float(min=0., max=10000., default=2600.)
+    radionuclide:sediment:effective_fraction [0.9] float(min=0., max=1., default=0.9)
+    radionuclide:sediment:corr_factor [0.1] float(min=0., max=10., default=0.1)
+    radionuclide:sediment:porosity [0.6] float(min=0., max=1., default=0.6)
+    radionuclide:sediment:layer_thick [1.0] float(min=0., max=100., default=1.)
+    radionuclide:sediment:desorption_depth [1.0] float(min=0., max=100., default=1.)
+    radionuclide:sediment:desorption_depth_uncert [0.5] float(min=0., max=100., default=.5)
+    radionuclide:sediment:resuspension_depth [2.0] float(min=0., max=100., default=1.)
+    radionuclide:sediment:resuspension_depth_uncert [0.1] float(min=0., max=100., default=.5)
+    radionuclide:sediment:resuspension_critvel [0.15] float(min=0., max=1., default=.01)
+    processes:turbulentmixing [True] boolean(default=True)
+    processes:verticaladvection [True] boolean(default=True)
+    turbulentmixing:timestep [600.0] float(min=0.1, max=3600, default=60.)
+    turbulentmixing:diffusivitymodel [zero] option('environment', 'zero', 'stepfunction', 'windspeed_Sundby1983', 'windspeed_Large1994', 'gls_tke', default='environment')
+    turbulentmixing:TSprofiles [False] boolean(default=False)
+    general:use_auto_landmask [True] boolean(default=True)
+    general:coastline_action [previous] option('none', 'stranding', 'previous', default='stranding')
+    general:time_step_minutes [60] integer(min=1, max=1440, default=60)
+    general:time_step_output_minutes [None] integer(min=1, max=1440, default=None)
+    seed:ocean_only [True] boolean(default=True)
+    drift:max_age_seconds [None] float(min=0, default=None)
+    drift:scheme [euler] option('euler', 'runge-kutta', 'runge-kutta4', default='euler')
+    drift:stokes_drift [True] boolean(default=True)
+    drift:current_uncertainty [0.0] float(min=0, max=5, default=0)
+    drift:current_uncertainty_uniform [0.0] float(min=0, max=5, default=0)
+    drift:wind_uncertainty [0.0] float(min=0, max=5, default=0)
+    drift:relative_wind [False] boolean(default=False)
+    drift:lift_to_seafloor [True] boolean(default=True)
+    drift:truncate_ocean_model_below_m [None] float(min=0, max=10000, default=None)
+    drift:deactivate_north_of [None] float(min=-90, max=90, default=None)
+    drift:deactivate_south_of [None] float(min=-90, max=90, default=None)
+    drift:deactivate_east_of [None] float(min=-360, max=360, default=None)
+    drift:deactivate_west_of [None] float(min=-360, max=360, default=None)
+    drift:use_tabularised_stokes_drift [False] boolean(default=False)
+    drift:tabularised_stokes_drift_fetch [25000] option(5000, 25000, 50000, default=25000)
+    ==============================================
+
+    17:32:27 INFO: Config validation OK
+    17:32:27 INFO: Fallback values will be used for the following variables which have no readers: 
+    17:32:27 INFO:  ocean_vertical_diffusivity: 0.000100
+    17:32:27 INFO:  surface_downward_x_stress: 0.000000
+    17:32:27 INFO:  surface_downward_y_stress: 0.000000
+    17:32:27 INFO:  turbulent_kinetic_energy: 0.000000
+    17:32:27 INFO:  turbulent_generic_length_scale: 0.000000
+    17:32:27 INFO:  conc3: 0.001000
+    17:32:27 INFO: Adding a dynamical landmask with max. priority based on assumed maximum speed of 1 m/s. Adding a customised landmask may be faster...
+    17:32:30 INFO: Using existing reader for land_binary_mask
+    17:32:30 INFO: All points are in ocean
+    17:32:30 INFO: Number of species: 5
+    17:32:30 INFO:   0 LMM
+    17:32:30 INFO:   1 Particle reversible
+    17:32:30 INFO:   2 Particle slowly reversible
+    17:32:30 INFO:   3 Sediment reversible
+    17:32:30 INFO:   4 Sediment slowly reversible
+    17:32:30 INFO: transfer setup: Bokna_137Cs
+    17:32:30 INFO: nspecies: 5
+    17:32:30 INFO: Transfer rates:
+     [[0.00000e+00 2.32000e-08 0.00000e+00 2.17152e-03 0.00000e+00]
+     [1.16000e-05 0.00000e+00 1.20000e-07 0.00000e+00 0.00000e+00]
+     [0.00000e+00 1.20000e-08 0.00000e+00 0.00000e+00 0.00000e+00]
+     [1.16000e-06 0.00000e+00 0.00000e+00 0.00000e+00 1.20000e-07]
+     [0.00000e+00 0.00000e+00 0.00000e+00 1.20000e-08 0.00000e+00]]
+    17:32:30 INFO: 2020-01-22 00:00:00 - step 1 of 96 - 4000 active elements (0 deactivated)
+    17:32:33 INFO: Number of transformations: 42
+    17:32:33 INFO: Number of resuspended particles: 0
+    17:32:33 INFO: Speciation: [2042, 1958, 0, 0, 0] ['LMM', 'Particle reversible', 'Particle slowly reversible', 'Sediment reversible', 'Sediment slowly reversible']
+    17:32:33 INFO: 2020-01-22 00:30:00 - step 2 of 96 - 4000 active elements (0 deactivated)
+    17:32:36 INFO: Interpolating profiles in time
+    17:32:36 INFO: Number of transformations: 37
+    17:32:36 INFO: Number of resuspended particles: 0
+    17:32:36 INFO: Speciation: [2079, 1921, 0, 0, 0] ['LMM', 'Particle reversible', 'Particle slowly reversible', 'Sediment reversible', 'Sediment slowly reversible']
+    17:32:36 INFO: 2020-01-22 01:00:00 - step 3 of 96 - 4000 active elements (0 deactivated)
+    17:32:36 INFO: Number of transformations: 32
+    17:32:36 INFO: Number of resuspended particles: 0
+    17:32:36 INFO: Speciation: [2111, 1889, 0, 0, 0] ['LMM', 'Particle reversible', 'Particle slowly reversible', 'Sediment reversible', 'Sediment slowly reversible']
+    17:32:36 INFO: 2020-01-22 01:30:00 - step 4 of 96 - 4000 active elements (0 deactivated)
+    17:32:39 INFO: Interpolating profiles in time
+    17:32:39 INFO: Number of transformations: 32
+    17:32:39 INFO: Number of resuspended particles: 0
+    17:32:39 INFO: Speciation: [2142, 1857, 1, 0, 0] ['LMM', 'Particle reversible', 'Particle slowly reversible', 'Sediment reversible', 'Sediment slowly reversible']
+    17:32:39 INFO: 2020-01-22 02:00:00 - step 5 of 96 - 4000 active elements (0 deactivated)
+    17:32:39 INFO: Number of transformations: 33
+    17:32:39 INFO: Number of resuspended particles: 0
+    17:32:39 INFO: Speciation: [2175, 1824, 1, 0, 0] ['LMM', 'Particle reversible', 'Particle slowly reversible', 'Sediment reversible', 'Sediment slowly reversible']
+    17:32:39 INFO: 2020-01-22 02:30:00 - step 6 of 96 - 4000 active elements (0 deactivated)
+    17:32:42 INFO: Interpolating profiles in time
+    17:32:42 INFO: Number of transformations: 43
+    17:32:42 INFO: Number of resuspended particles: 0
+    17:32:42 INFO: Speciation: [2218, 1781, 1, 0, 0] ['LMM', 'Particle reversible', 'Particle slowly reversible', 'Sediment reversible', 'Sediment slowly reversible']
+    17:32:42 INFO: 2020-01-22 03:00:00 - step 7 of 96 - 4000 active elements (0 deactivated)
+    17:32:42 INFO: Number of transformations: 34
+    17:32:42 INFO: Number of resuspended particles: 0
+    17:32:42 INFO: Speciation: [2251, 1747, 2, 0, 0] ['LMM', 'Particle reversible', 'Particle slowly reversible', 'Sediment reversible', 'Sediment slowly reversible']
+    17:32:42 INFO: 2020-01-22 03:30:00 - step 8 of 96 - 4000 active elements (0 deactivated)
+    17:32:45 INFO: Interpolating profiles in time
+    17:32:45 INFO: Number of transformations: 43
+    17:32:45 INFO: Number of resuspended particles: 0
+    17:32:45 INFO: Speciation: [2294, 1704, 2, 0, 0] ['LMM', 'Particle reversible', 'Particle slowly reversible', 'Sediment reversible', 'Sediment slowly reversible']
+    17:32:45 INFO: 2020-01-22 04:00:00 - step 9 of 96 - 4000 active elements (0 deactivated)
+    17:32:45 INFO: Number of transformations: 38
+    17:32:45 INFO: Number of resuspended particles: 0
+    17:32:45 INFO: Speciation: [2331, 1666, 3, 0, 0] ['LMM', 'Particle reversible', 'Particle slowly reversible', 'Sediment reversible', 'Sediment slowly reversible']
+    17:32:45 INFO: 2020-01-22 04:30:00 - step 10 of 96 - 4000 active elements (0 deactivated)
+    17:32:48 INFO: Interpolating profiles in time
+    17:32:48 INFO: Number of transformations: 42
+    17:32:48 INFO: Number of resuspended particles: 0
+    17:32:48 INFO: Speciation: [2371, 1624, 5, 0, 0] ['LMM', 'Particle reversible', 'Particle slowly reversible', 'Sediment reversible', 'Sediment slowly reversible']
+    17:32:48 INFO: 2020-01-22 05:00:00 - step 11 of 96 - 4000 active elements (0 deactivated)
+    17:32:48 INFO: Number of transformations: 29
+    17:32:48 INFO: Number of resuspended particles: 0
+    17:32:48 INFO: Speciation: [2400, 1595, 5, 0, 0] ['LMM', 'Particle reversible', 'Particle slowly reversible', 'Sediment reversible', 'Sediment slowly reversible']
+    17:32:48 INFO: 2020-01-22 05:30:00 - step 12 of 96 - 4000 active elements (0 deactivated)
+    17:32:51 INFO: Interpolating profiles in time
+    17:32:51 INFO: Number of transformations: 22
+    17:32:51 INFO: Number of resuspended particles: 0
+    17:32:51 INFO: Speciation: [2422, 1573, 5, 0, 0] ['LMM', 'Particle reversible', 'Particle slowly reversible', 'Sediment reversible', 'Sediment slowly reversible']
+    17:32:51 INFO: 2020-01-22 06:00:00 - step 13 of 96 - 4000 active elements (0 deactivated)
+    17:32:51 INFO: Number of transformations: 38
+    17:32:52 INFO: Number of resuspended particles: 0
+    17:32:52 INFO: Speciation: [2460, 1535, 5, 0, 0] ['LMM', 'Particle reversible', 'Particle slowly reversible', 'Sediment reversible', 'Sediment slowly reversible']
+    17:32:52 INFO: 2020-01-22 06:30:00 - step 14 of 96 - 4000 active elements (0 deactivated)
+    17:32:54 INFO: Interpolating profiles in time
+    17:32:54 INFO: Number of transformations: 34
+    17:32:54 INFO: Number of resuspended particles: 0
+    17:32:55 INFO: Speciation: [2494, 1501, 5, 0, 0] ['LMM', 'Particle reversible', 'Particle slowly reversible', 'Sediment reversible', 'Sediment slowly reversible']
+    17:32:55 INFO: 2020-01-22 07:00:00 - step 15 of 96 - 4000 active elements (0 deactivated)
+    17:32:55 INFO: Number of transformations: 28
+    17:32:55 INFO: Number of resuspended particles: 0
+    17:32:55 INFO: Speciation: [2522, 1473, 5, 0, 0] ['LMM', 'Particle reversible', 'Particle slowly reversible', 'Sediment reversible', 'Sediment slowly reversible']
+    17:32:55 INFO: 2020-01-22 07:30:00 - step 16 of 96 - 4000 active elements (0 deactivated)
+    17:32:57 INFO: Interpolating profiles in time
+    17:32:57 INFO: Number of transformations: 28
+    17:32:57 INFO: Number of resuspended particles: 0
+    17:32:58 INFO: Speciation: [2550, 1445, 5, 0, 0] ['LMM', 'Particle reversible', 'Particle slowly reversible', 'Sediment reversible', 'Sediment slowly reversible']
+    17:32:58 INFO: 2020-01-22 08:00:00 - step 17 of 96 - 4000 active elements (0 deactivated)
+    17:32:58 INFO: Number of transformations: 34
+    17:32:58 INFO: Number of resuspended particles: 0
+    17:32:58 INFO: Speciation: [2583, 1411, 6, 0, 0] ['LMM', 'Particle reversible', 'Particle slowly reversible', 'Sediment reversible', 'Sediment slowly reversible']
+    17:32:58 INFO: 2020-01-22 08:30:00 - step 18 of 96 - 4000 active elements (0 deactivated)
+    17:33:01 INFO: Interpolating profiles in time
+    17:33:01 INFO: Number of transformations: 25
+    17:33:01 INFO: Number of resuspended particles: 0
+    17:33:01 INFO: Speciation: [2607, 1386, 7, 0, 0] ['LMM', 'Particle reversible', 'Particle slowly reversible', 'Sediment reversible', 'Sediment slowly reversible']
+    17:33:01 INFO: 2020-01-22 09:00:00 - step 19 of 96 - 4000 active elements (0 deactivated)
+    17:33:01 INFO: Number of transformations: 25
+    17:33:01 INFO: Number of resuspended particles: 0
+    17:33:01 INFO: Speciation: [2632, 1361, 7, 0, 0] ['LMM', 'Particle reversible', 'Particle slowly reversible', 'Sediment reversible', 'Sediment slowly reversible']
+    17:33:01 INFO: 2020-01-22 09:30:00 - step 20 of 96 - 4000 active elements (0 deactivated)
+    17:33:04 INFO: Interpolating profiles in time
+    17:33:04 INFO: Number of transformations: 44
+    17:33:04 INFO: Number of resuspended particles: 0
+    17:33:04 INFO: Speciation: [2676, 1317, 7, 0, 0] ['LMM', 'Particle reversible', 'Particle slowly reversible', 'Sediment reversible', 'Sediment slowly reversible']
+    17:33:04 INFO: 2020-01-22 10:00:00 - step 21 of 96 - 4000 active elements (0 deactivated)
+    17:33:04 INFO: Number of transformations: 34
+    17:33:04 INFO: Number of resuspended particles: 0
+    17:33:04 INFO: Speciation: [2709, 1283, 8, 0, 0] ['LMM', 'Particle reversible', 'Particle slowly reversible', 'Sediment reversible', 'Sediment slowly reversible']
+    17:33:04 INFO: 2020-01-22 10:30:00 - step 22 of 96 - 4000 active elements (0 deactivated)
+    17:33:07 INFO: Interpolating profiles in time
+    17:33:07 INFO: Number of transformations: 21
+    17:33:07 INFO: Number of resuspended particles: 0
+    17:33:07 INFO: Speciation: [2728, 1264, 8, 0, 0] ['LMM', 'Particle reversible', 'Particle slowly reversible', 'Sediment reversible', 'Sediment slowly reversible']
+    17:33:07 INFO: 2020-01-22 11:00:00 - step 23 of 96 - 4000 active elements (0 deactivated)
+    17:33:08 INFO: Number of transformations: 29
+    17:33:08 INFO: Number of resuspended particles: 0
+    17:33:08 INFO: Speciation: [2756, 1235, 9, 0, 0] ['LMM', 'Particle reversible', 'Particle slowly reversible', 'Sediment reversible', 'Sediment slowly reversible']
+    17:33:08 INFO: 2020-01-22 11:30:00 - step 24 of 96 - 4000 active elements (0 deactivated)
+    17:33:10 INFO: Interpolating profiles in time
+    17:33:10 INFO: Number of transformations: 35
+    17:33:10 INFO: Number of resuspended particles: 0
+    17:33:11 INFO: Speciation: [2790, 1200, 10, 0, 0] ['LMM', 'Particle reversible', 'Particle slowly reversible', 'Sediment reversible', 'Sediment slowly reversible']
+    17:33:11 INFO: 2020-01-22 12:00:00 - step 25 of 96 - 4000 active elements (0 deactivated)
+    17:33:11 INFO: Number of transformations: 30
+    17:33:11 INFO: Number of resuspended particles: 0
+    17:33:11 INFO: Speciation: [2816, 1174, 10, 0, 0] ['LMM', 'Particle reversible', 'Particle slowly reversible', 'Sediment reversible', 'Sediment slowly reversible']
+    17:33:11 INFO: 2020-01-22 12:30:00 - step 26 of 96 - 4000 active elements (0 deactivated)
+    17:33:14 INFO: Interpolating profiles in time
+    17:33:14 INFO: Number of transformations: 30
+    17:33:14 INFO: Number of resuspended particles: 0
+    17:33:14 INFO: Speciation: [2846, 1144, 10, 0, 0] ['LMM', 'Particle reversible', 'Particle slowly reversible', 'Sediment reversible', 'Sediment slowly reversible']
+    17:33:14 INFO: 2020-01-22 13:00:00 - step 27 of 96 - 4000 active elements (0 deactivated)
+    17:33:14 INFO: Number of transformations: 24
+    17:33:14 INFO: Number of resuspended particles: 0
+    17:33:14 INFO: Speciation: [2870, 1120, 10, 0, 0] ['LMM', 'Particle reversible', 'Particle slowly reversible', 'Sediment reversible', 'Sediment slowly reversible']
+    17:33:14 INFO: 2020-01-22 13:30:00 - step 28 of 96 - 4000 active elements (0 deactivated)
+    17:33:17 INFO: Interpolating profiles in time
+    17:33:17 INFO: Number of transformations: 25
+    17:33:17 INFO: Number of resuspended particles: 0
+    17:33:17 INFO: Speciation: [2894, 1095, 11, 0, 0] ['LMM', 'Particle reversible', 'Particle slowly reversible', 'Sediment reversible', 'Sediment slowly reversible']
+    17:33:17 INFO: 2020-01-22 14:00:00 - step 29 of 96 - 4000 active elements (0 deactivated)
+    17:33:17 INFO: Number of transformations: 25
+    17:33:18 INFO: Number of resuspended particles: 0
+    17:33:18 INFO: Speciation: [2919, 1070, 11, 0, 0] ['LMM', 'Particle reversible', 'Particle slowly reversible', 'Sediment reversible', 'Sediment slowly reversible']
+    17:33:18 INFO: 2020-01-22 14:30:00 - step 30 of 96 - 4000 active elements (0 deactivated)
+    17:33:20 INFO: Interpolating profiles in time
+    17:33:20 INFO: Number of transformations: 22
+    17:33:20 INFO: Number of resuspended particles: 0
+    17:33:20 INFO: Speciation: [2938, 1050, 12, 0, 0] ['LMM', 'Particle reversible', 'Particle slowly reversible', 'Sediment reversible', 'Sediment slowly reversible']
+    17:33:20 INFO: 2020-01-22 15:00:00 - step 31 of 96 - 4000 active elements (0 deactivated)
+    17:33:20 INFO: Number of transformations: 19
+    17:33:20 INFO: Number of resuspended particles: 0
+    17:33:20 INFO: Speciation: [2956, 1031, 13, 0, 0] ['LMM', 'Particle reversible', 'Particle slowly reversible', 'Sediment reversible', 'Sediment slowly reversible']
+    17:33:20 INFO: 2020-01-22 15:30:00 - step 32 of 96 - 4000 active elements (0 deactivated)
+    17:33:23 INFO: Interpolating profiles in time
+    17:33:23 INFO: Number of transformations: 27
+    17:33:23 INFO: Number of resuspended particles: 0
+    17:33:23 INFO: Speciation: [2983, 1004, 13, 0, 0] ['LMM', 'Particle reversible', 'Particle slowly reversible', 'Sediment reversible', 'Sediment slowly reversible']
+    17:33:23 INFO: 2020-01-22 16:00:00 - step 33 of 96 - 4000 active elements (0 deactivated)
+    17:33:23 INFO: Number of transformations: 18
+    17:33:23 INFO: Number of resuspended particles: 0
+    17:33:23 INFO: Speciation: [3001, 986, 13, 0, 0] ['LMM', 'Particle reversible', 'Particle slowly reversible', 'Sediment reversible', 'Sediment slowly reversible']
+    17:33:23 INFO: 2020-01-22 16:30:00 - step 34 of 96 - 4000 active elements (0 deactivated)
+    17:33:26 INFO: Interpolating profiles in time
+    17:33:26 INFO: Number of transformations: 27
+    17:33:26 INFO: Number of resuspended particles: 0
+    17:33:26 INFO: Speciation: [3028, 959, 13, 0, 0] ['LMM', 'Particle reversible', 'Particle slowly reversible', 'Sediment reversible', 'Sediment slowly reversible']
+    17:33:26 INFO: 2020-01-22 17:00:00 - step 35 of 96 - 4000 active elements (0 deactivated)
+    17:33:26 INFO: Number of transformations: 18
+    17:33:26 INFO: Number of resuspended particles: 0
+    17:33:26 INFO: Speciation: [3046, 941, 13, 0, 0] ['LMM', 'Particle reversible', 'Particle slowly reversible', 'Sediment reversible', 'Sediment slowly reversible']
+    17:33:26 INFO: 2020-01-22 17:30:00 - step 36 of 96 - 4000 active elements (0 deactivated)
+    17:33:29 INFO: Interpolating profiles in time
+    17:33:29 INFO: Number of transformations: 15
+    17:33:29 INFO: Number of resuspended particles: 0
+    17:33:29 INFO: Speciation: [3061, 926, 13, 0, 0] ['LMM', 'Particle reversible', 'Particle slowly reversible', 'Sediment reversible', 'Sediment slowly reversible']
+    17:33:29 INFO: 2020-01-22 18:00:00 - step 37 of 96 - 4000 active elements (0 deactivated)
+    17:33:29 INFO: Number of transformations: 18
+    17:33:29 INFO: Number of resuspended particles: 0
+    17:33:29 INFO: Speciation: [3079, 908, 13, 0, 0] ['LMM', 'Particle reversible', 'Particle slowly reversible', 'Sediment reversible', 'Sediment slowly reversible']
+    17:33:29 INFO: 2020-01-22 18:30:00 - step 38 of 96 - 4000 active elements (0 deactivated)
+    17:33:32 INFO: Interpolating profiles in time
+    17:33:32 INFO: Number of transformations: 15
+    17:33:32 INFO: Number of resuspended particles: 0
+    17:33:32 INFO: Speciation: [3094, 893, 13, 0, 0] ['LMM', 'Particle reversible', 'Particle slowly reversible', 'Sediment reversible', 'Sediment slowly reversible']
+    17:33:32 INFO: 2020-01-22 19:00:00 - step 39 of 96 - 4000 active elements (0 deactivated)
+    17:33:32 INFO: Number of transformations: 21
+    17:33:32 INFO: Number of resuspended particles: 0
+    17:33:32 INFO: Speciation: [3113, 874, 13, 0, 0] ['LMM', 'Particle reversible', 'Particle slowly reversible', 'Sediment reversible', 'Sediment slowly reversible']
+    17:33:32 INFO: 2020-01-22 19:30:00 - step 40 of 96 - 4000 active elements (0 deactivated)
+    17:33:36 INFO: Interpolating profiles in time
+    17:33:36 INFO: Number of transformations: 11
+    17:33:36 INFO: Number of resuspended particles: 0
+    17:33:36 INFO: Speciation: [3124, 863, 13, 0, 0] ['LMM', 'Particle reversible', 'Particle slowly reversible', 'Sediment reversible', 'Sediment slowly reversible']
+    17:33:36 INFO: 2020-01-22 20:00:00 - step 41 of 96 - 4000 active elements (0 deactivated)
+    17:33:36 INFO: Number of transformations: 28
+    17:33:36 INFO: Number of resuspended particles: 0
+    17:33:36 INFO: Speciation: [3152, 835, 13, 0, 0] ['LMM', 'Particle reversible', 'Particle slowly reversible', 'Sediment reversible', 'Sediment slowly reversible']
+    17:33:36 INFO: 2020-01-22 20:30:00 - step 42 of 96 - 4000 active elements (0 deactivated)
+    17:33:39 INFO: Interpolating profiles in time
+    17:33:39 INFO: Number of transformations: 12
+    17:33:39 INFO: Number of resuspended particles: 0
+    17:33:39 INFO: Speciation: [3164, 823, 13, 0, 0] ['LMM', 'Particle reversible', 'Particle slowly reversible', 'Sediment reversible', 'Sediment slowly reversible']
+    17:33:39 INFO: 2020-01-22 21:00:00 - step 43 of 96 - 4000 active elements (0 deactivated)
+    17:33:39 INFO: Number of transformations: 12
+    17:33:39 INFO: Number of resuspended particles: 0
+    17:33:39 INFO: Speciation: [3176, 811, 13, 0, 0] ['LMM', 'Particle reversible', 'Particle slowly reversible', 'Sediment reversible', 'Sediment slowly reversible']
+    17:33:39 INFO: 2020-01-22 21:30:00 - step 44 of 96 - 4000 active elements (0 deactivated)
+    17:33:42 INFO: Interpolating profiles in time
+    17:33:42 INFO: Number of transformations: 27
+    17:33:42 INFO: Number of resuspended particles: 0
+    17:33:42 INFO: Speciation: [3203, 784, 13, 0, 0] ['LMM', 'Particle reversible', 'Particle slowly reversible', 'Sediment reversible', 'Sediment slowly reversible']
+    17:33:42 INFO: 2020-01-22 22:00:00 - step 45 of 96 - 4000 active elements (0 deactivated)
+    17:33:42 INFO: Number of transformations: 14
+    17:33:42 INFO: Number of resuspended particles: 0
+    17:33:42 INFO: Speciation: [3217, 770, 13, 0, 0] ['LMM', 'Particle reversible', 'Particle slowly reversible', 'Sediment reversible', 'Sediment slowly reversible']
+    17:33:42 INFO: 2020-01-22 22:30:00 - step 46 of 96 - 4000 active elements (0 deactivated)
+    17:33:45 INFO: Interpolating profiles in time
+    17:33:45 INFO: Number of transformations: 11
+    17:33:45 INFO: Number of resuspended particles: 0
+    17:33:45 INFO: Speciation: [3228, 759, 13, 0, 0] ['LMM', 'Particle reversible', 'Particle slowly reversible', 'Sediment reversible', 'Sediment slowly reversible']
+    17:33:45 INFO: 2020-01-22 23:00:00 - step 47 of 96 - 4000 active elements (0 deactivated)
+    17:33:45 INFO: Number of transformations: 14
+    17:33:45 INFO: Number of resuspended particles: 0
+    17:33:45 INFO: Speciation: [3242, 745, 13, 0, 0] ['LMM', 'Particle reversible', 'Particle slowly reversible', 'Sediment reversible', 'Sediment slowly reversible']
+    17:33:46 INFO: 2020-01-22 23:30:00 - step 48 of 96 - 4000 active elements (0 deactivated)
+    17:33:49 INFO: Interpolating profiles in time
+    17:33:49 INFO: Number of transformations: 17
+    17:33:49 INFO: Number of resuspended particles: 0
+    17:33:49 INFO: Speciation: [3259, 728, 13, 0, 0] ['LMM', 'Particle reversible', 'Particle slowly reversible', 'Sediment reversible', 'Sediment slowly reversible']
+    17:33:49 INFO: 2020-01-23 00:00:00 - step 49 of 96 - 4000 active elements (0 deactivated)
+    17:33:49 INFO: Number of transformations: 18
+    17:33:49 INFO: Number of resuspended particles: 0
+    17:33:49 INFO: Speciation: [3276, 710, 14, 0, 0] ['LMM', 'Particle reversible', 'Particle slowly reversible', 'Sediment reversible', 'Sediment slowly reversible']
+    17:33:49 INFO: 2020-01-23 00:30:00 - step 50 of 96 - 4000 active elements (0 deactivated)
+    17:33:52 INFO: Interpolating profiles in time
+    17:33:52 INFO: Number of transformations: 13
+    17:33:52 INFO: Number of resuspended particles: 0
+    17:33:52 INFO: Speciation: [3289, 697, 14, 0, 0] ['LMM', 'Particle reversible', 'Particle slowly reversible', 'Sediment reversible', 'Sediment slowly reversible']
+    17:33:52 INFO: 2020-01-23 01:00:00 - step 51 of 96 - 4000 active elements (0 deactivated)
+    17:33:52 INFO: Number of transformations: 12
+    17:33:52 INFO: Number of resuspended particles: 0
+    17:33:52 INFO: Speciation: [3301, 685, 14, 0, 0] ['LMM', 'Particle reversible', 'Particle slowly reversible', 'Sediment reversible', 'Sediment slowly reversible']
+    17:33:52 INFO: 2020-01-23 01:30:00 - step 52 of 96 - 4000 active elements (0 deactivated)
+    17:33:55 INFO: Interpolating profiles in time
+    17:33:55 INFO: Number of transformations: 20
+    17:33:55 INFO: Number of resuspended particles: 0
+    17:33:56 INFO: Speciation: [3321, 665, 14, 0, 0] ['LMM', 'Particle reversible', 'Particle slowly reversible', 'Sediment reversible', 'Sediment slowly reversible']
+    17:33:56 INFO: 2020-01-23 02:00:00 - step 53 of 96 - 4000 active elements (0 deactivated)
+    17:33:56 INFO: Number of transformations: 15
+    17:33:56 INFO: Number of resuspended particles: 0
+    17:33:56 INFO: Speciation: [3335, 650, 15, 0, 0] ['LMM', 'Particle reversible', 'Particle slowly reversible', 'Sediment reversible', 'Sediment slowly reversible']
+    17:33:56 INFO: 2020-01-23 02:30:00 - step 54 of 96 - 4000 active elements (0 deactivated)
+    17:34:00 INFO: Interpolating profiles in time
+    17:34:00 INFO: Number of transformations: 17
+    17:34:00 INFO: Number of resuspended particles: 0
+    17:34:00 INFO: Speciation: [3352, 633, 15, 0, 0] ['LMM', 'Particle reversible', 'Particle slowly reversible', 'Sediment reversible', 'Sediment slowly reversible']
+    17:34:00 INFO: 2020-01-23 03:00:00 - step 55 of 96 - 4000 active elements (0 deactivated)
+    17:34:00 INFO: Number of transformations: 14
+    17:34:00 INFO: Number of resuspended particles: 0
+    17:34:00 INFO: Speciation: [3366, 619, 15, 0, 0] ['LMM', 'Particle reversible', 'Particle slowly reversible', 'Sediment reversible', 'Sediment slowly reversible']
+    17:34:00 INFO: 2020-01-23 03:30:00 - step 56 of 96 - 4000 active elements (0 deactivated)
+    17:34:03 INFO: Interpolating profiles in time
+    17:34:03 INFO: Number of transformations: 14
+    17:34:03 INFO: Number of resuspended particles: 0
+    17:34:03 INFO: Speciation: [3378, 607, 15, 0, 0] ['LMM', 'Particle reversible', 'Particle slowly reversible', 'Sediment reversible', 'Sediment slowly reversible']
+    17:34:03 INFO: 2020-01-23 04:00:00 - step 57 of 96 - 4000 active elements (0 deactivated)
+    17:34:03 INFO: Number of transformations: 8
+    17:34:03 INFO: Number of resuspended particles: 0
+    17:34:03 INFO: Speciation: [3386, 599, 15, 0, 0] ['LMM', 'Particle reversible', 'Particle slowly reversible', 'Sediment reversible', 'Sediment slowly reversible']
+    17:34:03 INFO: 2020-01-23 04:30:00 - step 58 of 96 - 4000 active elements (0 deactivated)
+    17:34:07 INFO: Interpolating profiles in time
+    17:34:07 INFO: Number of transformations: 6
+    17:34:07 INFO: Number of resuspended particles: 0
+    17:34:07 INFO: Speciation: [3392, 593, 15, 0, 0] ['LMM', 'Particle reversible', 'Particle slowly reversible', 'Sediment reversible', 'Sediment slowly reversible']
+    17:34:07 INFO: 2020-01-23 05:00:00 - step 59 of 96 - 4000 active elements (0 deactivated)
+    17:34:07 INFO: Number of transformations: 12
+    17:34:07 INFO: Number of resuspended particles: 0
+    17:34:07 INFO: Speciation: [3403, 581, 16, 0, 0] ['LMM', 'Particle reversible', 'Particle slowly reversible', 'Sediment reversible', 'Sediment slowly reversible']
+    17:34:07 INFO: 2020-01-23 05:30:00 - step 60 of 96 - 4000 active elements (0 deactivated)
+    17:34:10 INFO: Interpolating profiles in time
+    17:34:10 INFO: Number of transformations: 11
+    17:34:10 INFO: Number of resuspended particles: 0
+    17:34:10 INFO: Speciation: [3414, 570, 16, 0, 0] ['LMM', 'Particle reversible', 'Particle slowly reversible', 'Sediment reversible', 'Sediment slowly reversible']
+    17:34:10 INFO: 2020-01-23 06:00:00 - step 61 of 96 - 4000 active elements (0 deactivated)
+    17:34:10 INFO: Number of transformations: 11
+    17:34:10 INFO: Number of resuspended particles: 0
+    17:34:10 INFO: Speciation: [3425, 559, 16, 0, 0] ['LMM', 'Particle reversible', 'Particle slowly reversible', 'Sediment reversible', 'Sediment slowly reversible']
+    17:34:10 INFO: 2020-01-23 06:30:00 - step 62 of 96 - 4000 active elements (0 deactivated)
+    17:34:13 INFO: Interpolating profiles in time
+    17:34:14 INFO: Number of transformations: 9
+    17:34:14 INFO: Number of resuspended particles: 0
+    17:34:14 INFO: Speciation: [3434, 550, 16, 0, 0] ['LMM', 'Particle reversible', 'Particle slowly reversible', 'Sediment reversible', 'Sediment slowly reversible']
+    17:34:14 INFO: 2020-01-23 07:00:00 - step 63 of 96 - 4000 active elements (0 deactivated)
+    17:34:14 INFO: Number of transformations: 9
+    17:34:14 INFO: Number of resuspended particles: 0
+    17:34:14 INFO: Speciation: [3442, 541, 17, 0, 0] ['LMM', 'Particle reversible', 'Particle slowly reversible', 'Sediment reversible', 'Sediment slowly reversible']
+    17:34:14 INFO: 2020-01-23 07:30:00 - step 64 of 96 - 4000 active elements (0 deactivated)
+    17:34:17 INFO: Interpolating profiles in time
+    17:34:17 INFO: Number of transformations: 20
+    17:34:17 INFO: Number of resuspended particles: 0
+    17:34:17 INFO: Speciation: [3460, 523, 17, 0, 0] ['LMM', 'Particle reversible', 'Particle slowly reversible', 'Sediment reversible', 'Sediment slowly reversible']
+    17:34:17 INFO: 2020-01-23 08:00:00 - step 65 of 96 - 4000 active elements (0 deactivated)
+    17:34:17 INFO: Number of transformations: 14
+    17:34:17 INFO: Number of resuspended particles: 0
+    17:34:17 INFO: Speciation: [3474, 509, 17, 0, 0] ['LMM', 'Particle reversible', 'Particle slowly reversible', 'Sediment reversible', 'Sediment slowly reversible']
+    17:34:17 INFO: 2020-01-23 08:30:00 - step 66 of 96 - 4000 active elements (0 deactivated)
+    17:34:20 INFO: Interpolating profiles in time
+    17:34:20 INFO: Number of transformations: 10
+    17:34:20 INFO: Number of resuspended particles: 0
+    17:34:20 INFO: Speciation: [3484, 499, 17, 0, 0] ['LMM', 'Particle reversible', 'Particle slowly reversible', 'Sediment reversible', 'Sediment slowly reversible']
+    17:34:20 INFO: 2020-01-23 09:00:00 - step 67 of 96 - 4000 active elements (0 deactivated)
+    17:34:20 INFO: Number of transformations: 13
+    17:34:20 INFO: Number of resuspended particles: 0
+    17:34:20 INFO: Speciation: [3497, 486, 17, 0, 0] ['LMM', 'Particle reversible', 'Particle slowly reversible', 'Sediment reversible', 'Sediment slowly reversible']
+    17:34:20 INFO: 2020-01-23 09:30:00 - step 68 of 96 - 4000 active elements (0 deactivated)
+    17:34:23 INFO: Interpolating profiles in time
+    17:34:23 INFO: Number of transformations: 10
+    17:34:23 INFO: Number of resuspended particles: 0
+    17:34:23 INFO: Speciation: [3507, 476, 17, 0, 0] ['LMM', 'Particle reversible', 'Particle slowly reversible', 'Sediment reversible', 'Sediment slowly reversible']
+    17:34:23 INFO: 2020-01-23 10:00:00 - step 69 of 96 - 4000 active elements (0 deactivated)
+    17:34:23 INFO: Number of transformations: 10
+    17:34:23 INFO: Number of resuspended particles: 0
+    17:34:23 INFO: Speciation: [3515, 468, 17, 0, 0] ['LMM', 'Particle reversible', 'Particle slowly reversible', 'Sediment reversible', 'Sediment slowly reversible']
+    17:34:23 INFO: 2020-01-23 10:30:00 - step 70 of 96 - 4000 active elements (0 deactivated)
+    17:34:26 INFO: Interpolating profiles in time
+    17:34:26 INFO: Number of transformations: 16
+    17:34:26 INFO: Number of resuspended particles: 0
+    17:34:26 INFO: Speciation: [3531, 452, 17, 0, 0] ['LMM', 'Particle reversible', 'Particle slowly reversible', 'Sediment reversible', 'Sediment slowly reversible']
+    17:34:26 INFO: 2020-01-23 11:00:00 - step 71 of 96 - 4000 active elements (0 deactivated)
+    17:34:26 INFO: Number of transformations: 16
+    17:34:26 INFO: Number of resuspended particles: 0
+    17:34:26 INFO: Speciation: [3547, 436, 17, 0, 0] ['LMM', 'Particle reversible', 'Particle slowly reversible', 'Sediment reversible', 'Sediment slowly reversible']
+    17:34:26 INFO: 2020-01-23 11:30:00 - step 72 of 96 - 4000 active elements (0 deactivated)
+    17:34:29 INFO: Interpolating profiles in time
+    17:34:29 INFO: Number of transformations: 7
+    17:34:29 INFO: Number of resuspended particles: 0
+    17:34:29 INFO: Speciation: [3554, 429, 17, 0, 0] ['LMM', 'Particle reversible', 'Particle slowly reversible', 'Sediment reversible', 'Sediment slowly reversible']
+    17:34:29 INFO: 2020-01-23 12:00:00 - step 73 of 96 - 4000 active elements (0 deactivated)
+    17:34:29 INFO: Number of transformations: 13
+    17:34:29 INFO: Number of resuspended particles: 0
+    17:34:29 INFO: Speciation: [3567, 416, 17, 0, 0] ['LMM', 'Particle reversible', 'Particle slowly reversible', 'Sediment reversible', 'Sediment slowly reversible']
+    17:34:29 INFO: 2020-01-23 12:30:00 - step 74 of 96 - 4000 active elements (0 deactivated)
+    17:34:32 INFO: Interpolating profiles in time
+    17:34:32 INFO: Number of transformations: 7
+    17:34:32 INFO: Number of resuspended particles: 0
+    17:34:32 INFO: Speciation: [3574, 409, 17, 0, 0] ['LMM', 'Particle reversible', 'Particle slowly reversible', 'Sediment reversible', 'Sediment slowly reversible']
+    17:34:32 INFO: 2020-01-23 13:00:00 - step 75 of 96 - 4000 active elements (0 deactivated)
+    17:34:32 INFO: Number of transformations: 6
+    17:34:32 INFO: Number of resuspended particles: 0
+    17:34:33 INFO: Speciation: [3580, 403, 17, 0, 0] ['LMM', 'Particle reversible', 'Particle slowly reversible', 'Sediment reversible', 'Sediment slowly reversible']
+    17:34:33 INFO: 2020-01-23 13:30:00 - step 76 of 96 - 4000 active elements (0 deactivated)
+    17:34:35 INFO: Interpolating profiles in time
+    17:34:35 INFO: Number of transformations: 12
+    17:34:36 INFO: Number of resuspended particles: 0
+    17:34:36 INFO: Speciation: [3592, 391, 17, 0, 0] ['LMM', 'Particle reversible', 'Particle slowly reversible', 'Sediment reversible', 'Sediment slowly reversible']
+    17:34:36 INFO: 2020-01-23 14:00:00 - step 77 of 96 - 4000 active elements (0 deactivated)
+    17:34:36 INFO: Number of transformations: 8
+    17:34:36 INFO: Number of resuspended particles: 0
+    17:34:36 INFO: Speciation: [3598, 385, 17, 0, 0] ['LMM', 'Particle reversible', 'Particle slowly reversible', 'Sediment reversible', 'Sediment slowly reversible']
+    17:34:36 INFO: 2020-01-23 14:30:00 - step 78 of 96 - 4000 active elements (0 deactivated)
+    17:34:38 INFO: Interpolating profiles in time
+    17:34:38 INFO: Number of transformations: 7
+    17:34:38 INFO: Number of resuspended particles: 0
+    17:34:38 INFO: Speciation: [3605, 378, 17, 0, 0] ['LMM', 'Particle reversible', 'Particle slowly reversible', 'Sediment reversible', 'Sediment slowly reversible']
+    17:34:38 INFO: 2020-01-23 15:00:00 - step 79 of 96 - 4000 active elements (0 deactivated)
+    17:34:38 INFO: Number of transformations: 7
+    17:34:39 INFO: Number of resuspended particles: 0
+    17:34:39 INFO: Speciation: [3612, 371, 17, 0, 0] ['LMM', 'Particle reversible', 'Particle slowly reversible', 'Sediment reversible', 'Sediment slowly reversible']
+    17:34:39 INFO: 2020-01-23 15:30:00 - step 80 of 96 - 4000 active elements (0 deactivated)
+    17:34:42 INFO: Interpolating profiles in time
+    17:34:42 INFO: Number of transformations: 14
+    17:34:42 INFO: Number of resuspended particles: 0
+    17:34:42 INFO: Speciation: [3624, 359, 17, 0, 0] ['LMM', 'Particle reversible', 'Particle slowly reversible', 'Sediment reversible', 'Sediment slowly reversible']
+    17:34:42 INFO: 2020-01-23 16:00:00 - step 81 of 96 - 4000 active elements (0 deactivated)
+    17:34:42 INFO: Number of transformations: 6
+    17:34:42 INFO: Number of resuspended particles: 0
+    17:34:42 INFO: Speciation: [3630, 353, 17, 0, 0] ['LMM', 'Particle reversible', 'Particle slowly reversible', 'Sediment reversible', 'Sediment slowly reversible']
+    17:34:42 INFO: 2020-01-23 16:30:00 - step 82 of 96 - 4000 active elements (0 deactivated)
+    17:34:45 INFO: Interpolating profiles in time
+    17:34:45 INFO: Number of transformations: 6
+    17:34:45 INFO: Number of resuspended particles: 0
+    17:34:45 INFO: Speciation: [3636, 347, 17, 0, 0] ['LMM', 'Particle reversible', 'Particle slowly reversible', 'Sediment reversible', 'Sediment slowly reversible']
+    17:34:45 INFO: 2020-01-23 17:00:00 - step 83 of 96 - 4000 active elements (0 deactivated)
+    17:34:45 INFO: Number of transformations: 4
+    17:34:45 INFO: Number of resuspended particles: 0
+    17:34:45 INFO: Speciation: [3640, 343, 17, 0, 0] ['LMM', 'Particle reversible', 'Particle slowly reversible', 'Sediment reversible', 'Sediment slowly reversible']
+    17:34:45 INFO: 2020-01-23 17:30:00 - step 84 of 96 - 4000 active elements (0 deactivated)
+    17:34:48 INFO: Interpolating profiles in time
+    17:34:48 INFO: Number of transformations: 9
+    17:34:48 INFO: Number of resuspended particles: 0
+    17:34:48 INFO: Speciation: [3649, 334, 17, 0, 0] ['LMM', 'Particle reversible', 'Particle slowly reversible', 'Sediment reversible', 'Sediment slowly reversible']
+    17:34:48 INFO: 2020-01-23 18:00:00 - step 85 of 96 - 4000 active elements (0 deactivated)
+    17:34:48 INFO: Number of transformations: 3
+    17:34:48 INFO: Number of resuspended particles: 0
+    17:34:48 INFO: Speciation: [3652, 331, 17, 0, 0] ['LMM', 'Particle reversible', 'Particle slowly reversible', 'Sediment reversible', 'Sediment slowly reversible']
+    17:34:48 INFO: 2020-01-23 18:30:00 - step 86 of 96 - 4000 active elements (0 deactivated)
+    17:34:52 INFO: Interpolating profiles in time
+    17:34:52 INFO: Number of transformations: 6
+    17:34:52 INFO: Number of resuspended particles: 0
+    17:34:52 INFO: Speciation: [3658, 325, 17, 0, 0] ['LMM', 'Particle reversible', 'Particle slowly reversible', 'Sediment reversible', 'Sediment slowly reversible']
+    17:34:52 INFO: 2020-01-23 19:00:00 - step 87 of 96 - 4000 active elements (0 deactivated)
+    17:34:52 INFO: Number of transformations: 4
+    17:34:52 INFO: Number of resuspended particles: 0
+    17:34:52 INFO: Speciation: [3662, 321, 17, 0, 0] ['LMM', 'Particle reversible', 'Particle slowly reversible', 'Sediment reversible', 'Sediment slowly reversible']
+    17:34:52 INFO: 2020-01-23 19:30:00 - step 88 of 96 - 4000 active elements (0 deactivated)
+    17:34:54 INFO: Interpolating profiles in time
+    17:34:55 INFO: Number of transformations: 6
+    17:34:55 INFO: Number of resuspended particles: 0
+    17:34:55 INFO: Speciation: [3668, 315, 17, 0, 0] ['LMM', 'Particle reversible', 'Particle slowly reversible', 'Sediment reversible', 'Sediment slowly reversible']
+    17:34:55 INFO: 2020-01-23 20:00:00 - step 89 of 96 - 4000 active elements (0 deactivated)
+    17:34:55 INFO: Number of transformations: 7
+    17:34:55 INFO: Number of resuspended particles: 0
+    17:34:55 INFO: Speciation: [3675, 308, 17, 0, 0] ['LMM', 'Particle reversible', 'Particle slowly reversible', 'Sediment reversible', 'Sediment slowly reversible']
+    17:34:55 INFO: 2020-01-23 20:30:00 - step 90 of 96 - 4000 active elements (0 deactivated)
+    17:34:58 INFO: Interpolating profiles in time
+    17:34:58 INFO: Number of transformations: 13
+    17:34:58 INFO: Number of resuspended particles: 0
+    17:34:58 INFO: Speciation: [3688, 295, 17, 0, 0] ['LMM', 'Particle reversible', 'Particle slowly reversible', 'Sediment reversible', 'Sediment slowly reversible']
+    17:34:58 INFO: 2020-01-23 21:00:00 - step 91 of 96 - 4000 active elements (0 deactivated)
+    17:34:58 INFO: Number of transformations: 3
+    17:34:58 INFO: Number of resuspended particles: 0
+    17:34:58 INFO: Speciation: [3691, 292, 17, 0, 0] ['LMM', 'Particle reversible', 'Particle slowly reversible', 'Sediment reversible', 'Sediment slowly reversible']
+    17:34:58 INFO: 2020-01-23 21:30:00 - step 92 of 96 - 4000 active elements (0 deactivated)
+    17:35:00 INFO: Interpolating profiles in time
+    17:35:00 INFO: Number of transformations: 5
+    17:35:00 INFO: Number of resuspended particles: 0
+    17:35:00 INFO: Speciation: [3694, 289, 17, 0, 0] ['LMM', 'Particle reversible', 'Particle slowly reversible', 'Sediment reversible', 'Sediment slowly reversible']
+    17:35:00 INFO: 2020-01-23 22:00:00 - step 93 of 96 - 4000 active elements (0 deactivated)
+    17:35:01 INFO: Number of transformations: 4
+    17:35:01 INFO: Number of resuspended particles: 0
+    17:35:01 INFO: Speciation: [3698, 285, 17, 0, 0] ['LMM', 'Particle reversible', 'Particle slowly reversible', 'Sediment reversible', 'Sediment slowly reversible']
+    17:35:01 INFO: 2020-01-23 22:30:00 - step 94 of 96 - 4000 active elements (0 deactivated)
+    17:35:03 INFO: Interpolating profiles in time
+    17:35:03 INFO: Number of transformations: 7
+    17:35:03 INFO: Number of resuspended particles: 0
+    17:35:03 INFO: Speciation: [3705, 278, 17, 0, 0] ['LMM', 'Particle reversible', 'Particle slowly reversible', 'Sediment reversible', 'Sediment slowly reversible']
+    17:35:03 INFO: 2020-01-23 23:00:00 - step 95 of 96 - 4000 active elements (0 deactivated)
+    17:35:03 INFO: Number of transformations: 7
+    17:35:03 INFO: Number of resuspended particles: 0
+    17:35:04 INFO: Speciation: [3710, 273, 17, 0, 0] ['LMM', 'Particle reversible', 'Particle slowly reversible', 'Sediment reversible', 'Sediment slowly reversible']
+    17:35:04 INFO: 2020-01-23 23:30:00 - step 96 of 96 - 4000 active elements (0 deactivated)
+    17:35:06 INFO: Interpolating profiles in time
+    17:35:06 INFO: Number of transformations: 4
+    17:35:06 INFO: Number of resuspended particles: 0
+    17:35:06 INFO: Speciation: [3712, 271, 17, 0, 0] ['LMM', 'Particle reversible', 'Particle slowly reversible', 'Sediment reversible', 'Sediment slowly reversible']
+    ===========================
+    --------------------
+    Reader performance:
+    --------------------
+    http://thredds.met.no/thredds/dodsC/sea/norkyst800m/1h/aggregate_be
+     0:02:21.1  total
+     0:00:00.1  preparing
+     0:02:18.1  reading
+     0:00:02.7  interpolation
+     0:00:00.1  interpolation_time
+     0:00:00.0  masking
+    --------------------
+    global_landmask
+     0:00:00.0  total
+     0:00:00.0  preparing
+     0:00:00.0  reading
+     0:00:00.0  interpolation_time
+     0:00:00.0  masking
+    --------------------
+    Performance:
+     2:46.7 total time
+        6.4 configuration
+        2.8 preparing main loop
+          2.6 making dynamical landmask
+          0.0 moving elements to ocean
+       2:21.9 readers
+            0.0 global_landmask
+            0.3 postprocessing
+     2:36.6 main loop
+         2:21.3 http://thredds.met.no/thredds/dodsC/sea/norkyst800m/1h/aggregate_be
+         13.9 updating elements
+            1.2 vertical mixing
+        0.8 cleaning up
+    --------------------
+    ===========================
+    Model:  RadionuclideDrift     (OpenDrift version 1.2.0)
+            4000 active Radionuclide particles  (0 deactivated, 0 scheduled)
+    Projection: +proj=stere +ellps=WGS84 +lat_0=90.0 +lat_ts=60.0 +x_0=3192800 +y_0=1784000 +lon_0=70
+    -------------------
+    Environment variables:
+      -----
+      sea_floor_depth_below_sea_level
+      sea_water_salinity
+      sea_water_temperature
+      upward_sea_water_velocity
+      x_sea_water_velocity
+      x_wind
+      y_sea_water_velocity
+      y_wind
+         1) http://thredds.met.no/thredds/dodsC/sea/norkyst800m/1h/aggregate_be
+      -----
+      land_binary_mask
+         1) global_landmask
+      -----
+    Readers not added for the following variables:
+      conc3
+      ocean_vertical_diffusivity
+      surface_downward_x_stress
+      surface_downward_y_stress
+      turbulent_generic_length_scale
+      turbulent_kinetic_energy
+
+    Time:
+            Start: 2020-01-22 00:00:00
+            Present: 2020-01-24 00:00:00
+            Calculation steps: 96 * 0:30:00 - total time: 2 days, 0:00:00
+            Output steps: 49 * 1:00:00
+    ===========================
+
+    Final speciation:
+    LMM                             :   3712
+    Particle reversible             :    271
+    Particle slowly reversible      :     17
+    Sediment reversible             :      0
+    Sediment slowly reversible      :      0
+    Number of transformations:
+    [[   0.   13.    0.    0.    0.]
+     [1725.    0.   17.    0.    0.]
+     [   0.    0.    0.    0.    0.]
+     [   0.    0.    0.    0.    0.]
+     [   0.    0.    0.    0.    0.]]
+    17:35:07 WARNING: plotting fast. this will make your plots less accurate.
+    /root/project/opendrift/models/basemodel.py:2828: UserWarning: Tight layout not applied. The left and right margins cannot be made large enough to accommodate all axes decorations. 
+      fig.canvas.draw()
+    17:35:08 INFO: Saving animation to radionuclides.gif...
+    17:35:08 INFO: Making animated gif...
+
+
+
+
+.. image:: /gallery/animations/radionuclides.gif
+
+
+.. code-block:: default
+
+
+    #o.plot_vertical_distribution()
+    #o.plot_property('specie')
+    o.animation_profile(filename='radionuclides_profile.gif')
+
+
+
+
+
+
+
+.. image:: /gallery/animations/radionuclides_profile.gif
+
+
+.. code-block:: default
+
+
+    o.plot(linecolor='specie',vmin=0,vmax=o.nspecies-1,fast=True,
+    #       background='land_binary_mask',
+           #background='sea_floor_depth_below_sea_level'
+           )
+
+
+
+
+
+.. image:: /gallery/images/sphx_glr_example_radionuclides_001.png
+    :class: sphx-glr-single-img
+
+
+.. rst-class:: sphx-glr-script-out
+
+ Out:
+
+ .. code-block:: none
+
+    /root/project/opendrift/models/basemodel.py:3244: UserWarning: Tight layout not applied. The left and right margins cannot be made large enough to accommodate all axes decorations. 
+      fig.canvas.draw()
+
+    (<cartopy.mpl.geoaxes.GeoAxesSubplot object at 0x7f6aa093d340>, <module 'matplotlib.pyplot' from '/opt/conda/envs/opendrift/lib/python3.8/site-packages/matplotlib/pyplot.py'>)
+
+
+
+
+.. rst-class:: sphx-glr-timing
+
+   **Total running time of the script:** ( 4 minutes  0.977 seconds)
+
+
+.. _sphx_glr_download_gallery_example_radionuclides.py:
+
+
+.. only :: html
+
+ .. container:: sphx-glr-footer
+    :class: sphx-glr-footer-example
+
+
+
+  .. container:: sphx-glr-download
+
+     :download:`Download Python source code: example_radionuclides.py <example_radionuclides.py>`
+
+
+
+  .. container:: sphx-glr-download
+
+     :download:`Download Jupyter notebook: example_radionuclides.ipynb <example_radionuclides.ipynb>`
+
+
+.. only:: html
+
+ .. rst-class:: sphx-glr-signature
+
+    `Gallery generated by Sphinx-Gallery <https://sphinx-gallery.github.io>`_

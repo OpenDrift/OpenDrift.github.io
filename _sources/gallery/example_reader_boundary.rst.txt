@@ -1,0 +1,457 @@
+.. note::
+    :class: sphx-glr-download-link-note
+
+    Click :ref:`here <sphx_glr_download_gallery_example_reader_boundary.py>` to download the full example code
+.. rst-class:: sphx-glr-example-title
+
+.. _sphx_glr_gallery_example_reader_boundary.py:
+
+
+Reader boundary
+==================================
+
+Seeding elements around the border of a ocean model domain (NorKyst800)
+to demonstrate autmatic transition back and forth with another model
+covering a larger domain (Nordic).
+
+
+.. code-block:: default
+
+
+    import numpy as np
+    from opendrift.readers import reader_netCDF_CF_generic
+    from opendrift.models.oceandrift import OceanDrift
+
+    o = OceanDrift(loglevel=20)  # Set loglevel to 0 for debug information
+
+    # Norkyst
+    reader_norkyst = reader_netCDF_CF_generic.Reader('http://thredds.met.no/thredds/dodsC/sea/norkyst800m/1h/aggregate_be')
+
+    # Nordic4
+    reader_nordic4 = reader_netCDF_CF_generic.Reader('http://thredds.met.no/thredds/dodsC/sea/nordic4km/zdepths1h/aggregate_be')
+
+    o.add_reader([reader_norkyst, reader_nordic4])
+    o.fallback_values['land_binary_mask'] = 0
+
+    # Seeding some particles
+    lons = np.linspace(10.2, 12.2, 50)
+    lats = np.linspace(69.8, 70.8, 50)
+    lons, lats = np.meshgrid(lons, lats)
+
+    # Seed oil elements at defined position and time
+    o.seed_elements(lons, lats, radius=0, number=2500,
+                    time=reader_norkyst.start_time)
+
+    # Running model (until end of driver data)
+    o.run(steps=16*4, time_step=900, time_step_output=1800)
+
+    # Print and plot results
+    print(o)
+    o.animation(filename='reader_boundary.gif', fast=True)
+
+
+
+
+
+.. rst-class:: sphx-glr-script-out
+
+ Out:
+
+ .. code-block:: none
+
+    16:32:55 INFO: OpenDriftSimulation initialised (version 1.2.0)
+    16:32:55 INFO: Opening dataset: http://thredds.met.no/thredds/dodsC/sea/norkyst800m/1h/aggregate_be
+    16:32:55 INFO: Opening file with Dataset
+    16:33:02 INFO: Opening dataset: http://thredds.met.no/thredds/dodsC/sea/nordic4km/zdepths1h/aggregate_be
+    16:33:02 INFO: Opening file with Dataset
+    16:33:06 INFO: Config validation OK
+    16:33:06 INFO: 2017-02-20 00:00:00 - step 1 of 64 - 2500 active elements (0 deactivated)
+    16:33:07 WARNING: Only NaNs input to linearNDFast - returning
+    16:33:07 WARNING: Only NaNs input to linearNDFast - returning
+    16:33:09 INFO: 2017-02-20 00:15:00 - step 2 of 64 - 2500 active elements (0 deactivated)
+    16:33:09 WARNING: Only NaNs input to linearNDFast - returning
+    16:33:09 WARNING: Only NaNs input to linearNDFast - returning
+    16:33:09 WARNING: Only NaNs input to linearNDFast - returning
+    16:33:09 WARNING: Only NaNs input to linearNDFast - returning
+    16:33:11 INFO: 2017-02-20 00:30:00 - step 3 of 64 - 2500 active elements (0 deactivated)
+    16:33:11 WARNING: Only NaNs input to linearNDFast - returning
+    16:33:11 WARNING: Only NaNs input to linearNDFast - returning
+    16:33:11 WARNING: Only NaNs input to linearNDFast - returning
+    16:33:11 WARNING: Only NaNs input to linearNDFast - returning
+    16:33:11 INFO: 2017-02-20 00:45:00 - step 4 of 64 - 2500 active elements (0 deactivated)
+    16:33:11 WARNING: Only NaNs input to linearNDFast - returning
+    16:33:11 WARNING: Only NaNs input to linearNDFast - returning
+    16:33:11 WARNING: Only NaNs input to linearNDFast - returning
+    16:33:11 WARNING: Only NaNs input to linearNDFast - returning
+    16:33:11 INFO: 2017-02-20 01:00:00 - step 5 of 64 - 2500 active elements (0 deactivated)
+    16:33:11 WARNING: Only NaNs input to linearNDFast - returning
+    16:33:11 WARNING: Only NaNs input to linearNDFast - returning
+    16:33:11 INFO: 2017-02-20 01:15:00 - step 6 of 64 - 2500 active elements (0 deactivated)
+    16:33:12 WARNING: Only NaNs input to linearNDFast - returning
+    16:33:12 WARNING: Only NaNs input to linearNDFast - returning
+    16:33:12 WARNING: Only NaNs input to linearNDFast - returning
+    16:33:12 WARNING: Only NaNs input to linearNDFast - returning
+    16:33:13 INFO: 2017-02-20 01:30:00 - step 7 of 64 - 2500 active elements (0 deactivated)
+    16:33:13 WARNING: Only NaNs input to linearNDFast - returning
+    16:33:13 WARNING: Only NaNs input to linearNDFast - returning
+    16:33:13 WARNING: Only NaNs input to linearNDFast - returning
+    16:33:13 WARNING: Only NaNs input to linearNDFast - returning
+    16:33:13 INFO: 2017-02-20 01:45:00 - step 8 of 64 - 2500 active elements (0 deactivated)
+    16:33:13 WARNING: Only NaNs input to linearNDFast - returning
+    16:33:13 WARNING: Only NaNs input to linearNDFast - returning
+    16:33:13 WARNING: Only NaNs input to linearNDFast - returning
+    16:33:13 WARNING: Only NaNs input to linearNDFast - returning
+    16:33:13 INFO: 2017-02-20 02:00:00 - step 9 of 64 - 2500 active elements (0 deactivated)
+    16:33:13 WARNING: Only NaNs input to linearNDFast - returning
+    16:33:13 WARNING: Only NaNs input to linearNDFast - returning
+    16:33:13 INFO: 2017-02-20 02:15:00 - step 10 of 64 - 2500 active elements (0 deactivated)
+    16:33:14 WARNING: Only NaNs input to linearNDFast - returning
+    16:33:14 WARNING: Only NaNs input to linearNDFast - returning
+    16:33:14 WARNING: Only NaNs input to linearNDFast - returning
+    16:33:14 WARNING: Only NaNs input to linearNDFast - returning
+    16:33:15 INFO: 2017-02-20 02:30:00 - step 11 of 64 - 2500 active elements (0 deactivated)
+    16:33:15 WARNING: Only NaNs input to linearNDFast - returning
+    16:33:15 WARNING: Only NaNs input to linearNDFast - returning
+    16:33:15 WARNING: Only NaNs input to linearNDFast - returning
+    16:33:15 WARNING: Only NaNs input to linearNDFast - returning
+    16:33:16 INFO: 2017-02-20 02:45:00 - step 12 of 64 - 2500 active elements (0 deactivated)
+    16:33:16 WARNING: Only NaNs input to linearNDFast - returning
+    16:33:16 WARNING: Only NaNs input to linearNDFast - returning
+    16:33:16 WARNING: Only NaNs input to linearNDFast - returning
+    16:33:16 WARNING: Only NaNs input to linearNDFast - returning
+    16:33:16 INFO: 2017-02-20 03:00:00 - step 13 of 64 - 2500 active elements (0 deactivated)
+    16:33:16 WARNING: Only NaNs input to linearNDFast - returning
+    16:33:16 WARNING: Only NaNs input to linearNDFast - returning
+    16:33:16 INFO: 2017-02-20 03:15:00 - step 14 of 64 - 2500 active elements (0 deactivated)
+    16:33:16 WARNING: Only NaNs input to linearNDFast - returning
+    16:33:16 WARNING: Only NaNs input to linearNDFast - returning
+    16:33:16 WARNING: Only NaNs input to linearNDFast - returning
+    16:33:16 WARNING: Only NaNs input to linearNDFast - returning
+    16:33:18 INFO: 2017-02-20 03:30:00 - step 15 of 64 - 2500 active elements (0 deactivated)
+    16:33:18 WARNING: Only NaNs input to linearNDFast - returning
+    16:33:18 WARNING: Only NaNs input to linearNDFast - returning
+    16:33:18 WARNING: Only NaNs input to linearNDFast - returning
+    16:33:18 WARNING: Only NaNs input to linearNDFast - returning
+    16:33:18 INFO: 2017-02-20 03:45:00 - step 16 of 64 - 2500 active elements (0 deactivated)
+    16:33:18 WARNING: Only NaNs input to linearNDFast - returning
+    16:33:18 WARNING: Only NaNs input to linearNDFast - returning
+    16:33:18 WARNING: Only NaNs input to linearNDFast - returning
+    16:33:18 WARNING: Only NaNs input to linearNDFast - returning
+    16:33:18 INFO: 2017-02-20 04:00:00 - step 17 of 64 - 2500 active elements (0 deactivated)
+    16:33:18 WARNING: Only NaNs input to linearNDFast - returning
+    16:33:18 WARNING: Only NaNs input to linearNDFast - returning
+    16:33:18 INFO: 2017-02-20 04:15:00 - step 18 of 64 - 2500 active elements (0 deactivated)
+    16:33:19 WARNING: Only NaNs input to linearNDFast - returning
+    16:33:19 WARNING: Only NaNs input to linearNDFast - returning
+    16:33:19 WARNING: Only NaNs input to linearNDFast - returning
+    16:33:19 WARNING: Only NaNs input to linearNDFast - returning
+    16:33:20 INFO: 2017-02-20 04:30:00 - step 19 of 64 - 2500 active elements (0 deactivated)
+    16:33:20 WARNING: Only NaNs input to linearNDFast - returning
+    16:33:20 WARNING: Only NaNs input to linearNDFast - returning
+    16:33:20 WARNING: Only NaNs input to linearNDFast - returning
+    16:33:20 WARNING: Only NaNs input to linearNDFast - returning
+    16:33:20 INFO: 2017-02-20 04:45:00 - step 20 of 64 - 2500 active elements (0 deactivated)
+    16:33:20 WARNING: Only NaNs input to linearNDFast - returning
+    16:33:20 WARNING: Only NaNs input to linearNDFast - returning
+    16:33:20 WARNING: Only NaNs input to linearNDFast - returning
+    16:33:20 WARNING: Only NaNs input to linearNDFast - returning
+    16:33:20 INFO: 2017-02-20 05:00:00 - step 21 of 64 - 2500 active elements (0 deactivated)
+    16:33:20 WARNING: Only NaNs input to linearNDFast - returning
+    16:33:20 WARNING: Only NaNs input to linearNDFast - returning
+    16:33:20 INFO: 2017-02-20 05:15:00 - step 22 of 64 - 2500 active elements (0 deactivated)
+    16:33:21 WARNING: Only NaNs input to linearNDFast - returning
+    16:33:21 WARNING: Only NaNs input to linearNDFast - returning
+    16:33:21 WARNING: Only NaNs input to linearNDFast - returning
+    16:33:21 WARNING: Only NaNs input to linearNDFast - returning
+    16:33:22 INFO: 2017-02-20 05:30:00 - step 23 of 64 - 2500 active elements (0 deactivated)
+    16:33:22 WARNING: Only NaNs input to linearNDFast - returning
+    16:33:22 WARNING: Only NaNs input to linearNDFast - returning
+    16:33:22 WARNING: Only NaNs input to linearNDFast - returning
+    16:33:22 WARNING: Only NaNs input to linearNDFast - returning
+    16:33:22 INFO: 2017-02-20 05:45:00 - step 24 of 64 - 2500 active elements (0 deactivated)
+    16:33:22 WARNING: Only NaNs input to linearNDFast - returning
+    16:33:22 WARNING: Only NaNs input to linearNDFast - returning
+    16:33:22 WARNING: Only NaNs input to linearNDFast - returning
+    16:33:22 WARNING: Only NaNs input to linearNDFast - returning
+    16:33:22 INFO: 2017-02-20 06:00:00 - step 25 of 64 - 2500 active elements (0 deactivated)
+    16:33:22 WARNING: Only NaNs input to linearNDFast - returning
+    16:33:22 WARNING: Only NaNs input to linearNDFast - returning
+    16:33:23 INFO: 2017-02-20 06:15:00 - step 26 of 64 - 2500 active elements (0 deactivated)
+    16:33:23 WARNING: Only NaNs input to linearNDFast - returning
+    16:33:23 WARNING: Only NaNs input to linearNDFast - returning
+    16:33:23 WARNING: Only NaNs input to linearNDFast - returning
+    16:33:23 WARNING: Only NaNs input to linearNDFast - returning
+    16:33:25 INFO: 2017-02-20 06:30:00 - step 27 of 64 - 2500 active elements (0 deactivated)
+    16:33:25 WARNING: Only NaNs input to linearNDFast - returning
+    16:33:25 WARNING: Only NaNs input to linearNDFast - returning
+    16:33:25 WARNING: Only NaNs input to linearNDFast - returning
+    16:33:25 WARNING: Only NaNs input to linearNDFast - returning
+    16:33:25 INFO: 2017-02-20 06:45:00 - step 28 of 64 - 2500 active elements (0 deactivated)
+    16:33:25 WARNING: Only NaNs input to linearNDFast - returning
+    16:33:25 WARNING: Only NaNs input to linearNDFast - returning
+    16:33:25 WARNING: Only NaNs input to linearNDFast - returning
+    16:33:25 WARNING: Only NaNs input to linearNDFast - returning
+    16:33:25 INFO: 2017-02-20 07:00:00 - step 29 of 64 - 2500 active elements (0 deactivated)
+    16:33:25 WARNING: Only NaNs input to linearNDFast - returning
+    16:33:25 WARNING: Only NaNs input to linearNDFast - returning
+    16:33:25 INFO: 2017-02-20 07:15:00 - step 30 of 64 - 2500 active elements (0 deactivated)
+    16:33:26 WARNING: Only NaNs input to linearNDFast - returning
+    16:33:26 WARNING: Only NaNs input to linearNDFast - returning
+    16:33:26 WARNING: Only NaNs input to linearNDFast - returning
+    16:33:26 WARNING: Only NaNs input to linearNDFast - returning
+    16:33:27 INFO: 2017-02-20 07:30:00 - step 31 of 64 - 2500 active elements (0 deactivated)
+    16:33:27 WARNING: Only NaNs input to linearNDFast - returning
+    16:33:27 WARNING: Only NaNs input to linearNDFast - returning
+    16:33:27 WARNING: Only NaNs input to linearNDFast - returning
+    16:33:27 WARNING: Only NaNs input to linearNDFast - returning
+    16:33:27 INFO: 2017-02-20 07:45:00 - step 32 of 64 - 2500 active elements (0 deactivated)
+    16:33:27 WARNING: Only NaNs input to linearNDFast - returning
+    16:33:27 WARNING: Only NaNs input to linearNDFast - returning
+    16:33:27 WARNING: Only NaNs input to linearNDFast - returning
+    16:33:27 WARNING: Only NaNs input to linearNDFast - returning
+    16:33:27 INFO: 2017-02-20 08:00:00 - step 33 of 64 - 2500 active elements (0 deactivated)
+    16:33:27 WARNING: Only NaNs input to linearNDFast - returning
+    16:33:27 WARNING: Only NaNs input to linearNDFast - returning
+    16:33:27 INFO: 2017-02-20 08:15:00 - step 34 of 64 - 2500 active elements (0 deactivated)
+    16:33:28 WARNING: Only NaNs input to linearNDFast - returning
+    16:33:28 WARNING: Only NaNs input to linearNDFast - returning
+    16:33:28 WARNING: Only NaNs input to linearNDFast - returning
+    16:33:28 WARNING: Only NaNs input to linearNDFast - returning
+    16:33:29 INFO: 2017-02-20 08:30:00 - step 35 of 64 - 2500 active elements (0 deactivated)
+    16:33:29 WARNING: Only NaNs input to linearNDFast - returning
+    16:33:29 WARNING: Only NaNs input to linearNDFast - returning
+    16:33:29 WARNING: Only NaNs input to linearNDFast - returning
+    16:33:29 WARNING: Only NaNs input to linearNDFast - returning
+    16:33:29 INFO: 2017-02-20 08:45:00 - step 36 of 64 - 2500 active elements (0 deactivated)
+    16:33:29 WARNING: Only NaNs input to linearNDFast - returning
+    16:33:29 WARNING: Only NaNs input to linearNDFast - returning
+    16:33:29 WARNING: Only NaNs input to linearNDFast - returning
+    16:33:29 WARNING: Only NaNs input to linearNDFast - returning
+    16:33:29 INFO: 2017-02-20 09:00:00 - step 37 of 64 - 2500 active elements (0 deactivated)
+    16:33:29 WARNING: Only NaNs input to linearNDFast - returning
+    16:33:29 WARNING: Only NaNs input to linearNDFast - returning
+    16:33:29 INFO: 2017-02-20 09:15:00 - step 38 of 64 - 2500 active elements (0 deactivated)
+    16:33:30 WARNING: Only NaNs input to linearNDFast - returning
+    16:33:30 WARNING: Only NaNs input to linearNDFast - returning
+    16:33:30 WARNING: Only NaNs input to linearNDFast - returning
+    16:33:30 WARNING: Only NaNs input to linearNDFast - returning
+    16:33:31 INFO: 2017-02-20 09:30:00 - step 39 of 64 - 2500 active elements (0 deactivated)
+    16:33:31 WARNING: Only NaNs input to linearNDFast - returning
+    16:33:31 WARNING: Only NaNs input to linearNDFast - returning
+    16:33:31 WARNING: Only NaNs input to linearNDFast - returning
+    16:33:31 WARNING: Only NaNs input to linearNDFast - returning
+    16:33:32 INFO: 2017-02-20 09:45:00 - step 40 of 64 - 2500 active elements (0 deactivated)
+    16:33:32 WARNING: Only NaNs input to linearNDFast - returning
+    16:33:32 WARNING: Only NaNs input to linearNDFast - returning
+    16:33:32 WARNING: Only NaNs input to linearNDFast - returning
+    16:33:32 WARNING: Only NaNs input to linearNDFast - returning
+    16:33:32 INFO: 2017-02-20 10:00:00 - step 41 of 64 - 2500 active elements (0 deactivated)
+    16:33:32 WARNING: Only NaNs input to linearNDFast - returning
+    16:33:32 WARNING: Only NaNs input to linearNDFast - returning
+    16:33:32 INFO: 2017-02-20 10:15:00 - step 42 of 64 - 2500 active elements (0 deactivated)
+    16:33:32 WARNING: Only NaNs input to linearNDFast - returning
+    16:33:32 WARNING: Only NaNs input to linearNDFast - returning
+    16:33:32 WARNING: Only NaNs input to linearNDFast - returning
+    16:33:32 WARNING: Only NaNs input to linearNDFast - returning
+    16:33:34 INFO: 2017-02-20 10:30:00 - step 43 of 64 - 2500 active elements (0 deactivated)
+    16:33:34 WARNING: Only NaNs input to linearNDFast - returning
+    16:33:34 WARNING: Only NaNs input to linearNDFast - returning
+    16:33:34 WARNING: Only NaNs input to linearNDFast - returning
+    16:33:34 WARNING: Only NaNs input to linearNDFast - returning
+    16:33:34 INFO: 2017-02-20 10:45:00 - step 44 of 64 - 2500 active elements (0 deactivated)
+    16:33:34 WARNING: Only NaNs input to linearNDFast - returning
+    16:33:34 WARNING: Only NaNs input to linearNDFast - returning
+    16:33:34 WARNING: Only NaNs input to linearNDFast - returning
+    16:33:34 WARNING: Only NaNs input to linearNDFast - returning
+    16:33:34 INFO: 2017-02-20 11:00:00 - step 45 of 64 - 2500 active elements (0 deactivated)
+    16:33:34 WARNING: Only NaNs input to linearNDFast - returning
+    16:33:34 WARNING: Only NaNs input to linearNDFast - returning
+    16:33:34 INFO: 2017-02-20 11:15:00 - step 46 of 64 - 2500 active elements (0 deactivated)
+    16:33:35 WARNING: Only NaNs input to linearNDFast - returning
+    16:33:35 WARNING: Only NaNs input to linearNDFast - returning
+    16:33:35 WARNING: Only NaNs input to linearNDFast - returning
+    16:33:35 WARNING: Only NaNs input to linearNDFast - returning
+    16:33:36 INFO: 2017-02-20 11:30:00 - step 47 of 64 - 2500 active elements (0 deactivated)
+    16:33:36 WARNING: Only NaNs input to linearNDFast - returning
+    16:33:36 WARNING: Only NaNs input to linearNDFast - returning
+    16:33:36 WARNING: Only NaNs input to linearNDFast - returning
+    16:33:36 WARNING: Only NaNs input to linearNDFast - returning
+    16:33:36 INFO: 2017-02-20 11:45:00 - step 48 of 64 - 2500 active elements (0 deactivated)
+    16:33:36 WARNING: Only NaNs input to linearNDFast - returning
+    16:33:36 WARNING: Only NaNs input to linearNDFast - returning
+    16:33:36 WARNING: Only NaNs input to linearNDFast - returning
+    16:33:36 WARNING: Only NaNs input to linearNDFast - returning
+    16:33:36 INFO: 2017-02-20 12:00:00 - step 49 of 64 - 2500 active elements (0 deactivated)
+    16:33:36 WARNING: Only NaNs input to linearNDFast - returning
+    16:33:36 WARNING: Only NaNs input to linearNDFast - returning
+    16:33:36 INFO: 2017-02-20 12:15:00 - step 50 of 64 - 2500 active elements (0 deactivated)
+    16:33:37 WARNING: Only NaNs input to linearNDFast - returning
+    16:33:37 WARNING: Only NaNs input to linearNDFast - returning
+    16:33:37 WARNING: Only NaNs input to linearNDFast - returning
+    16:33:37 WARNING: Only NaNs input to linearNDFast - returning
+    16:33:38 INFO: 2017-02-20 12:30:00 - step 51 of 64 - 2500 active elements (0 deactivated)
+    16:33:38 WARNING: Only NaNs input to linearNDFast - returning
+    16:33:38 WARNING: Only NaNs input to linearNDFast - returning
+    16:33:38 WARNING: Only NaNs input to linearNDFast - returning
+    16:33:38 WARNING: Only NaNs input to linearNDFast - returning
+    16:33:38 INFO: 2017-02-20 12:45:00 - step 52 of 64 - 2500 active elements (0 deactivated)
+    16:33:38 WARNING: Only NaNs input to linearNDFast - returning
+    16:33:38 WARNING: Only NaNs input to linearNDFast - returning
+    16:33:38 WARNING: Only NaNs input to linearNDFast - returning
+    16:33:38 WARNING: Only NaNs input to linearNDFast - returning
+    16:33:39 INFO: 2017-02-20 13:00:00 - step 53 of 64 - 2500 active elements (0 deactivated)
+    16:33:39 WARNING: Only NaNs input to linearNDFast - returning
+    16:33:39 WARNING: Only NaNs input to linearNDFast - returning
+    16:33:39 INFO: 2017-02-20 13:15:00 - step 54 of 64 - 2500 active elements (0 deactivated)
+    16:33:39 WARNING: Only NaNs input to linearNDFast - returning
+    16:33:39 WARNING: Only NaNs input to linearNDFast - returning
+    16:33:39 WARNING: Only NaNs input to linearNDFast - returning
+    16:33:39 WARNING: Only NaNs input to linearNDFast - returning
+    16:33:41 INFO: 2017-02-20 13:30:00 - step 55 of 64 - 2500 active elements (0 deactivated)
+    16:33:41 WARNING: Only NaNs input to linearNDFast - returning
+    16:33:41 WARNING: Only NaNs input to linearNDFast - returning
+    16:33:41 WARNING: Only NaNs input to linearNDFast - returning
+    16:33:41 WARNING: Only NaNs input to linearNDFast - returning
+    16:33:41 INFO: 2017-02-20 13:45:00 - step 56 of 64 - 2500 active elements (0 deactivated)
+    16:33:41 WARNING: Only NaNs input to linearNDFast - returning
+    16:33:41 WARNING: Only NaNs input to linearNDFast - returning
+    16:33:41 WARNING: Only NaNs input to linearNDFast - returning
+    16:33:41 WARNING: Only NaNs input to linearNDFast - returning
+    16:33:41 INFO: 2017-02-20 14:00:00 - step 57 of 64 - 2500 active elements (0 deactivated)
+    16:33:41 WARNING: Only NaNs input to linearNDFast - returning
+    16:33:41 WARNING: Only NaNs input to linearNDFast - returning
+    16:33:41 INFO: 2017-02-20 14:15:00 - step 58 of 64 - 2500 active elements (0 deactivated)
+    16:33:42 WARNING: Only NaNs input to linearNDFast - returning
+    16:33:42 WARNING: Only NaNs input to linearNDFast - returning
+    16:33:42 WARNING: Only NaNs input to linearNDFast - returning
+    16:33:42 WARNING: Only NaNs input to linearNDFast - returning
+    16:33:43 INFO: 2017-02-20 14:30:00 - step 59 of 64 - 2500 active elements (0 deactivated)
+    16:33:43 WARNING: Only NaNs input to linearNDFast - returning
+    16:33:43 WARNING: Only NaNs input to linearNDFast - returning
+    16:33:43 WARNING: Only NaNs input to linearNDFast - returning
+    16:33:43 WARNING: Only NaNs input to linearNDFast - returning
+    16:33:43 INFO: 2017-02-20 14:45:00 - step 60 of 64 - 2500 active elements (0 deactivated)
+    16:33:43 WARNING: Only NaNs input to linearNDFast - returning
+    16:33:43 WARNING: Only NaNs input to linearNDFast - returning
+    16:33:43 WARNING: Only NaNs input to linearNDFast - returning
+    16:33:43 WARNING: Only NaNs input to linearNDFast - returning
+    16:33:43 INFO: 2017-02-20 15:00:00 - step 61 of 64 - 2500 active elements (0 deactivated)
+    16:33:43 WARNING: Only NaNs input to linearNDFast - returning
+    16:33:43 WARNING: Only NaNs input to linearNDFast - returning
+    16:33:44 INFO: 2017-02-20 15:15:00 - step 62 of 64 - 2500 active elements (0 deactivated)
+    16:33:44 WARNING: Only NaNs input to linearNDFast - returning
+    16:33:44 WARNING: Only NaNs input to linearNDFast - returning
+    16:33:44 WARNING: Only NaNs input to linearNDFast - returning
+    16:33:44 WARNING: Only NaNs input to linearNDFast - returning
+    16:33:46 INFO: 2017-02-20 15:30:00 - step 63 of 64 - 2500 active elements (0 deactivated)
+    16:33:46 WARNING: Only NaNs input to linearNDFast - returning
+    16:33:46 WARNING: Only NaNs input to linearNDFast - returning
+    16:33:46 WARNING: Only NaNs input to linearNDFast - returning
+    16:33:46 WARNING: Only NaNs input to linearNDFast - returning
+    16:33:46 INFO: 2017-02-20 15:45:00 - step 64 of 64 - 2500 active elements (0 deactivated)
+    16:33:46 WARNING: Only NaNs input to linearNDFast - returning
+    16:33:46 WARNING: Only NaNs input to linearNDFast - returning
+    16:33:46 WARNING: Only NaNs input to linearNDFast - returning
+    16:33:46 WARNING: Only NaNs input to linearNDFast - returning
+    ===========================
+    --------------------
+    Reader performance:
+    --------------------
+    http://thredds.met.no/thredds/dodsC/sea/norkyst800m/1h/aggregate_be
+     0:00:23.5  total
+     0:00:00.0  preparing
+     0:00:22.9  reading
+     0:00:00.4  interpolation
+     0:00:00.0  interpolation_time
+     0:00:00.0  masking
+    --------------------
+    http://thredds.met.no/thredds/dodsC/sea/nordic4km/zdepths1h/aggregate_be
+     0:00:15.5  total
+     0:00:00.0  preparing
+     0:00:09.9  reading
+     0:00:00.1  interpolation
+     0:00:00.0  interpolation_time
+     0:00:05.3  rotating vectors
+     0:00:00.0  masking
+    --------------------
+    Performance:
+       51.2 total time
+       11.3 configuration
+        0.0 preparing main loop
+       39.8 main loop
+         39.2 readers
+           23.5 http://thredds.met.no/thredds/dodsC/sea/norkyst800m/1h/aggregate_be
+           15.5 http://thredds.met.no/thredds/dodsC/sea/nordic4km/zdepths1h/aggregate_be
+            0.0 postprocessing
+          0.3 updating elements
+        0.0 cleaning up
+    --------------------
+    ===========================
+    Model:  OceanDrift     (OpenDrift version 1.2.0)
+            2500 active PassiveTracer particles  (0 deactivated, 0 scheduled)
+    Projection: +proj=stere +ellps=WGS84 +lat_0=90.0 +lat_ts=60.0 +x_0=3192800 +y_0=1784000 +lon_0=70
+    -------------------
+    Environment variables:
+      -----
+      x_wind
+      y_wind
+         1) http://thredds.met.no/thredds/dodsC/sea/norkyst800m/1h/aggregate_be
+      -----
+      x_sea_water_velocity
+      y_sea_water_velocity
+         1) http://thredds.met.no/thredds/dodsC/sea/norkyst800m/1h/aggregate_be
+         2) http://thredds.met.no/thredds/dodsC/sea/nordic4km/zdepths1h/aggregate_be
+      -----
+    Readers not added for the following variables:
+      land_binary_mask
+
+    Time:
+            Start: 2017-02-20 00:00:00
+            Present: 2017-02-20 16:00:00
+            Calculation steps: 64 * 0:15:00 - total time: 16:00:00
+            Output steps: 33 * 0:30:00
+    ===========================
+
+    16:33:46 WARNING: plotting fast. this will make your plots less accurate.
+    /root/project/opendrift/models/basemodel.py:2828: UserWarning: Tight layout not applied. The left and right margins cannot be made large enough to accommodate all axes decorations. 
+      fig.canvas.draw()
+    16:33:47 INFO: Saving animation to reader_boundary.gif...
+    16:33:47 INFO: Making animated gif...
+
+
+
+
+.. image:: /gallery/animations/reader_boundary.gif
+
+
+.. rst-class:: sphx-glr-timing
+
+   **Total running time of the script:** ( 0 minutes  57.326 seconds)
+
+
+.. _sphx_glr_download_gallery_example_reader_boundary.py:
+
+
+.. only :: html
+
+ .. container:: sphx-glr-footer
+    :class: sphx-glr-footer-example
+
+
+
+  .. container:: sphx-glr-download
+
+     :download:`Download Python source code: example_reader_boundary.py <example_reader_boundary.py>`
+
+
+
+  .. container:: sphx-glr-download
+
+     :download:`Download Jupyter notebook: example_reader_boundary.ipynb <example_reader_boundary.ipynb>`
+
+
+.. only:: html
+
+ .. rst-class:: sphx-glr-signature
+
+    `Gallery generated by Sphinx-Gallery <https://sphinx-gallery.github.io>`_

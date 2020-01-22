@@ -1,0 +1,227 @@
+.. note::
+    :class: sphx-glr-download-link-note
+
+    Click :ref:`here <sphx_glr_download_gallery_example_satellite.py>` to download the full example code
+.. rst-class:: sphx-glr-example-title
+
+.. _sphx_glr_gallery_example_satellite.py:
+
+
+Satellite
+==================================
+
+
+.. code-block:: default
+
+
+    from opendrift.readers import reader_netCDF_CF_generic
+    from opendrift.models.openoil import OpenOil
+
+    o = OpenOil(loglevel=20)  # Set loglevel to 0 for debug information
+
+    # Arome
+    reader_arome = reader_netCDF_CF_generic.Reader(o.test_data_folder() +
+        '16Nov2015_NorKyst_z_surface/arome_subset_16Nov2015.nc')
+
+    # Norkyst
+    reader_norkyst = reader_netCDF_CF_generic.Reader(o.test_data_folder() +
+        '16Nov2015_NorKyst_z_surface/norkyst800_subset_16Nov2015.nc')
+
+    o.add_reader([reader_norkyst, reader_arome])
+
+
+
+
+
+.. rst-class:: sphx-glr-script-out
+
+ Out:
+
+ .. code-block:: none
+
+    16:34:42 INFO: OpenDriftSimulation initialised (version 1.2.0)
+    16:34:42 INFO: Opening dataset: /root/project/tests/test_data/16Nov2015_NorKyst_z_surface/arome_subset_16Nov2015.nc
+    16:34:42 INFO: Opening file with Dataset
+    16:34:42 INFO: Could not parse CF grid_mapping
+    16:34:42 INFO: Opening dataset: /root/project/tests/test_data/16Nov2015_NorKyst_z_surface/norkyst800_subset_16Nov2015.nc
+    16:34:42 INFO: Opening file with Dataset
+
+
+
+
+Seed oil particles within contour detected from satellite
+###########################################################
+
+
+.. code-block:: default
+
+    o.seed_from_gml(o.test_data_folder() + 'radarsat_oil_satellite_observation/RS2_20151116_002619_0127_SCNB_HH_SGF_433012_9730_12182143_Oil.gml',
+        num_elements=2000)
+
+    # Adjusting some configuration
+    o.set_config('processes:dispersion', True)
+    o.set_config('processes:evaporation', False)
+    o.set_config('processes:emulsification', True)
+    o.set_config('drift:current_uncertainty', .1)  # Diffusion
+    o.set_config('drift:wind_uncertainty', 1)
+
+    # Running model for 48 hours
+    o.run(steps=6*4, time_step=900)
+
+    # Print and plot results
+    print(o)
+    o.animation(filename='satellite.gif', fast=True, buffer=0)
+
+
+
+
+
+.. rst-class:: sphx-glr-script-out
+
+ Out:
+
+ .. code-block:: none
+
+    ===========================
+    --------------------
+    Reader performance:
+    --------------------
+    /root/project/tests/test_data/16Nov2015_NorKyst_z_surface/norkyst800_subset_16Nov2015.nc
+     0:00:01.5  total
+     0:00:00.0  preparing
+     0:00:00.0  reading
+     0:00:00.0  interpolation
+     0:00:00.0  interpolation_time
+     0:00:01.4  rotating vectors
+     0:00:00.0  masking
+    --------------------
+    /root/project/tests/test_data/16Nov2015_NorKyst_z_surface/arome_subset_16Nov2015.nc
+     0:00:01.4  total
+     0:00:00.0  preparing
+     0:00:00.0  reading
+     0:00:00.0  interpolation
+     0:00:00.0  interpolation_time
+     0:00:01.4  rotating vectors
+     0:00:00.0  masking
+    --------------------
+    global_landmask
+     0:00:00.0  total
+     0:00:00.0  preparing
+     0:00:00.0  reading
+     0:00:00.0  interpolation_time
+     0:00:00.0  masking
+    --------------------
+    Performance:
+        7.4 total time
+        1.2 configuration
+        2.6 preparing main loop
+          2.6 making dynamical landmask
+          0.0 moving elements to ocean
+          3.1 readers
+            0.0 global_landmask
+            0.0 postprocessing
+        3.5 main loop
+            1.5 /root/project/tests/test_data/16Nov2015_NorKyst_z_surface/norkyst800_subset_16Nov2015.nc
+            1.4 /root/project/tests/test_data/16Nov2015_NorKyst_z_surface/arome_subset_16Nov2015.nc
+          0.2 updating elements
+            0.0 oil weathering
+        0.0 cleaning up
+    --------------------
+    ===========================
+    Model:  OpenOil     (OpenDrift version 1.2.0)
+            1990 active Oil particles  (0 deactivated, 0 scheduled)
+    Projection: +proj=stere +lat_0=90 +lon_0=70 +lat_ts=60 +units=m +a=6.371e+06 +e=0 +no_defs
+    -------------------
+    Environment variables:
+      -----
+      x_sea_water_velocity
+      y_sea_water_velocity
+         1) /root/project/tests/test_data/16Nov2015_NorKyst_z_surface/norkyst800_subset_16Nov2015.nc
+      -----
+      x_wind
+      y_wind
+         1) /root/project/tests/test_data/16Nov2015_NorKyst_z_surface/arome_subset_16Nov2015.nc
+      -----
+      land_binary_mask
+         1) global_landmask
+      -----
+    Readers not added for the following variables:
+      sea_floor_depth_below_sea_level
+      sea_ice_area_fraction
+      sea_surface_wave_significant_height
+      sea_surface_wave_stokes_drift_x_velocity
+      sea_surface_wave_stokes_drift_y_velocity
+      sea_water_temperature
+
+    Time:
+            Start: 2015-11-16 00:26:18.770000
+            Present: 2015-11-16 06:26:18.770000
+            Calculation steps: 24 * 0:15:00 - total time: 6:00:00
+            Output steps: 25 * 0:15:00
+    ===========================
+
+    /root/project/opendrift/models/basemodel.py:2828: UserWarning: Tight layout not applied. The left and right margins cannot be made large enough to accommodate all axes decorations. 
+      fig.canvas.draw()
+
+
+
+
+.. image:: /gallery/animations/satellite.gif
+
+
+.. code-block:: default
+
+
+    o.plot(fast=True)
+
+
+
+.. image:: /gallery/images/sphx_glr_example_satellite_001.png
+    :class: sphx-glr-single-img
+
+
+.. rst-class:: sphx-glr-script-out
+
+ Out:
+
+ .. code-block:: none
+
+    /root/project/opendrift/models/basemodel.py:3244: UserWarning: Tight layout not applied. The left and right margins cannot be made large enough to accommodate all axes decorations. 
+      fig.canvas.draw()
+
+    (<cartopy.mpl.geoaxes.GeoAxesSubplot object at 0x7f6aa8fcafa0>, <module 'matplotlib.pyplot' from '/opt/conda/envs/opendrift/lib/python3.8/site-packages/matplotlib/pyplot.py'>)
+
+
+
+
+.. rst-class:: sphx-glr-timing
+
+   **Total running time of the script:** ( 0 minutes  16.961 seconds)
+
+
+.. _sphx_glr_download_gallery_example_satellite.py:
+
+
+.. only :: html
+
+ .. container:: sphx-glr-footer
+    :class: sphx-glr-footer-example
+
+
+
+  .. container:: sphx-glr-download
+
+     :download:`Download Python source code: example_satellite.py <example_satellite.py>`
+
+
+
+  .. container:: sphx-glr-download
+
+     :download:`Download Jupyter notebook: example_satellite.ipynb <example_satellite.ipynb>`
+
+
+.. only:: html
+
+ .. rst-class:: sphx-glr-signature
+
+    `Gallery generated by Sphinx-Gallery <https://sphinx-gallery.github.io>`_

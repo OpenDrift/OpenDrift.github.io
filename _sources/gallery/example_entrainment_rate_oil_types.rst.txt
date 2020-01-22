@@ -1,0 +1,322 @@
+.. note::
+    :class: sphx-glr-download-link-note
+
+    Click :ref:`here <sphx_glr_download_gallery_example_entrainment_rate_oil_types.py>` to download the full example code
+.. rst-class:: sphx-glr-example-title
+
+.. _sphx_glr_gallery_example_entrainment_rate_oil_types.py:
+
+
+Entrainment rate (oil types)
+==================================
+
+
+.. code-block:: default
+
+
+    from datetime import datetime, timedelta
+    from opendrift.models.openoil3D import OpenOil3D
+    import matplotlib.pyplot as plt
+    import numpy as np
+
+
+
+
+
+
+
+
+Li et al. (2017) entrainment rate (light vs. heavy oil)
+#####################################################
+
+
+.. code-block:: default
+
+    o2 = OpenOil3D(loglevel=20, weathering_model='noaa')
+    o2.fallback_values['land_binary_mask'] = 0
+    o2.fallback_values['x_sea_water_velocity'] = -.2
+    o2.fallback_values['y_sea_water_velocity'] = 0
+    o2.fallback_values['x_wind'] = 10
+    o2.fallback_values['y_wind'] = 0
+    o2.fallback_values['sea_surface_wave_stokes_drift_x_velocity'] = .3
+    o2.fallback_values['sea_surface_wave_stokes_drift_y_velocity'] = 0
+    o2.set_config('wave_entrainment:entrainment_rate', 'Li et al. (2017)')
+    o2.set_config('wave_entrainment:droplet_size_distribution', 'Johansen et al. (2015)')
+    o2.set_config('processes:evaporation', False)
+    o2.set_config('processes:dispersion', False)
+    o2.set_config('turbulentmixing:droplet_diameter_min_wavebreaking', 1e-6)
+    o2.set_config('turbulentmixing:droplet_diameter_max_wavebreaking', 1e-3)
+    o2.seed_elements(lon=4, lat=60, time=datetime.now(), number=1000,
+                    radius=100, z=0, oiltype='TIA JUANA HEAVY, OIL & GAS')
+    o2.run(duration=timedelta(hours=12), time_step=900, time_step_output=3600)
+
+    o3 = OpenOil3D(loglevel=20, weathering_model='noaa')
+    o3.fallback_values['land_binary_mask'] = 0
+    o3.fallback_values['x_sea_water_velocity'] = -.2
+    o3.fallback_values['y_sea_water_velocity'] = 0
+    o3.fallback_values['x_wind'] = 10
+    o3.fallback_values['y_wind'] = 0
+    o3.fallback_values['sea_surface_wave_stokes_drift_x_velocity'] = .3
+    o3.fallback_values['sea_surface_wave_stokes_drift_y_velocity'] = 0
+    o3.set_config('wave_entrainment:entrainment_rate', 'Li et al. (2017)')
+    o3.set_config('wave_entrainment:droplet_size_distribution', 'Johansen et al. (2015)')
+    o3.set_config('processes:evaporation', False)
+    o3.set_config('processes:dispersion', False)
+    o3.set_config('turbulentmixing:droplet_diameter_min_wavebreaking', 1e-6)
+    o3.set_config('turbulentmixing:droplet_diameter_max_wavebreaking', 1e-3)
+    o3.seed_elements(lon=4, lat=60, time=datetime.now(), number=1000,
+                     radius=100, z=0, oiltype='TIA JUANA LIGHT, OIL & GAS') #'EKOFISK BLEND, STATOIL' similar ent.
+    o3.run(duration=timedelta(hours=12), time_step=900, time_step_output=3600)
+
+
+
+
+
+.. rst-class:: sphx-glr-script-out
+
+ Out:
+
+ .. code-block:: none
+
+    17:29:35 INFO: OpenDriftSimulation initialised (version 1.2.0)
+    17:29:35 INFO: Using density 987.8654655414094 and viscosity 0.008078773948583215 of oiltype TIA JUANA HEAVY, OIL & GAS
+    17:29:35 INFO: Config validation OK
+    17:29:35 INFO: Setting SRS to latlong, since not defined before.
+    17:29:35 INFO: Fallback values will be used for the following variables which have no readers: 
+    17:29:35 INFO:  x_sea_water_velocity: -0.200000
+    17:29:35 INFO:  y_sea_water_velocity: 0.000000
+    17:29:35 INFO:  sea_surface_wave_significant_height: 0.000000
+    17:29:35 INFO:  sea_surface_wave_stokes_drift_x_velocity: 0.300000
+    17:29:35 INFO:  sea_surface_wave_stokes_drift_y_velocity: 0.000000
+    17:29:35 INFO:  sea_surface_wave_period_at_variance_spectral_density_maximum: 0.000000
+    17:29:35 INFO:  sea_surface_wave_mean_period_from_variance_spectral_density_second_frequency_moment: 0.000000
+    17:29:35 INFO:  sea_ice_area_fraction: 0.000000
+    17:29:35 INFO:  x_wind: 10.000000
+    17:29:35 INFO:  y_wind: 0.000000
+    17:29:35 INFO:  sea_floor_depth_below_sea_level: 10000.000000
+    17:29:35 INFO:  ocean_vertical_diffusivity: 0.020000
+    17:29:35 INFO:  sea_water_temperature: 10.000000
+    17:29:35 INFO:  sea_water_salinity: 34.000000
+    17:29:35 INFO:  upward_sea_water_velocity: 0.000000
+    17:29:35 INFO: Oil-water surface tension is 0.035889 Nm
+    17:29:35 INFO: 2020-01-22 17:29:35.130582 - step 1 of 48 - 1000 active elements (0 deactivated)
+    17:29:35 INFO: 2020-01-22 17:44:35.130582 - step 2 of 48 - 1000 active elements (0 deactivated)
+    17:29:35 INFO: 2020-01-22 17:59:35.130582 - step 3 of 48 - 1000 active elements (0 deactivated)
+    17:29:35 INFO: 2020-01-22 18:14:35.130582 - step 4 of 48 - 1000 active elements (0 deactivated)
+    17:29:35 INFO: 2020-01-22 18:29:35.130582 - step 5 of 48 - 1000 active elements (0 deactivated)
+    17:29:35 INFO: 2020-01-22 18:44:35.130582 - step 6 of 48 - 1000 active elements (0 deactivated)
+    17:29:35 INFO: 2020-01-22 18:59:35.130582 - step 7 of 48 - 1000 active elements (0 deactivated)
+    17:29:35 INFO: 2020-01-22 19:14:35.130582 - step 8 of 48 - 1000 active elements (0 deactivated)
+    17:29:35 INFO: 2020-01-22 19:29:35.130582 - step 9 of 48 - 1000 active elements (0 deactivated)
+    17:29:35 INFO: 2020-01-22 19:44:35.130582 - step 10 of 48 - 1000 active elements (0 deactivated)
+    17:29:36 INFO: 2020-01-22 19:59:35.130582 - step 11 of 48 - 1000 active elements (0 deactivated)
+    17:29:36 INFO: 2020-01-22 20:14:35.130582 - step 12 of 48 - 1000 active elements (0 deactivated)
+    17:29:36 INFO: 2020-01-22 20:29:35.130582 - step 13 of 48 - 1000 active elements (0 deactivated)
+    17:29:36 INFO: 2020-01-22 20:44:35.130582 - step 14 of 48 - 1000 active elements (0 deactivated)
+    17:29:36 INFO: 2020-01-22 20:59:35.130582 - step 15 of 48 - 1000 active elements (0 deactivated)
+    17:29:36 INFO: 2020-01-22 21:14:35.130582 - step 16 of 48 - 1000 active elements (0 deactivated)
+    17:29:36 INFO: 2020-01-22 21:29:35.130582 - step 17 of 48 - 1000 active elements (0 deactivated)
+    17:29:36 INFO: 2020-01-22 21:44:35.130582 - step 18 of 48 - 1000 active elements (0 deactivated)
+    17:29:36 INFO: 2020-01-22 21:59:35.130582 - step 19 of 48 - 1000 active elements (0 deactivated)
+    17:29:36 INFO: 2020-01-22 22:14:35.130582 - step 20 of 48 - 1000 active elements (0 deactivated)
+    17:29:36 INFO: 2020-01-22 22:29:35.130582 - step 21 of 48 - 1000 active elements (0 deactivated)
+    17:29:36 INFO: 2020-01-22 22:44:35.130582 - step 22 of 48 - 1000 active elements (0 deactivated)
+    17:29:37 INFO: 2020-01-22 22:59:35.130582 - step 23 of 48 - 1000 active elements (0 deactivated)
+    17:29:37 INFO: 2020-01-22 23:14:35.130582 - step 24 of 48 - 1000 active elements (0 deactivated)
+    17:29:37 INFO: 2020-01-22 23:29:35.130582 - step 25 of 48 - 1000 active elements (0 deactivated)
+    17:29:37 INFO: 2020-01-22 23:44:35.130582 - step 26 of 48 - 1000 active elements (0 deactivated)
+    17:29:37 INFO: 2020-01-22 23:59:35.130582 - step 27 of 48 - 1000 active elements (0 deactivated)
+    17:29:37 INFO: 2020-01-23 00:14:35.130582 - step 28 of 48 - 1000 active elements (0 deactivated)
+    17:29:37 INFO: 2020-01-23 00:29:35.130582 - step 29 of 48 - 1000 active elements (0 deactivated)
+    17:29:37 INFO: 2020-01-23 00:44:35.130582 - step 30 of 48 - 1000 active elements (0 deactivated)
+    17:29:37 INFO: 2020-01-23 00:59:35.130582 - step 31 of 48 - 1000 active elements (0 deactivated)
+    17:29:37 INFO: 2020-01-23 01:14:35.130582 - step 32 of 48 - 1000 active elements (0 deactivated)
+    17:29:37 INFO: 2020-01-23 01:29:35.130582 - step 33 of 48 - 1000 active elements (0 deactivated)
+    17:29:38 INFO: 2020-01-23 01:44:35.130582 - step 34 of 48 - 1000 active elements (0 deactivated)
+    17:29:38 INFO: 2020-01-23 01:59:35.130582 - step 35 of 48 - 1000 active elements (0 deactivated)
+    17:29:38 INFO: 2020-01-23 02:14:35.130582 - step 36 of 48 - 1000 active elements (0 deactivated)
+    17:29:38 INFO: 2020-01-23 02:29:35.130582 - step 37 of 48 - 1000 active elements (0 deactivated)
+    17:29:38 INFO: 2020-01-23 02:44:35.130582 - step 38 of 48 - 1000 active elements (0 deactivated)
+    17:29:38 INFO: 2020-01-23 02:59:35.130582 - step 39 of 48 - 1000 active elements (0 deactivated)
+    17:29:38 INFO: 2020-01-23 03:14:35.130582 - step 40 of 48 - 1000 active elements (0 deactivated)
+    17:29:38 INFO: 2020-01-23 03:29:35.130582 - step 41 of 48 - 1000 active elements (0 deactivated)
+    17:29:38 INFO: 2020-01-23 03:44:35.130582 - step 42 of 48 - 1000 active elements (0 deactivated)
+    17:29:38 INFO: 2020-01-23 03:59:35.130582 - step 43 of 48 - 1000 active elements (0 deactivated)
+    17:29:38 INFO: 2020-01-23 04:14:35.130582 - step 44 of 48 - 1000 active elements (0 deactivated)
+    17:29:38 INFO: 2020-01-23 04:29:35.130582 - step 45 of 48 - 1000 active elements (0 deactivated)
+    17:29:39 INFO: 2020-01-23 04:44:35.130582 - step 46 of 48 - 1000 active elements (0 deactivated)
+    17:29:39 INFO: 2020-01-23 04:59:35.130582 - step 47 of 48 - 1000 active elements (0 deactivated)
+    17:29:39 INFO: 2020-01-23 05:14:35.130582 - step 48 of 48 - 1000 active elements (0 deactivated)
+    17:29:39 INFO: OpenDriftSimulation initialised (version 1.2.0)
+    17:29:39 INFO: Using density 867.3734290993696 and viscosity 2.071984541641372e-05 of oiltype TIA JUANA LIGHT, OIL & GAS
+    17:29:39 INFO: Config validation OK
+    17:29:39 INFO: Setting SRS to latlong, since not defined before.
+    17:29:39 INFO: Fallback values will be used for the following variables which have no readers: 
+    17:29:39 INFO:  x_sea_water_velocity: -0.200000
+    17:29:39 INFO:  y_sea_water_velocity: 0.000000
+    17:29:39 INFO:  sea_surface_wave_significant_height: 0.000000
+    17:29:39 INFO:  sea_surface_wave_stokes_drift_x_velocity: 0.300000
+    17:29:39 INFO:  sea_surface_wave_stokes_drift_y_velocity: 0.000000
+    17:29:39 INFO:  sea_surface_wave_period_at_variance_spectral_density_maximum: 0.000000
+    17:29:39 INFO:  sea_surface_wave_mean_period_from_variance_spectral_density_second_frequency_moment: 0.000000
+    17:29:39 INFO:  sea_ice_area_fraction: 0.000000
+    17:29:39 INFO:  x_wind: 10.000000
+    17:29:39 INFO:  y_wind: 0.000000
+    17:29:39 INFO:  sea_floor_depth_below_sea_level: 10000.000000
+    17:29:39 INFO:  ocean_vertical_diffusivity: 0.020000
+    17:29:39 INFO:  sea_water_temperature: 10.000000
+    17:29:39 INFO:  sea_water_salinity: 34.000000
+    17:29:39 INFO:  upward_sea_water_velocity: 0.000000
+    17:29:39 INFO: Oil-water surface tension is 0.030747 Nm
+    17:29:39 INFO: 2020-01-22 17:29:39.375543 - step 1 of 48 - 1000 active elements (0 deactivated)
+    17:29:39 INFO: 2020-01-22 17:44:39.375543 - step 2 of 48 - 1000 active elements (0 deactivated)
+    17:29:39 INFO: 2020-01-22 17:59:39.375543 - step 3 of 48 - 1000 active elements (0 deactivated)
+    17:29:39 INFO: 2020-01-22 18:14:39.375543 - step 4 of 48 - 1000 active elements (0 deactivated)
+    17:29:39 INFO: 2020-01-22 18:29:39.375543 - step 5 of 48 - 1000 active elements (0 deactivated)
+    17:29:39 INFO: 2020-01-22 18:44:39.375543 - step 6 of 48 - 1000 active elements (0 deactivated)
+    17:29:39 INFO: 2020-01-22 18:59:39.375543 - step 7 of 48 - 1000 active elements (0 deactivated)
+    17:29:40 INFO: 2020-01-22 19:14:39.375543 - step 8 of 48 - 1000 active elements (0 deactivated)
+    17:29:40 INFO: 2020-01-22 19:29:39.375543 - step 9 of 48 - 1000 active elements (0 deactivated)
+    17:29:40 INFO: 2020-01-22 19:44:39.375543 - step 10 of 48 - 1000 active elements (0 deactivated)
+    17:29:40 INFO: 2020-01-22 19:59:39.375543 - step 11 of 48 - 1000 active elements (0 deactivated)
+    17:29:40 INFO: 2020-01-22 20:14:39.375543 - step 12 of 48 - 1000 active elements (0 deactivated)
+    17:29:40 INFO: 2020-01-22 20:29:39.375543 - step 13 of 48 - 1000 active elements (0 deactivated)
+    17:29:40 INFO: 2020-01-22 20:44:39.375543 - step 14 of 48 - 1000 active elements (0 deactivated)
+    17:29:40 INFO: 2020-01-22 20:59:39.375543 - step 15 of 48 - 1000 active elements (0 deactivated)
+    17:29:40 INFO: 2020-01-22 21:14:39.375543 - step 16 of 48 - 1000 active elements (0 deactivated)
+    17:29:40 INFO: 2020-01-22 21:29:39.375543 - step 17 of 48 - 1000 active elements (0 deactivated)
+    17:29:40 INFO: 2020-01-22 21:44:39.375543 - step 18 of 48 - 1000 active elements (0 deactivated)
+    17:29:40 INFO: 2020-01-22 21:59:39.375543 - step 19 of 48 - 1000 active elements (0 deactivated)
+    17:29:41 INFO: 2020-01-22 22:14:39.375543 - step 20 of 48 - 1000 active elements (0 deactivated)
+    17:29:41 INFO: 2020-01-22 22:29:39.375543 - step 21 of 48 - 1000 active elements (0 deactivated)
+    17:29:41 INFO: 2020-01-22 22:44:39.375543 - step 22 of 48 - 1000 active elements (0 deactivated)
+    17:29:41 INFO: 2020-01-22 22:59:39.375543 - step 23 of 48 - 1000 active elements (0 deactivated)
+    17:29:41 INFO: 2020-01-22 23:14:39.375543 - step 24 of 48 - 1000 active elements (0 deactivated)
+    17:29:41 INFO: 2020-01-22 23:29:39.375543 - step 25 of 48 - 1000 active elements (0 deactivated)
+    17:29:41 INFO: 2020-01-22 23:44:39.375543 - step 26 of 48 - 1000 active elements (0 deactivated)
+    17:29:41 INFO: 2020-01-22 23:59:39.375543 - step 27 of 48 - 1000 active elements (0 deactivated)
+    17:29:41 INFO: 2020-01-23 00:14:39.375543 - step 28 of 48 - 1000 active elements (0 deactivated)
+    17:29:41 INFO: 2020-01-23 00:29:39.375543 - step 29 of 48 - 1000 active elements (0 deactivated)
+    17:29:41 INFO: 2020-01-23 00:44:39.375543 - step 30 of 48 - 1000 active elements (0 deactivated)
+    17:29:41 INFO: 2020-01-23 00:59:39.375543 - step 31 of 48 - 1000 active elements (0 deactivated)
+    17:29:42 INFO: 2020-01-23 01:14:39.375543 - step 32 of 48 - 1000 active elements (0 deactivated)
+    17:29:42 INFO: 2020-01-23 01:29:39.375543 - step 33 of 48 - 1000 active elements (0 deactivated)
+    17:29:42 INFO: 2020-01-23 01:44:39.375543 - step 34 of 48 - 1000 active elements (0 deactivated)
+    17:29:42 INFO: 2020-01-23 01:59:39.375543 - step 35 of 48 - 1000 active elements (0 deactivated)
+    17:29:42 INFO: 2020-01-23 02:14:39.375543 - step 36 of 48 - 1000 active elements (0 deactivated)
+    17:29:42 INFO: 2020-01-23 02:29:39.375543 - step 37 of 48 - 1000 active elements (0 deactivated)
+    17:29:42 INFO: 2020-01-23 02:44:39.375543 - step 38 of 48 - 1000 active elements (0 deactivated)
+    17:29:42 INFO: 2020-01-23 02:59:39.375543 - step 39 of 48 - 1000 active elements (0 deactivated)
+    17:29:42 INFO: 2020-01-23 03:14:39.375543 - step 40 of 48 - 1000 active elements (0 deactivated)
+    17:29:42 INFO: 2020-01-23 03:29:39.375543 - step 41 of 48 - 1000 active elements (0 deactivated)
+    17:29:42 INFO: 2020-01-23 03:44:39.375543 - step 42 of 48 - 1000 active elements (0 deactivated)
+    17:29:42 INFO: 2020-01-23 03:59:39.375543 - step 43 of 48 - 1000 active elements (0 deactivated)
+    17:29:43 INFO: 2020-01-23 04:14:39.375543 - step 44 of 48 - 1000 active elements (0 deactivated)
+    17:29:43 INFO: 2020-01-23 04:29:39.375543 - step 45 of 48 - 1000 active elements (0 deactivated)
+    17:29:43 INFO: 2020-01-23 04:44:39.375543 - step 46 of 48 - 1000 active elements (0 deactivated)
+    17:29:43 INFO: 2020-01-23 04:59:39.375543 - step 47 of 48 - 1000 active elements (0 deactivated)
+    17:29:43 INFO: 2020-01-23 05:14:39.375543 - step 48 of 48 - 1000 active elements (0 deactivated)
+
+
+
+
+Plotting and comparing
+##########################
+
+
+.. code-block:: default
+
+    print('#######################')
+    print('Entrainment rate (heavy)', np.mean(o2.oil_wave_entrainment_rate()))
+    print('Entrainment rate (light)', np.mean(o3.oil_wave_entrainment_rate()))
+    print('Viscosity (heavy)', np.mean(o2.elements.viscosity))
+    print('Viscosity (light)', np.mean(o3.elements.viscosity))
+    print('Density (heavy)', np.mean(o2.elements.density))
+    print('Density (light)', np.mean(o3.elements.density))
+    print('#######################')
+
+    o2.plot_oil_budget()
+    o3.plot_oil_budget()
+    legend = ['TIA JUANA HEAVY', 'TIA JUANA LIGHT']
+    o2.animation_profile(compare=o3, legend=legend, filename='entrainment_rate_oil_types.gif')
+
+
+
+
+
+.. rst-class:: sphx-glr-script-out
+
+ Out:
+
+ .. code-block:: none
+
+    #######################
+    Entrainment rate (heavy) 0.00011775290502308442
+    Entrainment rate (light) 0.010950909656036746
+    Viscosity (heavy) 0.008538860827684402
+    Viscosity (light) 2.1899837520322762e-05
+    Density (heavy) 989.3333829306974
+    Density (light) 868.8241388251795
+    #######################
+
+
+
+
+.. image:: /gallery/animations/entrainment_rate_oil_types.gif
+
+
+.. code-block:: default
+
+
+    o2.animation(compare=o3, legend=legend, filename='entrainment_rate_oil_types_2.gif')
+
+
+
+
+
+.. rst-class:: sphx-glr-script-out
+
+ Out:
+
+ .. code-block:: none
+
+    /root/project/opendrift/models/basemodel.py:2828: UserWarning: Tight layout not applied. The left and right margins cannot be made large enough to accommodate all axes decorations. 
+      fig.canvas.draw()
+
+
+
+
+.. image:: /gallery/animations/entrainment_rate_oil_types_2.gif
+
+
+.. rst-class:: sphx-glr-timing
+
+   **Total running time of the script:** ( 0 minutes  12.157 seconds)
+
+
+.. _sphx_glr_download_gallery_example_entrainment_rate_oil_types.py:
+
+
+.. only :: html
+
+ .. container:: sphx-glr-footer
+    :class: sphx-glr-footer-example
+
+
+
+  .. container:: sphx-glr-download
+
+     :download:`Download Python source code: example_entrainment_rate_oil_types.py <example_entrainment_rate_oil_types.py>`
+
+
+
+  .. container:: sphx-glr-download
+
+     :download:`Download Jupyter notebook: example_entrainment_rate_oil_types.ipynb <example_entrainment_rate_oil_types.ipynb>`
+
+
+.. only:: html
+
+ .. rst-class:: sphx-glr-signature
+
+    `Gallery generated by Sphinx-Gallery <https://sphinx-gallery.github.io>`_

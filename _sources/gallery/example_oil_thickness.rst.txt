@@ -1,0 +1,353 @@
+.. note::
+    :class: sphx-glr-download-link-note
+
+    Click :ref:`here <sphx_glr_download_gallery_example_oil_thickness.py>` to download the full example code
+.. rst-class:: sphx-glr-example-title
+
+.. _sphx_glr_gallery_example_oil_thickness.py:
+
+
+Oil thickness
+==================================
+
+
+.. code-block:: default
+
+
+    from datetime import datetime, timedelta
+    import matplotlib.pyplot as plt
+    import numpy as np
+    from opendrift.models.openoil3D import OpenOil3D
+
+
+    number = 10000
+    timestep = timedelta(minutes=10)
+    timestep_output = timedelta(minutes=60)
+    duration = timedelta(hours=20)
+    mass_oil = 2000  # mass oil per particle
+    oiltype = '*GENERIC DIESEL'
+    #oiltype = '*GENERIC BUNKER C'
+
+
+
+
+
+
+
+
+First run, where surface oil thickness is updated
+###################################################
+
+
+.. code-block:: default
+
+    o1 = OpenOil3D(loglevel=30, weathering_model='noaa')
+    # Northwards wind, eastwards current
+    o1.fallback_values['land_binary_mask'] = 0
+    o1.fallback_values['x_wind'] = 0
+    o1.fallback_values['y_wind'] = 7
+    o1.fallback_values['sea_surface_wave_stokes_drift_x_velocity'] = 0
+    o1.fallback_values['sea_surface_wave_stokes_drift_y_velocity'] = .3
+    o1.fallback_values['x_sea_water_velocity'] = .1
+    o1.fallback_values['y_sea_water_velocity'] = 0
+    # Using Johansen droplet spectrum, which depends on oil film thickness
+    o1.set_config('wave_entrainment:droplet_size_distribution',
+                 'Johansen et al. (2015)')
+    o1.set_config('drift:wind_uncertainty', 2)
+    o1.set_config('drift:current_uncertainty', .1)
+    o1.set_config('processes:dispersion', False)
+    o1.set_config('processes:update_oilfilm_thickness', True)
+
+    o1.seed_elements(lon=4.5, lat=60, number=number,
+                    mass_oil=mass_oil, radius=1000,
+                    oiltype=oiltype,
+                    time=datetime.now())
+    o1.run(time_step=timestep, time_step_output=timestep_output,
+           duration=duration)
+
+    # Animation shows how oil thickness evolves,
+    # and decreases due to evaporation and spreading
+    unitfactor=1e6  # show film thickness in micrometers
+    o1.animation(color='oil_film_thickness', fast=True,
+                 vmin=1e-7*unitfactor, vmax=1e-4*unitfactor,
+                 unitfactor=unitfactor, surface_only=True,
+                 filename='oil_thicness.gif')
+
+
+
+
+
+.. rst-class:: sphx-glr-script-out
+
+ Out:
+
+ .. code-block:: none
+
+    /opt/conda/envs/opendrift/lib/python3.8/site-packages/scipy/optimize/minpack.py:807: OptimizeWarning: Covariance of the parameters could not be estimated
+      warnings.warn('Covariance of the parameters could not be estimated',
+    Updating oil film thickness for 10000 of 10000 elements at surface
+    Updating oil film thickness for 4129 of 10000 elements at surface
+    Updating oil film thickness for 3607 of 10000 elements at surface
+    Updating oil film thickness for 3240 of 10000 elements at surface
+    Updating oil film thickness for 3041 of 10000 elements at surface
+    Updating oil film thickness for 2759 of 10000 elements at surface
+    Updating oil film thickness for 2577 of 10000 elements at surface
+    Updating oil film thickness for 2525 of 10000 elements at surface
+    Updating oil film thickness for 2248 of 10000 elements at surface
+    Updating oil film thickness for 2272 of 10000 elements at surface
+    Updating oil film thickness for 2194 of 10000 elements at surface
+    Updating oil film thickness for 2132 of 10000 elements at surface
+    Updating oil film thickness for 1963 of 10000 elements at surface
+    Updating oil film thickness for 1954 of 10000 elements at surface
+    Updating oil film thickness for 1893 of 10000 elements at surface
+    Updating oil film thickness for 1852 of 10000 elements at surface
+    Updating oil film thickness for 1786 of 10000 elements at surface
+    Updating oil film thickness for 1725 of 10000 elements at surface
+    Updating oil film thickness for 1658 of 10000 elements at surface
+    Updating oil film thickness for 1677 of 10000 elements at surface
+    Updating oil film thickness for 1682 of 10000 elements at surface
+    Updating oil film thickness for 1627 of 10000 elements at surface
+    Updating oil film thickness for 1564 of 10000 elements at surface
+    Updating oil film thickness for 1577 of 10000 elements at surface
+    Updating oil film thickness for 1514 of 10000 elements at surface
+    Updating oil film thickness for 1477 of 10000 elements at surface
+    Updating oil film thickness for 1396 of 10000 elements at surface
+    Updating oil film thickness for 1419 of 10000 elements at surface
+    Updating oil film thickness for 1364 of 10000 elements at surface
+    Updating oil film thickness for 1338 of 10000 elements at surface
+    Updating oil film thickness for 1373 of 10000 elements at surface
+    Updating oil film thickness for 1352 of 10000 elements at surface
+    Updating oil film thickness for 1325 of 10000 elements at surface
+    Updating oil film thickness for 1274 of 10000 elements at surface
+    Updating oil film thickness for 1299 of 10000 elements at surface
+    Updating oil film thickness for 1297 of 10000 elements at surface
+    Updating oil film thickness for 1244 of 10000 elements at surface
+    Updating oil film thickness for 1229 of 10000 elements at surface
+    Updating oil film thickness for 1216 of 10000 elements at surface
+    Updating oil film thickness for 1225 of 10000 elements at surface
+    Updating oil film thickness for 1183 of 10000 elements at surface
+    Updating oil film thickness for 1147 of 10000 elements at surface
+    Updating oil film thickness for 1139 of 10000 elements at surface
+    Updating oil film thickness for 1119 of 10000 elements at surface
+    Updating oil film thickness for 1136 of 10000 elements at surface
+    Updating oil film thickness for 1127 of 10000 elements at surface
+    Updating oil film thickness for 1065 of 10000 elements at surface
+    Updating oil film thickness for 1025 of 10000 elements at surface
+    Updating oil film thickness for 1039 of 10000 elements at surface
+    Updating oil film thickness for 997 of 10000 elements at surface
+    Updating oil film thickness for 1083 of 10000 elements at surface
+    Updating oil film thickness for 1056 of 10000 elements at surface
+    Updating oil film thickness for 992 of 10000 elements at surface
+    Updating oil film thickness for 968 of 10000 elements at surface
+    Updating oil film thickness for 928 of 10000 elements at surface
+    Updating oil film thickness for 979 of 10000 elements at surface
+    Updating oil film thickness for 925 of 10000 elements at surface
+    Updating oil film thickness for 885 of 10000 elements at surface
+    Updating oil film thickness for 905 of 10000 elements at surface
+    Updating oil film thickness for 858 of 10000 elements at surface
+    Updating oil film thickness for 910 of 10000 elements at surface
+    Updating oil film thickness for 914 of 10000 elements at surface
+    Updating oil film thickness for 896 of 10000 elements at surface
+    Updating oil film thickness for 900 of 10000 elements at surface
+    Updating oil film thickness for 895 of 10000 elements at surface
+    Updating oil film thickness for 902 of 10000 elements at surface
+    Updating oil film thickness for 887 of 10000 elements at surface
+    Updating oil film thickness for 892 of 10000 elements at surface
+    Updating oil film thickness for 855 of 10000 elements at surface
+    Updating oil film thickness for 878 of 10000 elements at surface
+    Updating oil film thickness for 837 of 10000 elements at surface
+    Updating oil film thickness for 853 of 10000 elements at surface
+    Updating oil film thickness for 812 of 10000 elements at surface
+    Updating oil film thickness for 800 of 10000 elements at surface
+    Updating oil film thickness for 806 of 10000 elements at surface
+    Updating oil film thickness for 754 of 10000 elements at surface
+    Updating oil film thickness for 790 of 10000 elements at surface
+    Updating oil film thickness for 777 of 10000 elements at surface
+    Updating oil film thickness for 757 of 10000 elements at surface
+    Updating oil film thickness for 783 of 10000 elements at surface
+    Updating oil film thickness for 787 of 10000 elements at surface
+    Updating oil film thickness for 808 of 10000 elements at surface
+    Updating oil film thickness for 780 of 10000 elements at surface
+    Updating oil film thickness for 751 of 10000 elements at surface
+    Updating oil film thickness for 745 of 10000 elements at surface
+    Updating oil film thickness for 720 of 10000 elements at surface
+    Updating oil film thickness for 763 of 10000 elements at surface
+    Updating oil film thickness for 731 of 10000 elements at surface
+    Updating oil film thickness for 721 of 10000 elements at surface
+    Updating oil film thickness for 706 of 10000 elements at surface
+    Updating oil film thickness for 739 of 10000 elements at surface
+    Updating oil film thickness for 710 of 10000 elements at surface
+    Updating oil film thickness for 704 of 10000 elements at surface
+    Updating oil film thickness for 702 of 10000 elements at surface
+    Updating oil film thickness for 685 of 10000 elements at surface
+    Updating oil film thickness for 677 of 10000 elements at surface
+    Updating oil film thickness for 659 of 10000 elements at surface
+    Updating oil film thickness for 683 of 10000 elements at surface
+    Updating oil film thickness for 684 of 10000 elements at surface
+    Updating oil film thickness for 651 of 10000 elements at surface
+    Updating oil film thickness for 647 of 10000 elements at surface
+    Updating oil film thickness for 652 of 10000 elements at surface
+    Updating oil film thickness for 635 of 10000 elements at surface
+    Updating oil film thickness for 623 of 10000 elements at surface
+    Updating oil film thickness for 618 of 10000 elements at surface
+    Updating oil film thickness for 645 of 10000 elements at surface
+    Updating oil film thickness for 627 of 10000 elements at surface
+    Updating oil film thickness for 609 of 10000 elements at surface
+    Updating oil film thickness for 622 of 10000 elements at surface
+    Updating oil film thickness for 599 of 10000 elements at surface
+    Updating oil film thickness for 582 of 10000 elements at surface
+    Updating oil film thickness for 594 of 10000 elements at surface
+    Updating oil film thickness for 586 of 10000 elements at surface
+    Updating oil film thickness for 578 of 10000 elements at surface
+    Updating oil film thickness for 597 of 10000 elements at surface
+    Updating oil film thickness for 602 of 10000 elements at surface
+    Updating oil film thickness for 601 of 10000 elements at surface
+    Updating oil film thickness for 611 of 10000 elements at surface
+    Updating oil film thickness for 583 of 10000 elements at surface
+    Updating oil film thickness for 605 of 10000 elements at surface
+    17:30:38 WARNING: plotting fast. this will make your plots less accurate.
+    /root/project/opendrift/models/basemodel.py:2828: UserWarning: Tight layout not applied. The left and right margins cannot be made large enough to accommodate all axes decorations. 
+      fig.canvas.draw()
+
+
+
+
+.. image:: /gallery/animations/oil_thickness.gif
+
+Second run, identical but without updating surface oil thickness
+##################################################################
+
+
+.. code-block:: default
+
+    print('Second run...')
+    o2 = OpenOil3D(loglevel=30, weathering_model='noaa')
+    o2.fallback_values = o1.fallback_values
+
+    o2.set_config('wave_entrainment:droplet_size_distribution',
+                 'Johansen et al. (2015)')
+    o2.set_config('drift:wind_uncertainty', 2)
+    o2.set_config('drift:current_uncertainty', .1)
+    o2.set_config('processes:dispersion', False)
+    o2.set_config('processes:update_oilfilm_thickness', False)
+
+    o2.seed_elements(lon=4.5, lat=60, number=number,
+                    mass_oil=mass_oil, radius=1000,
+                    oiltype=oiltype,
+                    time=datetime.now())
+    o2.run(time_step=timestep, time_step_output=timestep_output,
+           duration=duration)
+
+
+
+
+
+.. rst-class:: sphx-glr-script-out
+
+ Out:
+
+ .. code-block:: none
+
+    Second run...
+    /opt/conda/envs/opendrift/lib/python3.8/site-packages/scipy/optimize/minpack.py:807: OptimizeWarning: Covariance of the parameters could not be estimated
+      warnings.warn('Covariance of the parameters could not be estimated',
+
+
+
+
+Comparison plots
+###################################################
+
+
+.. code-block:: default
+
+    o1.plot_oil_budget()
+    o2.plot_oil_budget()
+
+    # Entrainment
+    b1 = o1.get_oil_budget()
+    b2 = o2.get_oil_budget()
+    plt.plot(b1['mass_surface'], '-r', linewidth=2,
+                label='Surface, updated thickness')
+    plt.plot(b1['mass_submerged'], '--r', linewidth=2,
+                label='Submerged, updated thickness')
+    plt.plot(b1['mass_evaporated'], '-.r', linewidth=2,
+                label='Evaporated, updated thickness')
+    plt.plot(b2['mass_surface'], '-b', linewidth=2,
+                label='Surface, constant thickness')
+    plt.plot(b2['mass_submerged'], '--b', linewidth=2,
+                label='Submerged, constant thickness')
+    plt.plot(b2['mass_evaporated'], '-.b', linewidth=2,
+                label='Evaporated, constant thickness')
+    plt.legend()
+    plt.xlabel('Time step')
+    plt.show()
+
+    # We see that with the updated film thickness,
+    # the droplets are getting gradually smaller
+    r1 = o1.get_property('diameter')[0]
+    r2 = o2.get_property('diameter')[0]
+    plt.plot(np.median(r1*1e6, 1))
+    plt.plot(np.median(r2*1e6, 1))
+    plt.legend(['With updated film thickness', 'With constant film thickness'])
+    plt.xlabel('Time step')
+    plt.ylabel('Median droplet diameter  [micrometer]')
+    plt.show()
+
+    # We see that oil film thickness has virtually no impact on horizontal drift
+    o1.animation(compare=o2, fast=True,
+                 legend=['Updated film thickness', 'Constant/default film thickness'],
+                 filename='oil_thickness_compare.gif')
+
+
+
+
+
+.. rst-class:: sphx-glr-script-out
+
+ Out:
+
+ .. code-block:: none
+
+    /opt/conda/envs/opendrift/lib/python3.8/site-packages/numpy/core/fromnumeric.py:745: UserWarning: Warning: 'partition' will ignore the 'mask' of the MaskedArray.
+      a.partition(kth, axis=axis, kind=kind, order=order)
+    /root/project/opendrift/models/basemodel.py:2828: UserWarning: Tight layout not applied. The left and right margins cannot be made large enough to accommodate all axes decorations. 
+      fig.canvas.draw()
+
+
+
+
+.. image:: /gallery/animations/oil_thickness_compare.gif
+
+
+.. rst-class:: sphx-glr-timing
+
+   **Total running time of the script:** ( 2 minutes  9.383 seconds)
+
+
+.. _sphx_glr_download_gallery_example_oil_thickness.py:
+
+
+.. only :: html
+
+ .. container:: sphx-glr-footer
+    :class: sphx-glr-footer-example
+
+
+
+  .. container:: sphx-glr-download
+
+     :download:`Download Python source code: example_oil_thickness.py <example_oil_thickness.py>`
+
+
+
+  .. container:: sphx-glr-download
+
+     :download:`Download Jupyter notebook: example_oil_thickness.ipynb <example_oil_thickness.ipynb>`
+
+
+.. only:: html
+
+ .. rst-class:: sphx-glr-signature
+
+    `Gallery generated by Sphinx-Gallery <https://sphinx-gallery.github.io>`_
