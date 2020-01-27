@@ -36,13 +36,23 @@ Oil thickness
 
 
 First run, where surface oil thickness is updated
-###################################################
 
 
 .. code-block:: default
 
     o1 = OpenOil3D(loglevel=30, weathering_model='noaa')
-    # Northwards wind, eastwards current
+
+
+
+
+
+
+
+Northwards wind, eastwards current
+
+
+.. code-block:: default
+
     o1.fallback_values['land_binary_mask'] = 0
     o1.fallback_values['x_wind'] = 0
     o1.fallback_values['y_wind'] = 7
@@ -50,7 +60,18 @@ First run, where surface oil thickness is updated
     o1.fallback_values['sea_surface_wave_stokes_drift_y_velocity'] = .3
     o1.fallback_values['x_sea_water_velocity'] = .1
     o1.fallback_values['y_sea_water_velocity'] = 0
-    # Using Johansen droplet spectrum, which depends on oil film thickness
+
+
+
+
+
+
+
+Using Johansen droplet spectrum, which depends on oil film thickness
+
+
+.. code-block:: default
+
     o1.set_config('wave_entrainment:droplet_size_distribution',
                  'Johansen et al. (2015)')
     o1.set_config('drift:wind_uncertainty', 2)
@@ -64,14 +85,6 @@ First run, where surface oil thickness is updated
                     time=datetime.now())
     o1.run(time_step=timestep, time_step_output=timestep_output,
            duration=duration)
-
-    # Animation shows how oil thickness evolves,
-    # and decreases due to evaporation and spreading
-    unitfactor=1e6  # show film thickness in micrometers
-    o1.animation(color='oil_film_thickness', fast=True,
-                 vmin=1e-7*unitfactor, vmax=1e-4*unitfactor,
-                 unitfactor=unitfactor, surface_only=True,
-                 filename='oil_thicness.gif')
 
 
 
@@ -205,22 +218,44 @@ First run, where surface oil thickness is updated
     Updating oil film thickness for 611 of 10000 elements at surface
     Updating oil film thickness for 583 of 10000 elements at surface
     Updating oil film thickness for 605 of 10000 elements at surface
-    12:56:51 WARNING: plotting fast. this will make your plots less accurate.
+
+
+
+
+Animation shows how oil thickness evolves,
+and decreases due to evaporation and spreading
+
+
+.. code-block:: default
+
+    unitfactor=1e6  # show film thickness in micrometers
+    o1.animation(color='oil_film_thickness', fast=True,
+                 vmin=1e-7*unitfactor, vmax=1e-4*unitfactor,
+                 unitfactor=unitfactor, surface_only=True,)
+
+
+
+
+
+.. rst-class:: sphx-glr-script-out
+
+ Out:
+
+ .. code-block:: none
+
     /root/project/opendrift/models/basemodel.py:2828: UserWarning: Tight layout not applied. The left and right margins cannot be made large enough to accommodate all axes decorations. 
       fig.canvas.draw()
 
 
 
 
-.. image:: /gallery/animations/oil_thickness.gif
+.. image:: /gallery/animations/example_oil_thickness_0.gif
 
 Second run, identical but without updating surface oil thickness
-##################################################################
 
 
 .. code-block:: default
 
-    print('Second run...')
     o2 = OpenOil3D(loglevel=30, weathering_model='noaa')
     o2.fallback_values = o1.fallback_values
 
@@ -248,7 +283,6 @@ Second run, identical but without updating surface oil thickness
 
  .. code-block:: none
 
-    Second run...
     /opt/conda/envs/opendrift/lib/python3.8/site-packages/scipy/optimize/minpack.py:807: OptimizeWarning: Covariance of the parameters could not be estimated
       warnings.warn('Covariance of the parameters could not be estimated',
 
@@ -256,7 +290,6 @@ Second run, identical but without updating surface oil thickness
 
 
 Comparison plots
-###################################################
 
 
 .. code-block:: default
@@ -264,7 +297,21 @@ Comparison plots
     o1.plot_oil_budget()
     o2.plot_oil_budget()
 
-    # Entrainment
+
+
+
+.. image:: /gallery/images/sphx_glr_example_oil_thickness_001.png
+    :class: sphx-glr-single-img
+
+
+
+
+
+Entrainment
+
+
+.. code-block:: default
+
     b1 = o1.get_oil_budget()
     b2 = o2.get_oil_budget()
     plt.plot(b1['mass_surface'], '-r', linewidth=2,
@@ -283,8 +330,22 @@ Comparison plots
     plt.xlabel('Time step')
     plt.show()
 
-    # We see that with the updated film thickness,
-    # the droplets are getting gradually smaller
+
+
+
+.. image:: /gallery/images/sphx_glr_example_oil_thickness_002.png
+    :class: sphx-glr-single-img
+
+
+
+
+
+We see that with the updated film thickness,
+the droplets are getting gradually smaller
+
+
+.. code-block:: default
+
     r1 = o1.get_property('diameter')[0]
     r2 = o2.get_property('diameter')[0]
     plt.plot(np.median(r1*1e6, 1))
@@ -294,10 +355,32 @@ Comparison plots
     plt.ylabel('Median droplet diameter  [micrometer]')
     plt.show()
 
-    # We see that oil film thickness has virtually no impact on horizontal drift
+
+
+
+.. image:: /gallery/images/sphx_glr_example_oil_thickness_003.png
+    :class: sphx-glr-single-img
+
+
+.. rst-class:: sphx-glr-script-out
+
+ Out:
+
+ .. code-block:: none
+
+    /opt/conda/envs/opendrift/lib/python3.8/site-packages/numpy/core/fromnumeric.py:745: UserWarning: Warning: 'partition' will ignore the 'mask' of the MaskedArray.
+      a.partition(kth, axis=axis, kind=kind, order=order)
+
+
+
+
+We see that oil film thickness has virtually no impact on horizontal drift
+
+
+.. code-block:: default
+
     o1.animation(compare=o2, fast=True,
-                 legend=['Updated film thickness', 'Constant/default film thickness'],
-                 filename='oil_thickness_compare.gif')
+                 legend=['Updated film thickness', 'Constant/default film thickness'],)
 
 
 
@@ -309,20 +392,18 @@ Comparison plots
 
  .. code-block:: none
 
-    /opt/conda/envs/opendrift/lib/python3.8/site-packages/numpy/core/fromnumeric.py:745: UserWarning: Warning: 'partition' will ignore the 'mask' of the MaskedArray.
-      a.partition(kth, axis=axis, kind=kind, order=order)
     /root/project/opendrift/models/basemodel.py:2828: UserWarning: Tight layout not applied. The left and right margins cannot be made large enough to accommodate all axes decorations. 
       fig.canvas.draw()
 
 
 
 
-.. image:: /gallery/animations/oil_thickness_compare.gif
+.. image:: /gallery/animations/example_oil_thickness_1.gif
 
 
 .. rst-class:: sphx-glr-timing
 
-   **Total running time of the script:** ( 2 minutes  5.665 seconds)
+   **Total running time of the script:** ( 2 minutes  19.232 seconds)
 
 
 .. _sphx_glr_download_gallery_example_oil_thickness.py:
