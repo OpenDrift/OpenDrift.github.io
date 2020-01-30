@@ -193,12 +193,19 @@
     <span class="n">return_block</span> <span class="o">=</span> <span class="kc">False</span>
     <span class="n">variables</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;x_sea_water_velocity&#39;</span><span class="p">,</span> <span class="s1">&#39;y_sea_water_velocity&#39;</span><span class="p">]</span>
 
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">lons</span><span class="p">,</span> <span class="n">lats</span><span class="p">,</span> <span class="n">times</span><span class="p">,</span> <span class="n">wind</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s1">&#39;reader_current_from_drifter&#39;</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">lons</span><span class="p">,</span> <span class="n">lats</span><span class="p">,</span> <span class="n">times</span><span class="p">,</span> <span class="n">wind</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">waves</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">z</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span>
+                 <span class="n">name</span><span class="o">=</span><span class="s1">&#39;reader_current_from_drifter&#39;</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Reconstruct currents from time series of drifter positions&quot;&quot;&quot;</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="n">name</span>
         <span class="n">lons</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">lons</span><span class="p">)</span>
         <span class="n">lats</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">lats</span><span class="p">)</span>
+        <span class="n">valid</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">isfinite</span><span class="p">(</span><span class="n">lons</span><span class="o">+</span><span class="n">lats</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">valid</span><span class="p">)</span> <span class="o">&lt;</span> <span class="nb">len</span><span class="p">(</span><span class="n">lons</span><span class="p">):</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Skipping </span><span class="si">%s</span><span class="s1"> invalid positions&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">lons</span><span class="p">)</span><span class="o">-</span><span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">valid</span><span class="p">)))</span>
+            <span class="n">lons</span> <span class="o">=</span> <span class="n">lons</span><span class="p">[</span><span class="n">valid</span><span class="p">]</span>
+            <span class="n">lats</span> <span class="o">=</span> <span class="n">lats</span><span class="p">[</span><span class="n">valid</span><span class="p">]</span>
+            <span class="n">times</span> <span class="o">=</span> <span class="n">times</span><span class="p">[</span><span class="n">valid</span><span class="p">]</span>
 
         <span class="c1"># Cover whole earth, no validity radius yet</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">proj4</span> <span class="o">=</span> <span class="s1">&#39;+proj=latlong&#39;</span>
@@ -210,7 +217,7 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">times</span> <span class="o">=</span> <span class="n">times</span><span class="p">[</span><span class="mi">0</span><span class="p">:</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">start_time</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">times</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">end_time</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">times</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
-        <span class="c1"># NB: assuming her constant time step</span>
+        <span class="c1"># NB: assuming here constant time step</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">time_step</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">times</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">times</span><span class="p">[</span><span class="o">-</span><span class="mi">2</span><span class="p">]</span>
 
         <span class="n">lon1</span> <span class="o">=</span> <span class="n">lons</span><span class="p">[</span><span class="mi">0</span><span class="p">:</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
@@ -224,49 +231,45 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">azimuth</span><span class="p">,</span> <span class="n">backazimuth</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">dist</span> <span class="o">=</span> \
             <span class="n">g</span><span class="o">.</span><span class="n">inv</span><span class="p">(</span><span class="n">lon1</span><span class="p">,</span> <span class="n">lat1</span><span class="p">,</span> <span class="n">lon2</span><span class="p">,</span> <span class="n">lat2</span><span class="p">,</span> <span class="n">radians</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">speed</span> <span class="o">=</span> <span class="p">[]</span>
-        <span class="nb">print</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">dist</span><span class="p">)</span>
         <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">t</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">dist</span><span class="p">):</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">speed</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">dist</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">/</span>
                               <span class="p">(</span><span class="n">times</span><span class="p">[</span><span class="n">i</span><span class="o">+</span><span class="mi">1</span><span class="p">]</span> <span class="o">-</span> <span class="n">times</span><span class="p">[</span><span class="n">i</span><span class="p">])</span><span class="o">.</span><span class="n">total_seconds</span><span class="p">())</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">speed</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">speed</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">x_sea_water_velocity</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">speed</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">radians</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">azimuth</span><span class="p">))</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">y_sea_water_velocity</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">speed</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">cos</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">radians</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">azimuth</span><span class="p">))</span> 
 
         <span class="c1"># Subtract wind/stokes contribution</span>
-        <span class="c1">#self.x_sea_water_velocity = self.x_sea_water_velocity - 0.01*12</span>
+        <span class="k">if</span> <span class="n">waves</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">ts</span> <span class="o">=</span> <span class="n">waves</span><span class="o">.</span><span class="n">get_timeseries_at_position</span><span class="p">(</span><span class="n">lon</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">lon</span><span class="p">,</span> <span class="n">lat</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">lat</span><span class="p">,</span>
+                    <span class="c1">#start_time=self.start_time, end_time=self.end_time,</span>
+                    <span class="n">times</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">times</span><span class="p">,</span>
+                    <span class="n">variables</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;sea_surface_wave_significant_height&#39;</span><span class="p">,</span>
+                               <span class="s1">&#39;sea_surface_wave_stokes_drift_x_velocity&#39;</span><span class="p">,</span>
+                               <span class="s1">&#39;sea_surface_wave_stokes_drift_y_velocity&#39;</span><span class="p">,</span>
+                               <span class="s1">&#39;sea_surface_wave_mean_period_from_variance_spectral_density_inverse_frequency_moment&#39;</span><span class="p">])</span>
+            <span class="c1"># NB: Stokes drift already rotated to lat-lon axes</span>
 
-        <span class="c1">## Subtract Stokes from Wam </span>
-        <span class="c1">#self.stokes_u = np.ones(self.lon.shape)*0</span>
-        <span class="c1">#self.stokes_v = np.ones(self.lon.shape)*0</span>
-        <span class="c1">#self.red_fac = np.ones(self.lon.shape)*0</span>
-        <span class="c1">#from opendrift.readers import reader_grib</span>
-        <span class="c1">#from opendrift.models.physics_methods import stokes_drift_profile_breivik</span>
-        <span class="c1">#reader_wam = reader_grib.Reader(</span>
-        <span class="c1"># &#39;/vol/hindcast3/nofo_olje_paa_vann_2015/WamOILgeo.grb_20150610_0300&#39;)</span>
+            <span class="k">if</span> <span class="n">z</span> <span class="o">&lt;=</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Calculating Stokes drift at depth of </span><span class="si">%s</span><span class="s1"> m&#39;</span> <span class="o">%</span> <span class="o">-</span><span class="n">z</span><span class="p">)</span>
+                <span class="kn">from</span> <span class="nn">opendrift.models.physics_methods</span> <span class="kn">import</span> <span class="n">stokes_drift_profile_breivik</span>
 
-        <span class="c1">#for i, t in enumerate(self.times[0:-1]):</span>
-        <span class="c1">#    if i == 0:</span>
-        <span class="c1">#        continue</span>
-        <span class="c1">#    var, prof = reader_wam.get_variables_interpolated(variables=</span>
-        <span class="c1">#    [&#39;sea_surface_wave_significant_height&#39;,</span>
-        <span class="c1">#     &#39;sea_surface_wave_stokes_drift_y_velocity&#39;,</span>
-        <span class="c1">#     &#39;sea_surface_wave_period_at_variance_spectral_density_maximum&#39;,</span>
-        <span class="c1">#     &#39;sea_surface_wave_stokes_drift_x_velocity&#39;],</span>
-        <span class="c1">#     time=t, lon=np.atleast_1d(self.lon[i]),</span>
-        <span class="c1">#             lat=np.atleast_1d(self.lat[i]), block=True, z=np.atleast_1d(0))</span>
-        <span class="c1">#             #lat=np.atleast_1d(self.lat[i]), block=True, z=np.array(0))</span>
-        <span class="c1">#    z = -0.64  # Drifter depth</span>
-        <span class="c1">#    #z = -0.3</span>
-        <span class="c1">#    wave_peak_period = var[</span>
-        <span class="c1">#        &#39;sea_surface_wave_period_at_variance_spectral_density_maximum&#39;]</span>
-        <span class="c1">#    self.stokes_u[i], self.stokes_v[i], S = \</span>
-        <span class="c1">#        stokes_drift_profile_breivik(</span>
-        <span class="c1">#            var[&#39;sea_surface_wave_stokes_drift_x_velocity&#39;],</span>
-        <span class="c1">#            var[&#39;sea_surface_wave_stokes_drift_y_velocity&#39;],</span>
-        <span class="c1">#            var[&#39;sea_surface_wave_significant_height&#39;],</span>
-        <span class="c1">#            wave_peak_period, z)  # Should be mean period, not peak</span>
+                <span class="n">wave_peak_period</span> <span class="o">=</span> <span class="n">ts</span><span class="p">[</span>
+                    <span class="s1">&#39;sea_surface_wave_mean_period_from_variance_spectral_density_inverse_frequency_moment&#39;</span><span class="p">]</span>
+                    <span class="c1">#&#39;sea_surface_wave_period_at_variance_spectral_density_maximum&#39;]</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">stokes_u</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">stokes_v</span><span class="p">,</span> <span class="n">S</span> <span class="o">=</span> <span class="n">stokes_drift_profile_breivik</span><span class="p">(</span>
+                    <span class="n">ts</span><span class="p">[</span><span class="s1">&#39;sea_surface_wave_stokes_drift_x_velocity&#39;</span><span class="p">],</span>
+                    <span class="n">ts</span><span class="p">[</span><span class="s1">&#39;sea_surface_wave_stokes_drift_y_velocity&#39;</span><span class="p">],</span>
+                    <span class="n">ts</span><span class="p">[</span><span class="s1">&#39;sea_surface_wave_significant_height&#39;</span><span class="p">],</span>
+                    <span class="n">wave_peak_period</span><span class="p">,</span> <span class="n">z</span><span class="p">)</span>  <span class="c1"># Should be mean period, not peak</span>
 
-        <span class="c1">#self.stokes_u[0] = self.stokes_u[1]</span>
-        <span class="c1">#self.stokes_v[0] = self.stokes_v[1]</span>
+                <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Subtracting Stokes drift from current&#39;</span><span class="p">)</span>
+                <span class="n">stokes_speed</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">stokes_u</span><span class="o">*</span><span class="bp">self</span><span class="o">.</span><span class="n">stokes_u</span><span class="o">+</span><span class="bp">self</span><span class="o">.</span><span class="n">stokes_v</span><span class="o">*</span><span class="bp">self</span><span class="o">.</span><span class="n">stokes_v</span><span class="p">)</span>
+                <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Current in range </span><span class="si">%s</span><span class="s1"> - </span><span class="si">%s</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">speed</span><span class="o">.</span><span class="n">min</span><span class="p">(),</span> <span class="bp">self</span><span class="o">.</span><span class="n">speed</span><span class="o">.</span><span class="n">max</span><span class="p">()))</span>
+                <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Stokesdrift in range </span><span class="si">%s</span><span class="s1"> - </span><span class="si">%s</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">stokes_speed</span><span class="o">.</span><span class="n">min</span><span class="p">(),</span> <span class="n">stokes_speed</span><span class="o">.</span><span class="n">max</span><span class="p">()))</span>
+                <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Stokesdrift fraction in range </span><span class="si">%s</span><span class="s1"> - </span><span class="si">%s</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="p">(</span>
+                        <span class="p">(</span><span class="n">stokes_speed</span><span class="o">/</span><span class="bp">self</span><span class="o">.</span><span class="n">speed</span><span class="p">)</span><span class="o">.</span><span class="n">min</span><span class="p">(),</span> <span class="p">(</span><span class="n">stokes_speed</span><span class="o">/</span><span class="bp">self</span><span class="o">.</span><span class="n">speed</span><span class="p">)</span><span class="o">.</span><span class="n">max</span><span class="p">()))</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">x_sea_water_velocity</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">x_sea_water_velocity</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">stokes_u</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">y_sea_water_velocity</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">y_sea_water_velocity</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">stokes_v</span>
 
         <span class="c1"># Run constructor of parent Reader class</span>
         <span class="nb">super</span><span class="p">(</span><span class="n">Reader</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
@@ -283,18 +286,11 @@
 
         <span class="n">variables</span> <span class="o">=</span> <span class="p">{}</span>
 
-        <span class="k">try</span><span class="p">:</span>
-            <span class="n">stokes_x</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">stokes_u</span><span class="p">[</span><span class="n">indxTime</span><span class="p">]</span>
-            <span class="n">stokes_y</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">stokes_v</span><span class="p">[</span><span class="n">indxTime</span><span class="p">]</span>
-        <span class="k">except</span><span class="p">:</span>
-            <span class="n">stokes_x</span> <span class="o">=</span> <span class="mi">0</span>
-            <span class="n">stokes_y</span> <span class="o">=</span> <span class="mi">0</span>
-
         <span class="n">l</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">ones</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">x</span><span class="p">))</span>
         <span class="n">variables</span><span class="p">[</span><span class="s1">&#39;x_sea_water_velocity&#39;</span><span class="p">]</span> <span class="o">=</span> \
-            <span class="bp">self</span><span class="o">.</span><span class="n">x_sea_water_velocity</span><span class="p">[</span><span class="n">indxTime</span><span class="p">]</span><span class="o">*</span><span class="n">l</span> <span class="o">-</span> <span class="n">stokes_x</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">x_sea_water_velocity</span><span class="p">[</span><span class="n">indxTime</span><span class="p">]</span><span class="o">*</span><span class="n">l</span>
         <span class="n">variables</span><span class="p">[</span><span class="s1">&#39;y_sea_water_velocity&#39;</span><span class="p">]</span> <span class="o">=</span> \
-            <span class="bp">self</span><span class="o">.</span><span class="n">y_sea_water_velocity</span><span class="p">[</span><span class="n">indxTime</span><span class="p">]</span><span class="o">*</span><span class="n">l</span> <span class="o">-</span> <span class="n">stokes_y</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">y_sea_water_velocity</span><span class="p">[</span><span class="n">indxTime</span><span class="p">]</span><span class="o">*</span><span class="n">l</span>
 
         <span class="k">return</span> <span class="n">variables</span></div></div>
 </pre></div>
