@@ -112,12 +112,12 @@
 <li class="toctree-l3"><a class="reference internal" href="../../index.html#package-contents">Package Contents</a></li>
 </ul>
 </li>
-<li class="toctree-l2"><a class="reference internal" href="../../../opendrift_animate/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">opendrift_animate</span></code></a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../../opendrift_gui/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">opendrift_gui</span></code></a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../../readerinfo/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">readerinfo</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../opendrift_animate_profile/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">opendrift_animate_profile</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../opendrift_animate/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">opendrift_animate</span></code></a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../../hodograph/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">hodograph</span></code></a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../../opendrift_plot/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">opendrift_plot</span></code></a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../../opendrift_animate_profile/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">opendrift_animate_profile</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../opendrift_gui/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">opendrift_gui</span></code></a></li>
 </ul>
 </li>
 </ul>
@@ -192,6 +192,18 @@
             
   <div class="section" id="module-opendrift.models.model_template">
 <span id="opendrift-models-model-template"></span><h1><a class="reference internal" href="#module-opendrift.models.model_template" title="opendrift.models.model_template"><code class="xref py py-mod docutils literal notranslate"><span class="pre">opendrift.models.model_template</span></code></a><a class="headerlink" href="#module-opendrift.models.model_template" title="Permalink to this headline">¶</a></h1>
+<p><p>This file is a template for an ocean trajectory model
+to be implemented within the OpenDrift framework.
+To create a new model, make a copy (renamed) of this file, and
+modify the class names and details below, according to the comments.
+See e.g. module windblow.py for a minimalistic example.</p>
+<p>For more help, see <a class="reference external" href="https://github.com/OpenDrift/opendrift/wiki">https://github.com/OpenDrift/opendrift/wiki</a>
+or contact Knut-Frode Dagestad (<a class="reference external" href="mailto:knutfd&#37;&#52;&#48;met&#46;no">knutfd<span>&#64;</span>met<span>&#46;</span>no</a>)
+For usage of the new model, see example scripts (e.g. example.py)</p>
+<p>First we define an element type to be used by the trajectory model.
+An element type (class) may also be imported/reused from
+another module - see examples in the folder “elements”</p>
+</p>
 <div class="section" id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Permalink to this headline">¶</a></h2>
 <dl class="class">
@@ -199,6 +211,11 @@
 <em class="property">class </em><code class="sig-prename descclassname">opendrift.models.model_template.</code><code class="sig-name descname">TemplateElementType</code><a class="reference internal" href="../../../../_modules/opendrift/models/model_template.html#TemplateElementType"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#opendrift.models.model_template.TemplateElementType" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="../../elements/index.html#opendrift.elements.LagrangianArray" title="opendrift.elements.LagrangianArray"><code class="xref py py-class docutils literal notranslate"><span class="pre">opendrift.elements.LagrangianArray</span></code></a></p>
 <p>Extending LagrangianArray with relevant properties.</p>
+<p>Define and name the properties which the elements shall have.
+These are added to the four core properties (ID, lon, lat, z)
+inherited from the basic/generic LagrangianArray class.
+Property names may be freely chosen, but the “update” function (below)
+will refer to the names in the specifications of the processes.</p>
 <dl class="attribute">
 <dt id="opendrift.models.model_template.TemplateElementType.variables">
 <code class="sig-name descname">variables</code><a class="headerlink" href="#opendrift.models.model_template.TemplateElementType.variables" title="Permalink to this definition">¶</a></dt>
@@ -233,6 +250,46 @@ all functionality. More specialised models may also be subclassed.</p>
 <dt id="opendrift.models.model_template.ModelTemplate.update">
 <code class="sig-name descname">update</code><span class="sig-paren">(</span><em class="sig-param">self</em><span class="sig-paren">)</span><a class="reference internal" href="../../../../_modules/opendrift/models/model_template.html#ModelTemplate.update"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#opendrift.models.model_template.ModelTemplate.update" title="Permalink to this definition">¶</a></dt>
 <dd><p>Update positions and properties of particles.</p>
+<p>This function (“update”, may not be renamed) defines
+the actions (processes) to be performed at each time step.
+The default timestep is one hour, but this may be overriden
+by the user (setting model.time_step, see e.g. example.py)</p>
+<p>The elements and corresponding environment information
+(wind, waves, current…) is available to this function as
+the recarrays “elements” and “environment”, respectively.
+Element properties and environvent variables are namedarrays
+of same length (number of active particles), or scalars.</p>
+<p>E.g.:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="bp">self</span><span class="o">.</span><span class="n">elements</span><span class="o">.</span><span class="n">z</span>
+<span class="bp">self</span><span class="o">.</span><span class="n">elements</span><span class="o">.</span><span class="n">mass</span>
+<span class="bp">self</span><span class="o">.</span><span class="n">environment</span><span class="o">.</span><span class="n">x_wind</span>
+<span class="bp">self</span><span class="o">.</span><span class="n">environment</span><span class="o">.</span><span class="n">y_wind</span>
+</pre></div>
+</div>
+<p>E.g. to specify evaporation (mass reduction) proportional to wind speed:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="bp">self</span><span class="o">.</span><span class="n">elements</span><span class="o">.</span><span class="n">mass</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">elements</span><span class="o">.</span><span class="n">mass</span> <span class="o">-</span>                 <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">environment</span><span class="o">.</span><span class="n">x_wind</span><span class="o">**</span><span class="mi">2</span> <span class="o">+</span>                         <span class="bp">self</span><span class="o">.</span><span class="n">environment</span><span class="o">.</span><span class="n">y_wind</span><span class="o">**</span><span class="mi">2</span><span class="p">)</span><span class="o">*.</span><span class="mi">01</span>
+</pre></div>
+</div>
+<p>Horizontal position of the particles (lon, lat) are the
+only properties which should not be modified directly/freely.
+Due to the need to correct for the curvature of the coordinate
+systems, a dedicated function (self.update_positions() should be
+used instead, with x- and y-velocity as arguments:
+E.g. to simply move particles with ambient current:
+self.update_positions(self.environment.x_sea_water_velocity,</p>
+<blockquote>
+<div><p>self.environment.y_sea_water_velocity)</p>
+</div></blockquote>
+<p>E.g. to move particles with 3 percent of the wind speed:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">wind_factor</span> <span class="o">=</span> <span class="mf">0.03</span>
+
+<span class="bp">self</span><span class="o">.</span><span class="n">update_positions</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">environment</span><span class="o">.</span><span class="n">x_wind</span><span class="o">*</span><span class="n">wind_factor</span><span class="p">,</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">environment</span><span class="o">.</span><span class="n">y_wind</span><span class="o">*</span><span class="n">wind_factor</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>If particles need to be deactived (e.g. when hitting land),
+the special function <cite>self.deactivate_elements()</cite> should be used:
+<cite>self.deactivate_elements(self.environment.land_binary_mask==1)</cite></p>
 </dd></dl>
 
 </dd></dl>
