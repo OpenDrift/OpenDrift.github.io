@@ -33,9 +33,9 @@ Module Contents
 
    Particles could be e.g. oil droplets, plankton, or sediments
 
-   Radionuclide functionality include interactions with solid matter 
+   Radionuclide functionality include interactions with solid matter
    (particles and sediments) through transformation processes, implemented
-   with stochastic approach for speciation. 
+   with stochastic approach for speciation.
 
    Under construction.
 
@@ -73,6 +73,7 @@ Module Contents
                dissolved_diameter = float(min=0., max=100.e-6,default=0.)
                particle_diameter = float(min=0., max=100.e-6,default=5.e-6)
                particle_diameter_uncertainty = float(min=0., max=100.e-6, default=1.e-7)
+               activity_per_element = float(min=0., max=1.e18, default=1.)
                [[species]]
                    LMM                        = boolean(default=False)
                    LMMcation                  = boolean(default=False)
@@ -121,7 +122,7 @@ Module Contents
    .. method:: init_transfer_rates(self)
 
 
-      Initialization of background values in the transfer rates 2D array. 
+      Initialization of background values in the transfer rates 2D array.
               
 
 
@@ -143,7 +144,7 @@ Module Contents
    .. method:: update_transfer_rates(self)
 
 
-      Pick out the correct row from transfer_rates for each element. Modify the 
+      Pick out the correct row from transfer_rates for each element. Modify the
       transfer rates according to local environmental conditions 
 
 
@@ -176,15 +177,15 @@ Module Contents
    .. method:: bottom_interaction(self, Zmin=None)
 
 
-      Change speciation of radionuclides that reach bottom due to settling. 
+      Change speciation of radionuclides that reach bottom due to settling.
       particle specie -> sediment specie 
 
 
    .. method:: resuspension(self)
 
 
-      Simple method to estimate the resuspension of sedimented particles, 
-      checking whether the current speed near the bottom is above a critical velocity 
+      Simple method to estimate the resuspension of sedimented particles,
+      checking whether the current speed near the bottom is above a critical velocity
       Sediment species -> Particle specie
 
 
@@ -192,6 +193,28 @@ Module Contents
 
 
       Update positions and properties of radionuclide particles.
+
+
+   .. method:: write_netcdf_radionuclide_density_map(self, filename, pixelsize_m='auto', zlevels=None, deltat=None, density_proj=None, llcrnrlon=None, llcrnrlat=None, urcrnrlon=None, urcrnrlat=None, activity_unit=None, time_avg_conc=False, horizontal_smoothing=False, smoothing_cells=0)
+
+
+      Write netCDF file with map of radionuclide species densities and concentrations
+
+
+   .. method:: get_radionuclide_density_array(self, pixelsize_m, z_array, density_proj=None, llcrnrlon=None, llcrnrlat=None, urcrnrlon=None, urcrnrlat=None, weight=None)
+
+
+      compute a particle concentration map from particle positions
+      Use user defined projection (density_proj=<proj4_string>)
+      or create a lon/lat grid (density_proj=None)
+
+
+   .. method:: get_pixel_mean_depth(self, lons, lats)
+
+
+
+   .. method:: horizontal_smooth(self, a, n=0)
+
 
 
 

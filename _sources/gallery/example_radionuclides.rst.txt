@@ -70,9 +70,9 @@ Radionuclides
 
  .. code-block:: none
 
-    17:03:36 INFO: OpenDriftSimulation initialised (version 1.2.0)
-    17:03:36 INFO: Opening dataset: https://thredds.met.no/thredds/dodsC/sea/norkyst800m/1h/aggregate_be
-    17:03:36 INFO: Opening file with Dataset
+    09:46:49 INFO: OpenDriftSimulation initialised (version 1.2.0)
+    09:46:49 INFO: Opening dataset: https://thredds.met.no/thredds/dodsC/sea/norkyst800m/1h/aggregate_be
+    09:46:49 INFO: Opening file with Dataset
 
 
 
@@ -151,7 +151,8 @@ Print and plot results
         print ('{:32}: {:>6}'.format(sp,sum(o.elements.specie==isp)))
 
     print('Number of transformations:')
-    print (o.ntransformations)
+    for isp in range(o.nspecies):
+        print('{}'.format(['{:>9}'.format(np.int(item)) for item in o.ntransformations[isp,:]]) )
 
     o.animation(color='specie',
                 vmin=0,vmax=o.nspecies-1,
@@ -173,31 +174,31 @@ Print and plot results
     Reader performance:
     --------------------
     https://thredds.met.no/thredds/dodsC/sea/norkyst800m/1h/aggregate_be
-     0:02:00.1  total
+     0:01:33.9  total
      0:00:00.1  preparing
-     0:01:56.0  reading
-     0:00:03.8  interpolation
+     0:01:29.7  reading
+     0:00:03.9  interpolation
      0:00:00.0  interpolation_time
      0:00:00.0  masking
     --------------------
     global_landmask
-     0:00:00.8  total
+     0:00:00.6  total
      0:00:00.0  preparing
-     0:00:00.8  reading
+     0:00:00.6  reading
      0:00:00.0  interpolation_time
      0:00:00.0  masking
     --------------------
     Performance:
-     2:25.2 total time
-        5.3 configuration
-        2.6 preparing main loop
-          2.5 making dynamical landmask
+     1:58.8 total time
+        4.9 configuration
+        2.9 preparing main loop
+          2.8 making dynamical landmask
           0.0 moving elements to ocean
-       2:01.8 readers
-            0.8 global_landmask
+       1:35.5 readers
+            0.6 global_landmask
             0.3 postprocessing
-     2:17.2 main loop
-         2:00.4 https://thredds.met.no/thredds/dodsC/sea/norkyst800m/1h/aggregate_be
+     1:50.8 main loop
+         1:34.2 https://thredds.met.no/thredds/dodsC/sea/norkyst800m/1h/aggregate_be
          14.5 updating elements
             1.4 vertical mixing
         0.0 cleaning up
@@ -231,24 +232,24 @@ Print and plot results
       turbulent_kinetic_energy
 
     Time:
-            Start: 2020-03-02 00:00:00
-            Present: 2020-03-04 00:00:00
+            Start: 2020-03-04 00:00:00
+            Present: 2020-03-06 00:00:00
             Calculation steps: 96 * 0:30:00 - total time: 2 days, 0:00:00
             Output steps: 49 * 1:00:00
     ===========================
 
     Final speciation:
-    LMM                             :   3704
-    Particle reversible             :    278
-    Particle slowly reversible      :     17
-    Sediment reversible             :      1
+    LMM                             :   3699
+    Particle reversible             :    281
+    Particle slowly reversible      :     18
+    Sediment reversible             :      2
     Sediment slowly reversible      :      0
     Number of transformations:
-    [[   0.   13.    0.   12.    0.]
-     [1729.    0.   17.    0.    0.]
-     [   0.    0.    0.    0.    0.]
-     [   0.   11.    0.    0.    0.]
-     [   0.    0.    0.    0.    0.]]
+    ['        0', '       13', '        0', '       10', '        0']
+    ['     1722', '        0', '       18', '        0', '        0']
+    ['        0', '        0', '        0', '        0', '        0']
+    ['        0', '        8', '        0', '        0', '        0']
+    ['        0', '        0', '        0', '        0', '        0']
     /root/project/opendrift/models/basemodel.py:2841: UserWarning: Tight layout not applied. The left and right margins cannot be made large enough to accommodate all axes decorations. 
       fig.canvas.draw()
 
@@ -277,11 +278,17 @@ Print and plot results
 .. code-block:: default
 
 
-    o.plot(linecolor='specie',vmin=0,vmax=o.nspecies-1,fast=True,
-    #       background='land_binary_mask',
-           #background='sea_floor_depth_below_sea_level'
-           )
+    o.plot(linecolor='specie',vmin=0,vmax=o.nspecies-1,fast=True,)
 
+
+
+    # Postprocessing: write to concentration netcdf file
+    o.conc_lat   = reader_norkyst.lat
+    o.conc_lon   = reader_norkyst.lon
+    o.conc_topo  = reader_norkyst.get_variables('sea_floor_depth_below_sea_level',
+                                           x=[reader_norkyst.xmin,reader_norkyst.xmax],
+                                           y=[reader_norkyst.ymin,reader_norkyst.ymax], block=True)['sea_floor_depth_below_sea_level'][:]
+    #o.conc_mask  = reader_norkyst.land_binary_mask
 
 
 
@@ -299,14 +306,26 @@ Print and plot results
     /root/project/opendrift/models/basemodel.py:3260: UserWarning: Tight layout not applied. The left and right margins cannot be made large enough to accommodate all axes decorations. 
       fig.canvas.draw()
 
-    (<cartopy.mpl.geoaxes.GeoAxesSubplot object at 0x7fca81140cd0>, <module 'matplotlib.pyplot' from '/opt/conda/envs/opendrift/lib/python3.8/site-packages/matplotlib/pyplot.py'>)
 
 
+
+.. code:
+
+ o.write_netcdf_radionuclide_density_map('radio_conc.nc', pixelsize_m=200.,
+                                       zlevels=[-2.],
+                                       activity_unit='Bq',
+                                       horizontal_smoothing=True,
+                                       smoothing_cells=1,
+                                       time_avg_conc=True,
+                                       deltat=2., # hours
+                                       llcrnrlon=8.9681, llcrnrlat=58.6627,
+                                       urcrnrlon=9.2772, urcrnrlat=58.7219,
+                                       )
 
 
 .. rst-class:: sphx-glr-timing
 
-   **Total running time of the script:** ( 3 minutes  42.940 seconds)
+   **Total running time of the script:** ( 3 minutes  25.814 seconds)
 
 
 .. _sphx_glr_download_gallery_example_radionuclides.py:
