@@ -184,6 +184,73 @@
 <span class="kn">import</span> <span class="nn">pyproj</span>
 
 
+<div class="viewcode-block" id="oil_wave_entrainment_rate_li2017"><a class="viewcode-back" href="../../../autoapi/opendrift/models/physics_methods/index.html#opendrift.models.physics_methods.oil_wave_entrainment_rate_li2017">[docs]</a><span class="k">def</span> <span class="nf">oil_wave_entrainment_rate_li2017</span><span class="p">(</span><span class="n">dynamical_viscosity</span><span class="p">,</span> <span class="n">oil_density</span><span class="p">,</span> <span class="n">interfacial_tension</span><span class="p">,</span>
+                                     <span class="n">significant_wave_height</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">wave_breaking_fraction</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                                     <span class="n">wind_speed</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">sea_water_density</span><span class="o">=</span><span class="mf">1028.</span><span class="p">):</span>
+    <span class="c1"># Z. Li, M.L. Spaulding, D. French McCay, J. Mar. Pollut. Bull. (2016):</span>
+    <span class="c1"># An algorithm for modeling entrainment and naturally and chemically dispersed</span>
+    <span class="c1"># oil droplet size distribution under surface breaking wave conditions</span>
+    
+    <span class="k">if</span> <span class="n">wave_breaking_fraction</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">wind_speed</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;wave_breaking_fraction or wind_speed must be provided&#39;</span><span class="p">)</span>
+        <span class="n">wave_breaking_fraction</span> <span class="o">=</span> <span class="n">wave_breaking_fraction_from_wind</span><span class="p">(</span><span class="n">wind_speed</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">significant_wave_height</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">wind_speed</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;significant_wave_height or wind_speed must be provided&#39;</span><span class="p">)</span>
+        <span class="n">significant_wave_height</span> <span class="o">=</span> <span class="n">significant_wave_height_from_wind_neumann_pierson</span><span class="p">(</span><span class="n">wind_speed</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="n">wind_speed</span><span class="p">,</span> <span class="n">significant_wave_height</span><span class="p">,</span> <span class="s1">&#39;FFF&#39;</span><span class="p">)</span>
+    <span class="n">g</span> <span class="o">=</span> <span class="mf">9.81</span>
+    <span class="n">delta_rho</span> <span class="o">=</span> <span class="n">sea_water_density</span> <span class="o">-</span> <span class="n">oil_density</span>
+    <span class="n">d_o</span> <span class="o">=</span> <span class="mi">4</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">interfacial_tension</span> <span class="o">/</span> <span class="p">(</span><span class="n">delta_rho</span><span class="o">*</span><span class="n">g</span><span class="p">))</span>
+    <span class="n">we</span> <span class="o">=</span> <span class="n">sea_water_density</span><span class="o">*</span><span class="n">g</span><span class="o">*</span><span class="n">significant_wave_height</span><span class="o">*</span><span class="n">d_o</span><span class="o">/</span><span class="n">interfacial_tension</span>
+    <span class="n">oh</span> <span class="o">=</span> <span class="n">dynamical_viscosity</span><span class="o">/</span><span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">oil_density</span><span class="o">*</span><span class="n">interfacial_tension</span><span class="o">*</span><span class="n">d_o</span><span class="p">)</span>
+    <span class="n">entrainment_rate</span> <span class="o">=</span> <span class="p">(</span><span class="mf">4.604e-10</span><span class="o">*</span><span class="n">we</span><span class="o">**</span><span class="mf">1.805</span><span class="o">*</span><span class="n">oh</span><span class="o">**-</span><span class="mf">1.023</span><span class="p">)</span><span class="o">*</span><span class="n">wave_breaking_fraction</span>
+    <span class="k">return</span> <span class="n">entrainment_rate</span></div>
+
+<div class="viewcode-block" id="oil_wave_entrainment_rate_tkalich2002"><a class="viewcode-back" href="../../../autoapi/opendrift/models/physics_methods/index.html#opendrift.models.physics_methods.oil_wave_entrainment_rate_tkalich2002">[docs]</a><span class="k">def</span> <span class="nf">oil_wave_entrainment_rate_tkalich2002</span><span class="p">(</span><span class="n">wind_speed</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">significant_wave_height</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                                          <span class="n">wave_period</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">entrainment_length_scale</span><span class="o">=.</span><span class="mi">3</span><span class="p">):</span>
+    <span class="n">kb</span> <span class="o">=</span> <span class="mf">0.4</span>
+    <span class="k">if</span> <span class="n">wave_period</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">wind_speed</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;wave_period or wind_speed must be provided&#39;</span><span class="p">)</span>
+        <span class="n">wave_period</span> <span class="o">=</span> <span class="n">wave_period_from_wind</span><span class="p">(</span><span class="n">wind_speed</span><span class="p">)</span>    
+    <span class="k">if</span> <span class="n">significant_wave_height</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">wind_speed</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;significant_wave_height or wind_speed must be provided&#39;</span><span class="p">)</span>
+        <span class="n">significant_wave_height</span> <span class="o">=</span> <span class="n">significant_wave_height_from_wind_neumann_pierson</span><span class="p">(</span><span class="n">wind_speed</span><span class="p">)</span>
+    <span class="n">kb</span> <span class="o">=</span> <span class="mf">0.4</span>
+    <span class="n">alpha</span> <span class="o">=</span> <span class="mf">1.5</span>
+    <span class="n">omega</span> <span class="o">=</span> <span class="p">(</span><span class="mf">2.</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">pi</span><span class="p">)</span><span class="o">/</span><span class="n">wave_period</span>
+    <span class="n">wave_energy</span> <span class="o">=</span> <span class="mf">9.81</span><span class="o">*</span><span class="mi">1028</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">power</span><span class="p">(</span><span class="n">significant_wave_height</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span><span class="o">/</span><span class="mi">16</span>
+    <span class="n">wave_damping_coefficient</span> <span class="o">=</span> <span class="p">(</span><span class="mf">10E-5</span><span class="p">)</span><span class="o">*</span><span class="n">omega</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">power</span><span class="p">(</span><span class="n">wave_energy</span><span class="p">,</span> <span class="mf">0.25</span><span class="p">)</span>
+    <span class="n">entrainment_rate</span> <span class="o">=</span> <span class="n">kb</span><span class="o">*</span><span class="n">omega</span><span class="o">*</span><span class="n">wave_damping_coefficient</span><span class="o">*</span><span class="n">significant_wave_height</span> <span class="o">/</span> <span class="p">(</span>
+                        <span class="mi">16</span><span class="o">*</span><span class="n">alpha</span><span class="o">*</span><span class="n">entrainment_length_scale</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">entrainment_rate</span></div>
+
+<div class="viewcode-block" id="significant_wave_height_from_wind_neumann_pierson"><a class="viewcode-back" href="../../../autoapi/opendrift/models/physics_methods/index.html#opendrift.models.physics_methods.significant_wave_height_from_wind_neumann_pierson">[docs]</a><span class="k">def</span> <span class="nf">significant_wave_height_from_wind_neumann_pierson</span><span class="p">(</span><span class="n">wind_speed</span><span class="p">):</span>
+    <span class="c1"># Neumann and Pierson, 1966</span>
+    <span class="c1"># WMO 1998</span>
+    <span class="k">return</span> <span class="mf">0.0246</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">power</span><span class="p">(</span><span class="n">wind_speed</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="wave_breaking_fraction_from_wind"><a class="viewcode-back" href="../../../autoapi/opendrift/models/physics_methods/index.html#opendrift.models.physics_methods.wave_breaking_fraction_from_wind">[docs]</a><span class="k">def</span> <span class="nf">wave_breaking_fraction_from_wind</span><span class="p">(</span><span class="n">wind_speed</span><span class="p">,</span> <span class="n">wave_period</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="c1"># TODO: We should also have an option here for</span>
+    <span class="c1"># the case when wave height is given, but no wind</span>
+    <span class="k">if</span> <span class="n">wave_period</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">wave_period</span> <span class="o">=</span> <span class="n">wave_period_from_wind</span><span class="p">(</span><span class="n">wind_speed</span><span class="p">)</span>
+    <span class="n">f</span> <span class="o">=</span> <span class="mf">0.032</span><span class="o">*</span><span class="p">(</span><span class="n">wind_speed</span> <span class="o">-</span> <span class="mi">5</span><span class="p">)</span><span class="o">/</span><span class="n">wave_period</span>
+    <span class="n">f</span><span class="p">[</span><span class="n">f</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="k">return</span> <span class="n">f</span></div>
+
+<div class="viewcode-block" id="wave_period_from_wind"><a class="viewcode-back" href="../../../autoapi/opendrift/models/physics_methods/index.html#opendrift.models.physics_methods.wave_period_from_wind">[docs]</a><span class="k">def</span> <span class="nf">wave_period_from_wind</span><span class="p">(</span><span class="n">wind_speed</span><span class="p">):</span>
+    <span class="c1"># Pierson-Moskowitz if period not available from readers</span>
+    <span class="c1"># WMO guide to wave analysis and forecasting pp. 14, WMO (1998)</span>
+    <span class="c1"># fallback value if no wind speed or Hs to avoid division by zero</span>
+    <span class="n">wind_speed</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">atleast_1d</span><span class="p">(</span><span class="n">wind_speed</span><span class="p">)</span>
+    <span class="n">omega</span> <span class="o">=</span> <span class="mi">5</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">ones</span><span class="p">(</span><span class="n">wind_speed</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span>  <span class="c1"># Angular frequency</span>
+    <span class="n">omega</span><span class="p">[</span><span class="n">wind_speed</span><span class="o">&gt;</span><span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="mf">0.877</span><span class="o">*</span><span class="mf">9.81</span><span class="o">/</span><span class="p">(</span><span class="mf">1.17</span><span class="o">*</span><span class="n">wind_speed</span><span class="p">[</span><span class="n">wind_speed</span><span class="o">&gt;</span><span class="mi">0</span><span class="p">])</span>
+    <span class="k">return</span> <span class="mi">2</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">pi</span><span class="o">/</span><span class="n">omega</span></div>
+
 <div class="viewcode-block" id="verticaldiffusivity_Sundby1983"><a class="viewcode-back" href="../../../autoapi/opendrift/models/physics_methods/index.html#opendrift.models.physics_methods.verticaldiffusivity_Sundby1983">[docs]</a><span class="k">def</span> <span class="nf">verticaldiffusivity_Sundby1983</span><span class="p">(</span><span class="n">windspeed</span><span class="p">):</span>
     <span class="sd">&#39;&#39;&#39; Vertical diffusivity from Sundby (1983)</span>
 
