@@ -186,6 +186,7 @@
 
 <span class="kn">from</span> <span class="nn">opendrift.models.openoil</span> <span class="kn">import</span> <span class="n">OpenOil</span><span class="p">,</span> <span class="n">Oil</span>
 <span class="kn">from</span> <span class="nn">opendrift.models.opendrift3D</span> <span class="kn">import</span> <span class="n">OpenDrift3DSimulation</span>
+<span class="kn">from</span> <span class="nn">opendrift.models.physics_methods</span> <span class="kn">import</span> <span class="n">oil_wave_entrainment_rate_li2017</span><span class="p">,</span> <span class="n">oil_wave_entrainment_rate_tkalich2002</span>
 
 <span class="k">try</span><span class="p">:</span>
     <span class="n">basestring</span>
@@ -533,36 +534,21 @@
 <div class="viewcode-block" id="OpenOil3D.oil_wave_entrainment_rate"><a class="viewcode-back" href="../../../autoapi/opendrift/models/openoil3D/index.html#opendrift.models.openoil3D.OpenOil3D.oil_wave_entrainment_rate">[docs]</a>    <span class="k">def</span> <span class="nf">oil_wave_entrainment_rate</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="n">er</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_config</span><span class="p">(</span><span class="s1">&#39;wave_entrainment:entrainment_rate&#39;</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">er</span> <span class="o">==</span> <span class="s1">&#39;Tkalich &amp; Chan (2002)&#39;</span><span class="p">:</span>
-            <span class="n">entrainment_rate</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">oil_wave_entrainment_rate_tkalich2002</span><span class="p">()</span>
+            <span class="c1">#entrainment_rate = self.oil_wave_entrainment_rate_tkalich2002()</span>
+            <span class="n">entrainment_rate</span> <span class="o">=</span> <span class="n">oil_wave_entrainment_rate_tkalich2002</span><span class="p">(</span>
+                    <span class="n">wind_speed</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">wind_speed</span><span class="p">(),</span>
+                    <span class="n">significant_wave_height</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">significant_wave_height</span><span class="p">(),</span>
+                    <span class="n">entrainment_length_scale</span><span class="o">=</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">elements</span><span class="o">.</span><span class="n">entrainment_length_scale</span><span class="p">)</span>
         <span class="k">elif</span> <span class="n">er</span> <span class="o">==</span> <span class="s1">&#39;Li et al. (2017)&#39;</span><span class="p">:</span>
-            <span class="n">entrainment_rate</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">oil_wave_entrainment_rate_li2017</span><span class="p">()</span>
-        <span class="k">return</span> <span class="n">entrainment_rate</span></div>
-
-<div class="viewcode-block" id="OpenOil3D.oil_wave_entrainment_rate_li2017"><a class="viewcode-back" href="../../../autoapi/opendrift/models/openoil3D/index.html#opendrift.models.openoil3D.OpenOil3D.oil_wave_entrainment_rate_li2017">[docs]</a>    <span class="k">def</span> <span class="nf">oil_wave_entrainment_rate_li2017</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="c1"># Z. Li, M.L. Spaulding, D. French McCay, J. Mar. Pollut. Bull. (2016):</span>
-        <span class="c1"># An algorithm for modeling entrainment and naturally and chemically dispersed</span>
-        <span class="c1"># oil droplet size distribution under surface breaking wave conditions</span>
-        <span class="n">g</span> <span class="o">=</span> <span class="mf">9.81</span>
-        <span class="n">interfacial_tension</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">oil_water_interfacial_tension</span>
-        <span class="n">delta_rho</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">sea_water_density</span><span class="p">()</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">elements</span><span class="o">.</span><span class="n">density</span>
-        <span class="n">d_o</span> <span class="o">=</span> <span class="mi">4</span> <span class="o">*</span> <span class="p">(</span><span class="n">interfacial_tension</span> <span class="o">/</span> <span class="p">(</span><span class="n">delta_rho</span><span class="o">*</span><span class="n">g</span><span class="p">))</span><span class="o">**</span><span class="mf">0.5</span>
-        <span class="n">we</span> <span class="o">=</span> <span class="p">(</span> <span class="bp">self</span><span class="o">.</span><span class="n">sea_water_density</span><span class="p">()</span> <span class="o">*</span> <span class="n">g</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">significant_wave_height</span><span class="p">()</span> <span class="o">*</span> <span class="n">d_o</span> <span class="p">)</span> <span class="o">/</span> <span class="n">interfacial_tension</span>
-        <span class="n">oh</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">elements</span><span class="o">.</span><span class="n">viscosity</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">elements</span><span class="o">.</span><span class="n">density</span> <span class="o">*</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">elements</span><span class="o">.</span><span class="n">density</span> <span class="o">*</span> <span class="n">interfacial_tension</span> <span class="o">*</span> <span class="n">d_o</span> <span class="p">)</span><span class="o">**-</span><span class="mf">0.5</span> <span class="c1"># From kin. to dyn. viscosity by * density</span>
-        <span class="n">entrainment_rate</span> <span class="o">=</span> <span class="mf">4.604e-10</span> <span class="o">*</span> <span class="n">we</span><span class="o">**</span><span class="mf">1.805</span> <span class="o">*</span><span class="n">oh</span><span class="o">**-</span><span class="mf">1.023</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">sea_surface_wave_breaking_fraction</span><span class="p">()</span>
-        <span class="k">return</span> <span class="n">entrainment_rate</span></div>
-
-<div class="viewcode-block" id="OpenOil3D.oil_wave_entrainment_rate_tkalich2002"><a class="viewcode-back" href="../../../autoapi/opendrift/models/openoil3D/index.html#opendrift.models.openoil3D.OpenOil3D.oil_wave_entrainment_rate_tkalich2002">[docs]</a>    <span class="k">def</span> <span class="nf">oil_wave_entrainment_rate_tkalich2002</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="c1"># Tkalich P. and Chan E.S.  </span>
-        <span class="c1"># Vertical mixing of oil droplets by breaking waves</span>
-        <span class="c1"># Marine Pollution Bulletin. 2002, V.44 (11), pp. 1219-1229</span>
-        <span class="n">kb</span> <span class="o">=</span> <span class="mf">0.4</span>
-        <span class="n">omega</span> <span class="o">=</span> <span class="p">(</span><span class="mf">2.</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">pi</span><span class="p">)</span><span class="o">/</span><span class="bp">self</span><span class="o">.</span><span class="n">wave_period</span><span class="p">()</span>
-        <span class="n">gamma</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">wave_damping_coefficient</span><span class="p">()</span>
-        <span class="n">alpha</span> <span class="o">=</span> <span class="mf">1.5</span>
-        <span class="n">Low</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">elements</span><span class="o">.</span><span class="n">entrainment_length_scale</span>
-        <span class="n">entrainment_rate</span> <span class="o">=</span> \
-            <span class="n">kb</span><span class="o">*</span><span class="n">omega</span><span class="o">*</span><span class="n">gamma</span><span class="o">*</span><span class="bp">self</span><span class="o">.</span><span class="n">significant_wave_height</span><span class="p">()</span> <span class="o">/</span> \
-            <span class="p">(</span><span class="mi">16</span><span class="o">*</span><span class="n">alpha</span><span class="o">*</span><span class="n">Low</span><span class="p">)</span>
+            <span class="n">entrainment_rate</span> <span class="o">=</span> <span class="n">oil_wave_entrainment_rate_li2017</span><span class="p">(</span>
+                    <span class="n">dynamical_viscosity</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">elements</span><span class="o">.</span><span class="n">viscosity</span><span class="o">*</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">elements</span><span class="o">.</span><span class="n">density</span><span class="p">,</span>
+                    <span class="n">oil_density</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">elements</span><span class="o">.</span><span class="n">density</span><span class="p">,</span>
+                    <span class="n">interfacial_tension</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">oil_water_interfacial_tension</span><span class="p">,</span>
+                    <span class="n">significant_wave_height</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">significant_wave_height</span><span class="p">(),</span>
+                    <span class="n">wave_breaking_fraction</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">sea_surface_wave_breaking_fraction</span><span class="p">(),</span>
+                    <span class="n">sea_water_density</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">sea_water_density</span><span class="p">())</span>
         <span class="k">return</span> <span class="n">entrainment_rate</span></div>
 
 <div class="viewcode-block" id="OpenOil3D.prepare_vertical_mixing"><a class="viewcode-back" href="../../../autoapi/opendrift/models/openoil3D/index.html#opendrift.models.openoil3D.OpenOil3D.prepare_vertical_mixing">[docs]</a>    <span class="k">def</span> <span class="nf">prepare_vertical_mixing</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
