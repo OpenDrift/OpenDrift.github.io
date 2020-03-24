@@ -33,8 +33,13 @@ Oil entrainment rate
     colors = ['b', 'g', 'r']
     lstyles = ['-', '-.']
 
+    ax = plt.subplot(1,1,1)
 
 
+
+
+.. image:: /gallery/images/sphx_glr_example_oil_entrainment_rate_001.png
+    :class: sphx-glr-single-img
 
 
 
@@ -49,27 +54,27 @@ for 3 wind speeds
     for wind, color in zip([6, 10, 15], colors):
 
         #%% Entrainment rate from Li (2017)
-        for ift, ls in zip([.003, .03], lstyles):
+        for ift, ls in zip([.003, 10], lstyles):
             r = oil_wave_entrainment_rate_li2017(
-                    dynamical_viscosity=vis, oil_density=950, interfacial_tension=ift,
+                    dynamic_viscosity=vis, oil_density=950, interfacial_tension=ift,
                     wind_speed=wind)
             #%% from instantaneous rate (s-1) we calculate the probability of entrainment within one hour:
             p1h = 1-np.exp(-3600*r)
-            plt.plot(vis, p1h, color+ls, label='Li(2017), %s m/s wind, IFT: %s' % (wind, ift))
+            ax.plot(vis, p1h, color+ls, label='Li(2017), %s m/s wind, IFT: %s' % (wind, ift))
 
         #%% Entrainment rate from Tkalich (2002)
         r = oil_wave_entrainment_rate_tkalich2002(wind_speed=wind)
         p1h = 1-np.exp(-3600*r)*np.ones(vis.shape)
-        plt.plot(vis, p1h, color + '.', label='Tkalich, wind = %s m/s' % wind)
+        ax.plot(vis, p1h, color + '.', label='Tkalich, wind = %s m/s' % wind)
 
-    plt.ylabel('Fraction entrained in 1 hour')
-    plt.xlabel('Dynamical viscosity [Stokes]')
     plt.legend()
-    plt.show()
+    ax.set_xlim(vis.min(), vis.max())
+    ax.set_ylim(0, 1.05)
 
 
 
-.. image:: /gallery/images/sphx_glr_example_oil_entrainment_rate_001.png
+
+.. image:: /gallery/images/sphx_glr_example_oil_entrainment_rate_002.png
     :class: sphx-glr-single-img
 
 
@@ -79,18 +84,29 @@ for 3 wind speeds
 
  .. code-block:: none
 
-    /root/project/opendrift/models/physics_methods.py:42: RuntimeWarning: divide by zero encountered in power
-      entrainment_rate = (4.604e-10*we**1.805*oh**-1.023)*wave_breaking_fraction
-    /root/project/opendrift/models/physics_methods.py:42: RuntimeWarning: divide by zero encountered in power
-      entrainment_rate = (4.604e-10*we**1.805*oh**-1.023)*wave_breaking_fraction
-    /root/project/opendrift/models/physics_methods.py:42: RuntimeWarning: divide by zero encountered in power
-      entrainment_rate = (4.604e-10*we**1.805*oh**-1.023)*wave_breaking_fraction
-    /root/project/opendrift/models/physics_methods.py:42: RuntimeWarning: divide by zero encountered in power
-      entrainment_rate = (4.604e-10*we**1.805*oh**-1.023)*wave_breaking_fraction
-    /root/project/opendrift/models/physics_methods.py:42: RuntimeWarning: divide by zero encountered in power
-      entrainment_rate = (4.604e-10*we**1.805*oh**-1.023)*wave_breaking_fraction
-    /root/project/opendrift/models/physics_methods.py:42: RuntimeWarning: divide by zero encountered in power
-      entrainment_rate = (4.604e-10*we**1.805*oh**-1.023)*wave_breaking_fraction
+
+    (0.0, 1.05)
+
+
+
+Make second x-axis showing viscosity in Centipoise
+
+
+.. code-block:: default
+
+    ax2 = ax.twiny()
+    x1, x2 = ax.get_xlim()
+    ax2.set_xlim(1000*x1, 1000*x2)
+    ax2.figure.canvas.draw()
+    ax2.set_xlabel('Dynamic viscosity [Centipoise]')
+
+    ax.set_ylabel('Fraction entrained in 1 hour')
+    ax.set_xlabel('Dynamic viscosity [Pa*s] / [kg/ms]')
+
+    plt.show()
+
+
+
 
 
 
@@ -98,7 +114,7 @@ for 3 wind speeds
 
 .. rst-class:: sphx-glr-timing
 
-   **Total running time of the script:** ( 0 minutes  0.121 seconds)
+   **Total running time of the script:** ( 0 minutes  0.290 seconds)
 
 
 .. _sphx_glr_download_gallery_example_oil_entrainment_rate.py:
