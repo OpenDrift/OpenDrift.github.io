@@ -2375,6 +2375,15 @@
                 <span class="c1"># Release elements</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">release_elements</span><span class="p">()</span>
 
+                <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">num_elements_active</span><span class="p">()</span> <span class="o">==</span> <span class="mi">0</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">num_elements_scheduled</span><span class="p">()</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">steps_calculation</span> <span class="o">+=</span> <span class="mi">1</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s1">&#39;No active but </span><span class="si">%s</span><span class="s1"> scheduled elements, skipping timestep </span><span class="si">%s</span><span class="s1"> (</span><span class="si">%s</span><span class="s1">)&#39;</span>
+                                     <span class="o">%</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">num_elements_scheduled</span><span class="p">(),</span> <span class="bp">self</span><span class="o">.</span><span class="n">steps_calculation</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">time</span><span class="p">))</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">state_to_buffer</span><span class="p">()</span>  <span class="c1"># Append status to history array</span>
+                    <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">time</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">time</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">time</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">time_step</span>
+                    <span class="k">continue</span>
+
                 <span class="bp">self</span><span class="o">.</span><span class="n">increase_age_and_retire</span><span class="p">()</span>
 
                 <span class="bp">self</span><span class="o">.</span><span class="n">lift_elements_to_seafloor</span><span class="p">()</span>  <span class="c1"># If seafloor is penetrated</span>
