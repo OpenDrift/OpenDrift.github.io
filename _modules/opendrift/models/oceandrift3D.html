@@ -180,12 +180,11 @@
 <span class="c1"># Copyright 2015, Knut-Frode Dagestad, MET Norway</span>
 
 <span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
-<span class="kn">from</span> <span class="nn">opendrift.models.opendrift3D</span> <span class="kn">import</span> <span class="n">OpenDrift3DSimulation</span>
+<span class="kn">from</span> <span class="nn">opendrift.models.opendrift3D</span> <span class="kn">import</span> <span class="n">OpenDrift3DSimulation</span><span class="p">,</span> <span class="n">Lagrangian3DArray</span>
 <span class="kn">from</span> <span class="nn">opendrift.models.oceandrift</span> <span class="kn">import</span> <span class="n">OceanDrift</span>
-<span class="kn">from</span> <span class="nn">opendrift.elements.passivetracer</span> <span class="kn">import</span> <span class="n">PassiveTracer</span>
 
 <span class="c1"># We add the property &#39;wind_drift_factor&#39; to the element class</span>
-<span class="n">PassiveTracer</span><span class="o">.</span><span class="n">variables</span> <span class="o">=</span> <span class="n">PassiveTracer</span><span class="o">.</span><span class="n">add_variables</span><span class="p">([</span>
+<span class="n">Lagrangian3DArray</span><span class="o">.</span><span class="n">variables</span> <span class="o">=</span> <span class="n">Lagrangian3DArray</span><span class="o">.</span><span class="n">add_variables</span><span class="p">([</span>
                             <span class="p">(</span><span class="s1">&#39;wind_drift_factor&#39;</span><span class="p">,</span> <span class="p">{</span><span class="s1">&#39;dtype&#39;</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">float32</span><span class="p">,</span>
                                                    <span class="s1">&#39;unit&#39;</span><span class="p">:</span> <span class="s1">&#39;%&#39;</span><span class="p">,</span>
                                                    <span class="s1">&#39;default&#39;</span><span class="p">:</span> <span class="mf">0.0</span><span class="p">})])</span>
@@ -201,7 +200,7 @@
 
 <span class="sd">    &quot;&quot;&quot;</span>
 
-    <span class="n">ElementType</span> <span class="o">=</span> <span class="n">PassiveTracer</span>
+    <span class="n">ElementType</span> <span class="o">=</span> <span class="n">Lagrangian3DArray</span>
     <span class="n">required_variables</span> <span class="o">=</span> <span class="p">[</span>
         <span class="s1">&#39;x_sea_water_velocity&#39;</span><span class="p">,</span>
         <span class="s1">&#39;y_sea_water_velocity&#39;</span><span class="p">,</span>
@@ -279,6 +278,8 @@
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_config</span><span class="p">(</span><span class="s1">&#39;processes:turbulentmixing&#39;</span><span class="p">)</span> <span class="ow">is</span> <span class="kc">True</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">update_terminal_velocity</span><span class="p">()</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">vertical_mixing</span><span class="p">()</span>
+        <span class="k">else</span><span class="p">:</span>  <span class="c1"># Buoyancy</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">vertical_buoyancy</span><span class="p">()</span>
 
         <span class="c1"># Vertical advection</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">vertical_advection</span><span class="p">()</span></div></div>
