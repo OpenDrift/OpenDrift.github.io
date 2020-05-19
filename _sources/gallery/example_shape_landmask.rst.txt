@@ -1,0 +1,278 @@
+.. only:: html
+
+    .. note::
+        :class: sphx-glr-download-link-note
+
+        Click :ref:`here <sphx_glr_download_gallery_example_shape_landmask.py>`     to download the full example code
+    .. rst-class:: sphx-glr-example-title
+
+    .. _sphx_glr_gallery_example_shape_landmask.py:
+
+
+Use a shapefile as landmask
+===========================
+
+
+.. code-block:: default
+
+
+    import numpy as np
+    import matplotlib.pyplot as plt
+    import cartopy.crs as ccrs
+    import cartopy.feature as cfeature
+    from opendrift.readers import reader_netCDF_CF_generic
+    from opendrift.readers import reader_ROMS_native
+    from opendrift.readers import reader_shape
+    from opendrift.models.oceandrift import OceanDrift
+
+    o = OceanDrift(loglevel=0)  # Set loglevel to 0 for debug information
+    o.max_speed = 3
+
+    # This example works better using hourly input from Thredds than the daily data from test folder
+    reader_nordic = reader_netCDF_CF_generic.Reader('https://thredds.met.no/thredds/dodsC/sea/nordic4km/zdepths1h/aggregate_be')
+
+
+
+
+
+.. rst-class:: sphx-glr-script-out
+
+ Out:
+
+ .. code-block:: none
+
+    10:31:32 INFO: OpenDriftSimulation initialised (version 1.2.1)
+    10:31:32 INFO: Opening dataset: https://thredds.met.no/thredds/dodsC/sea/nordic4km/zdepths1h/aggregate_be
+    10:31:32 INFO: Opening file with Dataset
+    10:31:34 DEBUG: Finding coordinate variables.
+    10:31:34 DEBUG: Parsing variable: X
+    10:31:34 DEBUG: Parsing variable: Y
+    10:31:34 DEBUG: Parsing variable: depth
+    10:31:34 DEBUG: Parsing variable: forecast_reference_time
+    10:31:34 DEBUG: Parsing variable: hc
+    10:31:34 DEBUG: Parsing variable: polar_stereographic
+    10:31:34 DEBUG: Parsing CF grid mapping dictionary: {'grid_mapping_name': 'polar_stereographic', 'scale_factor_at_projection_origin': 0.9330127018922193, 'straight_vertical_longitude_from_pole': 58.0, 'latitude_of_projection_origin': 90.0, 'earth_radius': 6371000.0, 'proj4': '+proj=stere +lat_0=90 +lon_0=58 +lat_ts=60 +units=m +a=6.371e+06 +e=0 +no_defs'}
+    10:31:34 DEBUG: Parsing variable: time
+    10:31:35 DEBUG: Parsing variable: h
+    10:31:35 DEBUG: Parsing variable: latitude
+    10:31:36 DEBUG: Parsing variable: longitude
+    10:31:36 DEBUG: Parsing variable: mask
+    10:31:36 DEBUG: Parsing variable: aice
+    10:31:36 DEBUG: Parsing variable: hice
+    10:31:36 DEBUG: Parsing variable: salinity
+    10:31:36 DEBUG: Parsing variable: temperature
+    10:31:36 DEBUG: Parsing variable: u
+    10:31:36 DEBUG: Parsing variable: ubar
+    10:31:36 DEBUG: Parsing variable: v
+    10:31:36 DEBUG: Parsing variable: vbar
+    10:31:36 DEBUG: Parsing variable: zeta
+    10:31:36 DEBUG: Setting buffer size 7 for reader https://thredds.met.no/thredds/dodsC/sea/nordic4km/zdepths1h/aggregate_be, assuming a maximum average speed of 5 m/s.
+    10:31:36 DEBUG: Adding new variable mappings
+    10:31:36 DEBUG: Adding method!
+
+
+
+
+Use shapes from Cartopy for tests. These shapefiles are less acurate than those
+provided by the GSHHS dataset (available though the reader_global_landmask reader).
+
+
+.. code-block:: default
+
+    import cartopy.io.shapereader as shpreader
+    shpfilename = shpreader.natural_earth(resolution='110m',
+                                        category='cultural',
+                                        name='admin_0_countries')
+    reader_natural = reader_shape.Reader.from_shpfiles(shpfilename)
+    #reader_nordic = reader_ROMS_native.Reader(o.test_data_folder() +
+    #    '2Feb2016_Nordic_sigma_3d/Nordic-4km_SLEVELS_avg_00_subset2Feb2016.nc')
+
+    o.add_reader([reader_natural, reader_nordic])
+    o.set_config('general:use_auto_landmask', False)
+    o.set_config('general:coastline_action', 'stranding')
+
+
+
+
+
+.. rst-class:: sphx-glr-script-out
+
+ Out:
+
+ .. code-block:: none
+
+    /opt/conda/envs/opendrift/lib/python3.8/site-packages/cartopy/io/__init__.py:260: DownloadWarning: Downloading: https://naciscdn.org/naturalearth/110m/cultural/ne_110m_admin_0_countries.zip
+      warnings.warn('Downloading: {}'.format(url), DownloadWarning)
+
+
+
+
+Seeding elements on a grid
+
+
+.. code-block:: default
+
+    lons = np.linspace(12, 14.5, 30)
+    lats = np.linspace(67.5, 68.5, 30)
+    lons, lats = np.meshgrid(lons, lats)
+    lon = lons.ravel()
+    lat = lats.ravel()
+
+    time = reader_nordic.start_time
+    o.seed_elements(lon, lat, radius=0, number=30*30, time=time)
+
+    o.run(steps=48*2, time_step=3600)
+
+
+
+
+
+
+
+
+Print and plot results
+
+
+.. code-block:: default
+
+    print(o)
+    ax, _ = o.plot(hide_landmask = True, show = False)
+
+
+
+
+.. image:: /gallery/images/sphx_glr_example_shape_landmask_001.png
+    :class: sphx-glr-single-img
+
+
+.. rst-class:: sphx-glr-script-out
+
+ Out:
+
+ .. code-block:: none
+
+    ===========================
+    --------------------
+    Reader performance:
+    --------------------
+    shape
+     0:00:00.2  total
+     0:00:00.0  preparing
+     0:00:00.2  reading
+     0:00:00.0  interpolation_time
+     0:00:00.0  masking
+    --------------------
+    https://thredds.met.no/thredds/dodsC/sea/nordic4km/zdepths1h/aggregate_be
+     0:00:35.8  total
+     0:00:00.0  preparing
+     0:00:31.8  reading
+     0:00:00.3  interpolation
+     0:00:00.0  interpolation_time
+     0:00:03.5  rotating vectors
+     0:00:00.0  masking
+    --------------------
+    Performance:
+       41.4 total time
+        4.5 configuration
+        0.0 preparing main loop
+          0.0 moving elements to ocean
+         36.4 readers
+            0.2 shape
+            0.1 postprocessing
+       36.7 main loop
+           35.8 https://thredds.met.no/thredds/dodsC/sea/nordic4km/zdepths1h/aggregate_be
+          0.0 updating elements
+        0.0 cleaning up
+    --------------------
+    ===========================
+    Model:  OceanDrift     (OpenDrift version 1.2.1)
+            890 active PassiveTracer particles  (10 deactivated, 0 scheduled)
+    Projection: +proj=lonlat +ellps=WGS84
+    -------------------
+    Environment variables:
+      -----
+      land_binary_mask
+         1) shape
+      -----
+      x_sea_water_velocity
+      y_sea_water_velocity
+         1) https://thredds.met.no/thredds/dodsC/sea/nordic4km/zdepths1h/aggregate_be
+      -----
+    Readers not added for the following variables:
+      x_wind
+      y_wind
+
+    Time:
+            Start: 2016-09-19 00:30:00
+            Present: 2016-09-23 00:30:00
+            Calculation steps: 96 * 1:00:00 - total time: 4 days, 0:00:00
+            Output steps: 97 * 1:00:00
+    ===========================
+
+    /opt/conda/envs/opendrift/lib/python3.8/site-packages/cartopy/mpl/gridliner.py:307: UserWarning: The .xlabels_top attribute is deprecated. Please use .top_labels to toggle visibility instead.
+      warnings.warn('The .xlabels_top attribute is deprecated. Please '
+
+
+
+
+Show shapes
+
+
+.. code-block:: default
+
+    ax.add_geometries(reader_natural.polys, ccrs.PlateCarree(), facecolor=cfeature.COLORS['land'], edgecolor='black')
+    plt.show()
+
+    o.animation()
+
+
+
+
+.. rst-class:: sphx-glr-script-out
+
+ Out:
+
+ .. code-block:: none
+
+    /opt/conda/envs/opendrift/lib/python3.8/site-packages/cartopy/mpl/gridliner.py:307: UserWarning: The .xlabels_top attribute is deprecated. Please use .top_labels to toggle visibility instead.
+      warnings.warn('The .xlabels_top attribute is deprecated. Please '
+    /opt/conda/envs/opendrift/lib/python3.8/site-packages/cartopy/mpl/geoaxes.py:1546: MatplotlibDeprecationWarning: Using a string of single character colors as a color sequence is deprecated. Use an explicit list instead.
+      result = matplotlib.axes.Axes.scatter(self, *args, **kwargs)
+
+
+
+
+.. image:: /gallery/animations/example_shape_landmask_0.gif
+
+
+.. rst-class:: sphx-glr-timing
+
+   **Total running time of the script:** ( 5 minutes  38.241 seconds)
+
+
+.. _sphx_glr_download_gallery_example_shape_landmask.py:
+
+
+.. only :: html
+
+ .. container:: sphx-glr-footer
+    :class: sphx-glr-footer-example
+
+
+
+  .. container:: sphx-glr-download sphx-glr-download-python
+
+     :download:`Download Python source code: example_shape_landmask.py <example_shape_landmask.py>`
+
+
+
+  .. container:: sphx-glr-download sphx-glr-download-jupyter
+
+     :download:`Download Jupyter notebook: example_shape_landmask.ipynb <example_shape_landmask.ipynb>`
+
+
+.. only:: html
+
+ .. rst-class:: sphx-glr-signature
+
+    `Gallery generated by Sphinx-Gallery <https://sphinx-gallery.github.io>`_
