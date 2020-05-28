@@ -220,7 +220,6 @@
 <span class="kn">from</span> <span class="nn">opendrift.elements.elements</span> <span class="kn">import</span> <span class="n">LagrangianArray</span>
 <span class="kn">from</span> <span class="nn">opendrift.readers.basereader</span> <span class="kn">import</span> <span class="n">BaseReader</span>
 
-
 <span class="c1"># Defining the iceberg element properties</span>
 <div class="viewcode-block" id="IcebergObj"><a class="viewcode-back" href="../../../autoapi/opendrift/models/openberg/index.html#opendrift.models.openberg.IcebergObj">[docs]</a><span class="k">class</span> <span class="nc">IcebergObj</span><span class="p">(</span><span class="n">LagrangianArray</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Extending LagrangianArray with variables relevant for iceberg objects.</span>
@@ -237,7 +236,7 @@
                        	        	<span class="s1">&#39;default&#39;</span><span class="p">:</span> <span class="mf">90.5</span><span class="p">}),</span>
         <span class="p">(</span><span class="s1">&#39;keel_depth&#39;</span><span class="p">,</span> <span class="p">{</span><span class="s1">&#39;dtype&#39;</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">float32</span><span class="p">,</span>					<span class="c1"># Iceberg keel depth</span>
         							<span class="s1">&#39;unit&#39;</span><span class="p">:</span> <span class="s1">&#39;m&#39;</span><span class="p">,</span>
-                       	        	<span class="s1">&#39;default&#39;</span><span class="p">:</span> <span class="mi">60</span><span class="p">})])</span></div>
+                       	        	<span class="s1">&#39;default&#39;</span><span class="p">:</span> <span class="mf">60.</span><span class="p">})])</span></div>
 
 <div class="viewcode-block" id="OpenBerg"><a class="viewcode-back" href="../../../autoapi/opendrift/models/openberg/index.html#opendrift.models.openberg.OpenBerg">[docs]</a><span class="k">class</span> <span class="nc">OpenBerg</span><span class="p">(</span><span class="n">OpenDriftSimulation</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;The Deterministic iceberg model in the OpenDrift framework.</span>
@@ -262,9 +261,15 @@
     <span class="n">status_colors</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;initial&#39;</span><span class="p">:</span> <span class="s1">&#39;green&#39;</span><span class="p">,</span> <span class="s1">&#39;active&#39;</span><span class="p">:</span> <span class="s1">&#39;red&#39;</span><span class="p">,</span>
                      <span class="s1">&#39;missing_data&#39;</span><span class="p">:</span> <span class="s1">&#39;gray&#39;</span><span class="p">,</span> <span class="s1">&#39;stranded&#39;</span><span class="p">:</span> <span class="s1">&#39;blue&#39;</span><span class="p">}</span>
 
+    <span class="n">configspec</span> <span class="o">=</span> <span class="s1">&#39;&#39;&#39;</span>
+<span class="s1">        [seed]</span>
+<span class="s1">            wind_drift_factor = float(min=0, max=1, default=0.018)</span>
+<span class="s1">            water_line_length = float(min=0.1, max=99999, default=90.5)</span>
+<span class="s1">            keel_depth = float(min=.1, max=10000, default=60.0)</span>
+<span class="s1">        &#39;&#39;&#39;</span>
+
     <span class="c1"># Configuration</span>
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">d</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
-
         <span class="bp">self</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="s1">&#39;OpenBerg&#39;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">label</span><span class="o">=</span><span class="n">label</span>
 
@@ -275,7 +280,14 @@
 
         <span class="c1"># Calling general constructor of parent class</span>
         <span class="nb">super</span><span class="p">(</span><span class="n">OpenBerg</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_add_configstring</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">configspec</span><span class="p">)</span>
 
+<div class="viewcode-block" id="OpenBerg.seed_elements"><a class="viewcode-back" href="../../../autoapi/opendrift/models/openberg/index.html#opendrift.models.openberg.OpenBerg.seed_elements">[docs]</a>    <span class="k">def</span> <span class="nf">seed_elements</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="k">for</span> <span class="n">var</span> <span class="ow">in</span> <span class="p">[</span><span class="s1">&#39;wind_drift_factor&#39;</span><span class="p">,</span> <span class="s1">&#39;water_line_length&#39;</span><span class="p">,</span> <span class="s1">&#39;keel_depth&#39;</span><span class="p">]:</span>
+            <span class="k">if</span> <span class="n">var</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">kwargs</span><span class="p">:</span>
+                <span class="n">kwargs</span><span class="p">[</span><span class="n">var</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_config</span><span class="p">(</span><span class="s1">&#39;seed:&#39;</span> <span class="o">+</span> <span class="n">var</span><span class="p">)</span>
+
+        <span class="nb">super</span><span class="p">(</span><span class="n">OpenBerg</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">seed_elements</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="OpenBerg.update"><a class="viewcode-back" href="../../../autoapi/opendrift/models/openberg/index.html#opendrift.models.openberg.OpenBerg.update">[docs]</a>    <span class="k">def</span> <span class="nf">update</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Update positions and properties of icebergs.&quot;&quot;&quot;</span>
@@ -414,14 +426,12 @@
     	<span class="n">area_list</span><span class="o">=</span><span class="p">[]</span>
 
     	<span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="n">d</span><span class="p">):</span>
-
     		<span class="n">A</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">lin_func</span><span class="p">(</span><span class="n">a_param</span><span class="p">[</span><span class="n">i</span><span class="p">],</span><span class="n">b_param</span><span class="p">[</span><span class="n">i</span><span class="p">],</span><span class="n">water_line_length</span><span class="p">)</span>
     		<span class="n">area_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">A</span><span class="p">)</span>
 
     	<span class="n">A_list</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">area_list</span><span class="p">)</span>
 
     	<span class="c1"># Normalize array such that it sums to 1:</span>
-
     	<span class="n">weigthing_array</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">area_list</span><span class="p">)</span><span class="o">/</span><span class="nb">sum</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">area_list</span><span class="p">))</span>
 
     	<span class="k">return</span> <span class="n">weigthing_array</span></div>
