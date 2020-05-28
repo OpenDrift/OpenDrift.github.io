@@ -112,11 +112,11 @@
 <li class="toctree-l3"><a class="reference internal" href="../index.html#package-contents">Package Contents</a></li>
 </ul>
 </li>
-<li class="toctree-l2"><a class="reference internal" href="../../readerinfo/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">readerinfo</span></code></a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../hodograph/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">hodograph</span></code></a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../opendrift_animate_profile/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">opendrift_animate_profile</span></code></a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../opendrift_plot/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">opendrift_plot</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../readerinfo/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">readerinfo</span></code></a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../opendrift_animate/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">opendrift_animate</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../opendrift_animate_profile/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">opendrift_animate_profile</span></code></a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../opendrift_gui/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">opendrift_gui</span></code></a></li>
 </ul>
 </li>
@@ -190,6 +190,64 @@
             
   <div class="section" id="module-opendrift.elements">
 <span id="opendrift-elements"></span><h1><a class="reference internal" href="#module-opendrift.elements" title="opendrift.elements"><code class="xref py py-mod docutils literal notranslate"><span class="pre">opendrift.elements</span></code></a><a class="headerlink" href="#module-opendrift.elements" title="Permalink to this headline">¶</a></h1>
+<p><div class="section" id="elements-lagrangianarray">
+<p>This module defines the fundamental class ‘LagrangianArray’</p>
+<p>The LagrangianArray class holds a dictionary (OrderedDict) defining the variables (properties) of an element.</p>
+<p>The variables are defined by:</p>
+<blockquote>
+<div><ul class="simple">
+<li><p>name</p></li>
+<li><p>dtype (typically numpy.float32)</p></li>
+</ul>
+</div></blockquote>
+<p>and optionally:</p>
+<blockquote>
+<div><ul class="simple">
+<li><p>unit (following udunits convention)</p></li>
+<li><p>standard_name (to support output files compliant with CF convention)</p></li>
+<li><p>default (default value, e.g. 0 for depth)</p></li>
+</ul>
+</div></blockquote>
+<p>The values for these variables are given through the constructor, and are stored as named attributes of the created object:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">elements</span> <span class="kn">import</span> <span class="n">LagrangianArray</span>
+<span class="n">l</span> <span class="o">=</span> <span class="n">LagrangianArray</span><span class="p">(</span><span class="n">lon</span><span class="o">=</span><span class="p">[</span><span class="mi">5</span><span class="p">,</span> <span class="mi">6</span><span class="p">,</span> <span class="mi">7</span><span class="p">],</span> <span class="n">lat</span><span class="o">=</span><span class="p">[</span><span class="mi">60</span><span class="p">,</span> <span class="mi">60</span><span class="p">,</span> <span class="mi">60</span><span class="p">],</span> <span class="n">depth</span><span class="o">=</span><span class="mi">10</span><span class="p">)</span>
+<span class="nb">print</span> <span class="p">(</span><span class="n">l</span><span class="o">.</span><span class="n">lat</span><span class="p">)</span>
+<span class="p">[</span> <span class="mf">60.</span>  <span class="mf">60.</span>  <span class="mf">60.</span><span class="p">]</span>
+</pre></div>
+</div>
+<p>The input values are arrays, where a single element is simply a special case of LagrangianArray with length 1.</p>
+<p>New element types can be created by subclassing the LagrangianArray class and adding more variables through method <cite>add_variables</cite>.</p>
+<p>Example for Larvae:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="k">class</span> <span class="nc">Larvae</span><span class="p">(</span><span class="n">LagrangianArray</span><span class="p">):</span>
+    <span class="n">variables</span> <span class="o">=</span> <span class="n">LagrangianArray</span><span class="o">.</span><span class="n">add_variables</span><span class="p">({</span><span class="s1">&#39;length&#39;</span><span class="p">:</span> <span class="p">{</span><span class="s1">&#39;dtype&#39;</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">float32</span><span class="p">,</span> <span class="s1">&#39;unit&#39;</span><span class="p">:</span> <span class="s1">&#39;mm&#39;</span><span class="p">}})</span>
+</pre></div>
+</div>
+<p>New modules may easily be created from a template (template_elements.py).
+Multiple inheritance is supported:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="k">class</span> <span class="nc">CodLarvae</span><span class="p">(</span><span class="n">Larvae</span><span class="p">):</span>
+    <span class="s2">&quot;Extending Larvae with variables relevant for cod larvae.&quot;</span>
+
+    <span class="n">variables</span> <span class="o">=</span> <span class="n">Larvae</span><span class="o">.</span><span class="n">add_variables</span><span class="p">(</span>
+        <span class="p">{</span><span class="s1">&#39;CodLarvaeProperty1&#39;</span><span class="p">:</span>
+            <span class="p">{</span><span class="s1">&#39;dtype&#39;</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">float32</span><span class="p">}})</span>
+
+
+<span class="k">class</span> <span class="nc">HalibutLarvae</span><span class="p">(</span><span class="n">Larvae</span><span class="p">):</span>
+    <span class="s2">&quot;Extending Larvae with variables relevant for halibut larvae.&quot;</span>
+
+    <span class="n">variables</span> <span class="o">=</span> <span class="n">Larvae</span><span class="o">.</span><span class="n">add_variables</span><span class="p">(</span>
+        <span class="p">{</span><span class="s1">&#39;HalibutLarvaeProperty1&#39;</span><span class="p">:</span>
+            <span class="p">{</span><span class="s1">&#39;dtype&#39;</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">float32</span><span class="p">}})</span>
+</pre></div>
+</div>
+<p>Example CodLarvae:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">l</span> <span class="o">=</span> <span class="n">CodLarvae</span><span class="p">(</span><span class="n">lon</span><span class="o">=</span><span class="p">[</span><span class="mi">5</span><span class="p">,</span> <span class="mi">6</span><span class="p">,</span> <span class="mi">7</span><span class="p">],</span> <span class="n">lat</span><span class="o">=</span><span class="p">[</span><span class="mi">60</span><span class="p">,</span> <span class="mi">60</span><span class="p">,</span> <span class="mi">60</span><span class="p">],</span> <span class="n">CodLarvaeProperty1</span><span class="o">=</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">length</span><span class="o">=</span><span class="mi">10</span><span class="p">)</span>
+<span class="n">l</span><span class="o">.</span><span class="n">length</span>
+<span class="mi">10</span>
+</pre></div>
+</div>
+</div>
+</p>
 <div class="section" id="submodules">
 <h2>Submodules<a class="headerlink" href="#submodules" title="Permalink to this headline">¶</a></h2>
 <div class="toctree-wrapper compound">
@@ -216,7 +274,7 @@ Subclasses will add specific variables for specific purposes (particle
 types, e.g. oil, fish eggs…) to the core variables described below.</p>
 <p>Attributes:</p>
 <blockquote>
-<div><dl class="simple">
+<div><dl>
 <dt>variables: An OrderedDict where keys are names of the</dt><dd><p>variables/properties of the current object. The values
 of the OrderedDict are dictionaries with names such as
 ‘dtype’, ‘unit’, ‘standard_name’ (CF), ‘default’ etc.
@@ -224,16 +282,17 @@ All variable names will be added dynamically as attributes of
 the object after initialisation. These attributes will be
 numpy ndarrays of same length, or scalars. The core variables
 are:</p>
+<blockquote>
+<div><ul class="simple">
+<li><p>ID: an integer identifying each particle.</p></li>
+<li><p>status: 0 for active particles and a positive integer when deactivated</p></li>
+<li><p>lon: longitude (np.float32)</p></li>
+<li><p>lat: latitude (np.float32)</p></li>
+<li><p>z: vertical position of the particle in m, positive upwards (above sea surface)</p></li>
+</ul>
+</div></blockquote>
 </dd>
 </dl>
-<p>ID: an integer identifying each particle.
-status: 0 for active particles and a positive integer when deactivated
-lon: longitude (np.float32)
-lat: latitude (np.float32)
-z: vertical position of the particle in m,</p>
-<blockquote>
-<div><p>positive upwards (above sea surface)</p>
-</div></blockquote>
 </div></blockquote>
 <dl class="py attribute">
 <dt id="opendrift.elements.LagrangianArray.variables">
