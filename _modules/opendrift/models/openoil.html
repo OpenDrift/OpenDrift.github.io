@@ -308,6 +308,7 @@
                           <span class="s1">&#39;sea_surface_wave_stokes_drift_x_velocity&#39;</span><span class="p">,</span>
                           <span class="s1">&#39;sea_surface_wave_stokes_drift_y_velocity&#39;</span><span class="p">,</span>
                           <span class="s1">&#39;sea_ice_area_fraction&#39;</span><span class="p">,</span>
+                          <span class="s1">&#39;sea_ice_x_velocity&#39;</span><span class="p">,</span> <span class="s1">&#39;sea_ice_y_velocity&#39;</span><span class="p">,</span>
                           <span class="s1">&#39;sea_water_temperature&#39;</span><span class="p">,</span>
                           <span class="s1">&#39;sea_floor_depth_below_sea_level&#39;</span><span class="p">,</span>
                           <span class="s1">&#39;x_wind&#39;</span><span class="p">,</span> <span class="s1">&#39;y_wind&#39;</span><span class="p">,</span> <span class="s1">&#39;land_binary_mask&#39;</span><span class="p">]</span>
@@ -319,6 +320,8 @@
                        <span class="s1">&#39;sea_surface_wave_stokes_drift_y_velocity&#39;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>
                        <span class="s1">&#39;sea_floor_depth_below_sea_level&#39;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>
                        <span class="s1">&#39;sea_ice_area_fraction&#39;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>
+                       <span class="s1">&#39;sea_ice_x_velocity&#39;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>
+                       <span class="s1">&#39;sea_ice_y_velocity&#39;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>
                        <span class="s1">&#39;sea_water_temperature&#39;</span><span class="p">:</span> <span class="mi">12</span><span class="p">,</span>
                        <span class="s1">&#39;x_wind&#39;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span> <span class="s1">&#39;y_wind&#39;</span><span class="p">:</span> <span class="mi">0</span><span class="p">}</span>
 
@@ -842,20 +845,48 @@
             <span class="p">((</span><span class="mf">6.0</span> <span class="o">/</span> <span class="n">drop_max</span><span class="p">)</span><span class="o">*</span><span class="p">(</span><span class="n">Y_max</span><span class="o">/</span><span class="p">(</span><span class="mf">1.0</span> <span class="o">-</span> <span class="n">Y_max</span><span class="p">)))]</span> <span class="o">=</span> <span class="n">Y_max</span></div>
 
 <div class="viewcode-block" id="OpenOil.advect_oil"><a class="viewcode-back" href="../../../autoapi/opendrift/models/openoil/index.html#opendrift.models.openoil.OpenOil.advect_oil">[docs]</a>    <span class="k">def</span> <span class="nf">advect_oil</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+
+        <span class="c1"># Calculating various drift factors according to ice concentration</span>
+        <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">environment</span><span class="p">,</span> <span class="s1">&#39;sea_ice_area_fraction&#39;</span><span class="p">):</span>
+            <span class="n">A</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">environment</span><span class="o">.</span><span class="n">sea_ice_area_fraction</span>
+            <span class="c1"># According to </span>
+            <span class="c1"># Nordam T, Beegle-Krause CJ, Skancke J, Nepstad R, Reed M.</span>
+            <span class="c1"># Improving oil spill trajectory modelling in the Arctic.</span>
+            <span class="c1"># Mar Pollut Bull. 2019;140:65-74.</span>
+            <span class="c1"># doi:10.1016/j.marpolbul.2019.01.019</span>
+            <span class="n">k_ice</span> <span class="o">=</span> <span class="p">(</span><span class="n">A</span> <span class="o">-</span> <span class="mf">0.3</span><span class="p">)</span> <span class="o">/</span> <span class="p">(</span><span class="mf">0.8</span> <span class="o">-</span> <span class="mf">0.3</span><span class="p">)</span>
+            <span class="n">k_ice</span><span class="p">[</span><span class="n">A</span><span class="o">&lt;</span><span class="mf">0.3</span><span class="p">]</span> <span class="o">=</span> <span class="mi">0</span>
+            <span class="n">k_ice</span><span class="p">[</span><span class="n">A</span><span class="o">&gt;</span><span class="mf">0.8</span><span class="p">]</span> <span class="o">=</span> <span class="mi">1</span>
+            <span class="nb">print</span><span class="p">(</span><span class="n">k_ice</span><span class="p">,</span> <span class="s1">&#39;K_ice&#39;</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">k_ice</span><span class="o">.</span><span class="n">max</span><span class="p">()</span> <span class="o">&gt;</span> <span class="mf">0.3</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s1">&#39;Ice concentration above 30%, using Nordam scheme for advection in ice&#39;</span><span class="p">)</span>
+            <span class="c1"># Using decreased Stokes drift according to</span>
+            <span class="c1"># Arneborg, L. (2017). Oil drift modellling in pack ice</span>
+            <span class="c1"># - Sensitivity of oil-in-ice parameters.</span>
+            <span class="c1"># Ocean Engineering 144 (2017) 340-350</span>
+            <span class="n">factor_stokes</span> <span class="o">=</span> <span class="p">(</span><span class="mf">0.7</span> <span class="o">-</span> <span class="n">A</span><span class="p">)</span> <span class="o">/</span> <span class="mf">0.7</span>
+            <span class="n">factor_stokes</span><span class="p">[</span><span class="n">A</span><span class="o">&gt;</span><span class="mf">0.7</span><span class="p">]</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">k_ice</span> <span class="o">=</span> <span class="mi">0</span>
+            <span class="n">factor_stokes</span> <span class="o">=</span> <span class="mi">1</span>
+
         <span class="c1"># Simply move particles with ambient current</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">advect_ocean_current</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">advect_ocean_current</span><span class="p">(</span><span class="n">factor</span><span class="o">=</span><span class="mi">1</span><span class="o">-</span><span class="n">k_ice</span><span class="p">)</span>
 
         <span class="c1"># Wind drag for elements at ocean surface</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">advect_wind</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">advect_wind</span><span class="p">(</span><span class="n">factor</span><span class="o">=</span><span class="mi">1</span><span class="o">-</span><span class="n">k_ice</span><span class="p">)</span>
 
         <span class="c1"># Stokes drift</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">stokes_drift</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">stokes_drift</span><span class="p">(</span><span class="n">factor_stokes</span><span class="p">)</span>
 
-        <span class="c1"># Deactivate elements hitting sea ice</span>
-        <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">environment</span><span class="p">,</span> <span class="s1">&#39;sea_ice_area_fraction&#39;</span><span class="p">):</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">deactivate_elements</span><span class="p">(</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">environment</span><span class="o">.</span><span class="n">sea_ice_area_fraction</span> <span class="o">&gt;</span> <span class="mf">0.6</span><span class="p">,</span>
-                <span class="n">reason</span><span class="o">=</span><span class="s1">&#39;oil-in-ice&#39;</span><span class="p">)</span></div>
+        <span class="c1"># Advect with ice</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">advect_with_sea_ice</span><span class="p">(</span><span class="n">factor</span><span class="o">=</span><span class="n">k_ice</span><span class="p">)</span></div>
+
+        <span class="c1">## Deactivate elements hitting sea ice</span>
+        <span class="c1">#if hasattr(self.environment, &#39;sea_ice_area_fraction&#39;):</span>
+        <span class="c1">#    self.deactivate_elements(</span>
+        <span class="c1">#        self.environment.sea_ice_area_fraction &gt; 0.6,</span>
+        <span class="c1">#        reason=&#39;oil-in-ice&#39;)</span>
 
 <div class="viewcode-block" id="OpenOil.update"><a class="viewcode-back" href="../../../autoapi/opendrift/models/openoil/index.html#opendrift.models.openoil.OpenOil.update">[docs]</a>    <span class="k">def</span> <span class="nf">update</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Update positions and properties of oil particles.&quot;&quot;&quot;</span>
