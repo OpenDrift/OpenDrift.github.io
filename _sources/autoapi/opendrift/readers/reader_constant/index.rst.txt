@@ -7,6 +7,14 @@
 Module Contents
 ---------------
 
+Classes
+~~~~~~~
+
+.. autoapisummary::
+
+   opendrift.readers.reader_constant.Reader
+
+
 
 .. py:class:: Reader(parameter_value_map)
 
@@ -16,6 +24,35 @@ Module Contents
 
    .. method:: get_variables(self, requestedVariables, time=None, x=None, y=None, z=None, block=False)
 
+
+      Method which must be invoked by any reader (subclass).
+
+      Obtain and return values of the requested variables at all positions
+      (x, y, z) closest to given time.
+
+      Arguments:
+          variables: string, or list of strings (standard_name) of
+              requested variables. These must be provided by reader.
+          time: datetime or None, time at which data are requested.
+              Can be None (default) if reader/variable has no time
+              dimension (e.g. climatology or landmask).
+          x, y: float or ndarrays; coordinates of requested points in the
+              Spatial Reference System (SRS) of the reader (NB!!)
+          z: float or ndarray; vertical position (in meters, positive up)
+              of requested points.
+              default: 0 m (unless otherwise documented by reader)
+          block: bool, see return below
+
+        Returns:
+          data: Dictionary
+              keywords: variables (string)
+              values:
+                  - 1D ndarray of len(x) if block=False. Nearest values
+                      (neichbour) of requested position are returned.
+                  - 3D ndarray encompassing all requested points in
+                      x,y,z domain if block=True. It is task of invoking
+                      application (OpenDriftSimulation) to perform
+                      interpolation in space and time.
 
 
 

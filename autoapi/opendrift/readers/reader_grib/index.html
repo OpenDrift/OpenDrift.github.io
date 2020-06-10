@@ -115,8 +115,8 @@
 <li class="toctree-l2"><a class="reference internal" href="../../../hodograph/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">hodograph</span></code></a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../../readerinfo/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">readerinfo</span></code></a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../../opendrift_gui/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">opendrift_gui</span></code></a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../../opendrift_animate/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">opendrift_animate</span></code></a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../../opendrift_plot/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">opendrift_plot</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../opendrift_animate/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">opendrift_animate</span></code></a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../../opendrift_animate_profile/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">opendrift_animate_profile</span></code></a></li>
 </ul>
 </li>
@@ -194,6 +194,19 @@
 <span id="opendrift-readers-reader-grib"></span><h1><a class="reference internal" href="#module-opendrift.readers.reader_grib" title="opendrift.readers.reader_grib"><code class="xref py py-mod docutils literal notranslate"><span class="pre">opendrift.readers.reader_grib</span></code></a><a class="headerlink" href="#module-opendrift.readers.reader_grib" title="Permalink to this headline">¶</a></h1>
 <div class="section" id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="classes">
+<h3>Classes<a class="headerlink" href="#classes" title="Permalink to this headline">¶</a></h3>
+<table class="longtable docutils align-default">
+<colgroup>
+<col style="width: 10%" />
+<col style="width: 90%" />
+</colgroup>
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="#opendrift.readers.reader_grib.Reader" title="opendrift.readers.reader_grib.Reader"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Reader</span></code></a>(filename=None, name=None)</p></td>
+<td><p>Parent Reader class, to be subclassed by specific readers.</p></td>
+</tr>
+</tbody>
+</table>
 <dl class="py data">
 <dt id="opendrift.readers.reader_grib.grib_variable_mapping">
 <code class="sig-prename descclassname">opendrift.readers.reader_grib.</code><code class="sig-name descname">grib_variable_mapping</code><a class="headerlink" href="#opendrift.readers.reader_grib.grib_variable_mapping" title="Permalink to this definition">¶</a></dt>
@@ -203,13 +216,60 @@
 <dt id="opendrift.readers.reader_grib.Reader">
 <em class="property">class </em><code class="sig-prename descclassname">opendrift.readers.reader_grib.</code><code class="sig-name descname">Reader</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">filename</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">name</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../../_modules/opendrift/readers/reader_grib.html#Reader"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#opendrift.readers.reader_grib.Reader" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="../basereader/index.html#opendrift.readers.basereader.BaseReader" title="opendrift.readers.basereader.BaseReader"><code class="xref py py-class docutils literal notranslate"><span class="pre">opendrift.readers.basereader.BaseReader</span></code></a></p>
+<p>Parent Reader class, to be subclassed by specific readers.</p>
 <dl class="py method">
 <dt id="opendrift.readers.reader_grib.Reader.get_variables">
 <code class="sig-name descname">get_variables</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">self</span></em>, <em class="sig-param"><span class="n">requested_variables</span></em>, <em class="sig-param"><span class="n">time</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">x</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">y</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">z</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">block</span><span class="o">=</span><span class="default_value">False</span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../../_modules/opendrift/readers/reader_grib.html#Reader.get_variables"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#opendrift.readers.reader_grib.Reader.get_variables" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><p>Method which must be invoked by any reader (subclass).</p>
+<p>Obtain and return values of the requested variables at all positions
+(x, y, z) closest to given time.</p>
+<dl>
+<dt>Arguments:</dt><dd><blockquote>
+<div><dl class="simple">
+<dt>variables: string, or list of strings (standard_name) of</dt><dd><p>requested variables. These must be provided by reader.</p>
+</dd>
+<dt>time: datetime or None, time at which data are requested.</dt><dd><p>Can be None (default) if reader/variable has no time
+dimension (e.g. climatology or landmask).</p>
+</dd>
+<dt>x, y: float or ndarrays; coordinates of requested points in the</dt><dd><p>Spatial Reference System (SRS) of the reader (NB!!)</p>
+</dd>
+<dt>z: float or ndarray; vertical position (in meters, positive up)</dt><dd><p>of requested points.
+default: 0 m (unless otherwise documented by reader)</p>
+</dd>
+</dl>
+<p>block: bool, see return below</p>
+</div></blockquote>
+<dl>
+<dt>Returns:</dt><dd><dl>
+<dt>data: Dictionary</dt><dd><p>keywords: variables (string)
+values:</p>
+<blockquote>
+<div><ul class="simple">
+<li><dl class="simple">
+<dt>1D ndarray of len(x) if block=False. Nearest values</dt><dd><p>(neichbour) of requested position are returned.</p>
+</dd>
+</dl>
+</li>
+<li><dl class="simple">
+<dt>3D ndarray encompassing all requested points in</dt><dd><p>x,y,z domain if block=True. It is task of invoking
+application (OpenDriftSimulation) to perform
+interpolation in space and time.</p>
+</dd>
+</dl>
+</li>
+</ul>
+</div></blockquote>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
 
 </dd></dl>
 
+</div>
 </div>
 </div>
 
