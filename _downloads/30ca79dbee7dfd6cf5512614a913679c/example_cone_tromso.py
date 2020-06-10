@@ -1,14 +1,14 @@
 #!/usr/bin/env python
 """
 Cone seeding (Tromso)
-=============
+=====================
 """
 
 from datetime import timedelta
 from opendrift.readers import reader_netCDF_CF_generic
 from opendrift.models.openoil import OpenOil
 
-o = OpenOil(loglevel=0)  # Set loglevel to 0 for debug information
+o = OpenOil(loglevel=20)  # Set loglevel to 0 for debug information
 
 #%%
 # Using live data from Thredds
