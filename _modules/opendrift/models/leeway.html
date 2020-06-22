@@ -337,22 +337,6 @@
                      <span class="p">(</span><span class="n">objectType</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">leewayprop</span><span class="p">[</span><span class="n">objectType</span><span class="p">][</span><span class="s1">&#39;OBJKEY&#39;</span><span class="p">],</span>
                       <span class="bp">self</span><span class="o">.</span><span class="n">leewayprop</span><span class="p">[</span><span class="n">objectType</span><span class="p">][</span><span class="s1">&#39;Description&#39;</span><span class="p">]))</span>
 
-        <span class="k">if</span> <span class="n">time</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="c1"># Use first time of first reader if time is not given for seeding</span>
-            <span class="k">try</span><span class="p">:</span>
-                <span class="k">for</span> <span class="n">reader</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">readers</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
-                    <span class="k">if</span> <span class="n">reader</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">start_time</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-                        <span class="n">firstReader</span> <span class="o">=</span> <span class="n">reader</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
-                        <span class="k">break</span>
-            <span class="k">except</span><span class="p">:</span>
-                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;Time must be specified when no &#39;</span>
-                                 <span class="s1">&#39;reader is added&#39;</span><span class="p">)</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s1">&#39;Using start time (</span><span class="si">%s</span><span class="s1">) of reader </span><span class="si">%s</span><span class="s1">&#39;</span> <span class="o">%</span>
-                         <span class="p">(</span><span class="n">firstReader</span><span class="o">.</span><span class="n">start_time</span><span class="p">,</span> <span class="n">firstReader</span><span class="o">.</span><span class="n">name</span><span class="p">))</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">start_time</span> <span class="o">=</span> <span class="n">firstReader</span><span class="o">.</span><span class="n">start_time</span>
-        <span class="k">else</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">start_time</span> <span class="o">=</span> <span class="n">time</span>
-
         <span class="c1"># Drift orientation of particles.  0 is right of downwind,</span>
         <span class="c1"># 1 is left of downwind</span>
         <span class="c1"># orientation = 1*(np.random.rand(number)&gt;=0.5)</span>
@@ -582,7 +566,10 @@
         <span class="n">f</span><span class="o">.</span><span class="n">close</span><span class="p">()</span></div>
 
 <div class="viewcode-block" id="Leeway._substance_name"><a class="viewcode-back" href="../../../autoapi/opendrift/models/leeway/index.html#opendrift.models.leeway.Leeway._substance_name">[docs]</a>    <span class="k">def</span> <span class="nf">_substance_name</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">leewayprop</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">elements</span><span class="o">.</span><span class="n">objectType</span><span class="p">[</span><span class="mi">0</span><span class="p">]][</span><span class="s1">&#39;OBJKEY&#39;</span><span class="p">]</span></div></div>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">elements</span><span class="o">.</span><span class="n">objectType</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">leewayprop</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">elements_scheduled</span><span class="o">.</span><span class="n">objectType</span><span class="p">][</span><span class="s1">&#39;OBJKEY&#39;</span><span class="p">]</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">leewayprop</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">elements</span><span class="o">.</span><span class="n">objectType</span><span class="p">[</span><span class="mi">0</span><span class="p">]][</span><span class="s1">&#39;OBJKEY&#39;</span><span class="p">]</span></div></div>
 </pre></div>
 
            </div>
