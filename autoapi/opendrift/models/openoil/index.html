@@ -112,12 +112,12 @@
 <li class="toctree-l3"><a class="reference internal" href="../../index.html#package-contents">Package Contents</a></li>
 </ul>
 </li>
-<li class="toctree-l2"><a class="reference internal" href="../../../opendrift_gui/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">opendrift_gui</span></code></a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../../opendrift_plot/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">opendrift_plot</span></code></a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../../hodograph/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">hodograph</span></code></a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../../readerinfo/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">readerinfo</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../opendrift_gui/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">opendrift_gui</span></code></a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../../opendrift_animate_profile/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">opendrift_animate_profile</span></code></a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../../opendrift_animate/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">opendrift_animate</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../hodograph/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">hodograph</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../readerinfo/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">readerinfo</span></code></a></li>
 </ul>
 </li>
 </ul>
@@ -192,8 +192,8 @@
             
   <div class="section" id="module-opendrift.models.openoil">
 <span id="opendrift-models-openoil"></span><h1><a class="reference internal" href="#module-opendrift.models.openoil" title="opendrift.models.openoil"><code class="xref py py-mod docutils literal notranslate"><span class="pre">opendrift.models.openoil</span></code></a><a class="headerlink" href="#module-opendrift.models.openoil" title="Permalink to this headline">¶</a></h1>
-<p><p>OpenOil is an oil drift module bundled within the OpenDrift framework. There is both a 2D-version, and 3D-version which adds turbulent vertical mixing.</p>
-<p>The oil weathering calculations is based on the NOAA-ERR-ERD OilLibrary package, which must be installed as a dependency. The code for evaporation and emulsification in OpenOil is borrowed from the NOAA PyGnome code, and adapted to the OpenDrift architecture.</p>
+<p><p>OpenOil is a 3D oil drift module bundled within the OpenDrift framework.</p>
+<p>The oil weathering calculations is based on the NOAA-ERR-ERD OilLibrary package, which is installed as a dependency. The code for evaporation and emulsification in OpenOil is borrowed from the NOAA PyGnome code, and adapted to the OpenDrift architecture.</p>
 <div class="section" id="example-of-ship-leaking-oil-along-the-coast-of-northern-norway">
 <h2>Example of ship leaking oil along the coast of Northern Norway<a class="headerlink" href="#example-of-ship-leaking-oil-along-the-coast-of-northern-norway" title="Permalink to this headline">¶</a></h2>
 <img alt="https://dl.dropboxusercontent.com/s/ty6dmqf0oohewky/oilspill_tromsoe.gif?dl=0" src="https://dl.dropboxusercontent.com/s/ty6dmqf0oohewky/oilspill_tromsoe.gif?dl=0" />
@@ -220,14 +220,7 @@
 <span class="n">o</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s1">&#39;input&#39;</span><span class="p">][</span><span class="s1">&#39;spill&#39;</span><span class="p">][</span><span class="s1">&#39;droplet_diameter_max_subsea&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="mf">0.005</span>   <span class="c1"># 5 mm</span>
 </pre></div>
 </div>
-<p>After each wave breaking event, a new diameter will be chosen between configurable limits and exponent:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">o</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s1">&#39;turbulentmixing&#39;</span><span class="p">][</span><span class="s1">&#39;droplet_diameter_min_wavebreaking&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="mf">1e-5</span>
-<span class="n">o</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s1">&#39;turbulentmixing&#39;</span><span class="p">][</span><span class="s1">&#39;droplet_diameter_max_wavebreaking&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="mf">1e-3</span>
-<span class="n">o</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s1">&#39;turbulentmixing&#39;</span><span class="p">][</span><span class="s1">&#39;droplet_size_exponent] = 0</span>
-</pre></div>
-</div>
-<p>In this case a logarithmic distribution is used, with N ~ diameter^s, where s is the droplet_size_exponent. A droplet_size_exponent of 0 (default) gives uniform distribution. A value of -2.3 corresponds to the empirical number distribution as found by Delvigne and Sweeney, and 0.7 gives the corresponding volume distribution (number distribution multiplied by diameter3, since volume is proportinal to diameter3).</p>
-<p>The droplet size limits could also have been calculated dynamically from oil viscosity, but this is not yet implemented. The limits above should eventually be adjusted before the time of seeding.</p>
+<p>After each wave breaking event, a new droplet diameter will be chosen based on the config setting for droplet size distribution.</p>
 </div>
 </div>
 </p>
@@ -335,14 +328,14 @@ found in open/published litterature.</p>
 <dd></dd></dl>
 
 <dl class="py attribute">
-<dt id="opendrift.models.openoil.OpenOil.configspecOO">
-<code class="sig-name descname">configspecOO</code><a class="headerlink" href="#opendrift.models.openoil.OpenOil.configspecOO" title="Permalink to this definition">¶</a></dt>
+<dt id="opendrift.models.openoil.OpenOil.configspec">
+<code class="sig-name descname">configspec</code><a class="headerlink" href="#opendrift.models.openoil.OpenOil.configspec" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="py method">
 <dt id="opendrift.models.openoil.OpenOil.update_surface_oilfilm_thickness">
 <code class="sig-name descname">update_surface_oilfilm_thickness</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">self</span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../../_modules/opendrift/models/openoil.html#OpenOil.update_surface_oilfilm_thickness"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#opendrift.models.openoil.OpenOil.update_surface_oilfilm_thickness" title="Permalink to this definition">¶</a></dt>
-<dd><p>The mass of oil is summed within a grid of 20x20
+<dd><p>The mass of oil is summed within a grid of 100x100
 cells covering the oil at a given time. Each oil particle
 within each cell is given a film thickness as the amount of
 oil divided by the cell area.</p>
@@ -377,13 +370,6 @@ oil divided by the cell area.</p>
 <dt id="opendrift.models.openoil.OpenOil.oil_weathering_default">
 <code class="sig-name descname">oil_weathering_default</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">self</span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../../_modules/opendrift/models/openoil.html#OpenOil.oil_weathering_default"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#opendrift.models.openoil.OpenOil.oil_weathering_default" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
-
-<dl class="py method">
-<dt id="opendrift.models.openoil.OpenOil.particle_radius">
-<code class="sig-name descname">particle_radius</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">self</span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../../_modules/opendrift/models/openoil.html#OpenOil.particle_radius"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#opendrift.models.openoil.OpenOil.particle_radius" title="Permalink to this definition">¶</a></dt>
-<dd><p>Calculate radius of entained particles.</p>
-<p>Per now a fixed radius, should later use a distribution.</p>
-</dd></dl>
 
 <dl class="py method">
 <dt id="opendrift.models.openoil.OpenOil.prepare_run">

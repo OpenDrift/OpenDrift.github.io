@@ -180,9 +180,9 @@
 <span class="c1"># Copyright 2015, Knut-Frode Dagestad, MET Norway</span>
 
 <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">OpenOil is an oil drift module bundled within the OpenDrift framework. There is both a 2D-version, and 3D-version which adds turbulent vertical mixing.</span>
+<span class="sd">OpenOil is a 3D oil drift module bundled within the OpenDrift framework.</span>
 
-<span class="sd">The oil weathering calculations is based on the NOAA-ERR-ERD OilLibrary package, which must be installed as a dependency. The code for evaporation and emulsification in OpenOil is borrowed from the NOAA PyGnome code, and adapted to the OpenDrift architecture.</span>
+<span class="sd">The oil weathering calculations is based on the NOAA-ERR-ERD OilLibrary package, which is installed as a dependency. The code for evaporation and emulsification in OpenOil is borrowed from the NOAA PyGnome code, and adapted to the OpenDrift architecture.</span>
 
 <span class="sd">Example of ship leaking oil along the coast of Northern Norway</span>
 <span class="sd">##############################################################</span>
@@ -214,15 +214,7 @@
 <span class="sd">    o.config[&#39;input&#39;][&#39;spill&#39;][&#39;droplet_diameter_min_subsea&#39;] = 0.0005  # 0.5 mm</span>
 <span class="sd">    o.config[&#39;input&#39;][&#39;spill&#39;][&#39;droplet_diameter_max_subsea&#39;] = 0.005   # 5 mm</span>
 
-<span class="sd">After each wave breaking event, a new diameter will be chosen between configurable limits and exponent::</span>
-
-<span class="sd">    o.config[&#39;turbulentmixing&#39;][&#39;droplet_diameter_min_wavebreaking&#39;] = 1e-5</span>
-<span class="sd">    o.config[&#39;turbulentmixing&#39;][&#39;droplet_diameter_max_wavebreaking&#39;] = 1e-3</span>
-<span class="sd">    o.config[&#39;turbulentmixing&#39;][&#39;droplet_size_exponent] = 0</span>
-
-<span class="sd">In this case a logarithmic distribution is used, with N ~ diameter^s, where s is the droplet_size_exponent. A droplet_size_exponent of 0 (default) gives uniform distribution. A value of -2.3 corresponds to the empirical number distribution as found by Delvigne and Sweeney, and 0.7 gives the corresponding volume distribution (number distribution multiplied by diameter3, since volume is proportinal to diameter3).</span>
-
-<span class="sd">The droplet size limits could also have been calculated dynamically from oil viscosity, but this is not yet implemented. The limits above should eventually be adjusted before the time of seeding.</span>
+<span class="sd">After each wave breaking event, a new droplet diameter will be chosen based on the config setting for droplet size distribution.</span>
 <span class="sd">&quot;&quot;&quot;</span>
 
 <span class="kn">from</span> <span class="nn">io</span> <span class="kn">import</span> <span class="nb">open</span>
@@ -233,7 +225,6 @@
 <span class="kn">import</span> <span class="nn">pyproj</span>
 <span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="k">as</span> <span class="nn">plt</span>
 
-<span class="c1">#from opendrift.models.basemodel import OpenDriftSimulation</span>
 <span class="kn">from</span> <span class="nn">opendrift.models.oceandrift</span> <span class="kn">import</span> <span class="n">OceanDrift</span>
 <span class="kn">from</span> <span class="nn">opendrift.elements</span> <span class="kn">import</span> <span class="n">LagrangianArray</span>
 <span class="kn">import</span> <span class="nn">opendrift.models.noaa_oil_weathering</span> <span class="k">as</span> <span class="nn">noaa</span>
@@ -259,14 +250,13 @@
                       <span class="s1">&#39;units&#39;</span><span class="p">:</span> <span class="s1">&#39;kg&#39;</span><span class="p">,</span>
                       <span class="s1">&#39;default&#39;</span><span class="p">:</span> <span class="mi">1</span><span class="p">}),</span>
         <span class="p">(</span><span class="s1">&#39;viscosity&#39;</span><span class="p">,</span> <span class="p">{</span><span class="s1">&#39;dtype&#39;</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">float32</span><span class="p">,</span>
-                       <span class="c1">#&#39;unit&#39;: &#39;mm2/s (centiStokes)&#39;,</span>
                        <span class="s1">&#39;units&#39;</span><span class="p">:</span> <span class="s1">&#39;N s/m2 (Pa s)&#39;</span><span class="p">,</span>
                        <span class="s1">&#39;default&#39;</span><span class="p">:</span> <span class="mf">0.005</span><span class="p">}),</span>
         <span class="p">(</span><span class="s1">&#39;density&#39;</span><span class="p">,</span> <span class="p">{</span><span class="s1">&#39;dtype&#39;</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">float32</span><span class="p">,</span>
                      <span class="s1">&#39;units&#39;</span><span class="p">:</span> <span class="s1">&#39;kg/m^3&#39;</span><span class="p">,</span>
                      <span class="s1">&#39;default&#39;</span><span class="p">:</span> <span class="mi">880</span><span class="p">}),</span>
-        <span class="p">(</span><span class="s1">&#39;wind_drift_factor&#39;</span><span class="p">,</span> <span class="p">{</span><span class="s1">&#39;dtype&#39;</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">float32</span><span class="p">,</span>
-                               <span class="s1">&#39;units&#39;</span><span class="p">:</span> <span class="s1">&#39;%&#39;</span><span class="p">,</span>
+        <span class="p">(</span><span class="s1">&#39;wind_drift_factor&#39;</span><span class="p">,</span> <span class="p">{</span><span class="s1">&#39;dtype&#39;</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">float32</span><span class="p">,</span>  <span class="c1"># TODO: inherit from </span>
+                               <span class="s1">&#39;units&#39;</span><span class="p">:</span> <span class="s1">&#39;%&#39;</span><span class="p">,</span>         <span class="c1"># OceanDrift</span>
                                <span class="s1">&#39;default&#39;</span><span class="p">:</span> <span class="mf">0.03</span><span class="p">}),</span>
         <span class="p">(</span><span class="s1">&#39;age_exposure_seconds&#39;</span><span class="p">,</span> <span class="p">{</span><span class="s1">&#39;dtype&#39;</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">float32</span><span class="p">,</span>
                                   <span class="s1">&#39;units&#39;</span><span class="p">:</span> <span class="s1">&#39;s&#39;</span><span class="p">,</span>
@@ -298,8 +288,8 @@
         <span class="p">(</span><span class="s1">&#39;oil_film_thickness&#39;</span><span class="p">,</span> <span class="p">{</span><span class="s1">&#39;dtype&#39;</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">float32</span><span class="p">,</span>
                                 <span class="s1">&#39;units&#39;</span><span class="p">:</span> <span class="s1">&#39;m&#39;</span><span class="p">,</span>
                                 <span class="s1">&#39;default&#39;</span><span class="p">:</span> <span class="mf">0.001</span><span class="p">}),</span>
-        <span class="p">(</span><span class="s1">&#39;entrainment_length_scale&#39;</span><span class="p">,</span> <span class="p">{</span><span class="s1">&#39;dtype&#39;</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">float32</span><span class="p">,</span>
-                                      <span class="s1">&#39;units&#39;</span><span class="p">:</span> <span class="s1">&#39;m&#39;</span><span class="p">,</span>
+        <span class="p">(</span><span class="s1">&#39;entrainment_length_scale&#39;</span><span class="p">,</span> <span class="p">{</span><span class="s1">&#39;dtype&#39;</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">float32</span><span class="p">,</span>  <span class="c1"># Should be </span>
+                                      <span class="s1">&#39;units&#39;</span><span class="p">:</span> <span class="s1">&#39;m&#39;</span><span class="p">,</span>         <span class="c1"># removed</span>
                                       <span class="s1">&#39;default&#39;</span><span class="p">:</span> <span class="mf">0.03</span><span class="p">}),</span>
         <span class="p">(</span><span class="s1">&#39;diameter&#39;</span><span class="p">,</span> <span class="p">{</span><span class="s1">&#39;dtype&#39;</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">float32</span><span class="p">,</span>  <span class="c1"># Particle diameter</span>
                       <span class="s1">&#39;units&#39;</span><span class="p">:</span> <span class="s1">&#39;m&#39;</span><span class="p">,</span>
@@ -348,7 +338,8 @@
         <span class="p">]</span>
 
 
-    <span class="n">fallback_values</span> <span class="o">=</span> <span class="p">{</span><span class="c1">#&#39;x_sea_water_velocity&#39;: 0,</span>
+    <span class="n">fallback_values</span> <span class="o">=</span> <span class="p">{</span><span class="c1"># Comment out wind and current, as is mandatory</span>
+                       <span class="c1">#&#39;x_sea_water_velocity&#39;: 0,</span>
                        <span class="c1">#&#39;y_sea_water_velocity&#39;: 0,</span>
                        <span class="s1">&#39;upward_sea_water_velocity&#39;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>
                        <span class="c1">#&#39;x_wind&#39;: 0, &#39;y_wind&#39;: 0,</span>
@@ -372,25 +363,12 @@
     <span class="c1"># The depth range (in m) which profiles shall cover</span>
     <span class="n">required_profiles_z_range</span> <span class="o">=</span> <span class="p">[</span><span class="o">-</span><span class="mi">120</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span>
 
-
     <span class="n">max_speed</span> <span class="o">=</span> <span class="mf">1.3</span>  <span class="c1"># m/s</span>
 
     <span class="c1"># Default colors for plotting</span>
     <span class="n">status_colors</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;initial&#39;</span><span class="p">:</span> <span class="s1">&#39;green&#39;</span><span class="p">,</span> <span class="s1">&#39;active&#39;</span><span class="p">:</span> <span class="s1">&#39;blue&#39;</span><span class="p">,</span>
                      <span class="s1">&#39;missing_data&#39;</span><span class="p">:</span> <span class="s1">&#39;gray&#39;</span><span class="p">,</span> <span class="s1">&#39;stranded&#39;</span><span class="p">:</span> <span class="s1">&#39;red&#39;</span><span class="p">,</span>
                      <span class="s1">&#39;evaporated&#39;</span><span class="p">:</span> <span class="s1">&#39;yellow&#39;</span><span class="p">,</span> <span class="s1">&#39;dispersed&#39;</span><span class="p">:</span> <span class="s1">&#39;magenta&#39;</span><span class="p">}</span>
-
-<span class="c1">#    configspec = &#39;&#39;&#39;</span>
-<span class="c1">#        [processes]</span>
-<span class="c1">#            dispersion = boolean(default=True)</span>
-<span class="c1">#            evaporation = boolean(default=True)</span>
-<span class="c1">#            emulsification = boolean(default=True)</span>
-<span class="c1">#            biodegradation = boolean(default=False)</span>
-<span class="c1">#            update_oilfilm_thickness = boolean(default=False)</span>
-<span class="c1">#        [drift]</span>
-<span class="c1">#            current_uncertainty = float(min=0, max=5, default=0.05)</span>
-<span class="c1">#            wind_uncertainty = float(min=0, max=5, default=.5)</span>
-<span class="c1">#    &#39;&#39;&#39;</span>
 
     <span class="n">duplicate_oils</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;ALVHEIM BLEND, STATOIL&#39;</span><span class="p">,</span> <span class="s1">&#39;DRAUGEN, STATOIL&#39;</span><span class="p">,</span>
                       <span class="s1">&#39;EKOFISK BLEND 2000&#39;</span><span class="p">,</span> <span class="s1">&#39;EKOFISK BLEND, STATOIL&#39;</span><span class="p">,</span>
@@ -414,13 +392,15 @@
         <span class="s1">&#39;FENJA (PIL) 2015&#39;</span><span class="p">:</span> <span class="o">.</span><span class="mi">75</span><span class="p">}</span>
 
     <span class="c1"># Read oil types from file (presently only for illustrative effect)</span>
+    <span class="c1"># TODO: should be removed</span>
     <span class="n">oil_types</span> <span class="o">=</span> <span class="nb">str</span><span class="p">([</span><span class="nb">str</span><span class="p">(</span><span class="n">l</span><span class="o">.</span><span class="n">strip</span><span class="p">())</span> <span class="k">for</span> <span class="n">l</span> <span class="ow">in</span> <span class="nb">open</span><span class="p">(</span>
                     <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">realpath</span><span class="p">(</span><span class="vm">__file__</span><span class="p">))</span> <span class="o">+</span>
                     <span class="s1">&#39;/oil_types.txt&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">readlines</span><span class="p">()])[</span><span class="mi">1</span><span class="p">:</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
     <span class="n">default_oil</span> <span class="o">=</span> <span class="n">oil_types</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;,&#39;</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
 
     <span class="c1"># Configuration</span>
-    <span class="n">configspecOO</span> <span class="o">=</span> <span class="s1">&#39;&#39;&#39;</span>
+    <span class="c1"># TODO: rename turbulentmixing to verticalmixing</span>
+    <span class="n">configspec</span> <span class="o">=</span> <span class="s1">&#39;&#39;&#39;</span>
 <span class="s1">        [input]</span>
 <span class="s1">            [[spill]]</span>
 <span class="s1">                oil_type = option(</span><span class="si">%s</span><span class="s1">, default=</span><span class="si">%s</span><span class="s1">)</span>
@@ -499,10 +479,11 @@
         <span class="nb">super</span><span class="p">(</span><span class="n">OpenOil</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
 
         <span class="c1"># Overriding with specific configspec</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_add_configstring</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">configspecOO</span><span class="p">)</span>
+        <span class="c1"># TODO: want inheritance instead of simply overriding</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_add_configstring</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">configspec</span><span class="p">)</span>
 
 <div class="viewcode-block" id="OpenOil.update_surface_oilfilm_thickness"><a class="viewcode-back" href="../../../autoapi/opendrift/models/openoil/index.html#opendrift.models.openoil.OpenOil.update_surface_oilfilm_thickness">[docs]</a>    <span class="k">def</span> <span class="nf">update_surface_oilfilm_thickness</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&#39;&#39;&#39;The mass of oil is summed within a grid of 20x20</span>
+        <span class="sd">&#39;&#39;&#39;The mass of oil is summed within a grid of 100x100</span>
 <span class="sd">        cells covering the oil at a given time. Each oil particle</span>
 <span class="sd">        within each cell is given a film thickness as the amount of</span>
 <span class="sd">        oil divided by the cell area.</span>
@@ -622,7 +603,8 @@
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_config</span><span class="p">(</span><span class="s1">&#39;processes:biodegradation&#39;</span><span class="p">)</span> <span class="ow">is</span> <span class="kc">True</span><span class="p">:</span>
             <span class="sd">&#39;&#39;&#39;</span>
 <span class="sd">            Oil biodegradation function based on the article:</span>
-<span class="sd">            Adcroft et al. (2010), Simulations of underwater plumes of dissolved oil in the Gulf of Mexico.</span>
+<span class="sd">            Adcroft et al. (2010), Simulations of underwater plumes of</span>
+<span class="sd">            dissolved oil in the Gulf of Mexico.</span>
 <span class="sd">            &#39;&#39;&#39;</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;Calculating: biodegradation&#39;</span><span class="p">)</span>
 
@@ -630,12 +612,16 @@
             <span class="n">swt</span><span class="p">[</span><span class="n">swt</span> <span class="o">&gt;</span> <span class="mi">100</span><span class="p">]</span> <span class="o">-=</span> <span class="mf">273.15</span> <span class="c1"># K to C</span>
             <span class="n">age0</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">time_step</span><span class="o">.</span><span class="n">total_seconds</span><span class="p">()</span><span class="o">/</span><span class="p">(</span><span class="mi">3600</span><span class="o">*</span><span class="mi">24</span><span class="p">)</span>
 
-            <span class="n">tau</span> <span class="o">=</span> <span class="p">(</span><span class="mi">12</span><span class="p">)</span><span class="o">*</span><span class="p">(</span><span class="mi">3</span><span class="o">**</span><span class="p">((</span><span class="mi">20</span><span class="o">-</span><span class="n">swt</span><span class="p">)</span><span class="o">/</span><span class="mi">10</span><span class="p">))</span> <span class="c1"># Decay rate in days (temperature in Celsius)</span>
+            <span class="c1"># Decay rate in days (temperature in Celsius)</span>
+            <span class="n">tau</span> <span class="o">=</span> <span class="p">(</span><span class="mi">12</span><span class="p">)</span><span class="o">*</span><span class="p">(</span><span class="mi">3</span><span class="o">**</span><span class="p">((</span><span class="mi">20</span><span class="o">-</span><span class="n">swt</span><span class="p">)</span><span class="o">/</span><span class="mi">10</span><span class="p">))</span>
+
             <span class="n">fraction_biodegraded</span> <span class="o">=</span> <span class="p">(</span><span class="mi">1</span> <span class="o">-</span> <span class="n">np</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="o">-</span><span class="n">age0</span><span class="o">/</span><span class="n">tau</span><span class="p">))</span>
             <span class="n">biodegraded_now</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">elements</span><span class="o">.</span><span class="n">mass_oil</span><span class="o">*</span><span class="n">fraction_biodegraded</span>
 
-            <span class="bp">self</span><span class="o">.</span><span class="n">elements</span><span class="o">.</span><span class="n">mass_biodegraded</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">elements</span><span class="o">.</span><span class="n">mass_biodegraded</span> <span class="o">+</span> <span class="n">biodegraded_now</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">elements</span><span class="o">.</span><span class="n">mass_oil</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">elements</span><span class="o">.</span><span class="n">mass_oil</span> <span class="o">-</span> <span class="n">biodegraded_now</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">elements</span><span class="o">.</span><span class="n">mass_biodegraded</span> <span class="o">=</span> \
+                <span class="bp">self</span><span class="o">.</span><span class="n">elements</span><span class="o">.</span><span class="n">mass_biodegraded</span> <span class="o">+</span> <span class="n">biodegraded_now</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">elements</span><span class="o">.</span><span class="n">mass_oil</span> <span class="o">=</span> \
+                <span class="bp">self</span><span class="o">.</span><span class="n">elements</span><span class="o">.</span><span class="n">mass_oil</span> <span class="o">-</span> <span class="n">biodegraded_now</span>
             <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">oil_weathering_model</span> <span class="o">==</span> <span class="s1">&#39;noaa&#39;</span><span class="p">:</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">noaa_mass_balance</span><span class="p">[</span><span class="s1">&#39;mass_components&#39;</span><span class="p">][</span><span class="bp">self</span><span class="o">.</span><span class="n">elements</span><span class="o">.</span><span class="n">ID</span> <span class="o">-</span> <span class="mi">1</span><span class="p">,</span> <span class="p">:]</span> <span class="o">=</span> \
                 <span class="bp">self</span><span class="o">.</span><span class="n">noaa_mass_balance</span><span class="p">[</span><span class="s1">&#39;mass_components&#39;</span><span class="p">][</span><span class="bp">self</span><span class="o">.</span><span class="n">elements</span><span class="o">.</span><span class="n">ID</span> <span class="o">-</span> <span class="mi">1</span><span class="p">,</span> <span class="p">:]</span><span class="o">*</span><span class="p">(</span><span class="mi">1</span><span class="o">-</span><span class="n">fraction_biodegraded</span><span class="p">[:,</span> <span class="n">np</span><span class="o">.</span><span class="n">newaxis</span><span class="p">])</span>
@@ -728,19 +714,6 @@
 
         <span class="c1"># Biodegradation</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">biodegradation</span><span class="p">()</span></div>
-
-<div class="viewcode-block" id="OpenOil.particle_radius"><a class="viewcode-back" href="../../../autoapi/opendrift/models/openoil/index.html#opendrift.models.openoil.OpenOil.particle_radius">[docs]</a>    <span class="k">def</span> <span class="nf">particle_radius</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Calculate radius of entained particles.</span>
-
-<span class="sd">        Per now a fixed radius, should later use a distribution.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
-
-        <span class="c1"># Delvigne and Sweeney (1988)</span>
-        <span class="c1"># rmax = 1818*np.power(self.wave_energy_dissipation(), -0.5)* \</span>
-        <span class="c1">#             np.power(self.elements.viscosity, 0.34) / 1000000</span>
-
-        <span class="c1"># r = np.random.uniform(0, rmax, self.num_elements_active())</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">elements</span><span class="o">.</span><span class="n">diameter</span><span class="o">/</span><span class="mf">2.0</span>  <span class="c1"># Hardcoded diameter</span></div>
 
 <div class="viewcode-block" id="OpenOil.prepare_run"><a class="viewcode-back" href="../../../autoapi/opendrift/models/openoil/index.html#opendrift.models.openoil.OpenOil.prepare_run">[docs]</a>    <span class="k">def</span> <span class="nf">prepare_run</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 
@@ -957,9 +930,9 @@
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">g</span> <span class="o">=</span> <span class="mf">9.81</span>  <span class="c1"># ms-2</span>
 
-        <span class="n">r</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">particle_radius</span><span class="p">()</span><span class="o">*</span><span class="mf">2.0</span>
+        <span class="n">r</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">elements</span><span class="o">.</span><span class="n">diameter</span>  <span class="c1"># NB: r is diameter, not radius</span>
 
-        <span class="c1"># prepare interpolation of temp, salt</span>
+        <span class="c1"># Prepare interpolation of temp, salt</span>
 
         <span class="k">if</span> <span class="ow">not</span> <span class="p">(</span><span class="n">Tprofiles</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">Sprofiles</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">):</span>
             <span class="k">if</span> <span class="n">z_index</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
@@ -972,7 +945,7 @@
             <span class="n">lower</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">minimum</span><span class="p">(</span><span class="n">upper</span><span class="o">+</span><span class="mi">1</span><span class="p">,</span> <span class="n">Tprofiles</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span>
             <span class="n">weight_upper</span> <span class="o">=</span> <span class="mi">1</span> <span class="o">-</span> <span class="p">(</span><span class="n">zi</span> <span class="o">-</span> <span class="n">upper</span><span class="p">)</span>
 
-        <span class="c1"># do interpolation of temp, salt if profiles were passed into</span>
+        <span class="c1"># Do interpolation of temp, salt if profiles were passed into</span>
         <span class="c1"># this function, if not, use reader by calling self.environment</span>
         <span class="k">if</span> <span class="n">Tprofiles</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="n">T0</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">environment</span><span class="o">.</span><span class="n">sea_water_temperature</span>
@@ -1014,7 +987,6 @@
         <span class="n">W</span><span class="p">[</span><span class="n">highRe</span><span class="p">]</span> <span class="o">=</span> <span class="n">W2</span><span class="p">[</span><span class="n">highRe</span><span class="p">]</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">elements</span><span class="o">.</span><span class="n">terminal_velocity</span> <span class="o">=</span> <span class="n">W</span></div>
 
-
 <div class="viewcode-block" id="OpenOil.oil_wave_entrainment_rate"><a class="viewcode-back" href="../../../autoapi/opendrift/models/openoil/index.html#opendrift.models.openoil.OpenOil.oil_wave_entrainment_rate">[docs]</a>    <span class="k">def</span> <span class="nf">oil_wave_entrainment_rate</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="n">er</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_config</span><span class="p">(</span><span class="s1">&#39;wave_entrainment:entrainment_rate&#39;</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">er</span> <span class="o">==</span> <span class="s1">&#39;Tkalich &amp; Chan (2002)&#39;</span><span class="p">:</span>
@@ -1035,7 +1007,6 @@
                     <span class="n">sea_water_density</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">sea_water_density</span><span class="p">())</span>
         <span class="k">return</span> <span class="n">entrainment_rate</span></div>
 
-
 <div class="viewcode-block" id="OpenOil.prepare_vertical_mixing"><a class="viewcode-back" href="../../../autoapi/opendrift/models/openoil/index.html#opendrift.models.openoil.OpenOil.prepare_vertical_mixing">[docs]</a>    <span class="k">def</span> <span class="nf">prepare_vertical_mixing</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&#39;&#39;&#39;Calculate entrainment probability before main loop&#39;&#39;&#39;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">oil_entrainment_probability</span> <span class="o">=</span> \
@@ -1052,7 +1023,6 @@
         <span class="c1">#plt.gca().set_yscale(&quot;log&quot;)</span>
         <span class="c1">#plt.show()</span>
 
-
 <div class="viewcode-block" id="OpenOil.surface_wave_mixing"><a class="viewcode-back" href="../../../autoapi/opendrift/models/openoil/index.html#opendrift.models.openoil.OpenOil.surface_wave_mixing">[docs]</a>    <span class="k">def</span> <span class="nf">surface_wave_mixing</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">time_step_seconds</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Mix surface oil into water column.&quot;&quot;&quot;</span>
         <span class="c1"># Entrain oil into uppermost layer (whitecapping from waves)</span>
@@ -1062,7 +1032,8 @@
         <span class="n">entrained</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">logical_and</span><span class="p">(</span><span class="n">surface</span><span class="p">,</span>
                         <span class="n">random_number</span><span class="o">&lt;</span><span class="bp">self</span><span class="o">.</span><span class="n">oil_entrainment_probability</span><span class="p">)</span>
 
-        <span class="c1"># Intrusion depth for wave entrainment from Delvigne and Sweeney (1988), Li et al. (2017):</span>
+        <span class="c1"># Intrusion depth for wave entrainment from</span>
+        <span class="c1"># Delvigne and Sweeney (1988), Li et al. (2017):</span>
         <span class="k">if</span> <span class="n">entrained</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;Entraining </span><span class="si">%i</span><span class="s1"> of </span><span class="si">%i</span><span class="s1"> surface elements&#39;</span> <span class="o">%</span>
                           <span class="p">(</span><span class="n">entrained</span><span class="o">.</span><span class="n">sum</span><span class="p">(),</span> <span class="n">surface</span><span class="o">.</span><span class="n">sum</span><span class="p">()))</span>
@@ -1160,11 +1131,6 @@
             <span class="bp">self</span><span class="o">.</span><span class="n">droplet_spectrum_diameter</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="n">dmin</span><span class="p">,</span> <span class="n">dmax</span><span class="p">,</span> <span class="mi">1000000</span><span class="p">)</span>
             <span class="n">g</span> <span class="o">=</span> <span class="mf">9.81</span>
             <span class="n">interfacial_tension</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">oil_water_interfacial_tension</span>
-            <span class="c1">#</span>
-            <span class="c1">#A = self.significant_wave_height()/2. # wave amplitude</span>
-            <span class="c1">#re = (self.elements.density*self.elements.oil_film_thickness*(2*g*A)**0.5) / (self.elements.viscosity*self.elements.density) # Reyolds number</span>
-            <span class="c1">#we = (self.elements.density*self.elements.oil_film_thickness*2*g*A) / interfacial_tension # Weber number</span>
-            <span class="c1">#</span>
             <span class="n">H</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">significant_wave_height</span><span class="p">()</span> <span class="c1"># fall height = 2 * wave amplitude</span>
             <span class="c1"># Reyolds number (Eq. 7a from Johansen et al. 2015)</span>
             <span class="n">re</span> <span class="o">=</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">elements</span><span class="o">.</span><span class="n">density</span><span class="o">*</span><span class="bp">self</span><span class="o">.</span><span class="n">elements</span><span class="o">.</span><span class="n">oil_film_thickness</span><span class="o">*</span><span class="p">(</span><span class="n">g</span><span class="o">*</span><span class="n">H</span><span class="p">)</span><span class="o">**</span><span class="mf">0.5</span><span class="p">)</span> <span class="o">/</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">elements</span><span class="o">.</span><span class="n">viscosity</span><span class="o">*</span><span class="bp">self</span><span class="o">.</span><span class="n">elements</span><span class="o">.</span><span class="n">density</span><span class="p">)</span>
@@ -1173,10 +1139,13 @@
             <span class="n">A</span> <span class="o">=</span> <span class="mf">2.251</span> <span class="c1"># parameters from Johansen et al. 2015</span>
             <span class="n">Bp</span> <span class="o">=</span> <span class="mf">0.027</span>
             <span class="n">B</span> <span class="o">=</span> <span class="n">A</span><span class="o">*</span><span class="n">Bp</span>
-            <span class="n">dN_50</span> <span class="o">=</span> <span class="p">(</span><span class="n">A</span><span class="o">*</span><span class="bp">self</span><span class="o">.</span><span class="n">elements</span><span class="o">.</span><span class="n">oil_film_thickness</span><span class="o">*</span><span class="n">we</span><span class="o">**-</span><span class="mf">0.6</span><span class="p">)</span> <span class="o">+</span> <span class="p">(</span><span class="n">B</span><span class="o">*</span><span class="bp">self</span><span class="o">.</span><span class="n">elements</span><span class="o">.</span><span class="n">oil_film_thickness</span><span class="o">*</span> <span class="n">re</span><span class="o">**-</span><span class="mf">0.6</span><span class="p">)</span> <span class="c1"># median droplet diameter in number distribution</span>
+            <span class="n">dN_50</span> <span class="o">=</span> <span class="p">(</span><span class="n">A</span><span class="o">*</span><span class="bp">self</span><span class="o">.</span><span class="n">elements</span><span class="o">.</span><span class="n">oil_film_thickness</span><span class="o">*</span><span class="n">we</span><span class="o">**-</span><span class="mf">0.6</span><span class="p">)</span> <span class="o">+</span> <span class="p">(</span>
+                     <span class="n">B</span><span class="o">*</span><span class="bp">self</span><span class="o">.</span><span class="n">elements</span><span class="o">.</span><span class="n">oil_film_thickness</span><span class="o">*</span> <span class="n">re</span><span class="o">**-</span><span class="mf">0.6</span><span class="p">)</span>
+                     <span class="c1"># median droplet diameter in number distribution</span>
             <span class="n">sd</span> <span class="o">=</span> <span class="mf">0.4</span> <span class="c1"># log standard deviation in log10 units</span>
             <span class="n">Sd</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="mi">10</span><span class="p">)</span> <span class="o">*</span><span class="n">sd</span> <span class="c1"># log standard deviation in natural log units</span>
-            <span class="n">dV_50</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span> <span class="n">np</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="n">dN_50</span><span class="p">)</span> <span class="o">+</span> <span class="mi">3</span><span class="o">*</span><span class="n">Sd</span><span class="o">**</span><span class="mi">2</span> <span class="p">)</span> <span class="c1"># convert number distribution to volume distribution</span>
+            <span class="c1"># Convert number distribution to volume distribution</span>
+            <span class="n">dV_50</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span> <span class="n">np</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="n">dN_50</span><span class="p">)</span> <span class="o">+</span> <span class="mi">3</span><span class="o">*</span><span class="n">Sd</span><span class="o">**</span><span class="mi">2</span> <span class="p">)</span>
             <span class="c1"># TODO: calculation below with scalars, but we have</span>
             <span class="c1"># arrays, with varying oil properties</span>
             <span class="c1"># treat all particle in one go:</span>
@@ -1197,7 +1166,6 @@
         <span class="sd">&quot;&quot;&quot;Oil elements reaching surface (or above) form slick, not droplet&quot;&quot;&quot;</span>
         <span class="n">surface</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">elements</span><span class="o">.</span><span class="n">z</span> <span class="o">&gt;=</span> <span class="mi">0</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">elements</span><span class="o">.</span><span class="n">z</span><span class="p">[</span><span class="n">surface</span><span class="p">]</span> <span class="o">=</span> <span class="mi">0</span></div>
-
 
 <div class="viewcode-block" id="OpenOil.advect_oil"><a class="viewcode-back" href="../../../autoapi/opendrift/models/openoil/index.html#opendrift.models.openoil.OpenOil.advect_oil">[docs]</a>    <span class="k">def</span> <span class="nf">advect_oil</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 
@@ -1236,24 +1204,10 @@
         <span class="c1"># Advect with ice</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">advect_with_sea_ice</span><span class="p">(</span><span class="n">factor</span><span class="o">=</span><span class="n">k_ice</span><span class="p">)</span></div>
 
-        <span class="c1">## Deactivate elements hitting sea ice</span>
-        <span class="c1">#if hasattr(self.environment, &#39;sea_ice_area_fraction&#39;):</span>
-        <span class="c1">#    self.deactivate_elements(</span>
-        <span class="c1">#        self.environment.sea_ice_area_fraction &gt; 0.6,</span>
-        <span class="c1">#        reason=&#39;oil-in-ice&#39;)</span>
-
-    <span class="c1">#def update(self):</span>
-    <span class="c1">#    &quot;&quot;&quot;Update positions and properties of oil particles.&quot;&quot;&quot;</span>
-
-    <span class="c1">#    # Oil weathering</span>
-    <span class="c1">#    self.oil_weathering()</span>
-
-    <span class="c1">#    # Horizontal advection</span>
-    <span class="c1">#    self.advect_oil()</span>
-
 <div class="viewcode-block" id="OpenOil.update"><a class="viewcode-back" href="../../../autoapi/opendrift/models/openoil/index.html#opendrift.models.openoil.OpenOil.update">[docs]</a>    <span class="k">def</span> <span class="nf">update</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Update positions and properties of oil particles.&quot;&quot;&quot;</span>
 
+        <span class="c1"># TODO: move all config-checking inside respective methods</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_config</span><span class="p">(</span><span class="s1">&#39;processes:update_oilfilm_thickness&#39;</span><span class="p">)</span> <span class="ow">is</span> <span class="kc">True</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">update_surface_oilfilm_thickness</span><span class="p">()</span>
 
@@ -1272,7 +1226,6 @@
 
         <span class="c1"># Horizontal advection (inherited from OpenOil)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">advect_oil</span><span class="p">()</span></div>
-
 
 <div class="viewcode-block" id="OpenOil.get_oil_budget"><a class="viewcode-back" href="../../../autoapi/opendrift/models/openoil/index.html#opendrift.models.openoil.OpenOil.get_oil_budget">[docs]</a>    <span class="k">def</span> <span class="nf">get_oil_budget</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Get oil budget for the current simulation</span>
@@ -1337,12 +1290,14 @@
             <span class="s1">&#39;mass_evaporated&#39;</span><span class="p">:</span> <span class="n">mass_evaporated</span><span class="p">,</span>
             <span class="s1">&#39;mass_biodegraded&#39;</span><span class="p">:</span> <span class="n">mass_biodegraded</span><span class="p">,</span>
             <span class="s1">&#39;mass_total&#39;</span><span class="p">:</span> <span class="p">(</span><span class="n">mass_dispersed</span> <span class="o">+</span> <span class="n">mass_submerged</span> <span class="o">+</span>
-                           <span class="n">mass_surface</span> <span class="o">+</span> <span class="n">mass_stranded</span> <span class="o">+</span> <span class="n">mass_evaporated</span> <span class="o">+</span> <span class="n">mass_biodegraded</span><span class="p">)</span>
-            <span class="p">}</span>
+                           <span class="n">mass_surface</span> <span class="o">+</span> <span class="n">mass_stranded</span> <span class="o">+</span>
+                           <span class="n">mass_evaporated</span> <span class="o">+</span> <span class="n">mass_biodegraded</span><span class="p">)</span>
+             <span class="p">}</span>
 
         <span class="k">return</span> <span class="n">oil_budget</span></div>
 
-<div class="viewcode-block" id="OpenOil.plot_oil_budget"><a class="viewcode-back" href="../../../autoapi/opendrift/models/openoil/index.html#opendrift.models.openoil.OpenOil.plot_oil_budget">[docs]</a>    <span class="k">def</span> <span class="nf">plot_oil_budget</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">filename</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">ax</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">show_density_viscosity</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+<div class="viewcode-block" id="OpenOil.plot_oil_budget"><a class="viewcode-back" href="../../../autoapi/opendrift/models/openoil/index.html#opendrift.models.openoil.OpenOil.plot_oil_budget">[docs]</a>    <span class="k">def</span> <span class="nf">plot_oil_budget</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">filename</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">ax</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                        <span class="n">show_density_viscosity</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
                         <span class="n">show_wind_and_current</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
 
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">time_step</span><span class="o">.</span><span class="n">days</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="p">:</span>  <span class="c1"># Backwards simulation</span>
@@ -1361,7 +1316,8 @@
 
         <span class="n">oil_budget</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">row_stack</span><span class="p">(</span>
             <span class="p">(</span><span class="n">b</span><span class="p">[</span><span class="s1">&#39;mass_dispersed&#39;</span><span class="p">],</span> <span class="n">b</span><span class="p">[</span><span class="s1">&#39;mass_submerged&#39;</span><span class="p">],</span>
-             <span class="n">b</span><span class="p">[</span><span class="s1">&#39;mass_surface&#39;</span><span class="p">],</span> <span class="n">b</span><span class="p">[</span><span class="s1">&#39;mass_stranded&#39;</span><span class="p">],</span> <span class="n">b</span><span class="p">[</span><span class="s1">&#39;mass_evaporated&#39;</span><span class="p">],</span> <span class="n">b</span><span class="p">[</span><span class="s1">&#39;mass_biodegraded&#39;</span><span class="p">]))</span>
+             <span class="n">b</span><span class="p">[</span><span class="s1">&#39;mass_surface&#39;</span><span class="p">],</span> <span class="n">b</span><span class="p">[</span><span class="s1">&#39;mass_stranded&#39;</span><span class="p">],</span>
+             <span class="n">b</span><span class="p">[</span><span class="s1">&#39;mass_evaporated&#39;</span><span class="p">],</span> <span class="n">b</span><span class="p">[</span><span class="s1">&#39;mass_biodegraded&#39;</span><span class="p">]))</span>
         <span class="n">oil_density</span> <span class="o">=</span> <span class="n">b</span><span class="p">[</span><span class="s1">&#39;oil_density&#39;</span><span class="p">]</span>
 
         <span class="n">budget</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">cumsum</span><span class="p">(</span><span class="n">oil_budget</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>

@@ -5,9 +5,9 @@
 
 .. autoapi-nested-parse::
 
-   OpenOil is an oil drift module bundled within the OpenDrift framework. There is both a 2D-version, and 3D-version which adds turbulent vertical mixing.
+   OpenOil is a 3D oil drift module bundled within the OpenDrift framework.
 
-   The oil weathering calculations is based on the NOAA-ERR-ERD OilLibrary package, which must be installed as a dependency. The code for evaporation and emulsification in OpenOil is borrowed from the NOAA PyGnome code, and adapted to the OpenDrift architecture.
+   The oil weathering calculations is based on the NOAA-ERR-ERD OilLibrary package, which is installed as a dependency. The code for evaporation and emulsification in OpenOil is borrowed from the NOAA PyGnome code, and adapted to the OpenDrift architecture.
 
    Example of ship leaking oil along the coast of Northern Norway
    ##############################################################
@@ -39,15 +39,7 @@
        o.config['input']['spill']['droplet_diameter_min_subsea'] = 0.0005  # 0.5 mm
        o.config['input']['spill']['droplet_diameter_max_subsea'] = 0.005   # 5 mm
 
-   After each wave breaking event, a new diameter will be chosen between configurable limits and exponent::
-
-       o.config['turbulentmixing']['droplet_diameter_min_wavebreaking'] = 1e-5
-       o.config['turbulentmixing']['droplet_diameter_max_wavebreaking'] = 1e-3
-       o.config['turbulentmixing']['droplet_size_exponent] = 0
-
-   In this case a logarithmic distribution is used, with N ~ diameter^s, where s is the droplet_size_exponent. A droplet_size_exponent of 0 (default) gives uniform distribution. A value of -2.3 corresponds to the empirical number distribution as found by Delvigne and Sweeney, and 0.7 gives the corresponding volume distribution (number distribution multiplied by diameter3, since volume is proportinal to diameter3).
-
-   The droplet size limits could also have been calculated dynamically from oil viscosity, but this is not yet implemented. The limits above should eventually be adjusted before the time of seeding.
+   After each wave breaking event, a new droplet diameter will be chosen based on the config setting for droplet size distribution.
 
 
 
@@ -152,7 +144,7 @@ Classes
 
       
 
-   .. attribute:: configspecOO
+   .. attribute:: configspec
       
 
       
@@ -160,7 +152,7 @@ Classes
    .. method:: update_surface_oilfilm_thickness(self)
 
 
-      The mass of oil is summed within a grid of 20x20
+      The mass of oil is summed within a grid of 100x100
       cells covering the oil at a given time. Each oil particle
       within each cell is given a film thickness as the amount of
       oil divided by the cell area.
@@ -188,14 +180,6 @@ Classes
 
    .. method:: oil_weathering_default(self)
 
-
-
-   .. method:: particle_radius(self)
-
-
-      Calculate radius of entained particles.
-
-      Per now a fixed radius, should later use a distribution.
 
 
    .. method:: prepare_run(self)
