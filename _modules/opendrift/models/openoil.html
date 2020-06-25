@@ -399,7 +399,6 @@
     <span class="n">default_oil</span> <span class="o">=</span> <span class="n">oil_types</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;,&#39;</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
 
     <span class="c1"># Configuration</span>
-    <span class="c1"># TODO: rename turbulentmixing to verticalmixing</span>
     <span class="n">configspec</span> <span class="o">=</span> <span class="s1">&#39;&#39;&#39;</span>
 <span class="s1">        [input]</span>
 <span class="s1">            [[spill]]</span>
@@ -412,16 +411,16 @@
 <span class="s1">            emulsification = boolean(default=True)</span>
 <span class="s1">            biodegradation = boolean(default=False)</span>
 <span class="s1">            update_oilfilm_thickness = boolean(default=False)</span>
-<span class="s1">            turbulentmixing = boolean(default=True)</span>
 <span class="s1">        [drift]</span>
 <span class="s1">            wind_drift_depth = float(min=0, max=10, default=0.1)</span>
-<span class="s1">            verticaladvection = boolean(default=False)</span>
+<span class="s1">            vertical_advection = boolean(default=False)</span>
+<span class="s1">            vertical_mixing = boolean(default=True)</span>
 <span class="s1">            current_uncertainty = float(min=0, max=5, default=0.05)</span>
 <span class="s1">            wind_uncertainty = float(min=0, max=5, default=.5)</span>
 <span class="s1">        [wave_entrainment]</span>
 <span class="s1">            droplet_size_distribution = option(&#39;Exponential&#39;, &#39;Johansen et al. (2015)&#39;, &#39;Li et al. (2017)&#39;, default=&#39;Johansen et al. (2015)&#39;)</span>
 <span class="s1">            entrainment_rate = option(&#39;Tkalich &amp; Chan (2002)&#39;, &#39;Li et al. (2017)&#39;, default=&#39;Li et al. (2017)&#39;)</span>
-<span class="s1">        [turbulentmixing]</span>
+<span class="s1">        [vertical_mixing]</span>
 <span class="s1">            droplet_diameter_min_wavebreaking = float(default=1e-5, min=1e-8, max=1)</span>
 <span class="s1">            droplet_diameter_max_wavebreaking = float(default=2e-3, min=1e-8, max=1)</span>
 <span class="s1">            droplet_size_exponent = float(default=0, min=-10, max=10)</span>
@@ -1011,7 +1010,7 @@
         <span class="sd">&#39;&#39;&#39;Calculate entrainment probability before main loop&#39;&#39;&#39;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">oil_entrainment_probability</span> <span class="o">=</span> \
             <span class="mi">1</span> <span class="o">-</span> <span class="n">np</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="o">-</span><span class="bp">self</span><span class="o">.</span><span class="n">oil_wave_entrainment_rate</span><span class="p">()</span><span class="o">*</span>\
-                       <span class="bp">self</span><span class="o">.</span><span class="n">get_config</span><span class="p">(</span><span class="s1">&#39;turbulentmixing:timestep&#39;</span><span class="p">))</span>
+                       <span class="bp">self</span><span class="o">.</span><span class="n">get_config</span><span class="p">(</span><span class="s1">&#39;vertical_mixing:timestep&#39;</span><span class="p">))</span>
         <span class="c1"># Calculate a random droplet diameter for each particle,</span>
         <span class="c1"># to be used if this particle gets entrained</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">droplet_diameter_if_entrained</span> <span class="o">=</span> \
@@ -1066,9 +1065,9 @@
         <span class="k">if</span> <span class="ow">not</span> <span class="nb">hasattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s1">&#39;droplet_spectrum_pdf&#39;</span><span class="p">):</span>
             <span class="c1"># Generate droplet spectrum, if not already done</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;Generating wave breaking droplet size spectrum&#39;</span><span class="p">)</span>
-            <span class="n">s</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_config</span><span class="p">(</span><span class="s1">&#39;turbulentmixing:droplet_size_exponent&#39;</span><span class="p">)</span>
-            <span class="n">dmax</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_config</span><span class="p">(</span><span class="s1">&#39;turbulentmixing:droplet_diameter_max_wavebreaking&#39;</span><span class="p">)</span>
-            <span class="n">dmin</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_config</span><span class="p">(</span><span class="s1">&#39;turbulentmixing:droplet_diameter_min_wavebreaking&#39;</span><span class="p">)</span>
+            <span class="n">s</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_config</span><span class="p">(</span><span class="s1">&#39;vertical_mixing:droplet_size_exponent&#39;</span><span class="p">)</span>
+            <span class="n">dmax</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_config</span><span class="p">(</span><span class="s1">&#39;vertical_mixing:droplet_diameter_max_wavebreaking&#39;</span><span class="p">)</span>
+            <span class="n">dmin</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_config</span><span class="p">(</span><span class="s1">&#39;vertical_mixing:droplet_diameter_min_wavebreaking&#39;</span><span class="p">)</span>
             <span class="c1"># Note: a long array of diameters is required for </span>
             <span class="c1"># sufficient resolution at both ends of logarithmic scale.</span>
             <span class="c1"># Could perhaps use logspace instead of linspace(?)</span>
@@ -1088,8 +1087,8 @@
         <span class="k">if</span> <span class="ow">not</span> <span class="nb">hasattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s1">&#39;droplet_spectrum_pdf&#39;</span><span class="p">):</span>
             <span class="c1"># Generate droplet spectrum as in Li (Zhengkai) et al. (2017)</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;Generating wave breaking droplet size spectrum&#39;</span><span class="p">)</span>
-            <span class="n">dmax</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_config</span><span class="p">(</span><span class="s1">&#39;turbulentmixing:droplet_diameter_max_wavebreaking&#39;</span><span class="p">)</span>
-            <span class="n">dmin</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_config</span><span class="p">(</span><span class="s1">&#39;turbulentmixing:droplet_diameter_min_wavebreaking&#39;</span><span class="p">)</span>
+            <span class="n">dmax</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_config</span><span class="p">(</span><span class="s1">&#39;vertical_mixing:droplet_diameter_max_wavebreaking&#39;</span><span class="p">)</span>
+            <span class="n">dmin</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_config</span><span class="p">(</span><span class="s1">&#39;vertical_mixing:droplet_diameter_min_wavebreaking&#39;</span><span class="p">)</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">droplet_spectrum_diameter</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="n">dmin</span><span class="p">,</span> <span class="n">dmax</span><span class="p">,</span> <span class="mi">1000000</span><span class="p">)</span>
             <span class="n">g</span> <span class="o">=</span> <span class="mf">9.81</span>
             <span class="n">interfacial_tension</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">oil_water_interfacial_tension</span>
@@ -1126,8 +1125,8 @@
         <span class="k">if</span> <span class="ow">not</span> <span class="nb">hasattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s1">&#39;droplet_spectrum_pdf&#39;</span><span class="p">)</span> <span class="ow">or</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_config</span><span class="p">(</span><span class="s1">&#39;processes:update_oilfilm_thickness&#39;</span><span class="p">)</span> <span class="ow">is</span> <span class="kc">True</span><span class="p">:</span>
             <span class="c1"># Generate droplet spectrum as in Johansen et al. (2015)</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;Generating wave breaking droplet size spectrum&#39;</span><span class="p">)</span>
-            <span class="n">dmax</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_config</span><span class="p">(</span><span class="s1">&#39;turbulentmixing:droplet_diameter_max_wavebreaking&#39;</span><span class="p">)</span>
-            <span class="n">dmin</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_config</span><span class="p">(</span><span class="s1">&#39;turbulentmixing:droplet_diameter_min_wavebreaking&#39;</span><span class="p">)</span>
+            <span class="n">dmax</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_config</span><span class="p">(</span><span class="s1">&#39;vertical_mixing:droplet_diameter_max_wavebreaking&#39;</span><span class="p">)</span>
+            <span class="n">dmin</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_config</span><span class="p">(</span><span class="s1">&#39;vertical_mixing:droplet_diameter_min_wavebreaking&#39;</span><span class="p">)</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">droplet_spectrum_diameter</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="n">dmin</span><span class="p">,</span> <span class="n">dmax</span><span class="p">,</span> <span class="mi">1000000</span><span class="p">)</span>
             <span class="n">g</span> <span class="o">=</span> <span class="mf">9.81</span>
             <span class="n">interfacial_tension</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">oil_water_interfacial_tension</span>
@@ -1215,13 +1214,13 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">oil_weathering</span><span class="p">()</span>
 
         <span class="c1"># Turbulent Mixing</span>
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_config</span><span class="p">(</span><span class="s1">&#39;processes:turbulentmixing&#39;</span><span class="p">)</span> <span class="ow">is</span> <span class="kc">True</span><span class="p">:</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_config</span><span class="p">(</span><span class="s1">&#39;drift:vertical_mixing&#39;</span><span class="p">)</span> <span class="ow">is</span> <span class="kc">True</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">update_terminal_velocity</span><span class="p">()</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">vertical_mixing</span><span class="p">()</span>
             <span class="k">del</span> <span class="bp">self</span><span class="o">.</span><span class="n">droplet_spectrum_pdf</span>
 
         <span class="c1"># Vertical advection</span>
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_config</span><span class="p">(</span><span class="s1">&#39;processes:verticaladvection&#39;</span><span class="p">)</span> <span class="ow">is</span> <span class="kc">True</span><span class="p">:</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_config</span><span class="p">(</span><span class="s1">&#39;drift:vertical_advection&#39;</span><span class="p">)</span> <span class="ow">is</span> <span class="kc">True</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">vertical_advection</span><span class="p">()</span>
 
         <span class="c1"># Horizontal advection (inherited from OpenOil)</span>
