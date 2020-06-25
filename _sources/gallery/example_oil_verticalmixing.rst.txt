@@ -1,0 +1,348 @@
+.. only:: html
+
+    .. note::
+        :class: sphx-glr-download-link-note
+
+        Click :ref:`here <sphx_glr_download_gallery_example_oil_verticalmixing.py>`     to download the full example code
+    .. rst-class:: sphx-glr-example-title
+
+    .. _sphx_glr_gallery_example_oil_verticalmixing.py:
+
+
+Oil vertical mixing
+==================================
+
+
+.. code-block:: default
+
+
+    from datetime import timedelta
+    from opendrift.readers import reader_netCDF_CF_generic
+    from opendrift.models.openoil import OpenOil
+
+
+    o = OpenOil(loglevel=20)  # Set loglevel to 0 for debug information
+
+    ncfile = 'oilmixing.nc'
+    import_file = False  # Set to True to import previous run
+
+    if import_file is True:
+        o.io_import_file(ncfile)
+    else:
+        reader_arome = reader_netCDF_CF_generic.Reader('https://thredds.met.no/thredds/dodsC/mepslatest/meps_lagged_6_h_latest_2_5km_latest.nc')
+        reader_norkyst = reader_netCDF_CF_generic.Reader('https://thredds.met.no/thredds/dodsC/sea/norkyst800m/1h/aggregate_be')
+
+        o.add_reader([reader_norkyst, reader_arome])
+
+        # Seed oil elements at defined position and time
+        o.seed_elements(lon=4.9, lat=62.1, z=0, radius=1000, number=2000,
+                        time=reader_arome.start_time)
+
+        # Adjusting some configuration
+        #o.set_config('vertical_mixing:diffusivitymodel', 'windspeed_Sundby1983')
+
+        # Running model
+        o.run(end_time=reader_arome.start_time + timedelta(hours=12),
+              time_step=900, time_step_output=1800, outfile=ncfile)
+
+
+
+
+
+.. rst-class:: sphx-glr-script-out
+
+ Out:
+
+ .. code-block:: none
+
+    19:17:48 INFO: OpenDriftSimulation initialised (version 1.3.0)
+    19:17:48 INFO: Opening dataset: https://thredds.met.no/thredds/dodsC/mepslatest/meps_lagged_6_h_latest_2_5km_latest.nc
+    19:17:48 INFO: Opening file with Dataset
+    19:17:49 INFO: Could not parse CF grid_mapping
+    19:17:51 INFO: Opening dataset: https://thredds.met.no/thredds/dodsC/sea/norkyst800m/1h/aggregate_be
+    19:17:51 INFO: Opening file with Dataset
+    19:17:57 INFO: Oil type not specified, using default: AASGAR
+    19:17:57 INFO: Config validation OK
+    19:17:57 INFO: Fallback values will be used for the following variables which have no readers: 
+    19:17:57 INFO:  sea_surface_wave_significant_height: 0.000000
+    19:17:57 INFO:  sea_surface_wave_stokes_drift_x_velocity: 0.000000
+    19:17:57 INFO:  sea_surface_wave_stokes_drift_y_velocity: 0.000000
+    19:17:57 INFO:  sea_surface_wave_period_at_variance_spectral_density_maximum: 0.000000
+    19:17:57 INFO:  sea_surface_wave_mean_period_from_variance_spectral_density_second_frequency_moment: 0.000000
+    19:17:57 INFO:  sea_ice_area_fraction: 0.000000
+    19:17:57 INFO:  sea_ice_x_velocity: 0.000000
+    19:17:57 INFO:  sea_ice_y_velocity: 0.000000
+    19:17:57 INFO: Adding a dynamical landmask with max. priority based on assumed maximum speed of 1.3 m/s. Adding a customised landmask may be faster...
+    19:18:00 INFO: Using existing reader for land_binary_mask
+    19:18:00 INFO: All points are in ocean
+    19:18:00 INFO: Using default oil-water tension of 0.03Nm
+    19:18:00 INFO: 2020-06-25 16:00:00 - step 1 of 48 - 2000 active elements (0 deactivated)
+    19:18:02 WARNING: Invalid values (-0.0009999999 to -1e-04) found for ocean_vertical_diffusivity, replacing with NaN
+    19:18:02 WARNING: (allowed range: [0, 1])
+    19:18:02 WARNING: Still NaN-values after 10 iterations, exiting!
+    19:18:03 INFO: 2020-06-25 16:15:00 - step 2 of 48 - 2000 active elements (0 deactivated)
+    19:18:04 WARNING: Invalid values (-0.0029 to -1e-04) found for ocean_vertical_diffusivity, replacing with NaN
+    19:18:04 WARNING: (allowed range: [0, 1])
+    19:18:04 WARNING: Still NaN-values after 10 iterations, exiting!
+    19:18:04 INFO: Interpolating profiles in time
+    19:18:04 INFO: 2020-06-25 16:30:00 - step 3 of 48 - 1936 active elements (64 deactivated)
+    19:18:04 INFO: Interpolating profiles in time
+    19:18:05 INFO: 2020-06-25 16:45:00 - step 4 of 48 - 1878 active elements (122 deactivated)
+    19:18:05 INFO: Interpolating profiles in time
+    19:18:05 INFO: 2020-06-25 17:00:00 - step 5 of 48 - 1810 active elements (190 deactivated)
+    19:18:05 INFO: 2020-06-25 17:15:00 - step 6 of 48 - 1723 active elements (277 deactivated)
+    19:18:06 WARNING: Invalid values (-0.0039 to -1e-04) found for ocean_vertical_diffusivity, replacing with NaN
+    19:18:06 WARNING: (allowed range: [0, 1])
+    19:18:06 INFO: Interpolating profiles in time
+    19:18:07 INFO: 2020-06-25 17:30:00 - step 7 of 48 - 1640 active elements (360 deactivated)
+    19:18:07 INFO: Interpolating profiles in time
+    19:18:07 INFO: 2020-06-25 17:45:00 - step 8 of 48 - 1609 active elements (391 deactivated)
+    19:18:07 INFO: Interpolating profiles in time
+    19:18:07 INFO: 2020-06-25 18:00:00 - step 9 of 48 - 1587 active elements (413 deactivated)
+    19:18:07 INFO: 2020-06-25 18:15:00 - step 10 of 48 - 1567 active elements (433 deactivated)
+    19:18:08 WARNING: Invalid values (-0.006 to -0.0002) found for ocean_vertical_diffusivity, replacing with NaN
+    19:18:08 WARNING: (allowed range: [0, 1])
+    19:18:08 INFO: Interpolating profiles in time
+    19:18:09 INFO: 2020-06-25 18:30:00 - step 11 of 48 - 1551 active elements (449 deactivated)
+    19:18:09 INFO: Interpolating profiles in time
+    19:18:09 INFO: 2020-06-25 18:45:00 - step 12 of 48 - 1546 active elements (454 deactivated)
+    19:18:09 INFO: Interpolating profiles in time
+    19:18:09 INFO: 2020-06-25 19:00:00 - step 13 of 48 - 1544 active elements (456 deactivated)
+    19:18:09 INFO: 2020-06-25 19:15:00 - step 14 of 48 - 1535 active elements (465 deactivated)
+    19:18:10 WARNING: Invalid values (-0.005 to -1e-04) found for ocean_vertical_diffusivity, replacing with NaN
+    19:18:10 WARNING: (allowed range: [0, 1])
+    19:18:11 INFO: Interpolating profiles in time
+    19:18:11 INFO: 2020-06-25 19:30:00 - step 15 of 48 - 1530 active elements (470 deactivated)
+    19:18:11 INFO: Interpolating profiles in time
+    19:18:11 INFO: 2020-06-25 19:45:00 - step 16 of 48 - 1529 active elements (471 deactivated)
+    19:18:11 INFO: Interpolating profiles in time
+    19:18:11 INFO: 2020-06-25 20:00:00 - step 17 of 48 - 1523 active elements (477 deactivated)
+    19:18:11 INFO: 2020-06-25 20:15:00 - step 18 of 48 - 1523 active elements (477 deactivated)
+    19:18:13 WARNING: Invalid values (-0.0016 to -1e-04) found for ocean_vertical_diffusivity, replacing with NaN
+    19:18:13 WARNING: (allowed range: [0, 1])
+    19:18:13 INFO: Interpolating profiles in time
+    19:18:13 INFO: 2020-06-25 20:30:00 - step 19 of 48 - 1521 active elements (479 deactivated)
+    19:18:13 INFO: Interpolating profiles in time
+    19:18:13 INFO: 2020-06-25 20:45:00 - step 20 of 48 - 1518 active elements (482 deactivated)
+    19:18:13 INFO: Interpolating profiles in time
+    19:18:13 INFO: 2020-06-25 21:00:00 - step 21 of 48 - 1513 active elements (487 deactivated)
+    19:18:13 INFO: 2020-06-25 21:15:00 - step 22 of 48 - 1509 active elements (491 deactivated)
+    19:18:15 INFO: Interpolating profiles in time
+    19:18:15 INFO: 2020-06-25 21:30:00 - step 23 of 48 - 1508 active elements (492 deactivated)
+    19:18:15 INFO: Interpolating profiles in time
+    19:18:15 INFO: 2020-06-25 21:45:00 - step 24 of 48 - 1506 active elements (494 deactivated)
+    19:18:15 INFO: Interpolating profiles in time
+    19:18:15 INFO: 2020-06-25 22:00:00 - step 25 of 48 - 1502 active elements (498 deactivated)
+    19:18:16 INFO: 2020-06-25 22:15:00 - step 26 of 48 - 1501 active elements (499 deactivated)
+    19:18:17 INFO: Interpolating profiles in time
+    19:18:18 INFO: 2020-06-25 22:30:00 - step 27 of 48 - 1496 active elements (504 deactivated)
+    19:18:18 INFO: Interpolating profiles in time
+    19:18:18 INFO: 2020-06-25 22:45:00 - step 28 of 48 - 1494 active elements (506 deactivated)
+    19:18:18 INFO: Interpolating profiles in time
+    19:18:18 INFO: 2020-06-25 23:00:00 - step 29 of 48 - 1490 active elements (510 deactivated)
+    19:18:18 INFO: 2020-06-25 23:15:00 - step 30 of 48 - 1490 active elements (510 deactivated)
+    19:18:19 INFO: Interpolating profiles in time
+    19:18:20 INFO: 2020-06-25 23:30:00 - step 31 of 48 - 1485 active elements (515 deactivated)
+    19:18:20 INFO: Interpolating profiles in time
+    19:18:20 INFO: 2020-06-25 23:45:00 - step 32 of 48 - 1483 active elements (517 deactivated)
+    19:18:20 INFO: Interpolating profiles in time
+    19:18:20 INFO: 2020-06-26 00:00:00 - step 33 of 48 - 1479 active elements (521 deactivated)
+    19:18:20 INFO: 2020-06-26 00:15:00 - step 34 of 48 - 1477 active elements (523 deactivated)
+    19:18:21 INFO: Interpolating profiles in time
+    19:18:22 INFO: 2020-06-26 00:30:00 - step 35 of 48 - 1475 active elements (525 deactivated)
+    19:18:22 INFO: Interpolating profiles in time
+    19:18:22 INFO: 2020-06-26 00:45:00 - step 36 of 48 - 1471 active elements (529 deactivated)
+    19:18:22 INFO: Interpolating profiles in time
+    19:18:22 INFO: 2020-06-26 01:00:00 - step 37 of 48 - 1470 active elements (530 deactivated)
+    19:18:22 INFO: 2020-06-26 01:15:00 - step 38 of 48 - 1467 active elements (533 deactivated)
+    19:18:23 INFO: Interpolating profiles in time
+    19:18:24 INFO: 2020-06-26 01:30:00 - step 39 of 48 - 1461 active elements (539 deactivated)
+    19:18:24 INFO: Interpolating profiles in time
+    19:18:24 INFO: 2020-06-26 01:45:00 - step 40 of 48 - 1457 active elements (543 deactivated)
+    19:18:24 INFO: Interpolating profiles in time
+    19:18:24 INFO: 2020-06-26 02:00:00 - step 41 of 48 - 1455 active elements (545 deactivated)
+    19:18:24 INFO: 2020-06-26 02:15:00 - step 42 of 48 - 1454 active elements (546 deactivated)
+    19:18:25 INFO: Interpolating profiles in time
+    19:18:26 INFO: 2020-06-26 02:30:00 - step 43 of 48 - 1450 active elements (550 deactivated)
+    19:18:26 INFO: Interpolating profiles in time
+    19:18:26 INFO: 2020-06-26 02:45:00 - step 44 of 48 - 1450 active elements (550 deactivated)
+    19:18:26 INFO: Interpolating profiles in time
+    19:18:26 INFO: 2020-06-26 03:00:00 - step 45 of 48 - 1447 active elements (553 deactivated)
+    19:18:26 INFO: 2020-06-26 03:15:00 - step 46 of 48 - 1446 active elements (554 deactivated)
+    19:18:27 WARNING: Invalid values (-0.0004 to -1e-04) found for ocean_vertical_diffusivity, replacing with NaN
+    19:18:27 WARNING: (allowed range: [0, 1])
+    19:18:27 INFO: Interpolating profiles in time
+    19:18:28 INFO: 2020-06-26 03:30:00 - step 47 of 48 - 1441 active elements (559 deactivated)
+    19:18:28 INFO: Interpolating profiles in time
+    19:18:28 INFO: 2020-06-26 03:45:00 - step 48 of 48 - 1439 active elements (561 deactivated)
+    19:18:28 INFO: Interpolating profiles in time
+    19:18:28 INFO: Wrote 25 steps to file oilmixing.nc
+
+
+
+
+Print and plot results
+
+
+.. code-block:: default
+
+    print(o)
+
+    o.plot(linecolor='z', fast=True)
+    o.plot_property('z')
+    o.plot_oil_budget()
+    o.animation(fast=True)
+
+
+
+
+.. rst-class:: sphx-glr-horizontal
+
+
+    *
+
+      .. image:: /gallery/images/sphx_glr_example_oil_verticalmixing_001.png
+          :alt: OpenDrift - OpenOil (AASGAR) 2020-06-25 16:00 to 2020-06-26 04:00 UTC (25 steps)
+          :class: sphx-glr-multi-img
+
+    *
+
+      .. image:: /gallery/images/sphx_glr_example_oil_verticalmixing_002.png
+          :alt: z
+          :class: sphx-glr-multi-img
+
+    *
+
+      .. image:: /gallery/images/sphx_glr_example_oil_verticalmixing_003.png
+          :alt: AASGAR (880.0 kg/m3) - 2020-06-25 16:00 to 2020-06-26 04:00
+          :class: sphx-glr-multi-img
+
+
+.. rst-class:: sphx-glr-script-out
+
+ Out:
+
+ .. code-block:: none
+
+    ===========================
+    --------------------
+    Reader performance:
+    --------------------
+    https://thredds.met.no/thredds/dodsC/sea/norkyst800m/1h/aggregate_be
+     0:00:22.4  total
+     0:00:00.0  preparing
+     0:00:21.5  reading
+     0:00:00.7  interpolation
+     0:00:00.0  interpolation_time
+     0:00:00.0  masking
+    --------------------
+    https://thredds.met.no/thredds/dodsC/mepslatest/meps_lagged_6_h_latest_2_5km_latest.nc
+    --------------------
+    global_landmask
+     0:00:00.0  total
+     0:00:00.0  preparing
+     0:00:00.0  reading
+     0:00:00.0  interpolation_time
+     0:00:00.0  masking
+    --------------------
+    Performance:
+       40.7 total time
+        9.5 configuration
+        2.7 preparing main loop
+          2.5 making dynamical landmask
+          0.0 moving elements to ocean
+         22.8 readers
+            0.0 global_landmask
+            0.2 postprocessing
+       27.8 main loop
+           22.5 https://thredds.met.no/thredds/dodsC/sea/norkyst800m/1h/aggregate_be
+          4.5 updating elements
+            0.0 oil weathering
+            3.9 vertical mixing
+        0.6 cleaning up
+    --------------------
+    ===========================
+    Model:  OpenOil     (OpenDrift version 1.3.0)
+            1431 active Oil particles  (569 deactivated, 0 scheduled)
+    Projection: +proj=stere +ellps=WGS84 +lat_0=90.0 +lat_ts=60.0 +x_0=3192800 +y_0=1784000 +lon_0=70
+    -------------------
+    Environment variables:
+      -----
+      ocean_vertical_diffusivity
+      sea_floor_depth_below_sea_level
+      sea_water_salinity
+      sea_water_temperature
+      upward_sea_water_velocity
+      x_sea_water_velocity
+      y_sea_water_velocity
+         1) https://thredds.met.no/thredds/dodsC/sea/norkyst800m/1h/aggregate_be
+      -----
+      x_wind
+      y_wind
+         1) https://thredds.met.no/thredds/dodsC/sea/norkyst800m/1h/aggregate_be
+         2) https://thredds.met.no/thredds/dodsC/mepslatest/meps_lagged_6_h_latest_2_5km_latest.nc
+      -----
+      land_binary_mask
+         1) global_landmask
+      -----
+    Readers not added for the following variables:
+      sea_ice_area_fraction
+      sea_ice_x_velocity
+      sea_ice_y_velocity
+      sea_surface_wave_mean_period_from_variance_spectral_density_second_frequency_moment
+      sea_surface_wave_period_at_variance_spectral_density_maximum
+      sea_surface_wave_significant_height
+      sea_surface_wave_stokes_drift_x_velocity
+      sea_surface_wave_stokes_drift_y_velocity
+
+    Time:
+            Start: 2020-06-25 16:00:00
+            Present: 2020-06-26 04:00:00
+            Calculation steps: 48 * 0:15:00 - total time: 12:00:00
+            Output steps: 25 * 0:30:00
+    ===========================
+
+    19:18:29 WARNING: plotting fast. this will make your plots less accurate.
+    /opt/conda/envs/opendrift/lib/python3.8/site-packages/numpy/ma/core.py:1026: RuntimeWarning: overflow encountered in multiply
+      result = self.f(da, db, *args, **kwargs)
+    19:18:45 WARNING: plotting fast. this will make your plots less accurate.
+    19:18:46 INFO: Saving animation to /root/project/docs/source/gallery/animations/example_oil_verticalmixing_0.gif...
+    19:18:46 INFO: Making animated gif...
+
+
+
+
+.. image:: /gallery/animations/example_oil_verticalmixing_0.gif
+
+
+.. rst-class:: sphx-glr-timing
+
+   **Total running time of the script:** ( 1 minutes  16.390 seconds)
+
+
+.. _sphx_glr_download_gallery_example_oil_verticalmixing.py:
+
+
+.. only :: html
+
+ .. container:: sphx-glr-footer
+    :class: sphx-glr-footer-example
+
+
+
+  .. container:: sphx-glr-download sphx-glr-download-python
+
+     :download:`Download Python source code: example_oil_verticalmixing.py <example_oil_verticalmixing.py>`
+
+
+
+  .. container:: sphx-glr-download sphx-glr-download-jupyter
+
+     :download:`Download Jupyter notebook: example_oil_verticalmixing.ipynb <example_oil_verticalmixing.ipynb>`
+
+
+.. only:: html
+
+ .. rst-class:: sphx-glr-signature
+
+    `Gallery generated by Sphinx-Gallery <https://sphinx-gallery.github.io>`_

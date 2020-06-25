@@ -1,0 +1,580 @@
+.. only:: html
+
+    .. note::
+        :class: sphx-glr-download-link-note
+
+        Click :ref:`here <sphx_glr_download_gallery_example_cone.py>`     to download the full example code
+    .. rst-class:: sphx-glr-example-title
+
+    .. _sphx_glr_gallery_example_cone.py:
+
+
+Cone seeding
+=====================
+
+
+.. code-block:: default
+
+
+    from datetime import datetime, timedelta
+    from opendrift.readers import reader_netCDF_CF_generic
+    from opendrift.models.openoil import OpenOil
+
+    o = OpenOil(loglevel=20)  # Set loglevel to 0 for debug information
+
+
+
+
+
+.. rst-class:: sphx-glr-script-out
+
+ Out:
+
+ .. code-block:: none
+
+    18:59:52 INFO: OpenDriftSimulation initialised (version 1.3.0)
+
+
+
+
+Using live data from Thredds
+reader_arome = reader_netCDF_CF_generic.Reader('https://thredds.met.no/thredds/dodsC/mepslatest/meps_lagged_6_h_latest_2_5km_latest.nc')
+reader_norkyst = reader_netCDF_CF_generic.Reader('https://thredds.met.no/thredds/dodsC/sea/norkyst800m/1h/aggregate_be')
+
+
+.. code-block:: default
+
+
+    o.add_readers_from_list([
+        'https://thredds.met.no/thredds/dodsC/sea/norkyst800m/1h/aggregate_be'])
+
+
+
+
+
+.. rst-class:: sphx-glr-script-out
+
+ Out:
+
+ .. code-block:: none
+
+    18:59:52 INFO: Setting SRS to latlong, since not defined before.
+
+
+
+
+Seed elements along cone, e.g. ship track with
+increasing uncertainty in position
+
+
+.. code-block:: default
+
+    latstart = 68.988911
+    lonstart = 16.040701
+    latend = 69.991446
+    lonend = 17.760061
+    time = [datetime.now(), datetime.now() + timedelta(hours=12)]
+
+    o.seed_elements(lon=[lonstart, lonend], lat=[latstart, latend],
+                    oiltype='EKOFISK',
+                    radius=[100, 800], number=10000, time=time, cone=True)
+
+    print(o)
+
+
+
+
+
+.. rst-class:: sphx-glr-script-out
+
+ Out:
+
+ .. code-block:: none
+
+    ===========================
+    Model:  OpenOil     (OpenDrift version 1.3.0)
+            0 active Oil particles  (0 deactivated, 10000 scheduled)
+    Projection: +proj=latlong
+    -------------------
+    Environment variables:
+      -----
+    Readers not added for the following variables:
+      land_binary_mask
+      ocean_vertical_diffusivity
+      sea_floor_depth_below_sea_level
+      sea_ice_area_fraction
+      sea_ice_x_velocity
+      sea_ice_y_velocity
+      sea_surface_wave_mean_period_from_variance_spectral_density_second_frequency_moment
+      sea_surface_wave_period_at_variance_spectral_density_maximum
+      sea_surface_wave_significant_height
+      sea_surface_wave_stokes_drift_x_velocity
+      sea_surface_wave_stokes_drift_y_velocity
+      sea_water_salinity
+      sea_water_temperature
+      upward_sea_water_velocity
+      x_sea_water_velocity
+      x_wind
+      y_sea_water_velocity
+      y_wind
+    ---
+    Lazy readers:
+      LazyReader: https://thredds.met.no/thredds/dodsC/sea/norkyst800m/1h/aggregate_be
+    ===========================
+
+
+
+
+
+Adjusting some configuration
+
+
+.. code-block:: default
+
+    o.set_config('processes:dispersion', True)
+    o.set_config('processes:evaporation', False)
+    o.set_config('processes:emulsification', True)
+    o.set_2d()
+    #o.set_config('drift:vertical_mixing', False)
+    #o.set_config('drift:vertical_mixing', False)
+
+
+
+
+
+.. rst-class:: sphx-glr-script-out
+
+ Out:
+
+ .. code-block:: none
+
+    19:00:01 INFO: Setting config: drift:vertical_advection -> False
+    19:00:01 INFO: Setting config: drift:vertical_mixing -> False
+
+
+
+
+Running model for 24 hours
+
+
+.. code-block:: default
+
+    o.run(steps=24*2, time_step=1800, time_step_output=3600)
+
+
+
+
+
+.. rst-class:: sphx-glr-script-out
+
+ Out:
+
+ .. code-block:: none
+
+    19:00:01 INFO: Config validation OK
+    19:00:01 INFO: Fallback values will be used for the following variables which have no readers: 
+    19:00:01 INFO:  upward_sea_water_velocity: 0.000000
+    19:00:01 INFO:  sea_surface_wave_significant_height: 0.000000
+    19:00:01 INFO:  sea_surface_wave_stokes_drift_x_velocity: 0.000000
+    19:00:01 INFO:  sea_surface_wave_stokes_drift_y_velocity: 0.000000
+    19:00:01 INFO:  sea_surface_wave_period_at_variance_spectral_density_maximum: 0.000000
+    19:00:01 INFO:  sea_surface_wave_mean_period_from_variance_spectral_density_second_frequency_moment: 0.000000
+    19:00:01 INFO:  sea_ice_area_fraction: 0.000000
+    19:00:01 INFO:  sea_ice_x_velocity: 0.000000
+    19:00:01 INFO:  sea_ice_y_velocity: 0.000000
+    19:00:01 INFO:  sea_water_temperature: 10.000000
+    19:00:01 INFO:  sea_water_salinity: 34.000000
+    19:00:01 INFO:  sea_floor_depth_below_sea_level: 10000.000000
+    19:00:01 INFO:  ocean_vertical_diffusivity: 0.020000
+    19:00:01 INFO: Adding a dynamical landmask with max. priority based on assumed maximum speed of 1.3 m/s. Adding a customised landmask may be faster...
+    19:00:03 INFO: Using existing reader for land_binary_mask
+    19:00:03 INFO: All points are in ocean
+    19:00:03 INFO: Using default oil-water tension of 0.03Nm
+    19:00:03 INFO: 2020-06-25 18:59:52.669058 - step 1 of 48 - 417 active elements (0 deactivated)
+    19:00:04 INFO: Opening dataset: https://thredds.met.no/thredds/dodsC/sea/norkyst800m/1h/aggregate_be
+    19:00:04 INFO: Opening file with Dataset
+    19:00:11 WARNING: Invalid values (-0.0037999998 to -0.0016) found for ocean_vertical_diffusivity, replacing with NaN
+    19:00:11 WARNING: (allowed range: [0, 1])
+    19:00:12 WARNING: Invalid values (-0.0111 to -0.0042) found for ocean_vertical_diffusivity, replacing with NaN
+    19:00:12 WARNING: (allowed range: [0, 1])
+    19:00:12 WARNING: Only NaNs input to linearNDFast - returning
+    19:00:12 WARNING: Only NaNs input to linearNDFast - returning
+    19:00:12 INFO: Interpolating profiles in time
+    19:00:12 WARNING: Only NaNs input to linearNDFast - returning
+    19:00:12 INFO: 2020-06-25 19:29:52.669058 - step 2 of 48 - 834 active elements (0 deactivated)
+    19:00:14 WARNING: Invalid values (-0.0157 to -0.0066) found for ocean_vertical_diffusivity, replacing with NaN
+    19:00:14 WARNING: (allowed range: [0, 1])
+    19:00:14 WARNING: Only NaNs input to linearNDFast - returning
+    19:00:14 WARNING: Only NaNs input to linearNDFast - returning
+    19:00:14 INFO: Interpolating profiles in time
+    19:00:14 WARNING: Data block from https://thredds.met.no/thredds/dodsC/sea/norkyst800m/1h/aggregate_be not large enough to cover element positions within timestep. Buffer size (8) must be increased.
+    19:00:14 WARNING: Only NaNs input to linearNDFast - returning
+    19:00:14 INFO: 2020-06-25 19:59:52.669058 - step 3 of 48 - 1250 active elements (0 deactivated)
+    19:00:15 WARNING: Invalid values (-0.0157 to -0.0069) found for ocean_vertical_diffusivity, replacing with NaN
+    19:00:15 WARNING: (allowed range: [0, 1])
+    19:00:15 WARNING: Data block from https://thredds.met.no/thredds/dodsC/sea/norkyst800m/1h/aggregate_be not large enough to cover element positions within timestep. Buffer size (8) must be increased.
+    19:00:15 WARNING: Only NaNs input to linearNDFast - returning
+    19:00:15 WARNING: Only NaNs input to linearNDFast - returning
+    19:00:15 INFO: Interpolating profiles in time
+    19:00:15 WARNING: Only NaNs input to linearNDFast - returning
+    19:00:15 INFO: 2020-06-25 20:29:52.669058 - step 4 of 48 - 1667 active elements (0 deactivated)
+    19:00:17 WARNING: Invalid values (-0.0167 to -0.0066) found for ocean_vertical_diffusivity, replacing with NaN
+    19:00:17 WARNING: (allowed range: [0, 1])
+    19:00:17 WARNING: Only NaNs input to linearNDFast - returning
+    19:00:17 WARNING: Only NaNs input to linearNDFast - returning
+    19:00:17 INFO: Interpolating profiles in time
+    19:00:17 WARNING: Data block from https://thredds.met.no/thredds/dodsC/sea/norkyst800m/1h/aggregate_be not large enough to cover element positions within timestep. Buffer size (8) must be increased.
+    19:00:17 WARNING: Only NaNs input to linearNDFast - returning
+    19:00:17 INFO: 2020-06-25 20:59:52.669058 - step 5 of 48 - 2084 active elements (0 deactivated)
+    19:00:19 WARNING: Invalid values (-0.0167 to -0.0069999998) found for ocean_vertical_diffusivity, replacing with NaN
+    19:00:19 WARNING: (allowed range: [0, 1])
+    19:00:19 WARNING: Data block from https://thredds.met.no/thredds/dodsC/sea/norkyst800m/1h/aggregate_be not large enough to cover element positions within timestep. Buffer size (8) must be increased.
+    19:00:19 WARNING: Only NaNs input to linearNDFast - returning
+    19:00:19 WARNING: Only NaNs input to linearNDFast - returning
+    19:00:19 INFO: Interpolating profiles in time
+    19:00:19 WARNING: Data block from https://thredds.met.no/thredds/dodsC/sea/norkyst800m/1h/aggregate_be not large enough to cover element positions within timestep. Buffer size (8) must be increased.
+    19:00:19 WARNING: Only NaNs input to linearNDFast - returning
+    19:00:19 INFO: 2020-06-25 21:29:52.669058 - step 6 of 48 - 2500 active elements (0 deactivated)
+    19:00:20 WARNING: Invalid values (-0.0148 to -0.0046) found for ocean_vertical_diffusivity, replacing with NaN
+    19:00:20 WARNING: (allowed range: [0, 1])
+    19:00:20 WARNING: Data block from https://thredds.met.no/thredds/dodsC/sea/norkyst800m/1h/aggregate_be not large enough to cover element positions within timestep. Buffer size (8) must be increased.
+    19:00:20 WARNING: Only NaNs input to linearNDFast - returning
+    19:00:20 WARNING: Only NaNs input to linearNDFast - returning
+    19:00:20 INFO: Interpolating profiles in time
+    19:00:20 WARNING: Data block from https://thredds.met.no/thredds/dodsC/sea/norkyst800m/1h/aggregate_be not large enough to cover element positions within timestep. Buffer size (8) must be increased.
+    19:00:20 WARNING: Only NaNs input to linearNDFast - returning
+    19:00:20 INFO: 2020-06-25 21:59:52.669058 - step 7 of 48 - 2917 active elements (0 deactivated)
+    19:00:21 WARNING: Invalid values (-0.0149 to -0.0046) found for ocean_vertical_diffusivity, replacing with NaN
+    19:00:21 WARNING: (allowed range: [0, 1])
+    19:00:21 WARNING: Data block from https://thredds.met.no/thredds/dodsC/sea/norkyst800m/1h/aggregate_be not large enough to cover element positions within timestep. Buffer size (8) must be increased.
+    19:00:21 WARNING: Only NaNs input to linearNDFast - returning
+    19:00:21 WARNING: Only NaNs input to linearNDFast - returning
+    19:00:21 INFO: Interpolating profiles in time
+    19:00:21 WARNING: Data block from https://thredds.met.no/thredds/dodsC/sea/norkyst800m/1h/aggregate_be not large enough to cover element positions within timestep. Buffer size (8) must be increased.
+    19:00:21 WARNING: Only NaNs input to linearNDFast - returning
+    19:00:21 INFO: 2020-06-25 22:29:52.669058 - step 8 of 48 - 3334 active elements (0 deactivated)
+    19:00:23 WARNING: Invalid values (-0.0066 to -0.0021) found for ocean_vertical_diffusivity, replacing with NaN
+    19:00:23 WARNING: (allowed range: [0, 1])
+    19:00:23 WARNING: Data block from https://thredds.met.no/thredds/dodsC/sea/norkyst800m/1h/aggregate_be not large enough to cover element positions within timestep. Buffer size (8) must be increased.
+    19:00:23 WARNING: Only NaNs input to linearNDFast - returning
+    19:00:23 WARNING: Only NaNs input to linearNDFast - returning
+    19:00:23 INFO: Interpolating profiles in time
+    19:00:23 WARNING: Data block from https://thredds.met.no/thredds/dodsC/sea/norkyst800m/1h/aggregate_be not large enough to cover element positions within timestep. Buffer size (8) must be increased.
+    19:00:23 WARNING: Only NaNs input to linearNDFast - returning
+    19:00:23 INFO: 2020-06-25 22:59:52.669058 - step 9 of 48 - 3750 active elements (0 deactivated)
+    19:00:24 WARNING: Invalid values (-0.0069 to -0.0021) found for ocean_vertical_diffusivity, replacing with NaN
+    19:00:24 WARNING: (allowed range: [0, 1])
+    19:00:24 WARNING: Data block from https://thredds.met.no/thredds/dodsC/sea/norkyst800m/1h/aggregate_be not large enough to cover element positions within timestep. Buffer size (8) must be increased.
+    19:00:24 WARNING: Only NaNs input to linearNDFast - returning
+    19:00:24 WARNING: Only NaNs input to linearNDFast - returning
+    19:00:24 INFO: Interpolating profiles in time
+    19:00:24 WARNING: Only NaNs input to linearNDFast - returning
+    19:00:24 INFO: 2020-06-25 23:29:52.669058 - step 10 of 48 - 4167 active elements (0 deactivated)
+    19:00:27 WARNING: Only NaNs input to linearNDFast - returning
+    19:00:27 INFO: Interpolating profiles in time
+    19:00:27 WARNING: Data block from https://thredds.met.no/thredds/dodsC/sea/norkyst800m/1h/aggregate_be not large enough to cover element positions within timestep. Buffer size (8) must be increased.
+    19:00:27 WARNING: Only NaNs input to linearNDFast - returning
+    19:00:27 INFO: 2020-06-25 23:59:52.669058 - step 11 of 48 - 4583 active elements (0 deactivated)
+    19:00:28 WARNING: Data block from https://thredds.met.no/thredds/dodsC/sea/norkyst800m/1h/aggregate_be not large enough to cover element positions within timestep. Buffer size (8) must be increased.
+    19:00:28 WARNING: Only NaNs input to linearNDFast - returning
+    19:00:28 INFO: Interpolating profiles in time
+    19:00:28 INFO: 2020-06-26 00:29:52.669058 - step 12 of 48 - 4996 active elements (4 deactivated)
+    19:00:30 INFO: Interpolating profiles in time
+    19:00:30 WARNING: Data block from https://thredds.met.no/thredds/dodsC/sea/norkyst800m/1h/aggregate_be not large enough to cover element positions within timestep. Buffer size (8) must be increased.
+    19:00:30 INFO: 2020-06-26 00:59:52.669058 - step 13 of 48 - 5411 active elements (6 deactivated)
+    19:00:31 WARNING: Data block from https://thredds.met.no/thredds/dodsC/sea/norkyst800m/1h/aggregate_be not large enough to cover element positions within timestep. Buffer size (8) must be increased.
+    19:00:31 INFO: Interpolating profiles in time
+    19:00:31 WARNING: Data block from https://thredds.met.no/thredds/dodsC/sea/norkyst800m/1h/aggregate_be not large enough to cover element positions within timestep. Buffer size (8) must be increased.
+    19:00:31 INFO: 2020-06-26 01:29:52.669058 - step 14 of 48 - 5816 active elements (17 deactivated)
+    19:00:33 WARNING: Data block from https://thredds.met.no/thredds/dodsC/sea/norkyst800m/1h/aggregate_be not large enough to cover element positions within timestep. Buffer size (8) must be increased.
+    19:00:33 INFO: Interpolating profiles in time
+    19:00:33 WARNING: Data block from https://thredds.met.no/thredds/dodsC/sea/norkyst800m/1h/aggregate_be not large enough to cover element positions within timestep. Buffer size (8) must be increased.
+    19:00:33 INFO: 2020-06-26 01:59:52.669058 - step 15 of 48 - 6220 active elements (30 deactivated)
+    19:00:34 WARNING: Data block from https://thredds.met.no/thredds/dodsC/sea/norkyst800m/1h/aggregate_be not large enough to cover element positions within timestep. Buffer size (8) must be increased.
+    19:00:34 INFO: Interpolating profiles in time
+    19:00:34 INFO: 2020-06-26 02:29:52.669058 - step 16 of 48 - 6635 active elements (32 deactivated)
+    19:00:36 INFO: Interpolating profiles in time
+    19:00:36 WARNING: Data block from https://thredds.met.no/thredds/dodsC/sea/norkyst800m/1h/aggregate_be not large enough to cover element positions within timestep. Buffer size (8) must be increased.
+    19:00:36 INFO: 2020-06-26 02:59:52.669058 - step 17 of 48 - 7048 active elements (35 deactivated)
+    19:00:37 WARNING: Data block from https://thredds.met.no/thredds/dodsC/sea/norkyst800m/1h/aggregate_be not large enough to cover element positions within timestep. Buffer size (8) must be increased.
+    19:00:37 INFO: Interpolating profiles in time
+    19:00:37 INFO: 2020-06-26 03:29:52.669058 - step 18 of 48 - 7451 active elements (49 deactivated)
+    19:00:39 INFO: Interpolating profiles in time
+    19:00:39 WARNING: Data block from https://thredds.met.no/thredds/dodsC/sea/norkyst800m/1h/aggregate_be not large enough to cover element positions within timestep. Buffer size (8) must be increased.
+    19:00:39 INFO: 2020-06-26 03:59:52.669058 - step 19 of 48 - 7829 active elements (87 deactivated)
+    19:00:40 WARNING: Data block from https://thredds.met.no/thredds/dodsC/sea/norkyst800m/1h/aggregate_be not large enough to cover element positions within timestep. Buffer size (8) must be increased.
+    19:00:40 INFO: Interpolating profiles in time
+    19:00:41 INFO: 2020-06-26 04:29:52.669058 - step 20 of 48 - 8217 active elements (116 deactivated)
+    19:00:43 INFO: Interpolating profiles in time
+    19:00:43 WARNING: Data block from https://thredds.met.no/thredds/dodsC/sea/norkyst800m/1h/aggregate_be not large enough to cover element positions within timestep. Buffer size (8) must be increased.
+    19:00:43 INFO: 2020-06-26 04:59:52.669058 - step 21 of 48 - 8614 active elements (136 deactivated)
+    19:00:45 WARNING: Data block from https://thredds.met.no/thredds/dodsC/sea/norkyst800m/1h/aggregate_be not large enough to cover element positions within timestep. Buffer size (8) must be increased.
+    19:00:45 INFO: Interpolating profiles in time
+    19:00:45 INFO: 2020-06-26 05:29:52.669058 - step 22 of 48 - 9007 active elements (159 deactivated)
+    19:00:47 WARNING: Invalid values (-0.00029999999 to -1e-04) found for ocean_vertical_diffusivity, replacing with NaN
+    19:00:47 WARNING: (allowed range: [0, 1])
+    19:00:47 INFO: Interpolating profiles in time
+    19:00:47 WARNING: Data block from https://thredds.met.no/thredds/dodsC/sea/norkyst800m/1h/aggregate_be not large enough to cover element positions within timestep. Buffer size (8) must be increased.
+    19:00:47 INFO: 2020-06-26 05:59:52.669058 - step 23 of 48 - 9413 active elements (170 deactivated)
+    19:00:48 WARNING: Invalid values (-0.00029999999 to -1e-04) found for ocean_vertical_diffusivity, replacing with NaN
+    19:00:48 WARNING: (allowed range: [0, 1])
+    19:00:48 WARNING: Data block from https://thredds.met.no/thredds/dodsC/sea/norkyst800m/1h/aggregate_be not large enough to cover element positions within timestep. Buffer size (8) must be increased.
+    19:00:49 INFO: Interpolating profiles in time
+    19:00:49 WARNING: Data block from https://thredds.met.no/thredds/dodsC/sea/norkyst800m/1h/aggregate_be not large enough to cover element positions within timestep. Buffer size (8) must be increased.
+    19:00:49 INFO: 2020-06-26 06:29:52.669058 - step 24 of 48 - 9817 active elements (183 deactivated)
+    19:00:50 WARNING: Invalid values (-0.011 to -0.0022) found for ocean_vertical_diffusivity, replacing with NaN
+    19:00:50 WARNING: (allowed range: [0, 1])
+    19:00:50 WARNING: Data block from https://thredds.met.no/thredds/dodsC/sea/norkyst800m/1h/aggregate_be not large enough to cover element positions within timestep. Buffer size (8) must be increased.
+    19:00:50 WARNING: Only NaNs input to linearNDFast - returning
+    19:00:50 INFO: Interpolating profiles in time
+    19:00:51 INFO: 2020-06-26 06:59:52.669058 - step 25 of 48 - 9790 active elements (210 deactivated)
+    19:00:51 WARNING: Only NaNs input to linearNDFast - returning
+    19:00:51 INFO: Interpolating profiles in time
+    19:00:51 INFO: 2020-06-26 07:29:52.669058 - step 26 of 48 - 9742 active elements (258 deactivated)
+    19:00:52 WARNING: Invalid values (-0.019299999 to -0.0019999999) found for ocean_vertical_diffusivity, replacing with NaN
+    19:00:52 WARNING: (allowed range: [0, 1])
+    19:00:52 WARNING: Only NaNs input to linearNDFast - returning
+    19:00:52 WARNING: Only NaNs input to linearNDFast - returning
+    19:00:52 INFO: Interpolating profiles in time
+    19:00:53 INFO: 2020-06-26 07:59:52.669058 - step 27 of 48 - 9673 active elements (327 deactivated)
+    19:00:53 WARNING: Only NaNs input to linearNDFast - returning
+    19:00:53 WARNING: Only NaNs input to linearNDFast - returning
+    19:00:53 INFO: Interpolating profiles in time
+    19:00:53 INFO: 2020-06-26 08:29:52.669058 - step 28 of 48 - 9635 active elements (365 deactivated)
+    19:00:54 WARNING: Invalid values (-0.022699999 to -0.0037) found for ocean_vertical_diffusivity, replacing with NaN
+    19:00:54 WARNING: (allowed range: [0, 1])
+    19:00:54 WARNING: Only NaNs input to linearNDFast - returning
+    19:00:54 WARNING: Only NaNs input to linearNDFast - returning
+    19:00:54 INFO: Interpolating profiles in time
+    19:00:55 INFO: 2020-06-26 08:59:52.669058 - step 29 of 48 - 9594 active elements (406 deactivated)
+    19:00:55 WARNING: Only NaNs input to linearNDFast - returning
+    19:00:55 WARNING: Only NaNs input to linearNDFast - returning
+    19:00:55 INFO: Interpolating profiles in time
+    19:00:55 INFO: 2020-06-26 09:29:52.669058 - step 30 of 48 - 9547 active elements (453 deactivated)
+    19:00:56 WARNING: Invalid values (-0.0207 to -0.0039999997) found for ocean_vertical_diffusivity, replacing with NaN
+    19:00:56 WARNING: (allowed range: [0, 1])
+    19:00:56 WARNING: Only NaNs input to linearNDFast - returning
+    19:00:56 WARNING: Only NaNs input to linearNDFast - returning
+    19:00:57 INFO: Interpolating profiles in time
+    19:00:57 INFO: 2020-06-26 09:59:52.669058 - step 31 of 48 - 9500 active elements (500 deactivated)
+    19:00:57 WARNING: Only NaNs input to linearNDFast - returning
+    19:00:57 WARNING: Only NaNs input to linearNDFast - returning
+    19:00:57 INFO: Interpolating profiles in time
+    19:00:57 INFO: 2020-06-26 10:29:52.669058 - step 32 of 48 - 9437 active elements (563 deactivated)
+    19:00:58 WARNING: Invalid values (-0.016099999 to -0.0028) found for ocean_vertical_diffusivity, replacing with NaN
+    19:00:58 WARNING: (allowed range: [0, 1])
+    19:00:58 WARNING: Only NaNs input to linearNDFast - returning
+    19:00:58 WARNING: Only NaNs input to linearNDFast - returning
+    19:00:58 INFO: Interpolating profiles in time
+    19:00:59 INFO: 2020-06-26 10:59:52.669058 - step 33 of 48 - 9336 active elements (664 deactivated)
+    19:00:59 WARNING: Only NaNs input to linearNDFast - returning
+    19:00:59 WARNING: Only NaNs input to linearNDFast - returning
+    19:00:59 INFO: Interpolating profiles in time
+    19:00:59 INFO: 2020-06-26 11:29:52.669058 - step 34 of 48 - 9217 active elements (783 deactivated)
+    19:01:00 WARNING: Invalid values (-0.0105 to -0.0009999999) found for ocean_vertical_diffusivity, replacing with NaN
+    19:01:00 WARNING: (allowed range: [0, 1])
+    19:01:00 WARNING: Only NaNs input to linearNDFast - returning
+    19:01:00 WARNING: Only NaNs input to linearNDFast - returning
+    19:01:00 INFO: Interpolating profiles in time
+    19:01:01 INFO: 2020-06-26 11:59:52.669058 - step 35 of 48 - 9029 active elements (971 deactivated)
+    19:01:01 WARNING: Only NaNs input to linearNDFast - returning
+    19:01:01 WARNING: Only NaNs input to linearNDFast - returning
+    19:01:01 INFO: Interpolating profiles in time
+    19:01:01 INFO: 2020-06-26 12:29:52.669058 - step 36 of 48 - 8765 active elements (1235 deactivated)
+    19:01:03 WARNING: Invalid values (-0.0023999999 to -1e-04) found for ocean_vertical_diffusivity, replacing with NaN
+    19:01:03 WARNING: (allowed range: [0, 1])
+    19:01:03 WARNING: Only NaNs input to linearNDFast - returning
+    19:01:03 WARNING: Only NaNs input to linearNDFast - returning
+    19:01:03 INFO: Interpolating profiles in time
+    19:01:03 INFO: 2020-06-26 12:59:52.669058 - step 37 of 48 - 8508 active elements (1492 deactivated)
+    19:01:03 WARNING: Only NaNs input to linearNDFast - returning
+    19:01:03 WARNING: Only NaNs input to linearNDFast - returning
+    19:01:03 INFO: Interpolating profiles in time
+    19:01:03 INFO: 2020-06-26 13:29:52.669058 - step 38 of 48 - 8248 active elements (1752 deactivated)
+    19:01:05 WARNING: Only NaNs input to linearNDFast - returning
+    19:01:05 INFO: Interpolating profiles in time
+    19:01:05 INFO: 2020-06-26 13:59:52.669058 - step 39 of 48 - 8044 active elements (1956 deactivated)
+    19:01:05 WARNING: Only NaNs input to linearNDFast - returning
+    19:01:05 INFO: Interpolating profiles in time
+    19:01:05 INFO: 2020-06-26 14:29:52.669058 - step 40 of 48 - 7867 active elements (2133 deactivated)
+    19:01:07 INFO: Interpolating profiles in time
+    19:01:07 INFO: 2020-06-26 14:59:52.669058 - step 41 of 48 - 7728 active elements (2272 deactivated)
+    19:01:08 INFO: Interpolating profiles in time
+    19:01:08 INFO: 2020-06-26 15:29:52.669058 - step 42 of 48 - 7605 active elements (2395 deactivated)
+    19:01:09 INFO: Interpolating profiles in time
+    19:01:09 INFO: 2020-06-26 15:59:52.669058 - step 43 of 48 - 7473 active elements (2527 deactivated)
+    19:01:09 INFO: Interpolating profiles in time
+    19:01:10 INFO: 2020-06-26 16:29:52.669058 - step 44 of 48 - 7354 active elements (2646 deactivated)
+    19:01:11 INFO: Interpolating profiles in time
+    19:01:11 INFO: 2020-06-26 16:59:52.669058 - step 45 of 48 - 7240 active elements (2760 deactivated)
+    19:01:11 INFO: Interpolating profiles in time
+    19:01:11 INFO: 2020-06-26 17:29:52.669058 - step 46 of 48 - 7121 active elements (2879 deactivated)
+    19:01:13 INFO: Interpolating profiles in time
+    19:01:13 INFO: 2020-06-26 17:59:52.669058 - step 47 of 48 - 7024 active elements (2976 deactivated)
+    19:01:13 INFO: Interpolating profiles in time
+    19:01:13 INFO: 2020-06-26 18:29:52.669058 - step 48 of 48 - 6925 active elements (3075 deactivated)
+    19:01:15 WARNING: Invalid values (-0.0036 to -1e-04) found for ocean_vertical_diffusivity, replacing with NaN
+    19:01:15 WARNING: (allowed range: [0, 1])
+    19:01:15 WARNING: Only NaNs input to linearNDFast - returning
+    19:01:15 INFO: Interpolating profiles in time
+
+
+
+
+Print and plot results
+
+
+.. code-block:: default
+
+    print(o)
+    o.animation(fast=True)
+
+
+
+
+
+.. rst-class:: sphx-glr-script-out
+
+ Out:
+
+ .. code-block:: none
+
+    ===========================
+    --------------------
+    Reader performance:
+    --------------------
+    global_landmask
+     0:00:00.4  total
+     0:00:00.0  preparing
+     0:00:00.4  reading
+     0:00:00.0  interpolation_time
+     0:00:00.0  masking
+    --------------------
+    https://thredds.met.no/thredds/dodsC/sea/norkyst800m/1h/aggregate_be
+     0:01:02.9  total
+     0:00:00.2  preparing
+     0:00:57.1  reading
+     0:00:03.8  interpolation
+     0:00:00.0  interpolation_time
+     0:00:01.6  rotating vectors
+     0:00:00.0  masking
+    --------------------
+    Performance:
+     1:22.7 total time
+        8.4 configuration
+        2.5 preparing main loop
+          2.4 making dynamical landmask
+          0.0 moving elements to ocean
+       1:09.8 readers
+            0.4 global_landmask
+            0.3 postprocessing
+     1:11.5 main loop
+         1:03.1 https://thredds.met.no/thredds/dodsC/sea/norkyst800m/1h/aggregate_be
+          0.5 updating elements
+            0.0 oil weathering
+        0.0 cleaning up
+    --------------------
+    ===========================
+    Model:  OpenOil     (OpenDrift version 1.3.0)
+            6822 active Oil particles  (3178 deactivated, 0 scheduled)
+    Projection: +proj=latlong
+    -------------------
+    Environment variables:
+      -----
+      land_binary_mask
+         1) global_landmask
+      -----
+      ocean_vertical_diffusivity
+      sea_floor_depth_below_sea_level
+      sea_water_salinity
+      sea_water_temperature
+      upward_sea_water_velocity
+      x_sea_water_velocity
+      x_wind
+      y_sea_water_velocity
+      y_wind
+         1) https://thredds.met.no/thredds/dodsC/sea/norkyst800m/1h/aggregate_be
+      -----
+    Readers not added for the following variables:
+      sea_ice_area_fraction
+      sea_ice_x_velocity
+      sea_ice_y_velocity
+      sea_surface_wave_mean_period_from_variance_spectral_density_second_frequency_moment
+      sea_surface_wave_period_at_variance_spectral_density_maximum
+      sea_surface_wave_significant_height
+      sea_surface_wave_stokes_drift_x_velocity
+      sea_surface_wave_stokes_drift_y_velocity
+
+    Time:
+            Start: 2020-06-25 18:59:52.669058
+            Present: 2020-06-26 18:59:52.669058
+            Calculation steps: 48 * 0:30:00 - total time: 1 day, 0:00:00
+            Output steps: 25 * 1:00:00
+    ===========================
+
+    19:01:15 WARNING: plotting fast. this will make your plots less accurate.
+    19:01:17 INFO: Saving animation to /root/project/docs/source/gallery/animations/example_cone_0.gif...
+    19:01:17 INFO: Making animated gif...
+
+
+
+
+.. image:: /gallery/animations/example_cone_0.gif
+
+
+.. code-block:: default
+
+
+    o.plot(fast=True)
+
+
+
+.. image:: /gallery/images/sphx_glr_example_cone_001.png
+    :alt: OpenDrift - OpenOil (EKOFISK) 2020-06-25 18:59 to 2020-06-26 18:59 UTC (25 steps)
+    :class: sphx-glr-single-img
+
+
+.. rst-class:: sphx-glr-script-out
+
+ Out:
+
+ .. code-block:: none
+
+    19:01:36 WARNING: plotting fast. this will make your plots less accurate.
+
+    (<cartopy.mpl.geoaxes.GeoAxesSubplot object at 0x7ff4eed630d0>, <module 'matplotlib.pyplot' from '/opt/conda/envs/opendrift/lib/python3.8/site-packages/matplotlib/pyplot.py'>)
+
+
+
+
+.. rst-class:: sphx-glr-timing
+
+   **Total running time of the script:** ( 2 minutes  3.952 seconds)
+
+
+.. _sphx_glr_download_gallery_example_cone.py:
+
+
+.. only :: html
+
+ .. container:: sphx-glr-footer
+    :class: sphx-glr-footer-example
+
+
+
+  .. container:: sphx-glr-download sphx-glr-download-python
+
+     :download:`Download Python source code: example_cone.py <example_cone.py>`
+
+
+
+  .. container:: sphx-glr-download sphx-glr-download-jupyter
+
+     :download:`Download Jupyter notebook: example_cone.ipynb <example_cone.ipynb>`
+
+
+.. only:: html
+
+ .. rst-class:: sphx-glr-signature
+
+    `Gallery generated by Sphinx-Gallery <https://sphinx-gallery.github.io>`_

@@ -17,27 +17,20 @@ Leeway
 
 
     from datetime import timedelta
-    from opendrift.readers import reader_global_landmask
     from opendrift.readers import reader_netCDF_CF_generic
     from opendrift.models.leeway import Leeway
 
     lw = Leeway(loglevel=20)  # Set loglevel to 0 for debug information
 
-    # Arome
+    # Atmospheric model for wind
     #reader_arome = reader_netCDF_CF_generic.Reader('https://thredds.met.no/thredds/dodsC/mepslatest/meps_lagged_6_h_latest_2_5km_latest.nc')
     reader_arome = reader_netCDF_CF_generic.Reader(lw.test_data_folder() +
         '16Nov2015_NorKyst_z_surface/arome_subset_16Nov2015.nc')
 
-    # Norkyst
+    # Ocean model for current
     #reader_norkyst = reader_netCDF_CF_generic.Reader('https://thredds.met.no/thredds/dodsC/mepslatest/meps_lagged_6_h_latest_2_5km_latest.nc')
     reader_norkyst = reader_netCDF_CF_generic.Reader(lw.test_data_folder() +
         '16Nov2015_NorKyst_z_surface/norkyst800_subset_16Nov2015.nc')
-
-    # Landmask
-    reader_landmask = reader_global_landmask.Reader(
-                        extent=[3.3, 5.5, 59.5, 62.5])
-
-    #lw.add_reader([reader_norkyst, reader_arome, reader_landmask])
 
 
 
@@ -49,12 +42,12 @@ Leeway
 
  .. code-block:: none
 
-    11:04:28 INFO: OpenDriftSimulation initialised (version 1.3.0)
-    11:04:28 INFO: Opening dataset: /root/project/tests/test_data/16Nov2015_NorKyst_z_surface/arome_subset_16Nov2015.nc
-    11:04:28 INFO: Opening file with Dataset
-    11:04:28 INFO: Could not parse CF grid_mapping
-    11:04:28 INFO: Opening dataset: /root/project/tests/test_data/16Nov2015_NorKyst_z_surface/norkyst800_subset_16Nov2015.nc
-    11:04:28 INFO: Opening file with Dataset
+    19:34:37 INFO: OpenDriftSimulation initialised (version 1.3.0)
+    19:34:37 INFO: Opening dataset: /root/project/tests/test_data/16Nov2015_NorKyst_z_surface/arome_subset_16Nov2015.nc
+    19:34:37 INFO: Opening file with Dataset
+    19:34:37 INFO: Could not parse CF grid_mapping
+    19:34:37 INFO: Opening dataset: /root/project/tests/test_data/16Nov2015_NorKyst_z_surface/norkyst800_subset_16Nov2015.nc
+    19:34:37 INFO: Opening file with Dataset
 
 
 
@@ -68,10 +61,7 @@ except for small rounding differences due to different projection
 
     lw.add_reader(reader_norkyst,
                   variables=['x_sea_water_velocity', 'y_sea_water_velocity'])
-    lw.add_reader(reader_arome,
-                  variables=['x_wind', 'y_wind'])
-    lw.add_reader(reader_landmask,
-                  variables=['land_binary_mask'])
+    lw.add_reader(reader_arome, variables=['x_wind', 'y_wind'])
     lw.fallback_values['x_sea_water_velocity'] = 0
     lw.fallback_values['y_sea_water_velocity'] = 0
 
@@ -88,7 +78,7 @@ Seed leeway elements at defined position and time
 .. code-block:: default
 
     objType = 26  # 26 = Life-raft, no ballast
-    lw.seed_elements(lon=4.5, lat=60.0, radius=1000, number=3000,
+    lw.seed_elements(lon=4.5, lat=59.6, radius=100, number=1000,
                      time=reader_arome.start_time, objectType=objType)
 
 
@@ -101,7 +91,7 @@ Seed leeway elements at defined position and time
 
  .. code-block:: none
 
-    11:04:31 INFO: Seeding elements of object type 26: LIFE-RAFT-NB-1 (Life-raft, no ballast (NB) system, general (mean values))
+    19:34:37 INFO: Seeding elements of object type 26: LIFE-RAFT-NB-1 (Life-raft, no ballast (NB) system, general (mean values))
 
 
 
@@ -111,7 +101,7 @@ Running model
 
 .. code-block:: default
 
-    lw.run(duration=timedelta(hours=60), time_step=900, time_step_output=3600)
+    lw.run(duration=timedelta(hours=48), time_step=900, time_step_output=3600)
 
 
 
@@ -123,319 +113,302 @@ Running model
 
  .. code-block:: none
 
-    11:04:31 INFO: Config validation OK
-    11:04:31 INFO: Using existing reader for land_binary_mask
-    11:04:31 INFO: All points are in ocean
-    11:04:31 INFO: 2015-11-16 00:00:00 - step 1 of 240 - 3000 active elements (0 deactivated)
-    11:04:31 INFO: 2015-11-16 00:15:00 - step 2 of 240 - 3000 active elements (0 deactivated)
-    11:04:31 INFO: 2015-11-16 00:30:00 - step 3 of 240 - 3000 active elements (0 deactivated)
-    11:04:31 INFO: 2015-11-16 00:45:00 - step 4 of 240 - 3000 active elements (0 deactivated)
-    11:04:31 INFO: 2015-11-16 01:00:00 - step 5 of 240 - 3000 active elements (0 deactivated)
-    11:04:31 INFO: 2015-11-16 01:15:00 - step 6 of 240 - 3000 active elements (0 deactivated)
-    11:04:32 INFO: 2015-11-16 01:30:00 - step 7 of 240 - 3000 active elements (0 deactivated)
-    11:04:32 INFO: 2015-11-16 01:45:00 - step 8 of 240 - 3000 active elements (0 deactivated)
-    11:04:32 INFO: 2015-11-16 02:00:00 - step 9 of 240 - 3000 active elements (0 deactivated)
-    11:04:32 INFO: 2015-11-16 02:15:00 - step 10 of 240 - 3000 active elements (0 deactivated)
-    11:04:32 INFO: 2015-11-16 02:30:00 - step 11 of 240 - 3000 active elements (0 deactivated)
-    11:04:32 INFO: 2015-11-16 02:45:00 - step 12 of 240 - 3000 active elements (0 deactivated)
-    11:04:32 WARNING: Data block from /root/project/tests/test_data/16Nov2015_NorKyst_z_surface/norkyst800_subset_16Nov2015.nc not large enough to cover element positions within timestep. Buffer size (9) must be increased.
-    11:04:32 INFO: 2015-11-16 03:00:00 - step 13 of 240 - 3000 active elements (0 deactivated)
-    11:04:32 INFO: 2015-11-16 03:15:00 - step 14 of 240 - 3000 active elements (0 deactivated)
-    11:04:32 INFO: 2015-11-16 03:30:00 - step 15 of 240 - 3000 active elements (0 deactivated)
-    11:04:32 WARNING: Data block from /root/project/tests/test_data/16Nov2015_NorKyst_z_surface/norkyst800_subset_16Nov2015.nc not large enough to cover element positions within timestep. Buffer size (9) must be increased.
-    11:04:32 INFO: 2015-11-16 03:45:00 - step 16 of 240 - 3000 active elements (0 deactivated)
-    11:04:32 WARNING: Data block from /root/project/tests/test_data/16Nov2015_NorKyst_z_surface/norkyst800_subset_16Nov2015.nc not large enough to cover element positions within timestep. Buffer size (9) must be increased.
-    11:04:32 INFO: 2015-11-16 04:00:00 - step 17 of 240 - 3000 active elements (0 deactivated)
-    11:04:32 INFO: 2015-11-16 04:15:00 - step 18 of 240 - 3000 active elements (0 deactivated)
-    11:04:32 INFO: 2015-11-16 04:30:00 - step 19 of 240 - 3000 active elements (0 deactivated)
-    11:04:32 WARNING: Data block from /root/project/tests/test_data/16Nov2015_NorKyst_z_surface/norkyst800_subset_16Nov2015.nc not large enough to cover element positions within timestep. Buffer size (9) must be increased.
-    11:04:32 INFO: 2015-11-16 04:45:00 - step 20 of 240 - 3000 active elements (0 deactivated)
-    11:04:32 WARNING: Data block from /root/project/tests/test_data/16Nov2015_NorKyst_z_surface/norkyst800_subset_16Nov2015.nc not large enough to cover element positions within timestep. Buffer size (9) must be increased.
-    11:04:32 INFO: 2015-11-16 05:00:00 - step 21 of 240 - 3000 active elements (0 deactivated)
-    11:04:32 INFO: 2015-11-16 05:15:00 - step 22 of 240 - 3000 active elements (0 deactivated)
-    11:04:32 INFO: 2015-11-16 05:30:00 - step 23 of 240 - 3000 active elements (0 deactivated)
-    11:04:32 WARNING: Data block from /root/project/tests/test_data/16Nov2015_NorKyst_z_surface/norkyst800_subset_16Nov2015.nc not large enough to cover element positions within timestep. Buffer size (9) must be increased.
-    11:04:33 INFO: 2015-11-16 05:45:00 - step 24 of 240 - 3000 active elements (0 deactivated)
-    11:04:33 WARNING: Data block from /root/project/tests/test_data/16Nov2015_NorKyst_z_surface/norkyst800_subset_16Nov2015.nc not large enough to cover element positions within timestep. Buffer size (9) must be increased.
-    11:04:33 WARNING: Data block from /root/project/tests/test_data/16Nov2015_NorKyst_z_surface/arome_subset_16Nov2015.nc not large enough to cover element positions within timestep. Buffer size (5) must be increased.
-    11:04:33 INFO: 2015-11-16 06:00:00 - step 25 of 240 - 3000 active elements (0 deactivated)
-    11:04:33 INFO: 2015-11-16 06:15:00 - step 26 of 240 - 3000 active elements (0 deactivated)
-    11:04:33 INFO: 2015-11-16 06:30:00 - step 27 of 240 - 3000 active elements (0 deactivated)
-    11:04:33 WARNING: Data block from /root/project/tests/test_data/16Nov2015_NorKyst_z_surface/norkyst800_subset_16Nov2015.nc not large enough to cover element positions within timestep. Buffer size (9) must be increased.
-    11:04:33 INFO: 2015-11-16 06:45:00 - step 28 of 240 - 3000 active elements (0 deactivated)
-    11:04:33 WARNING: Data block from /root/project/tests/test_data/16Nov2015_NorKyst_z_surface/norkyst800_subset_16Nov2015.nc not large enough to cover element positions within timestep. Buffer size (9) must be increased.
-    11:04:33 INFO: 2015-11-16 07:00:00 - step 29 of 240 - 3000 active elements (0 deactivated)
-    11:04:33 INFO: 2015-11-16 07:15:00 - step 30 of 240 - 3000 active elements (0 deactivated)
-    11:04:33 WARNING: Data block from /root/project/tests/test_data/16Nov2015_NorKyst_z_surface/norkyst800_subset_16Nov2015.nc not large enough to cover element positions within timestep. Buffer size (9) must be increased.
-    11:04:33 INFO: 2015-11-16 07:30:00 - step 31 of 240 - 3000 active elements (0 deactivated)
-    11:04:33 WARNING: Data block from /root/project/tests/test_data/16Nov2015_NorKyst_z_surface/norkyst800_subset_16Nov2015.nc not large enough to cover element positions within timestep. Buffer size (9) must be increased.
-    11:04:33 INFO: 2015-11-16 07:45:00 - step 32 of 240 - 3000 active elements (0 deactivated)
-    11:04:33 WARNING: Data block from /root/project/tests/test_data/16Nov2015_NorKyst_z_surface/norkyst800_subset_16Nov2015.nc not large enough to cover element positions within timestep. Buffer size (9) must be increased.
-    11:04:33 WARNING: Data block from /root/project/tests/test_data/16Nov2015_NorKyst_z_surface/arome_subset_16Nov2015.nc not large enough to cover element positions within timestep. Buffer size (5) must be increased.
-    11:04:33 INFO: 2015-11-16 08:00:00 - step 33 of 240 - 3000 active elements (0 deactivated)
-    11:04:33 INFO: 2015-11-16 08:15:00 - step 34 of 240 - 3000 active elements (0 deactivated)
-    11:04:33 WARNING: Data block from /root/project/tests/test_data/16Nov2015_NorKyst_z_surface/norkyst800_subset_16Nov2015.nc not large enough to cover element positions within timestep. Buffer size (9) must be increased.
-    11:04:33 INFO: 2015-11-16 08:30:00 - step 35 of 240 - 3000 active elements (0 deactivated)
-    11:04:33 WARNING: Data block from /root/project/tests/test_data/16Nov2015_NorKyst_z_surface/norkyst800_subset_16Nov2015.nc not large enough to cover element positions within timestep. Buffer size (9) must be increased.
-    11:04:33 INFO: 2015-11-16 08:45:00 - step 36 of 240 - 3000 active elements (0 deactivated)
-    11:04:33 WARNING: Data block from /root/project/tests/test_data/16Nov2015_NorKyst_z_surface/norkyst800_subset_16Nov2015.nc not large enough to cover element positions within timestep. Buffer size (9) must be increased.
-    11:04:33 INFO: 2015-11-16 09:00:00 - step 37 of 240 - 3000 active elements (0 deactivated)
-    11:04:33 INFO: 2015-11-16 09:15:00 - step 38 of 240 - 3000 active elements (0 deactivated)
-    11:04:33 WARNING: Data block from /root/project/tests/test_data/16Nov2015_NorKyst_z_surface/norkyst800_subset_16Nov2015.nc not large enough to cover element positions within timestep. Buffer size (9) must be increased.
-    11:04:33 INFO: 2015-11-16 09:30:00 - step 39 of 240 - 3000 active elements (0 deactivated)
-    11:04:33 WARNING: Data block from /root/project/tests/test_data/16Nov2015_NorKyst_z_surface/norkyst800_subset_16Nov2015.nc not large enough to cover element positions within timestep. Buffer size (9) must be increased.
-    11:04:34 WARNING: Data block from /root/project/tests/test_data/16Nov2015_NorKyst_z_surface/arome_subset_16Nov2015.nc not large enough to cover element positions within timestep. Buffer size (5) must be increased.
-    11:04:34 INFO: 2015-11-16 09:45:00 - step 40 of 240 - 3000 active elements (0 deactivated)
-    11:04:34 WARNING: Data block from /root/project/tests/test_data/16Nov2015_NorKyst_z_surface/norkyst800_subset_16Nov2015.nc not large enough to cover element positions within timestep. Buffer size (9) must be increased.
-    11:04:34 WARNING: Data block from /root/project/tests/test_data/16Nov2015_NorKyst_z_surface/arome_subset_16Nov2015.nc not large enough to cover element positions within timestep. Buffer size (5) must be increased.
-    11:04:34 INFO: 2015-11-16 10:00:00 - step 41 of 240 - 3000 active elements (0 deactivated)
-    11:04:34 INFO: 2015-11-16 10:15:00 - step 42 of 240 - 3000 active elements (0 deactivated)
-    11:04:34 WARNING: Data block from /root/project/tests/test_data/16Nov2015_NorKyst_z_surface/norkyst800_subset_16Nov2015.nc not large enough to cover element positions within timestep. Buffer size (9) must be increased.
-    11:04:34 INFO: 2015-11-16 10:30:00 - step 43 of 240 - 3000 active elements (0 deactivated)
-    11:04:34 WARNING: Data block from /root/project/tests/test_data/16Nov2015_NorKyst_z_surface/norkyst800_subset_16Nov2015.nc not large enough to cover element positions within timestep. Buffer size (9) must be increased.
-    11:04:34 WARNING: Data block from /root/project/tests/test_data/16Nov2015_NorKyst_z_surface/arome_subset_16Nov2015.nc not large enough to cover element positions within timestep. Buffer size (5) must be increased.
-    11:04:34 INFO: 2015-11-16 10:45:00 - step 44 of 240 - 3000 active elements (0 deactivated)
-    11:04:34 WARNING: Data block from /root/project/tests/test_data/16Nov2015_NorKyst_z_surface/norkyst800_subset_16Nov2015.nc not large enough to cover element positions within timestep. Buffer size (9) must be increased.
-    11:04:34 WARNING: Data block from /root/project/tests/test_data/16Nov2015_NorKyst_z_surface/arome_subset_16Nov2015.nc not large enough to cover element positions within timestep. Buffer size (5) must be increased.
-    11:04:34 INFO: 2015-11-16 11:00:00 - step 45 of 240 - 3000 active elements (0 deactivated)
-    11:04:34 INFO: 2015-11-16 11:15:00 - step 46 of 240 - 3000 active elements (0 deactivated)
-    11:04:34 WARNING: Data block from /root/project/tests/test_data/16Nov2015_NorKyst_z_surface/norkyst800_subset_16Nov2015.nc not large enough to cover element positions within timestep. Buffer size (9) must be increased.
-    11:04:34 INFO: 2015-11-16 11:30:00 - step 47 of 240 - 3000 active elements (0 deactivated)
-    11:04:34 WARNING: Data block from /root/project/tests/test_data/16Nov2015_NorKyst_z_surface/norkyst800_subset_16Nov2015.nc not large enough to cover element positions within timestep. Buffer size (9) must be increased.
-    11:04:34 INFO: 2015-11-16 11:45:00 - step 48 of 240 - 3000 active elements (0 deactivated)
-    11:04:34 WARNING: Data block from /root/project/tests/test_data/16Nov2015_NorKyst_z_surface/norkyst800_subset_16Nov2015.nc not large enough to cover element positions within timestep. Buffer size (9) must be increased.
-    11:04:34 WARNING: Data block from /root/project/tests/test_data/16Nov2015_NorKyst_z_surface/arome_subset_16Nov2015.nc not large enough to cover element positions within timestep. Buffer size (5) must be increased.
-    11:04:34 INFO: 2015-11-16 12:00:00 - step 49 of 240 - 3000 active elements (0 deactivated)
-    11:04:34 INFO: 2015-11-16 12:15:00 - step 50 of 240 - 3000 active elements (0 deactivated)
-    11:04:34 INFO: 2015-11-16 12:30:00 - step 51 of 240 - 3000 active elements (0 deactivated)
-    11:04:34 INFO: 2015-11-16 12:45:00 - step 52 of 240 - 3000 active elements (0 deactivated)
-    11:04:34 INFO: 2015-11-16 13:00:00 - step 53 of 240 - 3000 active elements (0 deactivated)
-    11:04:34 INFO: 2015-11-16 13:15:00 - step 54 of 240 - 3000 active elements (0 deactivated)
-    11:04:34 INFO: 2015-11-16 13:30:00 - step 55 of 240 - 3000 active elements (0 deactivated)
-    11:04:35 INFO: 2015-11-16 13:45:00 - step 56 of 240 - 3000 active elements (0 deactivated)
-    11:04:35 INFO: 2015-11-16 14:00:00 - step 57 of 240 - 2999 active elements (1 deactivated)
-    11:04:35 INFO: 2015-11-16 14:15:00 - step 58 of 240 - 2998 active elements (2 deactivated)
-    11:04:35 INFO: 2015-11-16 14:30:00 - step 59 of 240 - 2997 active elements (3 deactivated)
-    11:04:35 INFO: 2015-11-16 14:45:00 - step 60 of 240 - 2995 active elements (5 deactivated)
-    11:04:36 INFO: 2015-11-16 15:00:00 - step 61 of 240 - 2992 active elements (8 deactivated)
-    11:04:36 INFO: 2015-11-16 15:15:00 - step 62 of 240 - 2989 active elements (11 deactivated)
-    11:04:36 INFO: 2015-11-16 15:30:00 - step 63 of 240 - 2982 active elements (18 deactivated)
-    11:04:36 INFO: 2015-11-16 15:45:00 - step 64 of 240 - 2977 active elements (23 deactivated)
-    11:04:36 INFO: 2015-11-16 16:00:00 - step 65 of 240 - 2973 active elements (27 deactivated)
-    11:04:36 INFO: 2015-11-16 16:15:00 - step 66 of 240 - 2964 active elements (36 deactivated)
-    11:04:36 INFO: 2015-11-16 16:30:00 - step 67 of 240 - 2960 active elements (40 deactivated)
-    11:04:36 INFO: 2015-11-16 16:45:00 - step 68 of 240 - 2951 active elements (49 deactivated)
-    11:04:36 INFO: 2015-11-16 17:00:00 - step 69 of 240 - 2931 active elements (69 deactivated)
-    11:04:36 INFO: 2015-11-16 17:15:00 - step 70 of 240 - 2907 active elements (93 deactivated)
-    11:04:36 INFO: 2015-11-16 17:30:00 - step 71 of 240 - 2884 active elements (116 deactivated)
-    11:04:36 INFO: 2015-11-16 17:45:00 - step 72 of 240 - 2868 active elements (132 deactivated)
-    11:04:36 INFO: 2015-11-16 18:00:00 - step 73 of 240 - 2853 active elements (147 deactivated)
-    11:04:36 INFO: 2015-11-16 18:15:00 - step 74 of 240 - 2830 active elements (170 deactivated)
-    11:04:36 INFO: 2015-11-16 18:30:00 - step 75 of 240 - 2803 active elements (197 deactivated)
-    11:04:36 INFO: 2015-11-16 18:45:00 - step 76 of 240 - 2776 active elements (224 deactivated)
-    11:04:36 INFO: 2015-11-16 19:00:00 - step 77 of 240 - 2745 active elements (255 deactivated)
-    11:04:37 INFO: 2015-11-16 19:15:00 - step 78 of 240 - 2709 active elements (291 deactivated)
-    11:04:37 INFO: 2015-11-16 19:30:00 - step 79 of 240 - 2673 active elements (327 deactivated)
-    11:04:37 INFO: 2015-11-16 19:45:00 - step 80 of 240 - 2650 active elements (350 deactivated)
-    11:04:37 WARNING: Data block from /root/project/tests/test_data/16Nov2015_NorKyst_z_surface/norkyst800_subset_16Nov2015.nc not large enough to cover element positions within timestep. Buffer size (9) must be increased.
-    11:04:37 INFO: 2015-11-16 20:00:00 - step 81 of 240 - 2627 active elements (373 deactivated)
-    11:04:37 INFO: 2015-11-16 20:15:00 - step 82 of 240 - 2588 active elements (412 deactivated)
-    11:04:37 WARNING: Data block from /root/project/tests/test_data/16Nov2015_NorKyst_z_surface/norkyst800_subset_16Nov2015.nc not large enough to cover element positions within timestep. Buffer size (9) must be increased.
-    11:04:37 INFO: 2015-11-16 20:30:00 - step 83 of 240 - 2569 active elements (431 deactivated)
-    11:04:37 WARNING: Data block from /root/project/tests/test_data/16Nov2015_NorKyst_z_surface/norkyst800_subset_16Nov2015.nc not large enough to cover element positions within timestep. Buffer size (9) must be increased.
-    11:04:37 INFO: 2015-11-16 20:45:00 - step 84 of 240 - 2548 active elements (452 deactivated)
-    11:04:37 WARNING: Data block from /root/project/tests/test_data/16Nov2015_NorKyst_z_surface/norkyst800_subset_16Nov2015.nc not large enough to cover element positions within timestep. Buffer size (9) must be increased.
-    11:04:37 WARNING: Data block from /root/project/tests/test_data/16Nov2015_NorKyst_z_surface/arome_subset_16Nov2015.nc not large enough to cover element positions within timestep. Buffer size (5) must be increased.
-    11:04:37 INFO: 2015-11-16 21:00:00 - step 85 of 240 - 2531 active elements (469 deactivated)
-    11:04:37 INFO: 2015-11-16 21:15:00 - step 86 of 240 - 2511 active elements (489 deactivated)
-    11:04:37 INFO: 2015-11-16 21:30:00 - step 87 of 240 - 2484 active elements (516 deactivated)
-    11:04:37 WARNING: Data block from /root/project/tests/test_data/16Nov2015_NorKyst_z_surface/norkyst800_subset_16Nov2015.nc not large enough to cover element positions within timestep. Buffer size (9) must be increased.
-    11:04:37 INFO: 2015-11-16 21:45:00 - step 88 of 240 - 2463 active elements (537 deactivated)
-    11:04:37 WARNING: Data block from /root/project/tests/test_data/16Nov2015_NorKyst_z_surface/norkyst800_subset_16Nov2015.nc not large enough to cover element positions within timestep. Buffer size (9) must be increased.
-    11:04:37 INFO: 2015-11-16 22:00:00 - step 89 of 240 - 2437 active elements (563 deactivated)
-    11:04:37 INFO: 2015-11-16 22:15:00 - step 90 of 240 - 2420 active elements (580 deactivated)
-    11:04:37 INFO: 2015-11-16 22:30:00 - step 91 of 240 - 2398 active elements (602 deactivated)
-    11:04:37 WARNING: Data block from /root/project/tests/test_data/16Nov2015_NorKyst_z_surface/norkyst800_subset_16Nov2015.nc not large enough to cover element positions within timestep. Buffer size (9) must be increased.
-    11:04:37 INFO: 2015-11-16 22:45:00 - step 92 of 240 - 2375 active elements (625 deactivated)
-    11:04:37 WARNING: Data block from /root/project/tests/test_data/16Nov2015_NorKyst_z_surface/norkyst800_subset_16Nov2015.nc not large enough to cover element positions within timestep. Buffer size (9) must be increased.
-    11:04:37 WARNING: Data block from /root/project/tests/test_data/16Nov2015_NorKyst_z_surface/arome_subset_16Nov2015.nc not large enough to cover element positions within timestep. Buffer size (5) must be increased.
-    11:04:37 INFO: 2015-11-16 23:00:00 - step 93 of 240 - 2352 active elements (648 deactivated)
-    11:04:38 INFO: 2015-11-16 23:15:00 - step 94 of 240 - 2323 active elements (677 deactivated)
-    11:04:38 INFO: 2015-11-16 23:30:00 - step 95 of 240 - 2299 active elements (701 deactivated)
-    11:04:38 WARNING: Data block from /root/project/tests/test_data/16Nov2015_NorKyst_z_surface/norkyst800_subset_16Nov2015.nc not large enough to cover element positions within timestep. Buffer size (9) must be increased.
-    11:04:38 WARNING: Data block from /root/project/tests/test_data/16Nov2015_NorKyst_z_surface/arome_subset_16Nov2015.nc not large enough to cover element positions within timestep. Buffer size (5) must be increased.
-    11:04:38 INFO: 2015-11-16 23:45:00 - step 96 of 240 - 2255 active elements (745 deactivated)
-    11:04:38 WARNING: Data block from /root/project/tests/test_data/16Nov2015_NorKyst_z_surface/norkyst800_subset_16Nov2015.nc not large enough to cover element positions within timestep. Buffer size (9) must be increased.
-    11:04:38 WARNING: Data block from /root/project/tests/test_data/16Nov2015_NorKyst_z_surface/arome_subset_16Nov2015.nc not large enough to cover element positions within timestep. Buffer size (5) must be increased.
-    11:04:38 INFO: 2015-11-17 00:00:00 - step 97 of 240 - 2228 active elements (772 deactivated)
-    11:04:38 INFO: 2015-11-17 00:15:00 - step 98 of 240 - 2199 active elements (801 deactivated)
-    11:04:38 WARNING: Data block from /root/project/tests/test_data/16Nov2015_NorKyst_z_surface/norkyst800_subset_16Nov2015.nc not large enough to cover element positions within timestep. Buffer size (9) must be increased.
-    11:04:38 INFO: 2015-11-17 00:30:00 - step 99 of 240 - 2176 active elements (824 deactivated)
-    11:04:38 WARNING: Data block from /root/project/tests/test_data/16Nov2015_NorKyst_z_surface/norkyst800_subset_16Nov2015.nc not large enough to cover element positions within timestep. Buffer size (9) must be increased.
-    11:04:38 INFO: 2015-11-17 00:45:00 - step 100 of 240 - 2155 active elements (845 deactivated)
-    11:04:38 WARNING: Data block from /root/project/tests/test_data/16Nov2015_NorKyst_z_surface/norkyst800_subset_16Nov2015.nc not large enough to cover element positions within timestep. Buffer size (9) must be increased.
-    11:04:38 WARNING: Data block from /root/project/tests/test_data/16Nov2015_NorKyst_z_surface/arome_subset_16Nov2015.nc not large enough to cover element positions within timestep. Buffer size (5) must be increased.
-    11:04:38 INFO: 2015-11-17 01:00:00 - step 101 of 240 - 2133 active elements (867 deactivated)
-    11:04:38 INFO: 2015-11-17 01:15:00 - step 102 of 240 - 2106 active elements (894 deactivated)
-    11:04:38 INFO: 2015-11-17 01:30:00 - step 103 of 240 - 2076 active elements (924 deactivated)
-    11:04:38 INFO: 2015-11-17 01:45:00 - step 104 of 240 - 2049 active elements (951 deactivated)
-    11:04:38 WARNING: Data block from /root/project/tests/test_data/16Nov2015_NorKyst_z_surface/norkyst800_subset_16Nov2015.nc not large enough to cover element positions within timestep. Buffer size (9) must be increased.
-    11:04:38 INFO: 2015-11-17 02:00:00 - step 105 of 240 - 2024 active elements (976 deactivated)
-    11:04:38 INFO: 2015-11-17 02:15:00 - step 106 of 240 - 2005 active elements (995 deactivated)
-    11:04:38 INFO: 2015-11-17 02:30:00 - step 107 of 240 - 1966 active elements (1034 deactivated)
-    11:04:38 WARNING: Data block from /root/project/tests/test_data/16Nov2015_NorKyst_z_surface/norkyst800_subset_16Nov2015.nc not large enough to cover element positions within timestep. Buffer size (9) must be increased.
-    11:04:38 INFO: 2015-11-17 02:45:00 - step 108 of 240 - 1929 active elements (1071 deactivated)
-    11:04:38 WARNING: Data block from /root/project/tests/test_data/16Nov2015_NorKyst_z_surface/norkyst800_subset_16Nov2015.nc not large enough to cover element positions within timestep. Buffer size (9) must be increased.
-    11:04:38 INFO: 2015-11-17 03:00:00 - step 109 of 240 - 1904 active elements (1096 deactivated)
-    11:04:38 INFO: 2015-11-17 03:15:00 - step 110 of 240 - 1874 active elements (1126 deactivated)
-    11:04:38 INFO: 2015-11-17 03:30:00 - step 111 of 240 - 1844 active elements (1156 deactivated)
-    11:04:39 INFO: 2015-11-17 03:45:00 - step 112 of 240 - 1822 active elements (1178 deactivated)
-    11:04:39 WARNING: Data block from /root/project/tests/test_data/16Nov2015_NorKyst_z_surface/norkyst800_subset_16Nov2015.nc not large enough to cover element positions within timestep. Buffer size (9) must be increased.
-    11:04:39 INFO: 2015-11-17 04:00:00 - step 113 of 240 - 1797 active elements (1203 deactivated)
-    11:04:39 INFO: 2015-11-17 04:15:00 - step 114 of 240 - 1774 active elements (1226 deactivated)
-    11:04:39 INFO: 2015-11-17 04:30:00 - step 115 of 240 - 1757 active elements (1243 deactivated)
-    11:04:39 INFO: 2015-11-17 04:45:00 - step 116 of 240 - 1738 active elements (1262 deactivated)
-    11:04:39 WARNING: Data block from /root/project/tests/test_data/16Nov2015_NorKyst_z_surface/norkyst800_subset_16Nov2015.nc not large enough to cover element positions within timestep. Buffer size (9) must be increased.
-    11:04:39 WARNING: Data block from /root/project/tests/test_data/16Nov2015_NorKyst_z_surface/arome_subset_16Nov2015.nc not large enough to cover element positions within timestep. Buffer size (5) must be increased.
-    11:04:39 INFO: 2015-11-17 05:00:00 - step 117 of 240 - 1721 active elements (1279 deactivated)
-    11:04:39 INFO: 2015-11-17 05:15:00 - step 118 of 240 - 1703 active elements (1297 deactivated)
-    11:04:39 INFO: 2015-11-17 05:30:00 - step 119 of 240 - 1686 active elements (1314 deactivated)
-    11:04:39 INFO: 2015-11-17 05:45:00 - step 120 of 240 - 1670 active elements (1330 deactivated)
-    11:04:39 WARNING: Data block from /root/project/tests/test_data/16Nov2015_NorKyst_z_surface/norkyst800_subset_16Nov2015.nc not large enough to cover element positions within timestep. Buffer size (9) must be increased.
-    11:04:39 INFO: 2015-11-17 06:00:00 - step 121 of 240 - 1652 active elements (1348 deactivated)
-    11:04:39 INFO: 2015-11-17 06:15:00 - step 122 of 240 - 1626 active elements (1374 deactivated)
-    11:04:39 INFO: 2015-11-17 06:30:00 - step 123 of 240 - 1606 active elements (1394 deactivated)
-    11:04:39 INFO: 2015-11-17 06:45:00 - step 124 of 240 - 1586 active elements (1414 deactivated)
-    11:04:39 WARNING: Data block from /root/project/tests/test_data/16Nov2015_NorKyst_z_surface/norkyst800_subset_16Nov2015.nc not large enough to cover element positions within timestep. Buffer size (9) must be increased.
-    11:04:39 INFO: 2015-11-17 07:00:00 - step 125 of 240 - 1567 active elements (1433 deactivated)
-    11:04:39 INFO: 2015-11-17 07:15:00 - step 126 of 240 - 1547 active elements (1453 deactivated)
-    11:04:39 INFO: 2015-11-17 07:30:00 - step 127 of 240 - 1530 active elements (1470 deactivated)
-    11:04:39 INFO: 2015-11-17 07:45:00 - step 128 of 240 - 1505 active elements (1495 deactivated)
-    11:04:39 WARNING: Data block from /root/project/tests/test_data/16Nov2015_NorKyst_z_surface/norkyst800_subset_16Nov2015.nc not large enough to cover element positions within timestep. Buffer size (9) must be increased.
-    11:04:39 INFO: 2015-11-17 08:00:00 - step 129 of 240 - 1484 active elements (1516 deactivated)
-    11:04:39 INFO: 2015-11-17 08:15:00 - step 130 of 240 - 1460 active elements (1540 deactivated)
-    11:04:40 INFO: 2015-11-17 08:30:00 - step 131 of 240 - 1449 active elements (1551 deactivated)
-    11:04:40 INFO: 2015-11-17 08:45:00 - step 132 of 240 - 1430 active elements (1570 deactivated)
-    11:04:40 WARNING: Data block from /root/project/tests/test_data/16Nov2015_NorKyst_z_surface/norkyst800_subset_16Nov2015.nc not large enough to cover element positions within timestep. Buffer size (9) must be increased.
-    11:04:40 INFO: 2015-11-17 09:00:00 - step 133 of 240 - 1417 active elements (1583 deactivated)
-    11:04:40 INFO: 2015-11-17 09:15:00 - step 134 of 240 - 1401 active elements (1599 deactivated)
-    11:04:40 INFO: 2015-11-17 09:30:00 - step 135 of 240 - 1380 active elements (1620 deactivated)
-    11:04:40 WARNING: Data block from /root/project/tests/test_data/16Nov2015_NorKyst_z_surface/norkyst800_subset_16Nov2015.nc not large enough to cover element positions within timestep. Buffer size (9) must be increased.
-    11:04:40 INFO: 2015-11-17 09:45:00 - step 136 of 240 - 1357 active elements (1643 deactivated)
-    11:04:40 WARNING: Data block from /root/project/tests/test_data/16Nov2015_NorKyst_z_surface/norkyst800_subset_16Nov2015.nc not large enough to cover element positions within timestep. Buffer size (9) must be increased.
-    11:04:40 WARNING: Data block from /root/project/tests/test_data/16Nov2015_NorKyst_z_surface/arome_subset_16Nov2015.nc not large enough to cover element positions within timestep. Buffer size (5) must be increased.
-    11:04:40 INFO: 2015-11-17 10:00:00 - step 137 of 240 - 1341 active elements (1659 deactivated)
-    11:04:40 INFO: 2015-11-17 10:15:00 - step 138 of 240 - 1328 active elements (1672 deactivated)
-    11:04:40 INFO: 2015-11-17 10:30:00 - step 139 of 240 - 1319 active elements (1681 deactivated)
-    11:04:40 WARNING: Data block from /root/project/tests/test_data/16Nov2015_NorKyst_z_surface/norkyst800_subset_16Nov2015.nc not large enough to cover element positions within timestep. Buffer size (9) must be increased.
-    11:04:40 INFO: 2015-11-17 10:45:00 - step 140 of 240 - 1305 active elements (1695 deactivated)
-    11:04:40 WARNING: Data block from /root/project/tests/test_data/16Nov2015_NorKyst_z_surface/norkyst800_subset_16Nov2015.nc not large enough to cover element positions within timestep. Buffer size (9) must be increased.
-    11:04:40 INFO: 2015-11-17 11:00:00 - step 141 of 240 - 1291 active elements (1709 deactivated)
-    11:04:40 INFO: 2015-11-17 11:15:00 - step 142 of 240 - 1276 active elements (1724 deactivated)
-    11:04:40 INFO: 2015-11-17 11:30:00 - step 143 of 240 - 1266 active elements (1734 deactivated)
-    11:04:40 INFO: 2015-11-17 11:45:00 - step 144 of 240 - 1257 active elements (1743 deactivated)
-    11:04:40 WARNING: Data block from /root/project/tests/test_data/16Nov2015_NorKyst_z_surface/arome_subset_16Nov2015.nc not large enough to cover element positions within timestep. Buffer size (5) must be increased.
-    11:04:40 INFO: 2015-11-17 12:00:00 - step 145 of 240 - 1247 active elements (1753 deactivated)
-    11:04:40 INFO: 2015-11-17 12:15:00 - step 146 of 240 - 1239 active elements (1761 deactivated)
-    11:04:40 INFO: 2015-11-17 12:30:00 - step 147 of 240 - 1229 active elements (1771 deactivated)
-    11:04:40 INFO: 2015-11-17 12:45:00 - step 148 of 240 - 1219 active elements (1781 deactivated)
-    11:04:40 INFO: 2015-11-17 13:00:00 - step 149 of 240 - 1211 active elements (1789 deactivated)
-    11:04:40 INFO: 2015-11-17 13:15:00 - step 150 of 240 - 1202 active elements (1798 deactivated)
-    11:04:40 INFO: 2015-11-17 13:30:00 - step 151 of 240 - 1196 active elements (1804 deactivated)
-    11:04:41 INFO: 2015-11-17 13:45:00 - step 152 of 240 - 1191 active elements (1809 deactivated)
-    11:04:41 WARNING: Data block from /root/project/tests/test_data/16Nov2015_NorKyst_z_surface/norkyst800_subset_16Nov2015.nc not large enough to cover element positions within timestep. Buffer size (9) must be increased.
-    11:04:41 INFO: 2015-11-17 14:00:00 - step 153 of 240 - 1184 active elements (1816 deactivated)
-    11:04:41 INFO: 2015-11-17 14:15:00 - step 154 of 240 - 1173 active elements (1827 deactivated)
-    11:04:41 INFO: 2015-11-17 14:30:00 - step 155 of 240 - 1167 active elements (1833 deactivated)
-    11:04:41 INFO: 2015-11-17 14:45:00 - step 156 of 240 - 1159 active elements (1841 deactivated)
-    11:04:41 WARNING: Data block from /root/project/tests/test_data/16Nov2015_NorKyst_z_surface/norkyst800_subset_16Nov2015.nc not large enough to cover element positions within timestep. Buffer size (9) must be increased.
-    11:04:41 INFO: 2015-11-17 15:00:00 - step 157 of 240 - 1151 active elements (1849 deactivated)
-    11:04:41 INFO: 2015-11-17 15:15:00 - step 158 of 240 - 1139 active elements (1861 deactivated)
-    11:04:41 INFO: 2015-11-17 15:30:00 - step 159 of 240 - 1131 active elements (1869 deactivated)
-    11:04:41 INFO: 2015-11-17 15:45:00 - step 160 of 240 - 1128 active elements (1872 deactivated)
-    11:04:41 WARNING: Data block from /root/project/tests/test_data/16Nov2015_NorKyst_z_surface/norkyst800_subset_16Nov2015.nc not large enough to cover element positions within timestep. Buffer size (9) must be increased.
-    11:04:41 INFO: 2015-11-17 16:00:00 - step 161 of 240 - 1118 active elements (1882 deactivated)
-    11:04:41 INFO: 2015-11-17 16:15:00 - step 162 of 240 - 1109 active elements (1891 deactivated)
-    11:04:41 INFO: 2015-11-17 16:30:00 - step 163 of 240 - 1101 active elements (1899 deactivated)
-    11:04:41 INFO: 2015-11-17 16:45:00 - step 164 of 240 - 1096 active elements (1904 deactivated)
-    11:04:41 WARNING: Data block from /root/project/tests/test_data/16Nov2015_NorKyst_z_surface/norkyst800_subset_16Nov2015.nc not large enough to cover element positions within timestep. Buffer size (9) must be increased.
-    11:04:41 INFO: 2015-11-17 17:00:00 - step 165 of 240 - 1087 active elements (1913 deactivated)
-    11:04:41 INFO: 2015-11-17 17:15:00 - step 166 of 240 - 1080 active elements (1920 deactivated)
-    11:04:41 INFO: 2015-11-17 17:30:00 - step 167 of 240 - 1072 active elements (1928 deactivated)
-    11:04:41 INFO: 2015-11-17 17:45:00 - step 168 of 240 - 1064 active elements (1936 deactivated)
-    11:04:41 INFO: 2015-11-17 18:00:00 - step 169 of 240 - 1062 active elements (1938 deactivated)
-    11:04:41 INFO: 2015-11-17 18:15:00 - step 170 of 240 - 1055 active elements (1945 deactivated)
-    11:04:42 INFO: 2015-11-17 18:30:00 - step 171 of 240 - 1050 active elements (1950 deactivated)
-    11:04:42 INFO: 2015-11-17 18:45:00 - step 172 of 240 - 1043 active elements (1957 deactivated)
-    11:04:42 INFO: 2015-11-17 19:00:00 - step 173 of 240 - 1042 active elements (1958 deactivated)
-    11:04:42 INFO: 2015-11-17 19:15:00 - step 174 of 240 - 1040 active elements (1960 deactivated)
-    11:04:42 INFO: 2015-11-17 19:30:00 - step 175 of 240 - 1034 active elements (1966 deactivated)
-    11:04:42 INFO: 2015-11-17 19:45:00 - step 176 of 240 - 1024 active elements (1976 deactivated)
-    11:04:42 WARNING: Data block from /root/project/tests/test_data/16Nov2015_NorKyst_z_surface/norkyst800_subset_16Nov2015.nc not large enough to cover element positions within timestep. Buffer size (9) must be increased.
-    11:04:42 INFO: 2015-11-17 20:00:00 - step 177 of 240 - 1019 active elements (1981 deactivated)
-    11:04:42 INFO: 2015-11-17 20:15:00 - step 178 of 240 - 1017 active elements (1983 deactivated)
-    11:04:42 INFO: 2015-11-17 20:30:00 - step 179 of 240 - 1013 active elements (1987 deactivated)
-    11:04:42 INFO: 2015-11-17 20:45:00 - step 180 of 240 - 1008 active elements (1992 deactivated)
-    11:04:42 INFO: 2015-11-17 21:00:00 - step 181 of 240 - 1002 active elements (1998 deactivated)
-    11:04:42 INFO: 2015-11-17 21:15:00 - step 182 of 240 - 995 active elements (2005 deactivated)
-    11:04:42 INFO: 2015-11-17 21:30:00 - step 183 of 240 - 992 active elements (2008 deactivated)
-    11:04:42 INFO: 2015-11-17 21:45:00 - step 184 of 240 - 986 active elements (2014 deactivated)
-    11:04:42 INFO: 2015-11-17 22:00:00 - step 185 of 240 - 977 active elements (2023 deactivated)
-    11:04:42 INFO: 2015-11-17 22:15:00 - step 186 of 240 - 974 active elements (2026 deactivated)
-    11:04:42 INFO: 2015-11-17 22:30:00 - step 187 of 240 - 968 active elements (2032 deactivated)
-    11:04:42 INFO: 2015-11-17 22:45:00 - step 188 of 240 - 963 active elements (2037 deactivated)
-    11:04:42 INFO: 2015-11-17 23:00:00 - step 189 of 240 - 956 active elements (2044 deactivated)
-    11:04:42 INFO: 2015-11-17 23:15:00 - step 190 of 240 - 950 active elements (2050 deactivated)
-    11:04:42 INFO: 2015-11-17 23:30:00 - step 191 of 240 - 943 active elements (2057 deactivated)
-    11:04:43 INFO: 2015-11-17 23:45:00 - step 192 of 240 - 937 active elements (2063 deactivated)
-    11:04:43 INFO: 2015-11-18 00:00:00 - step 193 of 240 - 934 active elements (2066 deactivated)
-    11:04:43 INFO: 2015-11-18 00:15:00 - step 194 of 240 - 931 active elements (2069 deactivated)
-    11:04:43 INFO: 2015-11-18 00:30:00 - step 195 of 240 - 928 active elements (2072 deactivated)
-    11:04:43 INFO: 2015-11-18 00:45:00 - step 196 of 240 - 924 active elements (2076 deactivated)
-    11:04:43 INFO: 2015-11-18 01:00:00 - step 197 of 240 - 920 active elements (2080 deactivated)
-    11:04:43 INFO: 2015-11-18 01:15:00 - step 198 of 240 - 915 active elements (2085 deactivated)
-    11:04:43 INFO: 2015-11-18 01:30:00 - step 199 of 240 - 910 active elements (2090 deactivated)
-    11:04:43 INFO: 2015-11-18 01:45:00 - step 200 of 240 - 905 active elements (2095 deactivated)
-    11:04:43 INFO: 2015-11-18 02:00:00 - step 201 of 240 - 896 active elements (2104 deactivated)
-    11:04:43 INFO: 2015-11-18 02:15:00 - step 202 of 240 - 895 active elements (2105 deactivated)
-    11:04:43 INFO: 2015-11-18 02:30:00 - step 203 of 240 - 893 active elements (2107 deactivated)
-    11:04:43 INFO: 2015-11-18 02:45:00 - step 204 of 240 - 890 active elements (2110 deactivated)
-    11:04:43 INFO: 2015-11-18 03:00:00 - step 205 of 240 - 888 active elements (2112 deactivated)
-    11:04:43 INFO: 2015-11-18 03:15:00 - step 206 of 240 - 882 active elements (2118 deactivated)
-    11:04:43 INFO: 2015-11-18 03:30:00 - step 207 of 240 - 881 active elements (2119 deactivated)
-    11:04:43 INFO: 2015-11-18 03:45:00 - step 208 of 240 - 878 active elements (2122 deactivated)
-    11:04:43 INFO: 2015-11-18 04:00:00 - step 209 of 240 - 876 active elements (2124 deactivated)
-    11:04:43 INFO: 2015-11-18 04:15:00 - step 210 of 240 - 875 active elements (2125 deactivated)
-    11:04:43 INFO: 2015-11-18 04:30:00 - step 211 of 240 - 873 active elements (2127 deactivated)
-    11:04:43 INFO: 2015-11-18 04:45:00 - step 212 of 240 - 871 active elements (2129 deactivated)
-    11:04:44 INFO: 2015-11-18 05:00:00 - step 213 of 240 - 868 active elements (2132 deactivated)
-    11:04:44 INFO: 2015-11-18 05:15:00 - step 214 of 240 - 862 active elements (2138 deactivated)
-    11:04:44 INFO: 2015-11-18 05:30:00 - step 215 of 240 - 859 active elements (2141 deactivated)
-    11:04:44 INFO: 2015-11-18 05:45:00 - step 216 of 240 - 855 active elements (2145 deactivated)
-    11:04:44 INFO: 2015-11-18 06:00:00 - step 217 of 240 - 853 active elements (2147 deactivated)
-    11:04:44 INFO: 2015-11-18 06:15:00 - step 218 of 240 - 852 active elements (2148 deactivated)
-    11:04:44 INFO: 2015-11-18 06:30:00 - step 219 of 240 - 847 active elements (2153 deactivated)
-    11:04:44 INFO: 2015-11-18 06:45:00 - step 220 of 240 - 846 active elements (2154 deactivated)
-    11:04:44 INFO: 2015-11-18 07:00:00 - step 221 of 240 - 844 active elements (2156 deactivated)
-    11:04:44 INFO: 2015-11-18 07:15:00 - step 222 of 240 - 843 active elements (2157 deactivated)
-    11:04:44 INFO: 2015-11-18 07:30:00 - step 223 of 240 - 841 active elements (2159 deactivated)
-    11:04:44 INFO: 2015-11-18 07:45:00 - step 224 of 240 - 840 active elements (2160 deactivated)
-    11:04:44 INFO: 2015-11-18 08:00:00 - step 225 of 240 - 840 active elements (2160 deactivated)
-    11:04:44 INFO: 2015-11-18 08:15:00 - step 226 of 240 - 838 active elements (2162 deactivated)
-    11:04:44 INFO: 2015-11-18 08:30:00 - step 227 of 240 - 837 active elements (2163 deactivated)
-    11:04:44 INFO: 2015-11-18 08:45:00 - step 228 of 240 - 837 active elements (2163 deactivated)
-    11:04:44 INFO: 2015-11-18 09:00:00 - step 229 of 240 - 836 active elements (2164 deactivated)
-    11:04:44 INFO: 2015-11-18 09:15:00 - step 230 of 240 - 836 active elements (2164 deactivated)
-    11:04:44 INFO: 2015-11-18 09:30:00 - step 231 of 240 - 835 active elements (2165 deactivated)
-    11:04:44 INFO: 2015-11-18 09:45:00 - step 232 of 240 - 835 active elements (2165 deactivated)
-    11:04:44 INFO: 2015-11-18 10:00:00 - step 233 of 240 - 834 active elements (2166 deactivated)
-    11:04:44 INFO: 2015-11-18 10:15:00 - step 234 of 240 - 834 active elements (2166 deactivated)
-    11:04:45 INFO: 2015-11-18 10:30:00 - step 235 of 240 - 834 active elements (2166 deactivated)
-    11:04:45 INFO: 2015-11-18 10:45:00 - step 236 of 240 - 833 active elements (2167 deactivated)
-    11:04:45 INFO: 2015-11-18 11:00:00 - step 237 of 240 - 832 active elements (2168 deactivated)
-    11:04:45 INFO: 2015-11-18 11:15:00 - step 238 of 240 - 832 active elements (2168 deactivated)
-    11:04:45 INFO: 2015-11-18 11:30:00 - step 239 of 240 - 831 active elements (2169 deactivated)
-    11:04:45 INFO: 2015-11-18 11:45:00 - step 240 of 240 - 830 active elements (2170 deactivated)
+    19:34:37 INFO: Config validation OK
+    19:34:37 INFO: Adding a dynamical landmask with max. priority based on assumed maximum speed of 1.5 m/s. Adding a customised landmask may be faster...
+    19:34:40 INFO: Using existing reader for land_binary_mask
+    19:34:40 INFO: All points are in ocean
+    19:34:40 INFO: 2015-11-16 00:00:00 - step 1 of 192 - 1000 active elements (0 deactivated)
+    19:34:40 INFO: 2015-11-16 00:15:00 - step 2 of 192 - 1000 active elements (0 deactivated)
+    19:34:40 INFO: 2015-11-16 00:30:00 - step 3 of 192 - 1000 active elements (0 deactivated)
+    19:34:40 INFO: 2015-11-16 00:45:00 - step 4 of 192 - 1000 active elements (0 deactivated)
+    19:34:40 INFO: 2015-11-16 01:00:00 - step 5 of 192 - 1000 active elements (0 deactivated)
+    19:34:41 INFO: 2015-11-16 01:15:00 - step 6 of 192 - 1000 active elements (0 deactivated)
+    19:34:41 INFO: 2015-11-16 01:30:00 - step 7 of 192 - 1000 active elements (0 deactivated)
+    19:34:41 WARNING: Data block from /root/project/tests/test_data/16Nov2015_NorKyst_z_surface/norkyst800_subset_16Nov2015.nc not large enough to cover element positions within timestep. Buffer size (9) must be increased.
+    19:34:41 INFO: 2015-11-16 01:45:00 - step 8 of 192 - 1000 active elements (0 deactivated)
+    19:34:41 WARNING: Data block from /root/project/tests/test_data/16Nov2015_NorKyst_z_surface/norkyst800_subset_16Nov2015.nc not large enough to cover element positions within timestep. Buffer size (9) must be increased.
+    19:34:41 INFO: 2015-11-16 02:00:00 - step 9 of 192 - 1000 active elements (0 deactivated)
+    19:34:41 INFO: 2015-11-16 02:15:00 - step 10 of 192 - 1000 active elements (0 deactivated)
+    19:34:41 INFO: 2015-11-16 02:30:00 - step 11 of 192 - 1000 active elements (0 deactivated)
+    19:34:41 WARNING: Data block from /root/project/tests/test_data/16Nov2015_NorKyst_z_surface/norkyst800_subset_16Nov2015.nc not large enough to cover element positions within timestep. Buffer size (9) must be increased.
+    19:34:41 INFO: 2015-11-16 02:45:00 - step 12 of 192 - 1000 active elements (0 deactivated)
+    19:34:41 WARNING: Data block from /root/project/tests/test_data/16Nov2015_NorKyst_z_surface/norkyst800_subset_16Nov2015.nc not large enough to cover element positions within timestep. Buffer size (9) must be increased.
+    19:34:41 WARNING: Data block from /root/project/tests/test_data/16Nov2015_NorKyst_z_surface/arome_subset_16Nov2015.nc not large enough to cover element positions within timestep. Buffer size (5) must be increased.
+    19:34:41 INFO: 2015-11-16 03:00:00 - step 13 of 192 - 1000 active elements (0 deactivated)
+    19:34:41 INFO: 2015-11-16 03:15:00 - step 14 of 192 - 1000 active elements (0 deactivated)
+    19:34:41 WARNING: Data block from /root/project/tests/test_data/16Nov2015_NorKyst_z_surface/norkyst800_subset_16Nov2015.nc not large enough to cover element positions within timestep. Buffer size (9) must be increased.
+    19:34:41 INFO: 2015-11-16 03:30:00 - step 15 of 192 - 1000 active elements (0 deactivated)
+    19:34:41 WARNING: Data block from /root/project/tests/test_data/16Nov2015_NorKyst_z_surface/norkyst800_subset_16Nov2015.nc not large enough to cover element positions within timestep. Buffer size (9) must be increased.
+    19:34:41 INFO: 2015-11-16 03:45:00 - step 16 of 192 - 1000 active elements (0 deactivated)
+    19:34:41 WARNING: Data block from /root/project/tests/test_data/16Nov2015_NorKyst_z_surface/norkyst800_subset_16Nov2015.nc not large enough to cover element positions within timestep. Buffer size (9) must be increased.
+    19:34:41 WARNING: Data block from /root/project/tests/test_data/16Nov2015_NorKyst_z_surface/arome_subset_16Nov2015.nc not large enough to cover element positions within timestep. Buffer size (5) must be increased.
+    19:34:41 INFO: 2015-11-16 04:00:00 - step 17 of 192 - 1000 active elements (0 deactivated)
+    19:34:41 INFO: 2015-11-16 04:15:00 - step 18 of 192 - 1000 active elements (0 deactivated)
+    19:34:41 WARNING: Data block from /root/project/tests/test_data/16Nov2015_NorKyst_z_surface/norkyst800_subset_16Nov2015.nc not large enough to cover element positions within timestep. Buffer size (9) must be increased.
+    19:34:41 INFO: 2015-11-16 04:30:00 - step 19 of 192 - 1000 active elements (0 deactivated)
+    19:34:41 WARNING: Data block from /root/project/tests/test_data/16Nov2015_NorKyst_z_surface/norkyst800_subset_16Nov2015.nc not large enough to cover element positions within timestep. Buffer size (9) must be increased.
+    19:34:41 WARNING: Data block from /root/project/tests/test_data/16Nov2015_NorKyst_z_surface/arome_subset_16Nov2015.nc not large enough to cover element positions within timestep. Buffer size (5) must be increased.
+    19:34:41 INFO: 2015-11-16 04:45:00 - step 20 of 192 - 1000 active elements (0 deactivated)
+    19:34:41 WARNING: Data block from /root/project/tests/test_data/16Nov2015_NorKyst_z_surface/norkyst800_subset_16Nov2015.nc not large enough to cover element positions within timestep. Buffer size (9) must be increased.
+    19:34:42 WARNING: Data block from /root/project/tests/test_data/16Nov2015_NorKyst_z_surface/arome_subset_16Nov2015.nc not large enough to cover element positions within timestep. Buffer size (5) must be increased.
+    19:34:42 INFO: 2015-11-16 05:00:00 - step 21 of 192 - 1000 active elements (0 deactivated)
+    19:34:42 INFO: 2015-11-16 05:15:00 - step 22 of 192 - 1000 active elements (0 deactivated)
+    19:34:42 WARNING: Data block from /root/project/tests/test_data/16Nov2015_NorKyst_z_surface/norkyst800_subset_16Nov2015.nc not large enough to cover element positions within timestep. Buffer size (9) must be increased.
+    19:34:42 INFO: 2015-11-16 05:30:00 - step 23 of 192 - 1000 active elements (0 deactivated)
+    19:34:42 WARNING: Data block from /root/project/tests/test_data/16Nov2015_NorKyst_z_surface/norkyst800_subset_16Nov2015.nc not large enough to cover element positions within timestep. Buffer size (9) must be increased.
+    19:34:42 WARNING: Data block from /root/project/tests/test_data/16Nov2015_NorKyst_z_surface/arome_subset_16Nov2015.nc not large enough to cover element positions within timestep. Buffer size (5) must be increased.
+    19:34:42 INFO: 2015-11-16 05:45:00 - step 24 of 192 - 1000 active elements (0 deactivated)
+    19:34:42 WARNING: Data block from /root/project/tests/test_data/16Nov2015_NorKyst_z_surface/norkyst800_subset_16Nov2015.nc not large enough to cover element positions within timestep. Buffer size (9) must be increased.
+    19:34:42 WARNING: Data block from /root/project/tests/test_data/16Nov2015_NorKyst_z_surface/arome_subset_16Nov2015.nc not large enough to cover element positions within timestep. Buffer size (5) must be increased.
+    19:34:42 INFO: 2015-11-16 06:00:00 - step 25 of 192 - 1000 active elements (0 deactivated)
+    19:34:42 INFO: 2015-11-16 06:15:00 - step 26 of 192 - 1000 active elements (0 deactivated)
+    19:34:42 WARNING: Data block from /root/project/tests/test_data/16Nov2015_NorKyst_z_surface/norkyst800_subset_16Nov2015.nc not large enough to cover element positions within timestep. Buffer size (9) must be increased.
+    19:34:42 WARNING: Data block from /root/project/tests/test_data/16Nov2015_NorKyst_z_surface/arome_subset_16Nov2015.nc not large enough to cover element positions within timestep. Buffer size (5) must be increased.
+    19:34:42 INFO: 2015-11-16 06:30:00 - step 27 of 192 - 1000 active elements (0 deactivated)
+    19:34:42 WARNING: Data block from /root/project/tests/test_data/16Nov2015_NorKyst_z_surface/norkyst800_subset_16Nov2015.nc not large enough to cover element positions within timestep. Buffer size (9) must be increased.
+    19:34:42 WARNING: Data block from /root/project/tests/test_data/16Nov2015_NorKyst_z_surface/arome_subset_16Nov2015.nc not large enough to cover element positions within timestep. Buffer size (5) must be increased.
+    19:34:42 INFO: 2015-11-16 06:45:00 - step 28 of 192 - 1000 active elements (0 deactivated)
+    19:34:42 WARNING: Data block from /root/project/tests/test_data/16Nov2015_NorKyst_z_surface/norkyst800_subset_16Nov2015.nc not large enough to cover element positions within timestep. Buffer size (9) must be increased.
+    19:34:42 WARNING: Data block from /root/project/tests/test_data/16Nov2015_NorKyst_z_surface/arome_subset_16Nov2015.nc not large enough to cover element positions within timestep. Buffer size (5) must be increased.
+    19:34:42 INFO: 2015-11-16 07:00:00 - step 29 of 192 - 1000 active elements (0 deactivated)
+    19:34:42 INFO: 2015-11-16 07:15:00 - step 30 of 192 - 1000 active elements (0 deactivated)
+    19:34:42 WARNING: Data block from /root/project/tests/test_data/16Nov2015_NorKyst_z_surface/norkyst800_subset_16Nov2015.nc not large enough to cover element positions within timestep. Buffer size (9) must be increased.
+    19:34:42 INFO: 2015-11-16 07:30:00 - step 31 of 192 - 1000 active elements (0 deactivated)
+    19:34:42 WARNING: Data block from /root/project/tests/test_data/16Nov2015_NorKyst_z_surface/norkyst800_subset_16Nov2015.nc not large enough to cover element positions within timestep. Buffer size (9) must be increased.
+    19:34:42 INFO: 2015-11-16 07:45:00 - step 32 of 192 - 1000 active elements (0 deactivated)
+    19:34:42 WARNING: Data block from /root/project/tests/test_data/16Nov2015_NorKyst_z_surface/norkyst800_subset_16Nov2015.nc not large enough to cover element positions within timestep. Buffer size (9) must be increased.
+    19:34:42 WARNING: Data block from /root/project/tests/test_data/16Nov2015_NorKyst_z_surface/arome_subset_16Nov2015.nc not large enough to cover element positions within timestep. Buffer size (5) must be increased.
+    19:34:42 INFO: 2015-11-16 08:00:00 - step 33 of 192 - 1000 active elements (0 deactivated)
+    19:34:42 INFO: 2015-11-16 08:15:00 - step 34 of 192 - 1000 active elements (0 deactivated)
+    19:34:42 WARNING: Data block from /root/project/tests/test_data/16Nov2015_NorKyst_z_surface/norkyst800_subset_16Nov2015.nc not large enough to cover element positions within timestep. Buffer size (9) must be increased.
+    19:34:42 INFO: 2015-11-16 08:30:00 - step 35 of 192 - 1000 active elements (0 deactivated)
+    19:34:42 WARNING: Data block from /root/project/tests/test_data/16Nov2015_NorKyst_z_surface/norkyst800_subset_16Nov2015.nc not large enough to cover element positions within timestep. Buffer size (9) must be increased.
+    19:34:43 INFO: 2015-11-16 08:45:00 - step 36 of 192 - 1000 active elements (0 deactivated)
+    19:34:43 WARNING: Data block from /root/project/tests/test_data/16Nov2015_NorKyst_z_surface/norkyst800_subset_16Nov2015.nc not large enough to cover element positions within timestep. Buffer size (9) must be increased.
+    19:34:43 WARNING: Data block from /root/project/tests/test_data/16Nov2015_NorKyst_z_surface/arome_subset_16Nov2015.nc not large enough to cover element positions within timestep. Buffer size (5) must be increased.
+    19:34:43 INFO: 2015-11-16 09:00:00 - step 37 of 192 - 1000 active elements (0 deactivated)
+    19:34:43 INFO: 2015-11-16 09:15:00 - step 38 of 192 - 1000 active elements (0 deactivated)
+    19:34:43 WARNING: Data block from /root/project/tests/test_data/16Nov2015_NorKyst_z_surface/norkyst800_subset_16Nov2015.nc not large enough to cover element positions within timestep. Buffer size (9) must be increased.
+    19:34:43 INFO: 2015-11-16 09:30:00 - step 39 of 192 - 1000 active elements (0 deactivated)
+    19:34:43 WARNING: Data block from /root/project/tests/test_data/16Nov2015_NorKyst_z_surface/norkyst800_subset_16Nov2015.nc not large enough to cover element positions within timestep. Buffer size (9) must be increased.
+    19:34:43 INFO: 2015-11-16 09:45:00 - step 40 of 192 - 1000 active elements (0 deactivated)
+    19:34:43 WARNING: Data block from /root/project/tests/test_data/16Nov2015_NorKyst_z_surface/norkyst800_subset_16Nov2015.nc not large enough to cover element positions within timestep. Buffer size (9) must be increased.
+    19:34:43 WARNING: Data block from /root/project/tests/test_data/16Nov2015_NorKyst_z_surface/arome_subset_16Nov2015.nc not large enough to cover element positions within timestep. Buffer size (5) must be increased.
+    19:34:43 INFO: 2015-11-16 10:00:00 - step 41 of 192 - 1000 active elements (0 deactivated)
+    19:34:43 INFO: 2015-11-16 10:15:00 - step 42 of 192 - 1000 active elements (0 deactivated)
+    19:34:43 WARNING: Data block from /root/project/tests/test_data/16Nov2015_NorKyst_z_surface/norkyst800_subset_16Nov2015.nc not large enough to cover element positions within timestep. Buffer size (9) must be increased.
+    19:34:43 INFO: 2015-11-16 10:30:00 - step 43 of 192 - 1000 active elements (0 deactivated)
+    19:34:43 WARNING: Data block from /root/project/tests/test_data/16Nov2015_NorKyst_z_surface/norkyst800_subset_16Nov2015.nc not large enough to cover element positions within timestep. Buffer size (9) must be increased.
+    19:34:43 INFO: 2015-11-16 10:45:00 - step 44 of 192 - 1000 active elements (0 deactivated)
+    19:34:43 WARNING: Data block from /root/project/tests/test_data/16Nov2015_NorKyst_z_surface/norkyst800_subset_16Nov2015.nc not large enough to cover element positions within timestep. Buffer size (9) must be increased.
+    19:34:43 WARNING: Data block from /root/project/tests/test_data/16Nov2015_NorKyst_z_surface/arome_subset_16Nov2015.nc not large enough to cover element positions within timestep. Buffer size (5) must be increased.
+    19:34:43 INFO: 2015-11-16 11:00:00 - step 45 of 192 - 1000 active elements (0 deactivated)
+    19:34:43 INFO: 2015-11-16 11:15:00 - step 46 of 192 - 1000 active elements (0 deactivated)
+    19:34:43 INFO: 2015-11-16 11:30:00 - step 47 of 192 - 1000 active elements (0 deactivated)
+    19:34:43 WARNING: Data block from /root/project/tests/test_data/16Nov2015_NorKyst_z_surface/norkyst800_subset_16Nov2015.nc not large enough to cover element positions within timestep. Buffer size (9) must be increased.
+    19:34:43 INFO: 2015-11-16 11:45:00 - step 48 of 192 - 1000 active elements (0 deactivated)
+    19:34:43 WARNING: Data block from /root/project/tests/test_data/16Nov2015_NorKyst_z_surface/norkyst800_subset_16Nov2015.nc not large enough to cover element positions within timestep. Buffer size (9) must be increased.
+    19:34:43 INFO: 2015-11-16 12:00:00 - step 49 of 192 - 1000 active elements (0 deactivated)
+    19:34:43 INFO: 2015-11-16 12:15:00 - step 50 of 192 - 1000 active elements (0 deactivated)
+    19:34:44 INFO: 2015-11-16 12:30:00 - step 51 of 192 - 1000 active elements (0 deactivated)
+    19:34:44 INFO: 2015-11-16 12:45:00 - step 52 of 192 - 1000 active elements (0 deactivated)
+    19:34:44 INFO: 2015-11-16 13:00:00 - step 53 of 192 - 1000 active elements (0 deactivated)
+    19:34:44 INFO: 2015-11-16 13:15:00 - step 54 of 192 - 1000 active elements (0 deactivated)
+    19:34:44 INFO: 2015-11-16 13:30:00 - step 55 of 192 - 1000 active elements (0 deactivated)
+    19:34:44 INFO: 2015-11-16 13:45:00 - step 56 of 192 - 1000 active elements (0 deactivated)
+    19:34:44 INFO: 2015-11-16 14:00:00 - step 57 of 192 - 1000 active elements (0 deactivated)
+    19:34:44 INFO: 2015-11-16 14:15:00 - step 58 of 192 - 1000 active elements (0 deactivated)
+    19:34:44 INFO: 2015-11-16 14:30:00 - step 59 of 192 - 1000 active elements (0 deactivated)
+    19:34:44 INFO: 2015-11-16 14:45:00 - step 60 of 192 - 1000 active elements (0 deactivated)
+    19:34:44 INFO: 2015-11-16 15:00:00 - step 61 of 192 - 1000 active elements (0 deactivated)
+    19:34:44 INFO: 2015-11-16 15:15:00 - step 62 of 192 - 1000 active elements (0 deactivated)
+    19:34:44 INFO: 2015-11-16 15:30:00 - step 63 of 192 - 1000 active elements (0 deactivated)
+    19:34:44 INFO: 2015-11-16 15:45:00 - step 64 of 192 - 1000 active elements (0 deactivated)
+    19:34:45 INFO: 2015-11-16 16:00:00 - step 65 of 192 - 1000 active elements (0 deactivated)
+    19:34:45 INFO: 2015-11-16 16:15:00 - step 66 of 192 - 1000 active elements (0 deactivated)
+    19:34:45 INFO: 2015-11-16 16:30:00 - step 67 of 192 - 999 active elements (1 deactivated)
+    19:34:45 INFO: 2015-11-16 16:45:00 - step 68 of 192 - 999 active elements (1 deactivated)
+    19:34:45 INFO: 2015-11-16 17:00:00 - step 69 of 192 - 998 active elements (2 deactivated)
+    19:34:45 INFO: 2015-11-16 17:15:00 - step 70 of 192 - 998 active elements (2 deactivated)
+    19:34:45 INFO: 2015-11-16 17:30:00 - step 71 of 192 - 995 active elements (5 deactivated)
+    19:34:45 WARNING: Data block from /root/project/tests/test_data/16Nov2015_NorKyst_z_surface/norkyst800_subset_16Nov2015.nc not large enough to cover element positions within timestep. Buffer size (9) must be increased.
+    19:34:45 INFO: 2015-11-16 17:45:00 - step 72 of 192 - 995 active elements (5 deactivated)
+    19:34:45 WARNING: Data block from /root/project/tests/test_data/16Nov2015_NorKyst_z_surface/norkyst800_subset_16Nov2015.nc not large enough to cover element positions within timestep. Buffer size (9) must be increased.
+    19:34:45 INFO: 2015-11-16 18:00:00 - step 73 of 192 - 993 active elements (7 deactivated)
+    19:34:46 INFO: 2015-11-16 18:15:00 - step 74 of 192 - 987 active elements (13 deactivated)
+    19:34:46 INFO: 2015-11-16 18:30:00 - step 75 of 192 - 980 active elements (20 deactivated)
+    19:34:46 WARNING: Data block from /root/project/tests/test_data/16Nov2015_NorKyst_z_surface/norkyst800_subset_16Nov2015.nc not large enough to cover element positions within timestep. Buffer size (9) must be increased.
+    19:34:46 INFO: 2015-11-16 18:45:00 - step 76 of 192 - 975 active elements (25 deactivated)
+    19:34:46 WARNING: Data block from /root/project/tests/test_data/16Nov2015_NorKyst_z_surface/norkyst800_subset_16Nov2015.nc not large enough to cover element positions within timestep. Buffer size (9) must be increased.
+    19:34:46 INFO: 2015-11-16 19:00:00 - step 77 of 192 - 973 active elements (27 deactivated)
+    19:34:46 INFO: 2015-11-16 19:15:00 - step 78 of 192 - 970 active elements (30 deactivated)
+    19:34:46 INFO: 2015-11-16 19:30:00 - step 79 of 192 - 960 active elements (40 deactivated)
+    19:34:46 INFO: 2015-11-16 19:45:00 - step 80 of 192 - 955 active elements (45 deactivated)
+    19:34:46 WARNING: Data block from /root/project/tests/test_data/16Nov2015_NorKyst_z_surface/norkyst800_subset_16Nov2015.nc not large enough to cover element positions within timestep. Buffer size (9) must be increased.
+    19:34:46 INFO: 2015-11-16 20:00:00 - step 81 of 192 - 949 active elements (51 deactivated)
+    19:34:46 INFO: 2015-11-16 20:15:00 - step 82 of 192 - 938 active elements (62 deactivated)
+    19:34:46 INFO: 2015-11-16 20:30:00 - step 83 of 192 - 927 active elements (73 deactivated)
+    19:34:46 INFO: 2015-11-16 20:45:00 - step 84 of 192 - 921 active elements (79 deactivated)
+    19:34:46 INFO: 2015-11-16 21:00:00 - step 85 of 192 - 913 active elements (87 deactivated)
+    19:34:46 INFO: 2015-11-16 21:15:00 - step 86 of 192 - 902 active elements (98 deactivated)
+    19:34:46 INFO: 2015-11-16 21:30:00 - step 87 of 192 - 893 active elements (107 deactivated)
+    19:34:46 INFO: 2015-11-16 21:45:00 - step 88 of 192 - 877 active elements (123 deactivated)
+    19:34:47 INFO: 2015-11-16 22:00:00 - step 89 of 192 - 867 active elements (133 deactivated)
+    19:34:47 INFO: 2015-11-16 22:15:00 - step 90 of 192 - 857 active elements (143 deactivated)
+    19:34:47 INFO: 2015-11-16 22:30:00 - step 91 of 192 - 856 active elements (144 deactivated)
+    19:34:47 INFO: 2015-11-16 22:45:00 - step 92 of 192 - 840 active elements (160 deactivated)
+    19:34:47 WARNING: Data block from /root/project/tests/test_data/16Nov2015_NorKyst_z_surface/arome_subset_16Nov2015.nc not large enough to cover element positions within timestep. Buffer size (5) must be increased.
+    19:34:47 INFO: 2015-11-16 23:00:00 - step 93 of 192 - 827 active elements (173 deactivated)
+    19:34:47 INFO: 2015-11-16 23:15:00 - step 94 of 192 - 811 active elements (189 deactivated)
+    19:34:47 INFO: 2015-11-16 23:30:00 - step 95 of 192 - 799 active elements (201 deactivated)
+    19:34:47 INFO: 2015-11-16 23:45:00 - step 96 of 192 - 788 active elements (212 deactivated)
+    19:34:47 INFO: 2015-11-17 00:00:00 - step 97 of 192 - 774 active elements (226 deactivated)
+    19:34:47 INFO: 2015-11-17 00:15:00 - step 98 of 192 - 763 active elements (237 deactivated)
+    19:34:47 INFO: 2015-11-17 00:30:00 - step 99 of 192 - 750 active elements (250 deactivated)
+    19:34:47 WARNING: Data block from /root/project/tests/test_data/16Nov2015_NorKyst_z_surface/norkyst800_subset_16Nov2015.nc not large enough to cover element positions within timestep. Buffer size (9) must be increased.
+    19:34:47 WARNING: Data block from /root/project/tests/test_data/16Nov2015_NorKyst_z_surface/arome_subset_16Nov2015.nc not large enough to cover element positions within timestep. Buffer size (5) must be increased.
+    19:34:47 INFO: 2015-11-17 00:45:00 - step 100 of 192 - 743 active elements (257 deactivated)
+    19:34:47 WARNING: Data block from /root/project/tests/test_data/16Nov2015_NorKyst_z_surface/norkyst800_subset_16Nov2015.nc not large enough to cover element positions within timestep. Buffer size (9) must be increased.
+    19:34:47 WARNING: Data block from /root/project/tests/test_data/16Nov2015_NorKyst_z_surface/arome_subset_16Nov2015.nc not large enough to cover element positions within timestep. Buffer size (5) must be increased.
+    19:34:47 INFO: 2015-11-17 01:00:00 - step 101 of 192 - 730 active elements (270 deactivated)
+    19:34:47 INFO: 2015-11-17 01:15:00 - step 102 of 192 - 725 active elements (275 deactivated)
+    19:34:47 WARNING: Data block from /root/project/tests/test_data/16Nov2015_NorKyst_z_surface/norkyst800_subset_16Nov2015.nc not large enough to cover element positions within timestep. Buffer size (9) must be increased.
+    19:34:47 INFO: 2015-11-17 01:30:00 - step 103 of 192 - 719 active elements (281 deactivated)
+    19:34:47 WARNING: Data block from /root/project/tests/test_data/16Nov2015_NorKyst_z_surface/norkyst800_subset_16Nov2015.nc not large enough to cover element positions within timestep. Buffer size (9) must be increased.
+    19:34:47 WARNING: Data block from /root/project/tests/test_data/16Nov2015_NorKyst_z_surface/arome_subset_16Nov2015.nc not large enough to cover element positions within timestep. Buffer size (5) must be increased.
+    19:34:47 INFO: 2015-11-17 01:45:00 - step 104 of 192 - 713 active elements (287 deactivated)
+    19:34:47 WARNING: Data block from /root/project/tests/test_data/16Nov2015_NorKyst_z_surface/norkyst800_subset_16Nov2015.nc not large enough to cover element positions within timestep. Buffer size (9) must be increased.
+    19:34:48 WARNING: Data block from /root/project/tests/test_data/16Nov2015_NorKyst_z_surface/arome_subset_16Nov2015.nc not large enough to cover element positions within timestep. Buffer size (5) must be increased.
+    19:34:48 INFO: 2015-11-17 02:00:00 - step 105 of 192 - 705 active elements (295 deactivated)
+    19:34:48 INFO: 2015-11-17 02:15:00 - step 106 of 192 - 687 active elements (313 deactivated)
+    19:34:48 INFO: 2015-11-17 02:30:00 - step 107 of 192 - 670 active elements (330 deactivated)
+    19:34:48 WARNING: Data block from /root/project/tests/test_data/16Nov2015_NorKyst_z_surface/norkyst800_subset_16Nov2015.nc not large enough to cover element positions within timestep. Buffer size (9) must be increased.
+    19:34:48 WARNING: Data block from /root/project/tests/test_data/16Nov2015_NorKyst_z_surface/arome_subset_16Nov2015.nc not large enough to cover element positions within timestep. Buffer size (5) must be increased.
+    19:34:48 INFO: 2015-11-17 02:45:00 - step 108 of 192 - 663 active elements (337 deactivated)
+    19:34:48 WARNING: Data block from /root/project/tests/test_data/16Nov2015_NorKyst_z_surface/norkyst800_subset_16Nov2015.nc not large enough to cover element positions within timestep. Buffer size (9) must be increased.
+    19:34:48 WARNING: Data block from /root/project/tests/test_data/16Nov2015_NorKyst_z_surface/arome_subset_16Nov2015.nc not large enough to cover element positions within timestep. Buffer size (5) must be increased.
+    19:34:48 INFO: 2015-11-17 03:00:00 - step 109 of 192 - 654 active elements (346 deactivated)
+    19:34:48 INFO: 2015-11-17 03:15:00 - step 110 of 192 - 642 active elements (358 deactivated)
+    19:34:48 INFO: 2015-11-17 03:30:00 - step 111 of 192 - 631 active elements (369 deactivated)
+    19:34:48 WARNING: Data block from /root/project/tests/test_data/16Nov2015_NorKyst_z_surface/norkyst800_subset_16Nov2015.nc not large enough to cover element positions within timestep. Buffer size (9) must be increased.
+    19:34:48 INFO: 2015-11-17 03:45:00 - step 112 of 192 - 626 active elements (374 deactivated)
+    19:34:48 WARNING: Data block from /root/project/tests/test_data/16Nov2015_NorKyst_z_surface/norkyst800_subset_16Nov2015.nc not large enough to cover element positions within timestep. Buffer size (9) must be increased.
+    19:34:48 WARNING: Data block from /root/project/tests/test_data/16Nov2015_NorKyst_z_surface/arome_subset_16Nov2015.nc not large enough to cover element positions within timestep. Buffer size (5) must be increased.
+    19:34:48 INFO: 2015-11-17 04:00:00 - step 113 of 192 - 617 active elements (383 deactivated)
+    19:34:48 INFO: 2015-11-17 04:15:00 - step 114 of 192 - 604 active elements (396 deactivated)
+    19:34:48 INFO: 2015-11-17 04:30:00 - step 115 of 192 - 597 active elements (403 deactivated)
+    19:34:48 WARNING: Data block from /root/project/tests/test_data/16Nov2015_NorKyst_z_surface/norkyst800_subset_16Nov2015.nc not large enough to cover element positions within timestep. Buffer size (9) must be increased.
+    19:34:48 INFO: 2015-11-17 04:45:00 - step 116 of 192 - 592 active elements (408 deactivated)
+    19:34:48 WARNING: Data block from /root/project/tests/test_data/16Nov2015_NorKyst_z_surface/norkyst800_subset_16Nov2015.nc not large enough to cover element positions within timestep. Buffer size (9) must be increased.
+    19:34:48 WARNING: Data block from /root/project/tests/test_data/16Nov2015_NorKyst_z_surface/arome_subset_16Nov2015.nc not large enough to cover element positions within timestep. Buffer size (5) must be increased.
+    19:34:48 INFO: 2015-11-17 05:00:00 - step 117 of 192 - 576 active elements (424 deactivated)
+    19:34:48 INFO: 2015-11-17 05:15:00 - step 118 of 192 - 569 active elements (431 deactivated)
+    19:34:48 INFO: 2015-11-17 05:30:00 - step 119 of 192 - 564 active elements (436 deactivated)
+    19:34:48 WARNING: Data block from /root/project/tests/test_data/16Nov2015_NorKyst_z_surface/norkyst800_subset_16Nov2015.nc not large enough to cover element positions within timestep. Buffer size (9) must be increased.
+    19:34:48 INFO: 2015-11-17 05:45:00 - step 120 of 192 - 550 active elements (450 deactivated)
+    19:34:48 WARNING: Data block from /root/project/tests/test_data/16Nov2015_NorKyst_z_surface/norkyst800_subset_16Nov2015.nc not large enough to cover element positions within timestep. Buffer size (9) must be increased.
+    19:34:49 WARNING: Data block from /root/project/tests/test_data/16Nov2015_NorKyst_z_surface/arome_subset_16Nov2015.nc not large enough to cover element positions within timestep. Buffer size (5) must be increased.
+    19:34:49 INFO: 2015-11-17 06:00:00 - step 121 of 192 - 541 active elements (459 deactivated)
+    19:34:49 INFO: 2015-11-17 06:15:00 - step 122 of 192 - 531 active elements (469 deactivated)
+    19:34:49 INFO: 2015-11-17 06:30:00 - step 123 of 192 - 525 active elements (475 deactivated)
+    19:34:49 INFO: 2015-11-17 06:45:00 - step 124 of 192 - 518 active elements (482 deactivated)
+    19:34:49 WARNING: Data block from /root/project/tests/test_data/16Nov2015_NorKyst_z_surface/norkyst800_subset_16Nov2015.nc not large enough to cover element positions within timestep. Buffer size (9) must be increased.
+    19:34:49 WARNING: Data block from /root/project/tests/test_data/16Nov2015_NorKyst_z_surface/arome_subset_16Nov2015.nc not large enough to cover element positions within timestep. Buffer size (5) must be increased.
+    19:34:49 INFO: 2015-11-17 07:00:00 - step 125 of 192 - 510 active elements (490 deactivated)
+    19:34:49 INFO: 2015-11-17 07:15:00 - step 126 of 192 - 503 active elements (497 deactivated)
+    19:34:49 INFO: 2015-11-17 07:30:00 - step 127 of 192 - 492 active elements (508 deactivated)
+    19:34:49 WARNING: Data block from /root/project/tests/test_data/16Nov2015_NorKyst_z_surface/norkyst800_subset_16Nov2015.nc not large enough to cover element positions within timestep. Buffer size (9) must be increased.
+    19:34:49 WARNING: Data block from /root/project/tests/test_data/16Nov2015_NorKyst_z_surface/arome_subset_16Nov2015.nc not large enough to cover element positions within timestep. Buffer size (5) must be increased.
+    19:34:49 INFO: 2015-11-17 07:45:00 - step 128 of 192 - 482 active elements (518 deactivated)
+    19:34:49 WARNING: Data block from /root/project/tests/test_data/16Nov2015_NorKyst_z_surface/norkyst800_subset_16Nov2015.nc not large enough to cover element positions within timestep. Buffer size (9) must be increased.
+    19:34:49 WARNING: Data block from /root/project/tests/test_data/16Nov2015_NorKyst_z_surface/arome_subset_16Nov2015.nc not large enough to cover element positions within timestep. Buffer size (5) must be increased.
+    19:34:49 INFO: 2015-11-17 08:00:00 - step 129 of 192 - 475 active elements (525 deactivated)
+    19:34:49 INFO: 2015-11-17 08:15:00 - step 130 of 192 - 470 active elements (530 deactivated)
+    19:34:49 WARNING: Data block from /root/project/tests/test_data/16Nov2015_NorKyst_z_surface/norkyst800_subset_16Nov2015.nc not large enough to cover element positions within timestep. Buffer size (9) must be increased.
+    19:34:49 INFO: 2015-11-17 08:30:00 - step 131 of 192 - 466 active elements (534 deactivated)
+    19:34:49 WARNING: Data block from /root/project/tests/test_data/16Nov2015_NorKyst_z_surface/norkyst800_subset_16Nov2015.nc not large enough to cover element positions within timestep. Buffer size (9) must be increased.
+    19:34:49 WARNING: Data block from /root/project/tests/test_data/16Nov2015_NorKyst_z_surface/arome_subset_16Nov2015.nc not large enough to cover element positions within timestep. Buffer size (5) must be increased.
+    19:34:49 INFO: 2015-11-17 08:45:00 - step 132 of 192 - 459 active elements (541 deactivated)
+    19:34:49 WARNING: Data block from /root/project/tests/test_data/16Nov2015_NorKyst_z_surface/norkyst800_subset_16Nov2015.nc not large enough to cover element positions within timestep. Buffer size (9) must be increased.
+    19:34:49 WARNING: Data block from /root/project/tests/test_data/16Nov2015_NorKyst_z_surface/arome_subset_16Nov2015.nc not large enough to cover element positions within timestep. Buffer size (5) must be increased.
+    19:34:49 INFO: 2015-11-17 09:00:00 - step 133 of 192 - 453 active elements (547 deactivated)
+    19:34:49 INFO: 2015-11-17 09:15:00 - step 134 of 192 - 446 active elements (554 deactivated)
+    19:34:49 WARNING: Data block from /root/project/tests/test_data/16Nov2015_NorKyst_z_surface/arome_subset_16Nov2015.nc not large enough to cover element positions within timestep. Buffer size (5) must be increased.
+    19:34:49 INFO: 2015-11-17 09:30:00 - step 135 of 192 - 436 active elements (564 deactivated)
+    19:34:49 WARNING: Data block from /root/project/tests/test_data/16Nov2015_NorKyst_z_surface/norkyst800_subset_16Nov2015.nc not large enough to cover element positions within timestep. Buffer size (9) must be increased.
+    19:34:49 WARNING: Data block from /root/project/tests/test_data/16Nov2015_NorKyst_z_surface/arome_subset_16Nov2015.nc not large enough to cover element positions within timestep. Buffer size (5) must be increased.
+    19:34:49 INFO: 2015-11-17 09:45:00 - step 136 of 192 - 433 active elements (567 deactivated)
+    19:34:49 WARNING: Data block from /root/project/tests/test_data/16Nov2015_NorKyst_z_surface/norkyst800_subset_16Nov2015.nc not large enough to cover element positions within timestep. Buffer size (9) must be increased.
+    19:34:50 WARNING: Data block from /root/project/tests/test_data/16Nov2015_NorKyst_z_surface/arome_subset_16Nov2015.nc not large enough to cover element positions within timestep. Buffer size (5) must be increased.
+    19:34:50 INFO: 2015-11-17 10:00:00 - step 137 of 192 - 428 active elements (572 deactivated)
+    19:34:50 INFO: 2015-11-17 10:15:00 - step 138 of 192 - 425 active elements (575 deactivated)
+    19:34:50 INFO: 2015-11-17 10:30:00 - step 139 of 192 - 420 active elements (580 deactivated)
+    19:34:50 WARNING: Data block from /root/project/tests/test_data/16Nov2015_NorKyst_z_surface/norkyst800_subset_16Nov2015.nc not large enough to cover element positions within timestep. Buffer size (9) must be increased.
+    19:34:50 INFO: 2015-11-17 10:45:00 - step 140 of 192 - 409 active elements (591 deactivated)
+    19:34:50 WARNING: Data block from /root/project/tests/test_data/16Nov2015_NorKyst_z_surface/norkyst800_subset_16Nov2015.nc not large enough to cover element positions within timestep. Buffer size (9) must be increased.
+    19:34:50 WARNING: Data block from /root/project/tests/test_data/16Nov2015_NorKyst_z_surface/arome_subset_16Nov2015.nc not large enough to cover element positions within timestep. Buffer size (5) must be increased.
+    19:34:50 INFO: 2015-11-17 11:00:00 - step 141 of 192 - 405 active elements (595 deactivated)
+    19:34:50 INFO: 2015-11-17 11:15:00 - step 142 of 192 - 401 active elements (599 deactivated)
+    19:34:50 INFO: 2015-11-17 11:30:00 - step 143 of 192 - 397 active elements (603 deactivated)
+    19:34:50 WARNING: Data block from /root/project/tests/test_data/16Nov2015_NorKyst_z_surface/norkyst800_subset_16Nov2015.nc not large enough to cover element positions within timestep. Buffer size (9) must be increased.
+    19:34:50 WARNING: Data block from /root/project/tests/test_data/16Nov2015_NorKyst_z_surface/arome_subset_16Nov2015.nc not large enough to cover element positions within timestep. Buffer size (5) must be increased.
+    19:34:50 INFO: 2015-11-17 11:45:00 - step 144 of 192 - 397 active elements (603 deactivated)
+    19:34:50 WARNING: Data block from /root/project/tests/test_data/16Nov2015_NorKyst_z_surface/norkyst800_subset_16Nov2015.nc not large enough to cover element positions within timestep. Buffer size (9) must be increased.
+    19:34:50 WARNING: Data block from /root/project/tests/test_data/16Nov2015_NorKyst_z_surface/arome_subset_16Nov2015.nc not large enough to cover element positions within timestep. Buffer size (5) must be increased.
+    19:34:50 INFO: 2015-11-17 12:00:00 - step 145 of 192 - 391 active elements (609 deactivated)
+    19:34:50 INFO: 2015-11-17 12:15:00 - step 146 of 192 - 387 active elements (613 deactivated)
+    19:34:50 INFO: 2015-11-17 12:30:00 - step 147 of 192 - 382 active elements (618 deactivated)
+    19:34:50 WARNING: Data block from /root/project/tests/test_data/16Nov2015_NorKyst_z_surface/norkyst800_subset_16Nov2015.nc not large enough to cover element positions within timestep. Buffer size (9) must be increased.
+    19:34:50 INFO: 2015-11-17 12:45:00 - step 148 of 192 - 378 active elements (622 deactivated)
+    19:34:50 WARNING: Data block from /root/project/tests/test_data/16Nov2015_NorKyst_z_surface/norkyst800_subset_16Nov2015.nc not large enough to cover element positions within timestep. Buffer size (9) must be increased.
+    19:34:50 WARNING: Data block from /root/project/tests/test_data/16Nov2015_NorKyst_z_surface/arome_subset_16Nov2015.nc not large enough to cover element positions within timestep. Buffer size (5) must be increased.
+    19:34:50 INFO: 2015-11-17 13:00:00 - step 149 of 192 - 376 active elements (624 deactivated)
+    19:34:50 INFO: 2015-11-17 13:15:00 - step 150 of 192 - 372 active elements (628 deactivated)
+    19:34:50 INFO: 2015-11-17 13:30:00 - step 151 of 192 - 370 active elements (630 deactivated)
+    19:34:50 INFO: 2015-11-17 13:45:00 - step 152 of 192 - 364 active elements (636 deactivated)
+    19:34:50 WARNING: Data block from /root/project/tests/test_data/16Nov2015_NorKyst_z_surface/norkyst800_subset_16Nov2015.nc not large enough to cover element positions within timestep. Buffer size (9) must be increased.
+    19:34:51 INFO: 2015-11-17 14:00:00 - step 153 of 192 - 363 active elements (637 deactivated)
+    19:34:51 INFO: 2015-11-17 14:15:00 - step 154 of 192 - 359 active elements (641 deactivated)
+    19:34:51 INFO: 2015-11-17 14:30:00 - step 155 of 192 - 355 active elements (645 deactivated)
+    19:34:51 INFO: 2015-11-17 14:45:00 - step 156 of 192 - 349 active elements (651 deactivated)
+    19:34:51 WARNING: Data block from /root/project/tests/test_data/16Nov2015_NorKyst_z_surface/norkyst800_subset_16Nov2015.nc not large enough to cover element positions within timestep. Buffer size (9) must be increased.
+    19:34:51 INFO: 2015-11-17 15:00:00 - step 157 of 192 - 342 active elements (658 deactivated)
+    19:34:51 INFO: 2015-11-17 15:15:00 - step 158 of 192 - 337 active elements (663 deactivated)
+    19:34:51 INFO: 2015-11-17 15:30:00 - step 159 of 192 - 330 active elements (670 deactivated)
+    19:34:51 INFO: 2015-11-17 15:45:00 - step 160 of 192 - 325 active elements (675 deactivated)
+    19:34:51 INFO: 2015-11-17 16:00:00 - step 161 of 192 - 320 active elements (680 deactivated)
+    19:34:51 INFO: 2015-11-17 16:15:00 - step 162 of 192 - 317 active elements (683 deactivated)
+    19:34:51 INFO: 2015-11-17 16:30:00 - step 163 of 192 - 313 active elements (687 deactivated)
+    19:34:51 INFO: 2015-11-17 16:45:00 - step 164 of 192 - 313 active elements (687 deactivated)
+    19:34:51 WARNING: Data block from /root/project/tests/test_data/16Nov2015_NorKyst_z_surface/norkyst800_subset_16Nov2015.nc not large enough to cover element positions within timestep. Buffer size (9) must be increased.
+    19:34:51 INFO: 2015-11-17 17:00:00 - step 165 of 192 - 310 active elements (690 deactivated)
+    19:34:51 INFO: 2015-11-17 17:15:00 - step 166 of 192 - 306 active elements (694 deactivated)
+    19:34:51 INFO: 2015-11-17 17:30:00 - step 167 of 192 - 301 active elements (699 deactivated)
+    19:34:51 INFO: 2015-11-17 17:45:00 - step 168 of 192 - 296 active elements (704 deactivated)
+    19:34:52 INFO: 2015-11-17 18:00:00 - step 169 of 192 - 292 active elements (708 deactivated)
+    19:34:52 INFO: 2015-11-17 18:15:00 - step 170 of 192 - 289 active elements (711 deactivated)
+    19:34:52 INFO: 2015-11-17 18:30:00 - step 171 of 192 - 289 active elements (711 deactivated)
+    19:34:52 INFO: 2015-11-17 18:45:00 - step 172 of 192 - 287 active elements (713 deactivated)
+    19:34:52 INFO: 2015-11-17 19:00:00 - step 173 of 192 - 284 active elements (716 deactivated)
+    19:34:52 INFO: 2015-11-17 19:15:00 - step 174 of 192 - 282 active elements (718 deactivated)
+    19:34:52 INFO: 2015-11-17 19:30:00 - step 175 of 192 - 282 active elements (718 deactivated)
+    19:34:52 INFO: 2015-11-17 19:45:00 - step 176 of 192 - 281 active elements (719 deactivated)
+    19:34:52 INFO: 2015-11-17 20:00:00 - step 177 of 192 - 281 active elements (719 deactivated)
+    19:34:52 INFO: 2015-11-17 20:15:00 - step 178 of 192 - 280 active elements (720 deactivated)
+    19:34:52 INFO: 2015-11-17 20:30:00 - step 179 of 192 - 278 active elements (722 deactivated)
+    19:34:52 INFO: 2015-11-17 20:45:00 - step 180 of 192 - 274 active elements (726 deactivated)
+    19:34:52 INFO: 2015-11-17 21:00:00 - step 181 of 192 - 273 active elements (727 deactivated)
+    19:34:52 INFO: 2015-11-17 21:15:00 - step 182 of 192 - 271 active elements (729 deactivated)
+    19:34:52 INFO: 2015-11-17 21:30:00 - step 183 of 192 - 265 active elements (735 deactivated)
+    19:34:52 INFO: 2015-11-17 21:45:00 - step 184 of 192 - 263 active elements (737 deactivated)
+    19:34:52 INFO: 2015-11-17 22:00:00 - step 185 of 192 - 260 active elements (740 deactivated)
+    19:34:53 INFO: 2015-11-17 22:15:00 - step 186 of 192 - 256 active elements (744 deactivated)
+    19:34:53 INFO: 2015-11-17 22:30:00 - step 187 of 192 - 253 active elements (747 deactivated)
+    19:34:53 INFO: 2015-11-17 22:45:00 - step 188 of 192 - 248 active elements (752 deactivated)
+    19:34:53 INFO: 2015-11-17 23:00:00 - step 189 of 192 - 245 active elements (755 deactivated)
+    19:34:53 INFO: 2015-11-17 23:15:00 - step 190 of 192 - 244 active elements (756 deactivated)
+    19:34:53 INFO: 2015-11-17 23:30:00 - step 191 of 192 - 243 active elements (757 deactivated)
+    19:34:53 INFO: 2015-11-17 23:45:00 - step 192 of 192 - 240 active elements (760 deactivated)
 
 
 
@@ -446,8 +419,11 @@ Print and plot results
 .. code-block:: default
 
     print(lw)
-    # lw.animation()
-    lw.animation(background=['x_sea_water_velocity', 'y_sea_water_velocity'])
+
+    # Animation with current as background.
+    # Note that drift is also depending on wind, which is not shown.
+    lw.animation(background=['x_sea_water_velocity', 'y_sea_water_velocity'],
+                 fast=True)
 
 
 
@@ -464,47 +440,48 @@ Print and plot results
     Reader performance:
     --------------------
     /root/project/tests/test_data/16Nov2015_NorKyst_z_surface/norkyst800_subset_16Nov2015.nc
-     0:00:04.9  total
-     0:00:00.1  preparing
+     0:00:05.1  total
+     0:00:00.0  preparing
      0:00:00.2  reading
-     0:00:00.3  interpolation
+     0:00:00.2  interpolation
      0:00:00.0  interpolation_time
-     0:00:04.1  rotating vectors
+     0:00:04.5  rotating vectors
      0:00:00.0  masking
     --------------------
     /root/project/tests/test_data/16Nov2015_NorKyst_z_surface/arome_subset_16Nov2015.nc
-     0:00:04.4  total
-     0:00:00.1  preparing
+     0:00:04.9  total
+     0:00:00.0  preparing
      0:00:00.1  reading
      0:00:00.1  interpolation
      0:00:00.0  interpolation_time
-     0:00:04.0  rotating vectors
+     0:00:04.5  rotating vectors
      0:00:00.0  masking
     --------------------
     global_landmask
-     0:00:00.8  total
+     0:00:00.6  total
      0:00:00.0  preparing
-     0:00:00.8  reading
+     0:00:00.5  reading
      0:00:00.0  interpolation_time
      0:00:00.0  masking
     --------------------
     Performance:
-       16.6 total time
-        2.9 configuration
-        0.0 preparing main loop
+       15.9 total time
+        0.0 configuration
+        3.1 preparing main loop
+          3.1 making dynamical landmask
           0.0 moving elements to ocean
-         10.9 readers
-            0.9 global_landmask
+         11.2 readers
+            0.6 global_landmask
             0.2 postprocessing
-       13.6 main loop
-            4.9 /root/project/tests/test_data/16Nov2015_NorKyst_z_surface/norkyst800_subset_16Nov2015.nc
-            4.5 /root/project/tests/test_data/16Nov2015_NorKyst_z_surface/arome_subset_16Nov2015.nc
-          2.0 updating elements
+       12.6 main loop
+            5.2 /root/project/tests/test_data/16Nov2015_NorKyst_z_surface/norkyst800_subset_16Nov2015.nc
+            5.0 /root/project/tests/test_data/16Nov2015_NorKyst_z_surface/arome_subset_16Nov2015.nc
+          0.9 updating elements
         0.0 cleaning up
     --------------------
     ===========================
     Model:  Leeway     (OpenDrift version 1.3.0)
-            830 active LeewayObj particles  (2170 deactivated, 0 scheduled)
+            236 active LeewayObj particles  (764 deactivated, 0 scheduled)
     Projection: +proj=stere +lat_0=90 +lon_0=70 +lat_ts=60 +units=m +a=6.371e+06 +e=0 +no_defs
     -------------------
     Environment variables:
@@ -522,13 +499,14 @@ Print and plot results
 
     Time:
             Start: 2015-11-16 00:00:00
-            Present: 2015-11-18 12:00:00
-            Calculation steps: 240 * 0:15:00 - total time: 2 days, 12:00:00
-            Output steps: 61 * 1:00:00
+            Present: 2015-11-18 00:00:00
+            Calculation steps: 192 * 0:15:00 - total time: 2 days, 0:00:00
+            Output steps: 49 * 1:00:00
     ===========================
 
-    11:04:45 INFO: Saving animation to /root/project/docs/source/gallery/animations/example_leeway_0.gif...
-    11:04:45 INFO: Making animated gif...
+    19:34:53 WARNING: plotting fast. this will make your plots less accurate.
+    19:34:56 INFO: Saving animation to /root/project/docs/source/gallery/animations/example_leeway_0.gif...
+    19:34:56 INFO: Making animated gif...
 
 
 
@@ -539,12 +517,12 @@ Print and plot results
 .. code-block:: default
 
 
-    lw.plot(fast=True, background=['x_sea_water_velocity', 'y_sea_water_velocity'])
+    lw.plot(fast=True)
 
 
 
 .. image:: /gallery/images/sphx_glr_example_leeway_001.png
-    :alt: OpenDrift - Leeway (LIFE-RAFT-NB-1) 2015-11-16 00:00 to 2015-11-18 12:00 UTC (61 steps)
+    :alt: OpenDrift - Leeway (LIFE-RAFT-NB-1) 2015-11-16 00:00 to 2015-11-18 00:00 UTC (49 steps)
     :class: sphx-glr-single-img
 
 
@@ -554,16 +532,16 @@ Print and plot results
 
  .. code-block:: none
 
-    11:06:02 WARNING: plotting fast. this will make your plots less accurate.
+    19:36:09 WARNING: plotting fast. this will make your plots less accurate.
 
-    (<cartopy.mpl.geoaxes.GeoAxesSubplot object at 0x7fcf63c3b2b0>, <module 'matplotlib.pyplot' from '/opt/conda/envs/opendrift/lib/python3.8/site-packages/matplotlib/pyplot.py'>)
+    (<cartopy.mpl.geoaxes.GeoAxesSubplot object at 0x7ff4edeb6790>, <module 'matplotlib.pyplot' from '/opt/conda/envs/opendrift/lib/python3.8/site-packages/matplotlib/pyplot.py'>)
 
 
 
 
 .. rst-class:: sphx-glr-timing
 
-   **Total running time of the script:** ( 2 minutes  0.279 seconds)
+   **Total running time of the script:** ( 1 minutes  37.155 seconds)
 
 
 .. _sphx_glr_download_gallery_example_leeway.py:
