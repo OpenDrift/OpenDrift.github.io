@@ -180,7 +180,7 @@
 <span class="c1"># You should have received a copy of the GNU General Public License</span>
 <span class="c1"># along with OpenDrift.  If not, see &lt;https://www.gnu.org/licenses/&gt;.</span>
 <span class="c1">#</span>
-<span class="c1"># Copyright 2015, Knut-Frode Dagestad, MET Norway</span>
+<span class="c1"># Copyright 2015, 2020, Knut-Frode Dagestad, MET Norway</span>
 
 <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">This file is a template for an ocean trajectory model</span>
@@ -200,36 +200,33 @@
 <span class="sd">&quot;&quot;&quot;</span>
 
 <span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
-<span class="kn">from</span> <span class="nn">opendrift.elements</span> <span class="kn">import</span> <span class="n">LagrangianArray</span>
-<span class="kn">from</span> <span class="nn">opendrift.models.basemodel</span> <span class="kn">import</span> <span class="n">OpenDriftSimulation</span>
+<span class="kn">from</span> <span class="nn">opendrift.models.oceandrift</span> <span class="kn">import</span> <span class="n">OceanDrift</span>
+<span class="kn">from</span> <span class="nn">opendrift.models.oceandrift</span> <span class="kn">import</span> <span class="n">Lagrangian3DArray</span>
 
-<div class="viewcode-block" id="TemplateElementType"><a class="viewcode-back" href="../../../autoapi/opendrift/models/model_template/index.html#opendrift.models.model_template.TemplateElementType">[docs]</a><span class="k">class</span> <span class="nc">TemplateElementType</span><span class="p">(</span><span class="n">LagrangianArray</span><span class="p">):</span>
+<div class="viewcode-block" id="TemplateElementType"><a class="viewcode-back" href="../../../autoapi/opendrift/models/model_template/index.html#opendrift.models.model_template.TemplateElementType">[docs]</a><span class="k">class</span> <span class="nc">TemplateElementType</span><span class="p">(</span><span class="n">Lagrangian3DArray</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Extending LagrangianArray with relevant properties.</span>
 
 <span class="sd">    Define and name the properties which the elements shall have.</span>
-<span class="sd">    These are added to the four core properties (ID, lon, lat, z)</span>
-<span class="sd">    inherited from the basic/generic LagrangianArray class.</span>
+<span class="sd">    These are added to the inherited properties (e.g. from OceanDrift)</span>
 <span class="sd">    Property names may be freely chosen, but the &quot;update&quot; function (below)</span>
 <span class="sd">    will refer to the names in the specifications of the processes.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="n">variables</span> <span class="o">=</span> <span class="n">LagrangianArray</span><span class="o">.</span><span class="n">add_variables</span><span class="p">([</span>
-        <span class="p">(</span><span class="s1">&#39;mass_oil&#39;</span><span class="p">,</span> <span class="p">{</span><span class="s1">&#39;dtype&#39;</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">float32</span><span class="p">,</span>
-                      <span class="s1">&#39;unit&#39;</span><span class="p">:</span> <span class="s1">&#39;kg&#39;</span><span class="p">}),</span>
-        <span class="p">(</span><span class="s1">&#39;mass_evaporated&#39;</span><span class="p">,</span> <span class="p">{</span><span class="s1">&#39;dtype&#39;</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">float32</span><span class="p">,</span>
-                             <span class="s1">&#39;unit&#39;</span><span class="p">:</span> <span class="s1">&#39;kg&#39;</span><span class="p">,</span>
-                             <span class="s1">&#39;default&#39;</span><span class="p">:</span> <span class="mi">0</span><span class="p">}),</span>
-        <span class="p">(</span><span class="s1">&#39;mass_emulsion&#39;</span><span class="p">,</span> <span class="p">{</span><span class="s1">&#39;dtype&#39;</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">float32</span><span class="p">,</span>
-                           <span class="s1">&#39;unit&#39;</span><span class="p">:</span> <span class="s1">&#39;kg&#39;</span><span class="p">,</span>
-                           <span class="s1">&#39;default&#39;</span><span class="p">:</span> <span class="mi">0</span><span class="p">})])</span></div>
+    <span class="n">variables</span> <span class="o">=</span> <span class="n">Lagrangian3DArray</span><span class="o">.</span><span class="n">add_variables</span><span class="p">([</span>
+        <span class="p">(</span><span class="s1">&#39;new_property_1&#39;</span><span class="p">,</span> <span class="p">{</span><span class="s1">&#39;dtype&#39;</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">float32</span><span class="p">,</span>
+                            <span class="s1">&#39;unit&#39;</span><span class="p">:</span> <span class="s1">&#39;1&#39;</span><span class="p">,</span>
+                            <span class="s1">&#39;default&#39;</span><span class="p">:</span> <span class="mi">0</span><span class="p">}),</span>
+        <span class="p">(</span><span class="s1">&#39;new_property_2&#39;</span><span class="p">,</span> <span class="p">{</span><span class="s1">&#39;dtype&#39;</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">float32</span><span class="p">,</span>
+                            <span class="s1">&#39;unit&#39;</span><span class="p">:</span> <span class="s1">&#39;1&#39;</span><span class="p">,</span>
+                            <span class="s1">&#39;default&#39;</span><span class="p">:</span> <span class="mi">0</span><span class="p">})])</span></div>
 
 
-<div class="viewcode-block" id="ModelTemplate"><a class="viewcode-back" href="../../../autoapi/opendrift/models/model_template/index.html#opendrift.models.model_template.ModelTemplate">[docs]</a><span class="k">class</span> <span class="nc">ModelTemplate</span><span class="p">(</span><span class="n">OpenDriftSimulation</span><span class="p">):</span>
+<div class="viewcode-block" id="ModelTemplate"><a class="viewcode-back" href="../../../autoapi/opendrift/models/model_template/index.html#opendrift.models.model_template.ModelTemplate">[docs]</a><span class="k">class</span> <span class="nc">ModelTemplate</span><span class="p">(</span><span class="n">OceanDrift</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Open source trajectory model based on the OpenDrift framework.</span>
 
 <span class="sd">    This is a template model, to be copied and modified according to need.</span>
-<span class="sd">    This class is a subclass of &quot;OpenDriftSimulation&quot;, and thus inherits</span>
-<span class="sd">    all functionality. More specialised models may also be subclassed.</span>
+<span class="sd">    This class is a subclass of &quot;OceanDrift&quot;, and thus inherits all its</span>
+<span class="sd">    functionality. More specialised models may also be subclassed.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="c1"># Specify which element/particle type (class) to be used by this model.</span>
@@ -257,8 +254,8 @@
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 
-<span class="sd">        Here any preprocessing may be performed,</span>
-<span class="sd">        e.g. importing external data from file.</span>
+<span class="sd">        Here any preprocessing and initialisation of a simulation</span>
+<span class="sd">        may be performed, e.g. importing external data from file.</span>
 
 <span class="sd">        .. code::</span>
 
@@ -275,15 +272,15 @@
 <div class="viewcode-block" id="ModelTemplate.update"><a class="viewcode-back" href="../../../autoapi/opendrift/models/model_template/index.html#opendrift.models.model_template.ModelTemplate.update">[docs]</a>    <span class="k">def</span> <span class="nf">update</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Update positions and properties of particles.</span>
 
-<span class="sd">        This function (&quot;update&quot;, may not be renamed) defines</span>
+<span class="sd">        This function (``update``, may not be renamed) defines</span>
 <span class="sd">        the actions (processes) to be performed at each time step.</span>
 <span class="sd">        The default timestep is one hour, but this may be overriden</span>
-<span class="sd">        by the user (setting model.time_step, see e.g. example.py)</span>
+<span class="sd">        by the user.</span>
 
 <span class="sd">        The elements and corresponding environment information</span>
 <span class="sd">        (wind, waves, current...) is available to this function as</span>
-<span class="sd">        the recarrays &quot;elements&quot; and &quot;environment&quot;, respectively.</span>
-<span class="sd">        Element properties and environvent variables are namedarrays</span>
+<span class="sd">        the recarrays ``elements`` and ``environment``, respectively.</span>
+<span class="sd">        Element properties and environvent variables are named arrays</span>
 <span class="sd">        of same length (number of active particles), or scalars.</span>
 
 <span class="sd">        E.g.:</span>
@@ -303,28 +300,57 @@
 <span class="sd">                np.sqrt(self.environment.x_wind**2 + \</span>
 <span class="sd">                        self.environment.y_wind**2)*.01</span>
 
+<span class="sd">        If particles need to be deactived (e.g. if</span>
+<span class="sd">        self.environemtn.someproperty is 0), the special function</span>
+<span class="sd">        `self.deactivate_elements()` should be used:</span>
+<span class="sd">        `self.deactivate_elements(self.environment.someproperty==0)`</span>
+
+<span class="sd">        Interaction with coast is handled by ``basemodel`` and is</span>
+<span class="sd">        chosen with configutation mechanism available to each module.</span>
+
 <span class="sd">        Horizontal position of the particles (lon, lat) are the</span>
 <span class="sd">        only properties which should not be modified directly/freely.</span>
 <span class="sd">        Due to the need to correct for the curvature of the coordinate</span>
-<span class="sd">        systems, a dedicated function (self.update_positions() should be</span>
-<span class="sd">        used instead, with x- and y-velocity as arguments:</span>
+<span class="sd">        systems, and taking into account vector orientations, a dedicated </span>
+<span class="sd">        method ``self.update_positions()`` is</span>
+<span class="sd">        available using x- and y-velocity as arguments:</span>
 <span class="sd">        E.g. to simply move particles with ambient current:</span>
+<span class="sd">        ``</span>
 <span class="sd">        self.update_positions(self.environment.x_sea_water_velocity,</span>
-<span class="sd">                              self.environment.y_sea_water_velocity)</span>
-<span class="sd">        E.g. to move particles with 3 percent of the wind speed:</span>
+<span class="sd">                              self.environment.y_sea_water_velocity)``</span>
 
-<span class="sd">        .. code::</span>
+<span class="sd">        However, instead of using this method directly, most</span>
+<span class="sd">        OpenDrift modules use a set of ready-made and reusable</span>
+<span class="sd">        advection methods, added below. </span>
 
-<span class="sd">            wind_factor = 0.03</span>
-
-<span class="sd">            self.update_positions(self.environment.x_wind*wind_factor,</span>
-<span class="sd">                                self.environment.y_wind*wind_factor)</span>
-
-<span class="sd">        If particles need to be deactived (e.g. when hitting land),</span>
-<span class="sd">        the special function `self.deactivate_elements()` should be used:</span>
-<span class="sd">        `self.deactivate_elements(self.environment.land_binary_mask==1)`</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">pass</span></div></div>
+       
+        <span class="c1"># Advection with horizontal ocean currents</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">advect_ocean_current</span><span class="p">()</span>
+
+        <span class="c1"># Advection with vertical ocean currents</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">vertical_advection</span><span class="p">()</span>
+
+        <span class="c1"># Additional advection due to wind shear in upper 10cm of ocean:</span>
+        <span class="c1"># ``wind_drift_factor`` multiplied by wind vector</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">advect_wind</span><span class="p">()</span>
+
+        <span class="c1"># If Stokes drift is not available from a reader,</span>
+        <span class="c1"># it is parameterized by wind</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">stokes_drift</span><span class="p">()</span>
+
+        <span class="c1"># Vertical turbulent mixing, taking into account:</span>
+        <span class="c1"># - element property ``terminal_velocity`` (buoyancy)</span>
+        <span class="c1"># - environment property ``ocean_vertical_diffusivity``</span>
+        <span class="c1"># - interaction with surface through method ``surface_wave_mixing``  (should be renamed)</span>
+        <span class="c1"># - interaction with seafloor through method ``bottom_interaction``</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">vertical_mixing</span><span class="p">()</span></div>
+
+<div class="viewcode-block" id="ModelTemplate.prepare_run"><a class="viewcode-back" href="../../../autoapi/opendrift/models/model_template/index.html#opendrift.models.model_template.ModelTemplate.prepare_run">[docs]</a>    <span class="k">def</span> <span class="nf">prepare_run</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Code to be run before a simulation loop (``update()``)&quot;&quot;&quot;</span></div>
+
+<div class="viewcode-block" id="ModelTemplate.bottom_interaction"><a class="viewcode-back" href="../../../autoapi/opendrift/models/model_template/index.html#opendrift.models.model_template.ModelTemplate.bottom_interaction">[docs]</a>    <span class="k">def</span> <span class="nf">bottom_interaction</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">seafloor_depth</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Sub method of vertical_mixing, determines settling&quot;&quot;&quot;</span></div></div>
 </pre></div>
 
            </div>
