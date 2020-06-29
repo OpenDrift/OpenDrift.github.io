@@ -231,7 +231,7 @@
 <span class="kn">from</span> <span class="nn">opendrift.models.oceandrift</span> <span class="kn">import</span> <span class="n">OceanDrift</span>
 <span class="kn">from</span> <span class="nn">opendrift.elements</span> <span class="kn">import</span> <span class="n">LagrangianArray</span>
 <span class="kn">import</span> <span class="nn">opendrift.models.noaa_oil_weathering</span> <span class="k">as</span> <span class="nn">noaa</span>
-<span class="kn">from</span> <span class="nn">opendrift.models.physics_methods</span> <span class="kn">import</span> <span class="n">oil_wave_entrainment_rate_li2017</span><span class="p">,</span> <span class="n">oil_wave_entrainment_rate_tkalich2002</span>
+<span class="kn">from</span> <span class="nn">opendrift.models.physics_methods</span> <span class="kn">import</span> <span class="n">oil_wave_entrainment_rate_li2017</span>
 
 
 <span class="k">try</span><span class="p">:</span>
@@ -291,9 +291,6 @@
         <span class="p">(</span><span class="s1">&#39;oil_film_thickness&#39;</span><span class="p">,</span> <span class="p">{</span><span class="s1">&#39;dtype&#39;</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">float32</span><span class="p">,</span>
                                 <span class="s1">&#39;units&#39;</span><span class="p">:</span> <span class="s1">&#39;m&#39;</span><span class="p">,</span>
                                 <span class="s1">&#39;default&#39;</span><span class="p">:</span> <span class="mf">0.001</span><span class="p">}),</span>
-        <span class="p">(</span><span class="s1">&#39;entrainment_length_scale&#39;</span><span class="p">,</span> <span class="p">{</span><span class="s1">&#39;dtype&#39;</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">float32</span><span class="p">,</span>  <span class="c1"># Should be </span>
-                                      <span class="s1">&#39;units&#39;</span><span class="p">:</span> <span class="s1">&#39;m&#39;</span><span class="p">,</span>         <span class="c1"># removed</span>
-                                      <span class="s1">&#39;default&#39;</span><span class="p">:</span> <span class="mf">0.03</span><span class="p">}),</span>
         <span class="p">(</span><span class="s1">&#39;diameter&#39;</span><span class="p">,</span> <span class="p">{</span><span class="s1">&#39;dtype&#39;</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">float32</span><span class="p">,</span>  <span class="c1"># Particle diameter</span>
                       <span class="s1">&#39;units&#39;</span><span class="p">:</span> <span class="s1">&#39;m&#39;</span><span class="p">,</span>
                       <span class="s1">&#39;default&#39;</span><span class="p">:</span> <span class="mf">0.</span><span class="p">})</span>
@@ -421,12 +418,8 @@
 <span class="s1">            current_uncertainty = float(min=0, max=5, default=0.05)</span>
 <span class="s1">            wind_uncertainty = float(min=0, max=5, default=.5)</span>
 <span class="s1">        [wave_entrainment]</span>
-<span class="s1">            droplet_size_distribution = option(&#39;Exponential&#39;, &#39;Johansen et al. (2015)&#39;, &#39;Li et al. (2017)&#39;, default=&#39;Johansen et al. (2015)&#39;)</span>
-<span class="s1">            entrainment_rate = option(&#39;Tkalich &amp; Chan (2002)&#39;, &#39;Li et al. (2017)&#39;, default=&#39;Li et al. (2017)&#39;)</span>
-<span class="s1">        [vertical_mixing]</span>
-<span class="s1">            droplet_diameter_min_wavebreaking = float(default=1e-5, min=1e-8, max=1)</span>
-<span class="s1">            droplet_diameter_max_wavebreaking = float(default=2e-3, min=1e-8, max=1)</span>
-<span class="s1">            droplet_size_exponent = float(default=0, min=-10, max=10)</span>
+<span class="s1">            droplet_size_distribution = option(&#39;Johansen et al. (2015)&#39;, &#39;Li et al. (2017)&#39;, default=&#39;Johansen et al. (2015)&#39;)</span>
+<span class="s1">            entrainment_rate = option(&#39;Li et al. (2017)&#39;, default=&#39;Li et al. (2017)&#39;)</span>
 <span class="s1">    &#39;&#39;&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">oil_types</span><span class="p">,</span> <span class="n">default_oil</span><span class="p">)</span> 
 
 
@@ -991,14 +984,7 @@
 
 <div class="viewcode-block" id="OpenOil.oil_wave_entrainment_rate"><a class="viewcode-back" href="../../../autoapi/opendrift/models/openoil/index.html#opendrift.models.openoil.OpenOil.oil_wave_entrainment_rate">[docs]</a>    <span class="k">def</span> <span class="nf">oil_wave_entrainment_rate</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="n">er</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_config</span><span class="p">(</span><span class="s1">&#39;wave_entrainment:entrainment_rate&#39;</span><span class="p">)</span>
-        <span class="k">if</span> <span class="n">er</span> <span class="o">==</span> <span class="s1">&#39;Tkalich &amp; Chan (2002)&#39;</span><span class="p">:</span>
-            <span class="c1">#entrainment_rate = self.oil_wave_entrainment_rate_tkalich2002()</span>
-            <span class="n">entrainment_rate</span> <span class="o">=</span> <span class="n">oil_wave_entrainment_rate_tkalich2002</span><span class="p">(</span>
-                    <span class="n">wind_speed</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">wind_speed</span><span class="p">(),</span>
-                    <span class="n">significant_wave_height</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">significant_wave_height</span><span class="p">(),</span>
-                    <span class="n">entrainment_length_scale</span><span class="o">=</span>
-                        <span class="bp">self</span><span class="o">.</span><span class="n">elements</span><span class="o">.</span><span class="n">entrainment_length_scale</span><span class="p">)</span>
-        <span class="k">elif</span> <span class="n">er</span> <span class="o">==</span> <span class="s1">&#39;Li et al. (2017)&#39;</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">er</span> <span class="o">==</span> <span class="s1">&#39;Li et al. (2017)&#39;</span><span class="p">:</span>
             <span class="n">entrainment_rate</span> <span class="o">=</span> <span class="n">oil_wave_entrainment_rate_li2017</span><span class="p">(</span>
                     <span class="n">dynamic_viscosity</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">elements</span><span class="o">.</span><span class="n">viscosity</span><span class="o">*</span>
                         <span class="bp">self</span><span class="o">.</span><span class="n">elements</span><span class="o">.</span><span class="n">density</span><span class="p">,</span>
@@ -1060,27 +1046,7 @@
             <span class="n">d</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_wave_breaking_droplet_diameter_johansen2015</span><span class="p">()</span>
         <span class="k">elif</span> <span class="n">dm</span> <span class="o">==</span> <span class="s1">&#39;Li et al. (2017)&#39;</span><span class="p">:</span>
             <span class="n">d</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_wave_breaking_droplet_diameter_liz2017</span><span class="p">()</span>
-        <span class="k">elif</span> <span class="n">dm</span> <span class="o">==</span> <span class="s1">&#39;Exponential&#39;</span><span class="p">:</span>
-            <span class="n">d</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_wave_breaking_droplet_diameter_exponential</span><span class="p">()</span>
         <span class="k">return</span> <span class="n">d</span></div>
-
-<div class="viewcode-block" id="OpenOil.get_wave_breaking_droplet_diameter_exponential"><a class="viewcode-back" href="../../../autoapi/opendrift/models/openoil/index.html#opendrift.models.openoil.OpenOil.get_wave_breaking_droplet_diameter_exponential">[docs]</a>    <span class="k">def</span> <span class="nf">get_wave_breaking_droplet_diameter_exponential</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="k">if</span> <span class="ow">not</span> <span class="nb">hasattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s1">&#39;droplet_spectrum_pdf&#39;</span><span class="p">):</span>
-            <span class="c1"># Generate droplet spectrum, if not already done</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;Generating wave breaking droplet size spectrum&#39;</span><span class="p">)</span>
-            <span class="n">s</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_config</span><span class="p">(</span><span class="s1">&#39;vertical_mixing:droplet_size_exponent&#39;</span><span class="p">)</span>
-            <span class="n">dmax</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_config</span><span class="p">(</span><span class="s1">&#39;vertical_mixing:droplet_diameter_max_wavebreaking&#39;</span><span class="p">)</span>
-            <span class="n">dmin</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_config</span><span class="p">(</span><span class="s1">&#39;vertical_mixing:droplet_diameter_min_wavebreaking&#39;</span><span class="p">)</span>
-            <span class="c1"># Note: a long array of diameters is required for </span>
-            <span class="c1"># sufficient resolution at both ends of logarithmic scale.</span>
-            <span class="c1"># Could perhaps use logspace instead of linspace(?)</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">droplet_spectrum_diameter</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="n">dmin</span><span class="p">,</span> <span class="n">dmax</span><span class="p">,</span> <span class="mi">1000000</span><span class="p">)</span>
-            <span class="n">spectrum</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">droplet_spectrum_diameter</span><span class="o">**</span><span class="n">s</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">droplet_spectrum_pdf</span> <span class="o">=</span> <span class="n">spectrum</span><span class="o">/</span><span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">spectrum</span><span class="p">)</span>
-
-        <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">choice</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">droplet_spectrum_diameter</span><span class="p">,</span>
-                                <span class="n">size</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">num_elements_active</span><span class="p">(),</span>
-                                <span class="n">p</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">droplet_spectrum_pdf</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="OpenOil.get_wave_breaking_droplet_diameter_liz2017"><a class="viewcode-back" href="../../../autoapi/opendrift/models/openoil/index.html#opendrift.models.openoil.OpenOil.get_wave_breaking_droplet_diameter_liz2017">[docs]</a>    <span class="k">def</span> <span class="nf">get_wave_breaking_droplet_diameter_liz2017</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="c1"># Li,Zhengkai, M. Spaulding, D. French-McCay, D. Crowley, J.R. Payne: &quot;Development of a unified oil droplet size distribution model </span>
@@ -1089,10 +1055,9 @@
         <span class="c1"># Should be prefered when the oil film thickness is unknown.</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="nb">hasattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s1">&#39;droplet_spectrum_pdf&#39;</span><span class="p">):</span>
             <span class="c1"># Generate droplet spectrum as in Li (Zhengkai) et al. (2017)</span>
+            <span class="c1"># Bounds are hardcoded to 1 micron and 3mm</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;Generating wave breaking droplet size spectrum&#39;</span><span class="p">)</span>
-            <span class="n">dmax</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_config</span><span class="p">(</span><span class="s1">&#39;vertical_mixing:droplet_diameter_max_wavebreaking&#39;</span><span class="p">)</span>
-            <span class="n">dmin</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_config</span><span class="p">(</span><span class="s1">&#39;vertical_mixing:droplet_diameter_min_wavebreaking&#39;</span><span class="p">)</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">droplet_spectrum_diameter</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="n">dmin</span><span class="p">,</span> <span class="n">dmax</span><span class="p">,</span> <span class="mi">1000000</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">droplet_spectrum_diameter</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="mf">1e-6</span><span class="p">,</span> <span class="mf">3e-3</span><span class="p">,</span> <span class="mi">1000000</span><span class="p">)</span>
             <span class="n">g</span> <span class="o">=</span> <span class="mf">9.81</span>
             <span class="n">interfacial_tension</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">oil_water_interfacial_tension</span>
             <span class="n">delta_rho</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">sea_water_density</span><span class="p">()</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">elements</span><span class="o">.</span><span class="n">density</span>
@@ -1127,10 +1092,9 @@
         <span class="c1"># requires oil film thickness</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="nb">hasattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s1">&#39;droplet_spectrum_pdf&#39;</span><span class="p">)</span> <span class="ow">or</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_config</span><span class="p">(</span><span class="s1">&#39;processes:update_oilfilm_thickness&#39;</span><span class="p">)</span> <span class="ow">is</span> <span class="kc">True</span><span class="p">:</span>
             <span class="c1"># Generate droplet spectrum as in Johansen et al. (2015)</span>
+            <span class="c1"># Bounds are hardcoded to 1micron and 3mm</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;Generating wave breaking droplet size spectrum&#39;</span><span class="p">)</span>
-            <span class="n">dmax</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_config</span><span class="p">(</span><span class="s1">&#39;vertical_mixing:droplet_diameter_max_wavebreaking&#39;</span><span class="p">)</span>
-            <span class="n">dmin</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_config</span><span class="p">(</span><span class="s1">&#39;vertical_mixing:droplet_diameter_min_wavebreaking&#39;</span><span class="p">)</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">droplet_spectrum_diameter</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="n">dmin</span><span class="p">,</span> <span class="n">dmax</span><span class="p">,</span> <span class="mi">1000000</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">droplet_spectrum_diameter</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="mf">1e-6</span><span class="p">,</span> <span class="mf">3e-3</span><span class="p">,</span> <span class="mi">1000000</span><span class="p">)</span>
             <span class="n">g</span> <span class="o">=</span> <span class="mf">9.81</span>
             <span class="n">interfacial_tension</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">oil_water_interfacial_tension</span>
             <span class="n">H</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">significant_wave_height</span><span class="p">()</span> <span class="c1"># fall height = 2 * wave amplitude</span>
