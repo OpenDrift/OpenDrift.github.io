@@ -4,8 +4,8 @@ from opendrift.models.oceandrift import OceanDrift
 o = OceanDrift()
 o.add_readers_from_list(
     ['https://thredds.met.no/thredds/dodsC/sea/norkyst800m/1h/aggregate_be'])
-o.set_2d()
+o.disable_vertical_motion()
 o.seed_elements(lon=4.85, lat=60, time=datetime.now(), number=10000, radius=1000)
 # >>>
 o.run(duration=timedelta(hours=24))
-o.animation(filename='frontpage.mp4')
+o.animation(filename='animation.mp4')
