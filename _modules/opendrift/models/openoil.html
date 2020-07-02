@@ -204,7 +204,7 @@
 <span class="sd">***********************************</span>
 <span class="sd">The vertical (and thus indirectly also the horisontal) motion of oil (droplets) is affected by oil density and droplet diameters.</span>
 
-<span class="sd">When using the NOAA oil weathering model (``o = OpenOil(weathering_model=&#39;noaa&#39;)``), the density is obtained from the NOAA database according to the oiltype selected when seeding. This value can not be overridden by the user, and it will also change during the simulation due to oil weathering processes (evaporation and emulsification). When using the default (primitive) weathering model (o = OpenOil()), the parameter &#39;density&#39; may be set when seeding (default is 880 kg/m3).</span>
+<span class="sd">When using the NOAA oil weathering model (``o = OpenOil(weathering_model=&#39;noaa&#39;)``), which is the default, the density is obtained from the NOAA database according to the oiltype selected when seeding. This value can not be overridden by the user, and it will also change during the simulation due to oil weathering processes (evaporation and emulsification). When using the alternative (primitive) weathering model (o = OpenOil(weathering_model=&#39;basic&#39;)), the parameter &#39;density&#39; may be set when seeding (default is 880 kg/m3).</span>
 
 <span class="sd">The droplet diameter may be given explicitly when seeding, e.g.::</span>
 
@@ -423,7 +423,7 @@
 <span class="s1">    &#39;&#39;&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">oil_types</span><span class="p">,</span> <span class="n">default_oil</span><span class="p">)</span> 
 
 
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">weathering_model</span><span class="o">=</span><span class="s1">&#39;default&#39;</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">weathering_model</span><span class="o">=</span><span class="s1">&#39;noaa&#39;</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
 
         <span class="k">if</span> <span class="n">weathering_model</span> <span class="o">==</span> <span class="s1">&#39;noaa&#39;</span><span class="p">:</span>
             <span class="k">try</span><span class="p">:</span>
@@ -447,7 +447,7 @@
                 <span class="bp">self</span><span class="o">.</span><span class="n">oiltypes</span> <span class="o">=</span> <span class="n">session</span><span class="o">.</span><span class="n">query</span><span class="p">(</span><span class="n">Oil</span><span class="o">.</span><span class="n">name</span><span class="p">)</span><span class="o">.</span><span class="n">all</span><span class="p">()</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">oiltypes</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">([</span><span class="n">o</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="k">for</span> <span class="n">o</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">oiltypes</span><span class="p">])</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">oiltypes</span> <span class="o">=</span> <span class="p">[</span><span class="n">ot</span> <span class="k">for</span> <span class="n">ot</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">oiltypes</span> <span class="k">if</span> <span class="n">ot</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">duplicate_oils</span><span class="p">]</span>
-        <span class="k">else</span><span class="p">:</span>
+        <span class="k">elif</span> <span class="n">weathering_model</span><span class="o">==</span><span class="s1">&#39;basic&#39;</span><span class="p">:</span>
             <span class="c1"># Read oil properties from file</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">oiltype_file</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">realpath</span><span class="p">(</span><span class="vm">__file__</span><span class="p">))</span> <span class="o">+</span> \
                 <span class="s1">&#39;/oilprop.dat&#39;</span>
@@ -462,6 +462,8 @@
             <span class="n">oiltypes</span><span class="p">,</span> <span class="n">linenumbers</span> <span class="o">=</span> <span class="nb">zip</span><span class="p">(</span><span class="o">*</span><span class="nb">sorted</span><span class="p">(</span><span class="nb">zip</span><span class="p">(</span><span class="n">oiltypes</span><span class="p">,</span> <span class="n">linenumbers</span><span class="p">)))</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">oiltypes</span> <span class="o">=</span> <span class="n">oiltypes</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">oiltypes_linenumbers</span> <span class="o">=</span> <span class="n">linenumbers</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;Weathering model unknown: &#39;</span> <span class="o">+</span> <span class="n">weathering_model</span><span class="p">)</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">oil_weathering_model</span> <span class="o">=</span> <span class="n">weathering_model</span>
 
@@ -691,12 +693,12 @@
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">oil_weathering_model</span> <span class="o">==</span> <span class="s1">&#39;noaa&#39;</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">oil_weathering_noaa</span><span class="p">()</span>
         <span class="k">else</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">oil_weathering_default</span><span class="p">()</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">oil_weathering_basic</span><span class="p">()</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">timer_end</span><span class="p">(</span><span class="s1">&#39;main loop:updating elements:oil weathering&#39;</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="OpenOil.oil_weathering_default"><a class="viewcode-back" href="../../../autoapi/opendrift/models/openoil/index.html#opendrift.models.openoil.OpenOil.oil_weathering_default">[docs]</a>    <span class="k">def</span> <span class="nf">oil_weathering_default</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<div class="viewcode-block" id="OpenOil.oil_weathering_basic"><a class="viewcode-back" href="../../../autoapi/opendrift/models/openoil/index.html#opendrift.models.openoil.OpenOil.oil_weathering_basic">[docs]</a>    <span class="k">def</span> <span class="nf">oil_weathering_basic</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 
-        <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;Default oil weathering&#39;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;Basic oil weathering&#39;</span><span class="p">)</span>
 
         <span class="c1">## Evaporation</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">evaporate</span><span class="p">()</span>
