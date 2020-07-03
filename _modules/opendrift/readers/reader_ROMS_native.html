@@ -263,6 +263,7 @@
                 <span class="k">if</span> <span class="n">has_xarray</span> <span class="ow">is</span> <span class="kc">True</span><span class="p">:</span>
                     <span class="bp">self</span><span class="o">.</span><span class="n">Dataset</span> <span class="o">=</span> <span class="n">xr</span><span class="o">.</span><span class="n">open_mfdataset</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span>
                         <span class="n">chunks</span><span class="o">=</span><span class="p">{</span><span class="s1">&#39;ocean_time&#39;</span><span class="p">:</span> <span class="mi">1</span><span class="p">},</span> <span class="n">concat_dim</span><span class="o">=</span><span class="s1">&#39;ocean_time&#39;</span><span class="p">,</span>
+                        <span class="n">combine</span><span class="o">=</span><span class="s1">&#39;by_coords&#39;</span><span class="p">,</span>
                         <span class="n">preprocess</span><span class="o">=</span><span class="n">drop_non_essential_vars_pop</span><span class="p">,</span>
                         <span class="n">data_vars</span><span class="o">=</span><span class="s1">&#39;minimal&#39;</span><span class="p">,</span> <span class="n">coords</span><span class="o">=</span><span class="s1">&#39;minimal&#39;</span><span class="p">)</span>
                 <span class="k">else</span><span class="p">:</span>
@@ -278,7 +279,10 @@
 
 
         <span class="k">if</span> <span class="s1">&#39;Vtransform&#39;</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">Dataset</span><span class="o">.</span><span class="n">variables</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">Vtransform</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">Dataset</span><span class="o">.</span><span class="n">variables</span><span class="p">[</span><span class="s1">&#39;Vtransform&#39;</span><span class="p">][:]</span>
+            <span class="k">if</span> <span class="n">has_xarray</span> <span class="ow">is</span> <span class="kc">True</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">Vtransform</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">Dataset</span><span class="o">.</span><span class="n">variables</span><span class="p">[</span><span class="s1">&#39;Vtransform&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">data</span>  <span class="c1"># scalar</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">Vtransform</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">Dataset</span><span class="o">.</span><span class="n">variables</span><span class="p">[</span><span class="s1">&#39;Vtransform&#39;</span><span class="p">][:]</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="s1">&#39;Vtransform not found, using 1&#39;</span><span class="p">)</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">Vtransform</span> <span class="o">=</span> <span class="mi">1</span>
@@ -702,6 +706,7 @@
                 <span class="n">rad</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">angle_xi_east</span><span class="p">[</span><span class="nb">tuple</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">meshgrid</span><span class="p">(</span><span class="n">indy</span><span class="p">,</span> <span class="n">indx</span><span class="p">))]</span><span class="o">.</span><span class="n">T</span>
             <span class="k">else</span><span class="p">:</span>
                 <span class="n">rad</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">angle_xi_east</span><span class="p">[</span><span class="n">indy</span><span class="p">,</span> <span class="n">indx</span><span class="p">]</span>
+                <span class="n">rad</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">ma</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">rad</span><span class="p">)</span>
             <span class="k">if</span> <span class="s1">&#39;x_sea_water_velocity&#39;</span> <span class="ow">in</span> <span class="n">variables</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
                 <span class="n">variables</span><span class="p">[</span><span class="s1">&#39;x_sea_water_velocity&#39;</span><span class="p">],</span> \
                     <span class="n">variables</span><span class="p">[</span><span class="s1">&#39;y_sea_water_velocity&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">rotate_vectors_angle</span><span class="p">(</span>
