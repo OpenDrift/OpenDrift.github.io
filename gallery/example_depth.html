@@ -37,8 +37,8 @@
     
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
-    <link rel="next" title="Double gyre, advection" href="example_double_gyre_advection_schemes.html" />
-    <link rel="prev" title="Vietnam" href="example_long_vietnam.html" /> 
+    <link rel="next" title="Vietnam" href="example_long_vietnam.html" />
+    <link rel="prev" title="Advection schemes" href="example_advection_schemes_eddy.html" /> 
 </head>
 
 <body class="wy-body-for-nav">
@@ -109,8 +109,8 @@
 <li class="toctree-l2"><a class="reference internal" href="example_oil_ice.html">Oil in ice</a></li>
 <li class="toctree-l2"><a class="reference internal" href="example_grid.html">Grid</a></li>
 <li class="toctree-l2"><a class="reference internal" href="example_advection_schemes_eddy.html">Advection schemes</a></li>
-<li class="toctree-l2"><a class="reference internal" href="example_long_vietnam.html">Vietnam</a></li>
 <li class="toctree-l2 current"><a class="current reference internal" href="#">Drift at different depths</a></li>
+<li class="toctree-l2"><a class="reference internal" href="example_long_vietnam.html">Vietnam</a></li>
 <li class="toctree-l2"><a class="reference internal" href="example_double_gyre_advection_schemes.html">Double gyre, advection</a></li>
 <li class="toctree-l2"><a class="reference internal" href="example_reader_boundary.html">Reader boundary</a></li>
 <li class="toctree-l2"><a class="reference internal" href="example_LCS_norkyst.html">LCS Norkyst</a></li>
@@ -245,18 +245,20 @@
 </pre></div>
 </div>
 <p class="sphx-glr-script-out">Out:</p>
-<div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>14:11:06 INFO: OpenDriftSimulation initialised (version 1.3.0)
+<div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>12:09:26 INFO: OpenDriftSimulation initialised (version 1.3.1)
 </pre></div>
 </div>
+<p>Using live data from Thredds</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">o</span><span class="o">.</span><span class="n">add_readers_from_list</span><span class="p">([</span>
     <span class="s1">&#39;https://thredds.met.no/thredds/dodsC/sea/norkyst800m/1h/aggregate_be&#39;</span><span class="p">])</span>
 </pre></div>
 </div>
 <p class="sphx-glr-script-out">Out:</p>
-<div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>14:11:06 INFO: Setting SRS to latlong, since not defined before.
+<div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>12:09:26 INFO: Setting SRS to latlong, since not defined before.
 </pre></div>
 </div>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">z</span> <span class="o">=</span> <span class="o">-</span><span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">rand</span><span class="p">(</span><span class="mi">1000</span><span class="p">)</span><span class="o">*</span><span class="mi">50</span>  <span class="c1"># Giving elements a random depth</span>
+<p>Seed 1000 elements at random depths</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">z</span> <span class="o">=</span> <span class="o">-</span><span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">rand</span><span class="p">(</span><span class="mi">1000</span><span class="p">)</span><span class="o">*</span><span class="mi">50</span>
 <span class="n">o</span><span class="o">.</span><span class="n">seed_elements</span><span class="p">(</span><span class="n">lon</span><span class="o">=</span><span class="mf">4.8</span><span class="p">,</span> <span class="n">lat</span><span class="o">=</span><span class="mf">60.0</span><span class="p">,</span> <span class="n">z</span><span class="o">=</span><span class="n">z</span><span class="p">,</span> <span class="n">radius</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">number</span><span class="o">=</span><span class="mi">1000</span><span class="p">,</span>
                 <span class="n">time</span><span class="o">=</span><span class="n">datetime</span><span class="o">.</span><span class="n">now</span><span class="p">())</span>
 
@@ -265,7 +267,7 @@
 </div>
 <p class="sphx-glr-script-out">Out:</p>
 <div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>===========================
-Model:  OceanDrift     (OpenDrift version 1.3.0)
+Model:  OceanDrift     (OpenDrift version 1.3.1)
         0 active Lagrangian3DArray particles  (0 deactivated, 1000 scheduled)
 Projection: +proj=latlong
 -------------------
@@ -295,238 +297,234 @@ Lazy readers:
 ===========================
 </pre></div>
 </div>
+<p>Adding some diffusion</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">o</span><span class="o">.</span><span class="n">set_config</span><span class="p">(</span><span class="s1">&#39;drift:current_uncertainty&#39;</span><span class="p">,</span> <span class="o">.</span><span class="mi">1</span><span class="p">)</span>
 <span class="n">o</span><span class="o">.</span><span class="n">set_config</span><span class="p">(</span><span class="s1">&#39;drift:wind_uncertainty&#39;</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span>
 </pre></div>
 </div>
+<p>Running model</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">o</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">duration</span><span class="o">=</span><span class="n">timedelta</span><span class="p">(</span><span class="n">hours</span><span class="o">=</span><span class="mi">24</span><span class="p">),</span> <span class="n">time_step</span><span class="o">=</span><span class="mi">1800</span><span class="p">,</span> <span class="n">outfile</span><span class="o">=</span><span class="s1">&#39;openoil.nc&#39;</span><span class="p">,</span>
       <span class="n">export_buffer_length</span><span class="o">=</span><span class="mi">5</span><span class="p">)</span>  <span class="c1"># Writing to netCDF file every 5 time steps</span>
 </pre></div>
 </div>
 <p class="sphx-glr-script-out">Out:</p>
-<div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>14:11:06 INFO: Config validation OK
-14:11:06 INFO: Fallback values will be used for the following variables which have no readers:
-14:11:06 INFO:  x_sea_water_velocity: 0.000000
-14:11:06 INFO:  y_sea_water_velocity: 0.000000
-14:11:06 INFO:  x_wind: 0.000000
-14:11:06 INFO:  y_wind: 0.000000
-14:11:06 INFO:  upward_sea_water_velocity: 0.000000
-14:11:06 INFO:  ocean_vertical_diffusivity: 0.020000
-14:11:06 INFO:  sea_surface_wave_significant_height: 0.000000
-14:11:06 INFO:  sea_surface_wave_stokes_drift_x_velocity: 0.000000
-14:11:06 INFO:  sea_surface_wave_stokes_drift_y_velocity: 0.000000
-14:11:06 INFO:  sea_surface_wave_period_at_variance_spectral_density_maximum: 0.000000
-14:11:06 INFO:  sea_surface_wave_mean_period_from_variance_spectral_density_second_frequency_moment: 0.000000
-14:11:06 INFO:  surface_downward_x_stress: 0.000000
-14:11:06 INFO:  surface_downward_y_stress: 0.000000
-14:11:06 INFO:  turbulent_kinetic_energy: 0.000000
-14:11:06 INFO:  turbulent_generic_length_scale: 0.000000
-14:11:06 INFO:  sea_floor_depth_below_sea_level: 10000.000000
-14:11:06 INFO: Adding a dynamical landmask with max. priority based on assumed maximum speed of 1 m/s. Adding a customised landmask may be faster...
-14:11:09 INFO: Using existing reader for land_binary_mask
-14:11:09 INFO: All points are in ocean
-14:11:09 INFO: 2020-07-02 14:11:06.897712 - step 1 of 48 - 1000 active elements (0 deactivated)
-14:11:10 INFO: Opening dataset: https://thredds.met.no/thredds/dodsC/sea/norkyst800m/1h/aggregate_be
-14:11:10 INFO: Opening file with Dataset
-14:11:17 WARNING: Invalid values (-0.0056 to -0.0050999997) found for ocean_vertical_diffusivity, replacing with NaN
-14:11:17 WARNING: (allowed range: [0, 1])
-14:11:18 WARNING: Invalid values (-0.0047 to -0.0039) found for ocean_vertical_diffusivity, replacing with NaN
-14:11:18 WARNING: (allowed range: [0, 1])
-14:11:18 WARNING: Only NaNs input to linearNDFast - returning
-14:11:18 WARNING: Only NaNs input to linearNDFast - returning
-14:11:18 INFO: Interpolating profiles in time
-14:11:18 INFO: 2020-07-02 14:41:06.897712 - step 2 of 48 - 1000 active elements (0 deactivated)
-14:11:18 WARNING: Only NaNs input to linearNDFast - returning
-14:11:18 WARNING: Only NaNs input to linearNDFast - returning
-14:11:18 INFO: Interpolating profiles in time
-14:11:18 INFO: 2020-07-02 15:11:06.897712 - step 3 of 48 - 1000 active elements (0 deactivated)
-14:11:20 WARNING: Invalid values (-0.0032 to -0.0022) found for ocean_vertical_diffusivity, replacing with NaN
-14:11:20 WARNING: (allowed range: [0, 1])
-14:11:20 WARNING: Only NaNs input to linearNDFast - returning
-14:11:20 WARNING: Only NaNs input to linearNDFast - returning
-14:11:20 INFO: Interpolating profiles in time
-14:11:20 INFO: 2020-07-02 15:41:06.897712 - step 4 of 48 - 1000 active elements (0 deactivated)
-14:11:20 WARNING: Only NaNs input to linearNDFast - returning
-14:11:20 WARNING: Only NaNs input to linearNDFast - returning
-14:11:20 INFO: Interpolating profiles in time
-14:11:20 INFO: 2020-07-02 16:11:06.897712 - step 5 of 48 - 1000 active elements (0 deactivated)
-14:11:21 WARNING: Invalid values (-0.0013 to -1e-04) found for ocean_vertical_diffusivity, replacing with NaN
-14:11:21 WARNING: (allowed range: [0, 1])
-14:11:21 WARNING: Only NaNs input to linearNDFast - returning
-14:11:21 WARNING: Only NaNs input to linearNDFast - returning
-14:11:21 INFO: Interpolating profiles in time
-14:11:21 INFO: Wrote 5 steps to file openoil.nc
-14:11:21 INFO: 2020-07-02 16:41:06.897712 - step 6 of 48 - 1000 active elements (0 deactivated)
-14:11:21 WARNING: Only NaNs input to linearNDFast - returning
-14:11:21 WARNING: Only NaNs input to linearNDFast - returning
-14:11:21 INFO: Interpolating profiles in time
-14:11:21 INFO: 2020-07-02 17:11:06.897712 - step 7 of 48 - 1000 active elements (0 deactivated)
-14:11:22 WARNING: Only NaNs input to linearNDFast - returning
-14:11:23 INFO: Interpolating profiles in time
-14:11:23 INFO: 2020-07-02 17:41:06.897712 - step 8 of 48 - 1000 active elements (0 deactivated)
-14:11:23 WARNING: Only NaNs input to linearNDFast - returning
-14:11:23 INFO: Interpolating profiles in time
-14:11:23 INFO: 2020-07-02 18:11:06.897712 - step 9 of 48 - 1000 active elements (0 deactivated)
-14:11:24 INFO: Interpolating profiles in time
-14:11:24 INFO: 2020-07-02 18:41:06.897712 - step 10 of 48 - 1000 active elements (0 deactivated)
-14:11:24 INFO: Interpolating profiles in time
-14:11:24 INFO: Wrote 5 steps to file openoil.nc
-14:11:24 INFO: 2020-07-02 19:11:06.897712 - step 11 of 48 - 1000 active elements (0 deactivated)
-14:11:25 INFO: Interpolating profiles in time
-14:11:25 INFO: 2020-07-02 19:41:06.897712 - step 12 of 48 - 1000 active elements (0 deactivated)
-14:11:25 INFO: Interpolating profiles in time
-14:11:26 INFO: 2020-07-02 20:11:06.897712 - step 13 of 48 - 1000 active elements (0 deactivated)
-14:11:27 INFO: Interpolating profiles in time
-14:11:27 INFO: 2020-07-02 20:41:06.897712 - step 14 of 48 - 1000 active elements (0 deactivated)
-14:11:27 INFO: Interpolating profiles in time
-14:11:27 INFO: 2020-07-02 21:11:06.897712 - step 15 of 48 - 1000 active elements (0 deactivated)
-14:11:28 INFO: Interpolating profiles in time
-14:11:28 INFO: Wrote 5 steps to file openoil.nc
-14:11:28 INFO: 2020-07-02 21:41:06.897712 - step 16 of 48 - 1000 active elements (0 deactivated)
-14:11:28 INFO: Interpolating profiles in time
-14:11:28 INFO: 2020-07-02 22:11:06.897712 - step 17 of 48 - 1000 active elements (0 deactivated)
-14:11:30 WARNING: Invalid values (-0.0039999997 to -0.0026) found for ocean_vertical_diffusivity, replacing with NaN
-14:11:30 WARNING: (allowed range: [0, 1])
-14:11:30 WARNING: Only NaNs input to linearNDFast - returning
-14:11:30 INFO: Interpolating profiles in time
-14:11:30 INFO: 2020-07-02 22:41:06.897712 - step 18 of 48 - 1000 active elements (0 deactivated)
-14:11:30 WARNING: Only NaNs input to linearNDFast - returning
-14:11:30 INFO: Interpolating profiles in time
-14:11:30 INFO: 2020-07-02 23:11:06.897712 - step 19 of 48 - 1000 active elements (0 deactivated)
-14:11:32 WARNING: Invalid values (-0.010799999 to -0.0075) found for ocean_vertical_diffusivity, replacing with NaN
-14:11:32 WARNING: (allowed range: [0, 1])
-14:11:32 WARNING: Only NaNs input to linearNDFast - returning
-14:11:32 WARNING: Only NaNs input to linearNDFast - returning
-14:11:32 INFO: Interpolating profiles in time
-14:11:32 INFO: 2020-07-02 23:41:06.897712 - step 20 of 48 - 1000 active elements (0 deactivated)
-14:11:32 WARNING: Only NaNs input to linearNDFast - returning
-14:11:32 WARNING: Only NaNs input to linearNDFast - returning
-14:11:32 INFO: Interpolating profiles in time
-14:11:32 INFO: Wrote 5 steps to file openoil.nc
-14:11:32 INFO: 2020-07-03 00:11:06.897712 - step 21 of 48 - 1000 active elements (0 deactivated)
-14:11:33 WARNING: Invalid values (-0.0131 to -0.0112) found for ocean_vertical_diffusivity, replacing with NaN
-14:11:33 WARNING: (allowed range: [0, 1])
-14:11:33 WARNING: Only NaNs input to linearNDFast - returning
-14:11:33 WARNING: Only NaNs input to linearNDFast - returning
-14:11:33 INFO: Interpolating profiles in time
-14:11:33 INFO: 2020-07-03 00:41:06.897712 - step 22 of 48 - 1000 active elements (0 deactivated)
-14:11:33 WARNING: Only NaNs input to linearNDFast - returning
-14:11:33 WARNING: Only NaNs input to linearNDFast - returning
-14:11:33 INFO: Interpolating profiles in time
-14:11:33 INFO: 2020-07-03 01:11:06.897712 - step 23 of 48 - 1000 active elements (0 deactivated)
-14:11:35 WARNING: Invalid values (-0.0142 to -0.011299999) found for ocean_vertical_diffusivity, replacing with NaN
-14:11:35 WARNING: (allowed range: [0, 1])
-14:11:35 WARNING: Only NaNs input to linearNDFast - returning
-14:11:35 WARNING: Only NaNs input to linearNDFast - returning
-14:11:35 INFO: Interpolating profiles in time
-14:11:35 INFO: 2020-07-03 01:41:06.897712 - step 24 of 48 - 1000 active elements (0 deactivated)
-14:11:35 WARNING: Only NaNs input to linearNDFast - returning
-14:11:35 WARNING: Only NaNs input to linearNDFast - returning
-14:11:35 INFO: Interpolating profiles in time
-14:11:35 INFO: 2020-07-03 02:11:06.897712 - step 25 of 48 - 1000 active elements (0 deactivated)
-14:11:37 WARNING: Invalid values (-0.0122 to -0.0075) found for ocean_vertical_diffusivity, replacing with NaN
-14:11:37 WARNING: (allowed range: [0, 1])
-14:11:37 WARNING: Only NaNs input to linearNDFast - returning
-14:11:37 WARNING: Only NaNs input to linearNDFast - returning
-14:11:37 INFO: Interpolating profiles in time
-14:11:37 INFO: Wrote 5 steps to file openoil.nc
-14:11:37 INFO: 2020-07-03 02:41:06.897712 - step 26 of 48 - 1000 active elements (0 deactivated)
-14:11:37 WARNING: Only NaNs input to linearNDFast - returning
-14:11:37 WARNING: Only NaNs input to linearNDFast - returning
-14:11:37 INFO: Interpolating profiles in time
-14:11:37 INFO: 2020-07-03 03:11:06.897712 - step 27 of 48 - 1000 active elements (0 deactivated)
-14:11:38 WARNING: Invalid values (-0.0061 to -0.0041) found for ocean_vertical_diffusivity, replacing with NaN
-14:11:38 WARNING: (allowed range: [0, 1])
-14:11:38 WARNING: Only NaNs input to linearNDFast - returning
-14:11:38 WARNING: Only NaNs input to linearNDFast - returning
-14:11:38 INFO: Interpolating profiles in time
-14:11:38 INFO: 2020-07-03 03:41:06.897712 - step 28 of 48 - 1000 active elements (0 deactivated)
-14:11:38 WARNING: Only NaNs input to linearNDFast - returning
-14:11:38 WARNING: Only NaNs input to linearNDFast - returning
-14:11:38 INFO: Interpolating profiles in time
-14:11:39 INFO: 2020-07-03 04:11:06.897712 - step 29 of 48 - 1000 active elements (0 deactivated)
-14:11:40 WARNING: Invalid values (-0.0033999998 to -0.0007) found for ocean_vertical_diffusivity, replacing with NaN
-14:11:40 WARNING: (allowed range: [0, 1])
-14:11:40 WARNING: Only NaNs input to linearNDFast - returning
-14:11:40 WARNING: Only NaNs input to linearNDFast - returning
-14:11:40 INFO: Interpolating profiles in time
-14:11:40 INFO: 2020-07-03 04:41:06.897712 - step 30 of 48 - 1000 active elements (0 deactivated)
-14:11:40 WARNING: Only NaNs input to linearNDFast - returning
-14:11:40 WARNING: Only NaNs input to linearNDFast - returning
-14:11:40 INFO: Interpolating profiles in time
-14:11:40 INFO: Wrote 5 steps to file openoil.nc
-14:11:40 INFO: 2020-07-03 05:11:06.897712 - step 31 of 48 - 1000 active elements (0 deactivated)
-14:11:41 WARNING: Only NaNs input to linearNDFast - returning
-14:11:42 INFO: Interpolating profiles in time
-14:11:42 INFO: 2020-07-03 05:41:06.897712 - step 32 of 48 - 1000 active elements (0 deactivated)
-14:11:42 WARNING: Only NaNs input to linearNDFast - returning
-14:11:42 INFO: Interpolating profiles in time
-14:11:42 INFO: 2020-07-03 06:11:06.897712 - step 33 of 48 - 1000 active elements (0 deactivated)
-14:11:43 INFO: Interpolating profiles in time
-14:11:43 INFO: 2020-07-03 06:41:06.897712 - step 34 of 48 - 1000 active elements (0 deactivated)
-14:11:43 INFO: Interpolating profiles in time
-14:11:43 INFO: 2020-07-03 07:11:06.897712 - step 35 of 48 - 1000 active elements (0 deactivated)
-14:11:45 INFO: Interpolating profiles in time
-14:11:45 INFO: Wrote 5 steps to file openoil.nc
-14:11:45 INFO: 2020-07-03 07:41:06.897712 - step 36 of 48 - 1000 active elements (0 deactivated)
-14:11:45 INFO: Interpolating profiles in time
-14:11:45 INFO: 2020-07-03 08:11:06.897712 - step 37 of 48 - 1000 active elements (0 deactivated)
-14:11:46 INFO: Interpolating profiles in time
-14:11:46 INFO: 2020-07-03 08:41:06.897712 - step 38 of 48 - 1000 active elements (0 deactivated)
-14:11:46 INFO: Interpolating profiles in time
-14:11:46 INFO: 2020-07-03 09:11:06.897712 - step 39 of 48 - 1000 active elements (0 deactivated)
-14:11:48 INFO: Interpolating profiles in time
-14:11:48 INFO: 2020-07-03 09:41:06.897712 - step 40 of 48 - 1000 active elements (0 deactivated)
-14:11:48 INFO: Interpolating profiles in time
-14:11:48 INFO: Wrote 5 steps to file openoil.nc
-14:11:48 INFO: 2020-07-03 10:11:06.897712 - step 41 of 48 - 1000 active elements (0 deactivated)
-14:11:49 WARNING: Invalid values (-0.0009999999 to -1e-04) found for ocean_vertical_diffusivity, replacing with NaN
-14:11:49 WARNING: (allowed range: [0, 1])
-14:11:49 WARNING: Only NaNs input to linearNDFast - returning
-14:11:49 INFO: Interpolating profiles in time
-14:11:49 INFO: 2020-07-03 10:41:06.897712 - step 42 of 48 - 1000 active elements (0 deactivated)
-14:11:49 WARNING: Only NaNs input to linearNDFast - returning
-14:11:49 INFO: Interpolating profiles in time
-14:11:50 INFO: 2020-07-03 11:11:06.897712 - step 43 of 48 - 1000 active elements (0 deactivated)
-14:11:51 WARNING: Invalid values (-0.0025 to -0.0014) found for ocean_vertical_diffusivity, replacing with NaN
-14:11:51 WARNING: (allowed range: [0, 1])
-14:11:51 WARNING: Only NaNs input to linearNDFast - returning
-14:11:51 WARNING: Only NaNs input to linearNDFast - returning
-14:11:51 INFO: Interpolating profiles in time
-14:11:51 INFO: 2020-07-03 11:41:06.897712 - step 44 of 48 - 1000 active elements (0 deactivated)
-14:11:51 WARNING: Only NaNs input to linearNDFast - returning
-14:11:51 WARNING: Only NaNs input to linearNDFast - returning
-14:11:51 INFO: Interpolating profiles in time
-14:11:51 INFO: 2020-07-03 12:11:06.897712 - step 45 of 48 - 1000 active elements (0 deactivated)
-14:11:53 WARNING: Invalid values (-0.0041 to -0.0021) found for ocean_vertical_diffusivity, replacing with NaN
-14:11:53 WARNING: (allowed range: [0, 1])
-14:11:53 WARNING: Only NaNs input to linearNDFast - returning
-14:11:53 WARNING: Only NaNs input to linearNDFast - returning
-14:11:53 INFO: Interpolating profiles in time
-14:11:53 INFO: Wrote 5 steps to file openoil.nc
-14:11:53 INFO: 2020-07-03 12:41:06.897712 - step 46 of 48 - 1000 active elements (0 deactivated)
-14:11:53 WARNING: Only NaNs input to linearNDFast - returning
-14:11:53 WARNING: Only NaNs input to linearNDFast - returning
-14:11:53 INFO: Interpolating profiles in time
-14:11:53 INFO: 2020-07-03 13:11:06.897712 - step 47 of 48 - 1000 active elements (0 deactivated)
-14:11:54 WARNING: Invalid values (-0.0056999996 to -0.0029) found for ocean_vertical_diffusivity, replacing with NaN
-14:11:54 WARNING: (allowed range: [0, 1])
-14:11:54 WARNING: Only NaNs input to linearNDFast - returning
-14:11:54 WARNING: Only NaNs input to linearNDFast - returning
-14:11:54 INFO: Interpolating profiles in time
-14:11:54 INFO: 2020-07-03 13:41:06.897712 - step 48 of 48 - 1000 active elements (0 deactivated)
-14:11:54 WARNING: Only NaNs input to linearNDFast - returning
-14:11:54 WARNING: Only NaNs input to linearNDFast - returning
-14:11:54 INFO: Interpolating profiles in time
-14:11:54 INFO: Wrote 4 steps to file openoil.nc
+<div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>12:09:26 INFO: Config validation OK
+12:09:26 INFO: Fallback values will be used for the following variables which have no readers:
+12:09:26 INFO:  x_sea_water_velocity: 0.000000
+12:09:26 INFO:  y_sea_water_velocity: 0.000000
+12:09:26 INFO:  x_wind: 0.000000
+12:09:26 INFO:  y_wind: 0.000000
+12:09:26 INFO:  upward_sea_water_velocity: 0.000000
+12:09:26 INFO:  ocean_vertical_diffusivity: 0.020000
+12:09:26 INFO:  sea_surface_wave_significant_height: 0.000000
+12:09:26 INFO:  sea_surface_wave_stokes_drift_x_velocity: 0.000000
+12:09:26 INFO:  sea_surface_wave_stokes_drift_y_velocity: 0.000000
+12:09:26 INFO:  sea_surface_wave_period_at_variance_spectral_density_maximum: 0.000000
+12:09:26 INFO:  sea_surface_wave_mean_period_from_variance_spectral_density_second_frequency_moment: 0.000000
+12:09:26 INFO:  surface_downward_x_stress: 0.000000
+12:09:26 INFO:  surface_downward_y_stress: 0.000000
+12:09:26 INFO:  turbulent_kinetic_energy: 0.000000
+12:09:26 INFO:  turbulent_generic_length_scale: 0.000000
+12:09:26 INFO:  sea_floor_depth_below_sea_level: 10000.000000
+12:09:26 INFO: Adding a dynamical landmask with max. priority based on assumed maximum speed of 1 m/s. Adding a customised landmask may be faster...
+12:09:28 INFO: Using existing reader for land_binary_mask
+12:09:28 INFO: All points are in ocean
+12:09:28 INFO: 2020-07-03 12:09:26.267801 - step 1 of 48 - 1000 active elements (0 deactivated)
+12:09:29 INFO: Opening dataset: https://thredds.met.no/thredds/dodsC/sea/norkyst800m/1h/aggregate_be
+12:09:29 INFO: Opening file with Dataset
+12:09:35 WARNING: Invalid values (-0.0015 to -0.0002) found for ocean_vertical_diffusivity, replacing with NaN
+12:09:35 WARNING: (allowed range: [0, 1])
+12:09:37 WARNING: Invalid values (-0.0039 to -0.0022) found for ocean_vertical_diffusivity, replacing with NaN
+12:09:37 WARNING: (allowed range: [0, 1])
+12:09:37 WARNING: Only NaNs input to linearNDFast - returning
+12:09:37 WARNING: Only NaNs input to linearNDFast - returning
+12:09:37 INFO: Interpolating profiles in time
+12:09:37 INFO: 2020-07-03 12:39:26.267801 - step 2 of 48 - 1000 active elements (0 deactivated)
+12:09:37 WARNING: Only NaNs input to linearNDFast - returning
+12:09:37 WARNING: Only NaNs input to linearNDFast - returning
+12:09:37 INFO: Interpolating profiles in time
+12:09:37 INFO: 2020-07-03 13:09:26.267801 - step 3 of 48 - 1000 active elements (0 deactivated)
+12:09:39 WARNING: Invalid values (-0.0037999998 to -0.0023) found for ocean_vertical_diffusivity, replacing with NaN
+12:09:39 WARNING: (allowed range: [0, 1])
+12:09:39 WARNING: Only NaNs input to linearNDFast - returning
+12:09:39 WARNING: Only NaNs input to linearNDFast - returning
+12:09:39 INFO: Interpolating profiles in time
+12:09:39 INFO: 2020-07-03 13:39:26.267801 - step 4 of 48 - 1000 active elements (0 deactivated)
+12:09:39 WARNING: Only NaNs input to linearNDFast - returning
+12:09:39 WARNING: Only NaNs input to linearNDFast - returning
+12:09:39 INFO: Interpolating profiles in time
+12:09:39 INFO: 2020-07-03 14:09:26.267801 - step 5 of 48 - 1000 active elements (0 deactivated)
+12:09:40 WARNING: Invalid values (-0.0028 to -0.0014) found for ocean_vertical_diffusivity, replacing with NaN
+12:09:40 WARNING: (allowed range: [0, 1])
+12:09:40 WARNING: Only NaNs input to linearNDFast - returning
+12:09:40 WARNING: Only NaNs input to linearNDFast - returning
+12:09:40 INFO: Interpolating profiles in time
+12:09:40 INFO: Wrote 5 steps to file openoil.nc
+12:09:40 INFO: 2020-07-03 14:39:26.267801 - step 6 of 48 - 1000 active elements (0 deactivated)
+12:09:40 WARNING: Only NaNs input to linearNDFast - returning
+12:09:40 WARNING: Only NaNs input to linearNDFast - returning
+12:09:40 INFO: Interpolating profiles in time
+12:09:40 INFO: 2020-07-03 15:09:26.267801 - step 7 of 48 - 1000 active elements (0 deactivated)
+12:09:42 WARNING: Invalid values (-0.0016999999 to -0.0008) found for ocean_vertical_diffusivity, replacing with NaN
+12:09:42 WARNING: (allowed range: [0, 1])
+12:09:42 WARNING: Only NaNs input to linearNDFast - returning
+12:09:42 WARNING: Only NaNs input to linearNDFast - returning
+12:09:42 INFO: Interpolating profiles in time
+12:09:42 INFO: 2020-07-03 15:39:26.267801 - step 8 of 48 - 1000 active elements (0 deactivated)
+12:09:42 WARNING: Only NaNs input to linearNDFast - returning
+12:09:42 WARNING: Only NaNs input to linearNDFast - returning
+12:09:42 INFO: Interpolating profiles in time
+12:09:42 INFO: 2020-07-03 16:09:26.267801 - step 9 of 48 - 1000 active elements (0 deactivated)
+12:09:43 WARNING: Invalid values (-0.0008 to -0.0004) found for ocean_vertical_diffusivity, replacing with NaN
+12:09:43 WARNING: (allowed range: [0, 1])
+12:09:43 WARNING: Only NaNs input to linearNDFast - returning
+12:09:43 WARNING: Only NaNs input to linearNDFast - returning
+12:09:43 INFO: Interpolating profiles in time
+12:09:43 INFO: 2020-07-03 16:39:26.267801 - step 10 of 48 - 1000 active elements (0 deactivated)
+12:09:43 WARNING: Only NaNs input to linearNDFast - returning
+12:09:43 WARNING: Only NaNs input to linearNDFast - returning
+12:09:43 INFO: Interpolating profiles in time
+12:09:43 INFO: Wrote 5 steps to file openoil.nc
+12:09:43 INFO: 2020-07-03 17:09:26.267801 - step 11 of 48 - 1000 active elements (0 deactivated)
+12:09:45 WARNING: Invalid values (-1e-04 to -1e-04) found for ocean_vertical_diffusivity, replacing with NaN
+12:09:45 WARNING: (allowed range: [0, 1])
+12:09:45 WARNING: Only NaNs input to linearNDFast - returning
+12:09:45 INFO: Interpolating profiles in time
+12:09:45 INFO: 2020-07-03 17:39:26.267801 - step 12 of 48 - 1000 active elements (0 deactivated)
+12:09:45 WARNING: Only NaNs input to linearNDFast - returning
+12:09:45 INFO: Interpolating profiles in time
+12:09:45 INFO: 2020-07-03 18:09:26.267801 - step 13 of 48 - 1000 active elements (0 deactivated)
+12:09:46 INFO: Interpolating profiles in time
+12:09:46 INFO: 2020-07-03 18:39:26.267801 - step 14 of 48 - 1000 active elements (0 deactivated)
+12:09:46 INFO: Interpolating profiles in time
+12:09:46 INFO: 2020-07-03 19:09:26.267801 - step 15 of 48 - 1000 active elements (0 deactivated)
+12:09:48 INFO: Interpolating profiles in time
+12:09:48 INFO: Wrote 5 steps to file openoil.nc
+12:09:48 INFO: 2020-07-03 19:39:26.267801 - step 16 of 48 - 1000 active elements (0 deactivated)
+12:09:48 INFO: Interpolating profiles in time
+12:09:48 INFO: 2020-07-03 20:09:26.267801 - step 17 of 48 - 1000 active elements (0 deactivated)
+12:09:49 INFO: Interpolating profiles in time
+12:09:49 INFO: 2020-07-03 20:39:26.267801 - step 18 of 48 - 1000 active elements (0 deactivated)
+12:09:49 INFO: Interpolating profiles in time
+12:09:50 INFO: 2020-07-03 21:09:26.267801 - step 19 of 48 - 1000 active elements (0 deactivated)
+12:09:51 INFO: Interpolating profiles in time
+12:09:51 INFO: 2020-07-03 21:39:26.267801 - step 20 of 48 - 1000 active elements (0 deactivated)
+12:09:51 INFO: Interpolating profiles in time
+12:09:51 INFO: Wrote 5 steps to file openoil.nc
+12:09:51 INFO: 2020-07-03 22:09:26.267801 - step 21 of 48 - 1000 active elements (0 deactivated)
+12:09:52 INFO: Interpolating profiles in time
+12:09:52 INFO: 2020-07-03 22:39:26.267801 - step 22 of 48 - 1000 active elements (0 deactivated)
+12:09:52 INFO: Interpolating profiles in time
+12:09:53 INFO: 2020-07-03 23:09:26.267801 - step 23 of 48 - 1000 active elements (0 deactivated)
+12:09:54 WARNING: Invalid values (-0.0026999998 to -0.0016) found for ocean_vertical_diffusivity, replacing with NaN
+12:09:54 WARNING: (allowed range: [0, 1])
+12:09:54 WARNING: Only NaNs input to linearNDFast - returning
+12:09:54 INFO: Interpolating profiles in time
+12:09:54 INFO: 2020-07-03 23:39:26.267801 - step 24 of 48 - 1000 active elements (0 deactivated)
+12:09:54 WARNING: Only NaNs input to linearNDFast - returning
+12:09:54 INFO: Interpolating profiles in time
+12:09:54 INFO: 2020-07-04 00:09:26.267801 - step 25 of 48 - 1000 active elements (0 deactivated)
+12:09:56 WARNING: Invalid values (-0.0049 to -0.0026) found for ocean_vertical_diffusivity, replacing with NaN
+12:09:56 WARNING: (allowed range: [0, 1])
+12:09:56 WARNING: Only NaNs input to linearNDFast - returning
+12:09:56 WARNING: Only NaNs input to linearNDFast - returning
+12:09:56 INFO: Interpolating profiles in time
+12:09:56 INFO: Wrote 5 steps to file openoil.nc
+12:09:56 INFO: 2020-07-04 00:39:26.267801 - step 26 of 48 - 1000 active elements (0 deactivated)
+12:09:56 WARNING: Only NaNs input to linearNDFast - returning
+12:09:56 WARNING: Only NaNs input to linearNDFast - returning
+12:09:56 INFO: Interpolating profiles in time
+12:09:56 INFO: 2020-07-04 01:09:26.267801 - step 27 of 48 - 1000 active elements (0 deactivated)
+12:09:58 WARNING: Invalid values (-0.0053999997 to -0.0028) found for ocean_vertical_diffusivity, replacing with NaN
+12:09:58 WARNING: (allowed range: [0, 1])
+12:09:58 WARNING: Only NaNs input to linearNDFast - returning
+12:09:58 WARNING: Only NaNs input to linearNDFast - returning
+12:09:58 INFO: Interpolating profiles in time
+12:09:58 INFO: 2020-07-04 01:39:26.267801 - step 28 of 48 - 1000 active elements (0 deactivated)
+12:09:58 WARNING: Only NaNs input to linearNDFast - returning
+12:09:58 WARNING: Only NaNs input to linearNDFast - returning
+12:09:58 INFO: Interpolating profiles in time
+12:09:58 INFO: 2020-07-04 02:09:26.267801 - step 29 of 48 - 1000 active elements (0 deactivated)
+12:09:59 WARNING: Invalid values (-0.0049 to -0.0026999998) found for ocean_vertical_diffusivity, replacing with NaN
+12:09:59 WARNING: (allowed range: [0, 1])
+12:09:59 WARNING: Only NaNs input to linearNDFast - returning
+12:09:59 WARNING: Only NaNs input to linearNDFast - returning
+12:09:59 INFO: Interpolating profiles in time
+12:09:59 INFO: 2020-07-04 02:39:26.267801 - step 30 of 48 - 1000 active elements (0 deactivated)
+12:09:59 WARNING: Only NaNs input to linearNDFast - returning
+12:09:59 WARNING: Only NaNs input to linearNDFast - returning
+12:09:59 INFO: Interpolating profiles in time
+12:09:59 INFO: Wrote 5 steps to file openoil.nc
+12:09:59 INFO: 2020-07-04 03:09:26.267801 - step 31 of 48 - 1000 active elements (0 deactivated)
+12:10:01 WARNING: Invalid values (-0.0034999999 to -0.0013) found for ocean_vertical_diffusivity, replacing with NaN
+12:10:01 WARNING: (allowed range: [0, 1])
+12:10:01 WARNING: Only NaNs input to linearNDFast - returning
+12:10:01 WARNING: Only NaNs input to linearNDFast - returning
+12:10:01 INFO: Interpolating profiles in time
+12:10:01 INFO: 2020-07-04 03:39:26.267801 - step 32 of 48 - 1000 active elements (0 deactivated)
+12:10:01 WARNING: Only NaNs input to linearNDFast - returning
+12:10:01 WARNING: Only NaNs input to linearNDFast - returning
+12:10:01 INFO: Interpolating profiles in time
+12:10:01 INFO: 2020-07-04 04:09:26.267801 - step 33 of 48 - 1000 active elements (0 deactivated)
+12:10:02 WARNING: Invalid values (-0.0019999999 to -0.00059999997) found for ocean_vertical_diffusivity, replacing with NaN
+12:10:02 WARNING: (allowed range: [0, 1])
+12:10:02 WARNING: Only NaNs input to linearNDFast - returning
+12:10:02 WARNING: Only NaNs input to linearNDFast - returning
+12:10:02 INFO: Interpolating profiles in time
+12:10:02 INFO: 2020-07-04 04:39:26.267801 - step 34 of 48 - 1000 active elements (0 deactivated)
+12:10:02 WARNING: Only NaNs input to linearNDFast - returning
+12:10:02 WARNING: Only NaNs input to linearNDFast - returning
+12:10:02 INFO: Interpolating profiles in time
+12:10:02 INFO: 2020-07-04 05:09:26.267801 - step 35 of 48 - 1000 active elements (0 deactivated)
+12:10:04 WARNING: Invalid values (-0.0008 to -1e-04) found for ocean_vertical_diffusivity, replacing with NaN
+12:10:04 WARNING: (allowed range: [0, 1])
+12:10:04 WARNING: Only NaNs input to linearNDFast - returning
+12:10:04 WARNING: Still NaN-values after 10 iterations, exiting!
+12:10:04 INFO: Interpolating profiles in time
+12:10:04 INFO: Wrote 5 steps to file openoil.nc
+12:10:04 INFO: 2020-07-04 05:39:26.267801 - step 36 of 48 - 1000 active elements (0 deactivated)
+12:10:04 WARNING: Only NaNs input to linearNDFast - returning
+12:10:04 INFO: Interpolating profiles in time
+12:10:04 INFO: 2020-07-04 06:09:26.267801 - step 37 of 48 - 1000 active elements (0 deactivated)
+12:10:05 INFO: Interpolating profiles in time
+12:10:05 INFO: 2020-07-04 06:39:26.267801 - step 38 of 48 - 1000 active elements (0 deactivated)
+12:10:05 INFO: Interpolating profiles in time
+12:10:06 INFO: 2020-07-04 07:09:26.267801 - step 39 of 48 - 1000 active elements (0 deactivated)
+12:10:07 INFO: Interpolating profiles in time
+12:10:07 INFO: 2020-07-04 07:39:26.267801 - step 40 of 48 - 1000 active elements (0 deactivated)
+12:10:07 INFO: Interpolating profiles in time
+12:10:07 INFO: Wrote 5 steps to file openoil.nc
+12:10:07 INFO: 2020-07-04 08:09:26.267801 - step 41 of 48 - 1000 active elements (0 deactivated)
+12:10:08 INFO: Interpolating profiles in time
+12:10:08 INFO: 2020-07-04 08:39:26.267801 - step 42 of 48 - 1000 active elements (0 deactivated)
+12:10:08 INFO: Interpolating profiles in time
+12:10:08 INFO: 2020-07-04 09:09:26.267801 - step 43 of 48 - 1000 active elements (0 deactivated)
+12:10:10 INFO: Interpolating profiles in time
+12:10:10 INFO: 2020-07-04 09:39:26.267801 - step 44 of 48 - 1000 active elements (0 deactivated)
+12:10:10 INFO: Interpolating profiles in time
+12:10:10 INFO: 2020-07-04 10:09:26.267801 - step 45 of 48 - 1000 active elements (0 deactivated)
+12:10:11 INFO: Interpolating profiles in time
+12:10:11 INFO: Wrote 5 steps to file openoil.nc
+12:10:11 INFO: 2020-07-04 10:39:26.267801 - step 46 of 48 - 1000 active elements (0 deactivated)
+12:10:11 INFO: Interpolating profiles in time
+12:10:12 INFO: 2020-07-04 11:09:26.267801 - step 47 of 48 - 1000 active elements (0 deactivated)
+12:10:13 WARNING: Invalid values (-0.0011 to -0.00049999997) found for ocean_vertical_diffusivity, replacing with NaN
+12:10:13 WARNING: (allowed range: [0, 1])
+12:10:13 WARNING: Only NaNs input to linearNDFast - returning
+12:10:13 INFO: Interpolating profiles in time
+12:10:13 INFO: 2020-07-04 11:39:26.267801 - step 48 of 48 - 1000 active elements (0 deactivated)
+12:10:13 WARNING: Only NaNs input to linearNDFast - returning
+12:10:13 INFO: Interpolating profiles in time
+12:10:13 INFO: Wrote 4 steps to file openoil.nc
 </pre></div>
 </div>
+<p>Plot results with lines and particles colored by depth</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="nb">print</span><span class="p">(</span><span class="n">o</span><span class="p">)</span>
 <span class="n">o</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">linecolor</span><span class="o">=</span><span class="s1">&#39;z&#39;</span><span class="p">,</span> <span class="n">buffer</span><span class="o">=.</span><span class="mi">1</span><span class="p">,</span> <span class="n">show_particles</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">fast</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 <span class="n">o</span><span class="o">.</span><span class="n">animation</span><span class="p">(</span><span class="n">color</span><span class="o">=</span><span class="s1">&#39;z&#39;</span><span class="p">,</span> <span class="n">buffer</span><span class="o">=.</span><span class="mi">1</span><span class="p">,</span> <span class="n">fast</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 </pre></div>
 </div>
-<img alt="OpenDrift - OceanDrift 2020-07-02 14:11 to 2020-07-03 14:11 UTC (49 steps)" class="sphx-glr-single-img" src="../_images/sphx_glr_example_depth_001.png" />
+<img alt="OpenDrift - OceanDrift 2020-07-03 12:09 to 2020-07-04 12:09 UTC (49 steps)" class="sphx-glr-single-img" src="../_images/sphx_glr_example_depth_001.png" />
 <p class="sphx-glr-script-out">Out:</p>
 <div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>===========================
 --------------------
@@ -540,31 +538,31 @@ global_landmask
  0:00:00.0  masking
 --------------------
 https://thredds.met.no/thredds/dodsC/sea/norkyst800m/1h/aggregate_be
- 0:00:36.9  total
+ 0:00:36.7  total
  0:00:00.0  preparing
- 0:00:35.9  reading
- 0:00:00.5  interpolation
+ 0:00:35.8  reading
+ 0:00:00.4  interpolation
  0:00:00.0  interpolation_time
  0:00:00.3  rotating vectors
  0:00:00.0  masking
 --------------------
 Performance:
-   48.2 total time
+   47.6 total time
     0.0 configuration
-    2.6 preparing main loop
-      2.6 making dynamical landmask
+    2.3 preparing main loop
+      2.3 making dynamical landmask
       0.0 moving elements to ocean
-     43.1 readers
+     42.7 readers
         0.0 global_landmask
         0.1 postprocessing
-   45.3 main loop
-       37.0 https://thredds.met.no/thredds/dodsC/sea/norkyst800m/1h/aggregate_be
-      1.7 updating elements
-        1.7 vertical mixing
-    0.2 cleaning up
+   44.7 main loop
+       36.8 https://thredds.met.no/thredds/dodsC/sea/norkyst800m/1h/aggregate_be
+      1.6 updating elements
+        1.6 vertical mixing
+    0.4 cleaning up
 --------------------
 ===========================
-Model:  OceanDrift     (OpenDrift version 1.3.0)
+Model:  OceanDrift     (OpenDrift version 1.3.1)
         1000 active Lagrangian3DArray particles  (0 deactivated, 0 scheduled)
 Projection: +proj=latlong
 -------------------
@@ -594,20 +592,20 @@ Readers not added for the following variables:
   turbulent_kinetic_energy
 
 Time:
-        Start: 2020-07-02 14:11:06.897711
-        Present: 2020-07-03 14:11:06.897711
+        Start: 2020-07-03 12:09:26.267801
+        Present: 2020-07-04 12:09:26.267801
         Calculation steps: 48 * 0:30:00 - total time: 1 day, 0:00:00
         Output steps: 49 * 0:30:00
 ===========================
 
-14:11:55 WARNING: plotting fast. this will make your plots less accurate.
-14:12:13 WARNING: plotting fast. this will make your plots less accurate.
-14:12:15 INFO: Saving animation to /root/project/docs/source/gallery/animations/example_depth_0.gif...
-14:12:15 INFO: Making animated gif...
+12:10:13 WARNING: plotting fast. this will make your plots less accurate.
+12:10:31 WARNING: plotting fast. this will make your plots less accurate.
+12:10:33 INFO: Saving animation to /root/project/docs/source/gallery/animations/example_depth_0.gif...
+12:10:33 INFO: Making animated gif...
 </pre></div>
 </div>
 <img alt="../_images/example_depth_0.gif" src="../_images/example_depth_0.gif" />
-<p class="sphx-glr-timing"><strong>Total running time of the script:</strong> ( 2 minutes  25.697 seconds)</p>
+<p class="sphx-glr-timing"><strong>Total running time of the script:</strong> ( 2 minutes  30.353 seconds)</p>
 <div class="sphx-glr-footer class sphx-glr-footer-example docutils container" id="sphx-glr-download-gallery-example-depth-py">
 <div class="sphx-glr-download sphx-glr-download-python docutils container">
 <p><a class="reference download internal" download="" href="../_downloads/ed8c5dfb58d36849ef47f71ec6388806/example_depth.py"><code class="xref download docutils literal notranslate"><span class="pre">Download</span> <span class="pre">Python</span> <span class="pre">source</span> <span class="pre">code:</span> <span class="pre">example_depth.py</span></code></a></p>
@@ -627,10 +625,10 @@ Time:
   
     <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
       
-        <a href="example_double_gyre_advection_schemes.html" class="btn btn-neutral float-right" title="Double gyre, advection" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+        <a href="example_long_vietnam.html" class="btn btn-neutral float-right" title="Vietnam" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
       
       
-        <a href="example_long_vietnam.html" class="btn btn-neutral float-left" title="Vietnam" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+        <a href="example_advection_schemes_eddy.html" class="btn btn-neutral float-left" title="Advection schemes" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
       
     </div>
   
