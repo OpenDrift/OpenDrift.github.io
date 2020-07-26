@@ -258,16 +258,28 @@
 
         <span class="bp">self</span><span class="o">.</span><span class="n">stokes_drift</span><span class="p">()</span>
 
-        <span class="bp">self</span><span class="o">.</span><span class="n">vertical_mixing</span><span class="p">()</span>  <span class="c1"># Including buoyancy and settling</span></div>
+        <span class="bp">self</span><span class="o">.</span><span class="n">vertical_mixing</span><span class="p">()</span>  <span class="c1"># Including buoyancy and settling</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">resuspension</span><span class="p">()</span></div>
 
 <div class="viewcode-block" id="SedimentDrift.bottom_interaction"><a class="viewcode-back" href="../../../autoapi/opendrift/models/sedimentdrift/index.html#opendrift.models.sedimentdrift.SedimentDrift.bottom_interaction">[docs]</a>    <span class="k">def</span> <span class="nf">bottom_interaction</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">seafloor_depth</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Sub method of vertical_mixing, determines settling&quot;&quot;&quot;</span>
+        <span class="c1"># Elements at or below seafloor are settled, by setting</span>
+        <span class="c1"># self.elements.moving to 0.</span>
+        <span class="c1"># These elements will not move until eventual later resuspension.</span>
+        <span class="n">settling</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">logical_and</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">elements</span><span class="o">.</span><span class="n">z</span> <span class="o">&lt;=</span> <span class="n">seafloor_depth</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">elements</span><span class="o">.</span><span class="n">moving</span><span class="o">==</span><span class="mi">1</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">settling</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;Settling </span><span class="si">%s</span><span class="s1"> elements at seafloor&#39;</span> <span class="o">%</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">settling</span><span class="p">))</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">elements</span><span class="o">.</span><span class="n">moving</span><span class="p">[</span><span class="n">settling</span><span class="p">]</span> <span class="o">=</span> <span class="mi">0</span></div>
 
-        <span class="c1"># Deactivate elements at or below seafloor.</span>
-        <span class="c1"># Later these should not be deactivated, but rather marked</span>
-        <span class="c1"># as settled, for possibly later resuspension.</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">deactivate_elements</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">elements</span><span class="o">.</span><span class="n">z</span> <span class="o">&lt;=</span> <span class="n">seafloor_depth</span><span class="p">,</span>
-                                 <span class="n">reason</span><span class="o">=</span><span class="s1">&#39;settled&#39;</span><span class="p">)</span></div></div>
+<div class="viewcode-block" id="SedimentDrift.resuspension"><a class="viewcode-back" href="../../../autoapi/opendrift/models/sedimentdrift/index.html#opendrift.models.sedimentdrift.SedimentDrift.resuspension">[docs]</a>    <span class="k">def</span> <span class="nf">resuspension</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Resuspending elements if current speed &gt; .5 m/s&quot;&quot;&quot;</span>
+        <span class="n">resuspending</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">logical_and</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">current_speed</span><span class="p">()</span><span class="o">&gt;.</span><span class="mi">5</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">elements</span><span class="o">.</span><span class="n">moving</span><span class="o">==</span><span class="mi">0</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">resuspending</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="c1"># Allow moving again</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">elements</span><span class="o">.</span><span class="n">moving</span><span class="p">[</span><span class="n">resuspending</span><span class="p">]</span> <span class="o">=</span> <span class="mi">1</span>
+            <span class="c1"># Suspend 1 cm above seafloor</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">elements</span><span class="o">.</span><span class="n">z</span><span class="p">[</span><span class="n">resuspending</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">elements</span><span class="o">.</span><span class="n">z</span><span class="p">[</span><span class="n">resuspending</span><span class="p">]</span> <span class="o">+</span> <span class="o">.</span><span class="mi">01</span></div></div>
 </pre></div>
 
            </div>
