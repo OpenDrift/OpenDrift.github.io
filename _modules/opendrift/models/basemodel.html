@@ -619,6 +619,30 @@
             <span class="bp">self</span><span class="o">.</span><span class="n">previous_lon</span><span class="p">[</span><span class="n">IDs</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">copy</span><span class="p">(</span><span class="n">lons</span><span class="p">)</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">previous_lat</span><span class="p">[</span><span class="n">IDs</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">copy</span><span class="p">(</span><span class="n">lats</span><span class="p">)</span></div>
 
+<div class="viewcode-block" id="OpenDriftSimulation.store_previous_variables"><a class="viewcode-back" href="../../../autoapi/opendrift/models/basemodel/index.html#opendrift.models.basemodel.OpenDriftSimulation.store_previous_variables">[docs]</a>    <span class="k">def</span> <span class="nf">store_previous_variables</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Store some environment variables, for access at next time step&quot;&quot;&quot;</span>
+
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">hasattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s1">&#39;store_previous&#39;</span><span class="p">):</span>
+            <span class="k">return</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">hasattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s1">&#39;variables_previous&#39;</span><span class="p">):</span>
+            <span class="c1"># Create ndarray to store previous variables</span>
+            <span class="n">dtype</span> <span class="o">=</span> <span class="p">[(</span><span class="n">var</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">float32</span><span class="p">)</span> <span class="k">for</span> <span class="n">var</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">store_previous</span><span class="p">]</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">variables_previous</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span>
+                <span class="n">np</span><span class="o">.</span><span class="n">full</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">num_elements_total</span><span class="p">(),</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span><span class="p">),</span> <span class="n">dtype</span><span class="o">=</span><span class="n">dtype</span><span class="p">)</span>
+
+        <span class="c1"># Copying variables_previous to environment_previous</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">environment_previous</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">variables_previous</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">elements</span><span class="o">.</span><span class="n">ID</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+
+        <span class="c1"># Use new values for new elements which have no previous value</span>
+        <span class="k">for</span> <span class="n">var</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">store_previous</span><span class="p">:</span>
+            <span class="n">undefined</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">isnan</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">environment_previous</span><span class="p">[</span><span class="n">var</span><span class="p">])</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">environment_previous</span><span class="p">[</span><span class="n">var</span><span class="p">][</span><span class="n">undefined</span><span class="p">]</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">environment</span><span class="p">,</span> <span class="n">var</span><span class="p">)[</span><span class="n">undefined</span><span class="p">]</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">environment_previous</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">environment_previous</span><span class="o">.</span><span class="n">view</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">recarray</span><span class="p">)</span>
+
+        <span class="k">for</span> <span class="n">var</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">store_previous</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">variables_previous</span><span class="p">[</span><span class="n">var</span><span class="p">][</span><span class="bp">self</span><span class="o">.</span><span class="n">elements</span><span class="o">.</span><span class="n">ID</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">environment</span><span class="p">,</span> <span class="n">var</span><span class="p">)</span></div>
+
 <div class="viewcode-block" id="OpenDriftSimulation.interact_with_coastline"><a class="viewcode-back" href="../../../autoapi/opendrift/models/basemodel/index.html#opendrift.models.basemodel.OpenDriftSimulation.interact_with_coastline">[docs]</a>    <span class="k">def</span> <span class="nf">interact_with_coastline</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">final</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">num_elements_active</span><span class="p">()</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
             <span class="k">return</span>
@@ -2422,6 +2446,8 @@
                                          <span class="bp">self</span><span class="o">.</span><span class="n">elements</span><span class="o">.</span><span class="n">lat</span><span class="p">,</span>
                                          <span class="bp">self</span><span class="o">.</span><span class="n">elements</span><span class="o">.</span><span class="n">z</span><span class="p">,</span>
                                          <span class="bp">self</span><span class="o">.</span><span class="n">required_profiles</span><span class="p">)</span>
+
+                <span class="bp">self</span><span class="o">.</span><span class="n">store_previous_variables</span><span class="p">()</span>
 
                 <span class="bp">self</span><span class="o">.</span><span class="n">calculate_missing_environment_variables</span><span class="p">()</span>
 
