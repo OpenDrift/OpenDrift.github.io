@@ -283,7 +283,7 @@
 
 <span class="sd">    &quot;&quot;&quot;</span>
 
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">filename</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">proj4</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">filename</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">proj4</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">standard_name_mapping</span><span class="o">=</span><span class="p">{}):</span>
 
         <span class="k">if</span> <span class="n">filename</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;Need filename as argument to constructor&#39;</span><span class="p">)</span>
@@ -303,7 +303,11 @@
                     <span class="bp">self</span><span class="o">.</span><span class="n">Dataset</span> <span class="o">=</span> <span class="n">xr</span><span class="o">.</span><span class="n">open_mfdataset</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="n">concat_dim</span><span class="o">=</span><span class="s1">&#39;time&#39;</span><span class="p">,</span> <span class="n">combine</span><span class="o">=</span><span class="s1">&#39;nested&#39;</span><span class="p">,</span>
                                                      <span class="n">decode_times</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
                 <span class="k">else</span><span class="p">:</span>
-                    <span class="bp">self</span><span class="o">.</span><span class="n">Dataset</span> <span class="o">=</span> <span class="n">MFDataset</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="n">aggdim</span><span class="o">=</span><span class="s1">&#39;time&#39;</span><span class="p">)</span>
+                    <span class="k">try</span><span class="p">:</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">Dataset</span> <span class="o">=</span> <span class="n">MFDataset</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="n">aggdim</span><span class="o">=</span><span class="s1">&#39;time&#39;</span><span class="p">)</span>
+                    <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="s1">&#39;Aggdim *time* does not exist&#39;</span><span class="p">)</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">Dataset</span> <span class="o">=</span> <span class="n">MFDataset</span><span class="p">(</span><span class="n">filename</span><span class="p">)</span>
             <span class="k">else</span><span class="p">:</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s1">&#39;Opening file with Dataset&#39;</span><span class="p">)</span>
                 <span class="k">if</span> <span class="n">has_xarray</span><span class="p">:</span>
@@ -432,16 +436,25 @@
                 <span class="k">if</span> <span class="n">has_xarray</span><span class="p">:</span>
                     <span class="n">var_data</span> <span class="o">=</span> <span class="n">var</span><span class="o">.</span><span class="n">values</span>
                 <span class="k">else</span><span class="p">:</span>
+                    <span class="n">var</span><span class="o">.</span><span class="n">set_auto_mask</span><span class="p">(</span><span class="kc">False</span><span class="p">)</span>  <span class="c1"># workaround</span>
                     <span class="n">var_data</span> <span class="o">=</span> <span class="n">var</span><span class="p">[:]</span>
                 <span class="n">time</span> <span class="o">=</span> <span class="n">var_data</span>
                 <span class="n">time_units</span> <span class="o">=</span> <span class="n">units</span>
+
+                <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">time</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">np</span><span class="o">.</span><span class="n">bytes_</span><span class="p">):</span>
+                    <span class="c1"># This hack is probably only necessary for CERSAT/GELOBCURRENT</span>
+                    <span class="n">time</span> <span class="o">=</span> <span class="p">[</span><span class="n">t</span><span class="o">.</span><span class="n">decode</span><span class="p">(</span><span class="s1">&#39;ascii&#39;</span><span class="p">)</span> <span class="k">for</span> <span class="n">t</span> <span class="ow">in</span> <span class="n">time</span><span class="p">]</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">times</span> <span class="o">=</span> <span class="p">[</span><span class="n">datetime</span><span class="o">.</span><span class="n">fromisoformat</span><span class="p">(</span><span class="n">t</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s1">&#39;Z&#39;</span><span class="p">,</span> <span class="s1">&#39;&#39;</span><span class="p">))</span> <span class="k">for</span> <span class="n">t</span> <span class="ow">in</span> <span class="n">time</span><span class="p">]</span>
+                <span class="k">elif</span> <span class="n">time</span><span class="o">.</span><span class="n">ndim</span> <span class="o">==</span> <span class="mi">2</span><span class="p">:</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">times</span> <span class="o">=</span> <span class="p">[</span><span class="n">datetime</span><span class="o">.</span><span class="n">fromisoformat</span><span class="p">(</span><span class="s1">&#39;&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">t</span><span class="p">)</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s1">&#39;Z&#39;</span><span class="p">,</span> <span class="s1">&#39;&#39;</span><span class="p">))</span> <span class="k">for</span> <span class="n">t</span> <span class="ow">in</span> <span class="n">time</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">str</span><span class="p">)]</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">times</span> <span class="o">=</span> <span class="n">num2date</span><span class="p">(</span><span class="n">time</span><span class="p">,</span> <span class="n">time_units</span><span class="p">)</span>
                 <span class="c1">#if has_xarray:</span>
                 <span class="c1">#    self.times = [datetime.utcfromtimestamp((OT -</span>
                 <span class="c1">#        np.datetime64(&#39;1970-01-01T00:00:00Z&#39;)</span>
                 <span class="c1">#            ) / np.timedelta64(1, &#39;s&#39;)) for OT in time]</span>
                 <span class="c1">#else:</span>
                 <span class="c1">#    self.times = num2date(time, time_units)</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">times</span> <span class="o">=</span> <span class="n">num2date</span><span class="p">(</span><span class="n">time</span><span class="p">,</span> <span class="n">time_units</span><span class="p">)</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">start_time</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">times</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">end_time</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">times</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
                 <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">times</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
@@ -536,6 +549,10 @@
                 <span class="n">standard_name</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">att_dict</span><span class="p">[</span><span class="s1">&#39;standard_name&#39;</span><span class="p">])</span>
                 <span class="k">if</span> <span class="n">standard_name</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">variable_aliases</span><span class="p">:</span>  <span class="c1"># Mapping if needed</span>
                     <span class="n">standard_name</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">variable_aliases</span><span class="p">[</span><span class="n">standard_name</span><span class="p">]</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">variable_mapping</span><span class="p">[</span><span class="n">standard_name</span><span class="p">]</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">var_name</span><span class="p">)</span>
+            <span class="k">elif</span> <span class="n">var_name</span> <span class="ow">in</span> <span class="n">standard_name_mapping</span><span class="p">:</span>
+                <span class="c1"># User may specify mapping if standard_name is missing</span>
+                <span class="n">standard_name</span> <span class="o">=</span> <span class="n">standard_name_mapping</span><span class="p">[</span><span class="n">var_name</span><span class="p">]</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">variable_mapping</span><span class="p">[</span><span class="n">standard_name</span><span class="p">]</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">var_name</span><span class="p">)</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">variables</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">variable_mapping</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span>
