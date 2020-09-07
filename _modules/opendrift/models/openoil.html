@@ -204,7 +204,7 @@
 <span class="sd">***********************************</span>
 <span class="sd">The vertical (and thus indirectly also the horisontal) motion of oil (droplets) is affected by oil density and droplet diameters.</span>
 
-<span class="sd">When using the NOAA oil weathering model (``o = OpenOil(weathering_model=&#39;noaa&#39;)``), which is the default, the density is obtained from the NOAA database according to the oiltype selected when seeding. This value can not be overridden by the user, and it will also change during the simulation due to oil weathering processes (evaporation and emulsification). When using the alternative (primitive) weathering model (o = OpenOil(weathering_model=&#39;basic&#39;)), the parameter &#39;density&#39; may be set when seeding (default is 880 kg/m3).</span>
+<span class="sd">When using the NOAA oil weathering model (``o = OpenOil(weathering_model=&#39;noaa&#39;)``), which is the default, the density is obtained from the NOAA database according to the oiltype selected when seeding. This value can not be overridden by the user, and it will also change during the simulation due to oil weathering processes (evaporation and emulsification).</span>
 
 <span class="sd">The droplet diameter may be given explicitly when seeding, e.g.::</span>
 
@@ -214,9 +214,10 @@
 
 <span class="sd">If a constant droplet diameter is not given by the user, it will be chosen randomly within given config limits for a subsea spill (&#39;blowout&#39;), and modified after any later wave breaking event. Oil droplets seeded under sea surface (z&lt;0) will be assigned initial diameters between the following limits, typical for a subsea blowout (Johansen, 2000)::</span>
 
-<span class="sd">    o.set_config(&#39;input:spill:droplet_diameter_min_subsea&#39;, 0.0005)  # 0.5 mm</span>
-<span class="sd">    o.set_config(&#39;input:spill:droplet_diameter_max_subsea&#39;, 0.005)   # 5 mm</span>
+<span class="sd">    o.set_config(&#39;seed:droplet_diameter_min_subsea&#39;, 0.0005)  # 0.5 mm</span>
+<span class="sd">    o.set_config(&#39;seed:droplet_diameter_max_subsea&#39;, 0.005)   # 5 mm</span>
 
+<span class="sd">Note that these config settings must be adjusted before the seeding call.</span>
 <span class="sd">After each wave breaking event, a new droplet diameter will be chosen based on the config setting for droplet size distribution.</span>
 <span class="sd">&quot;&quot;&quot;</span>
 
@@ -392,20 +393,11 @@
         <span class="s1">&#39;MARINE GAS OIL 500 ppm S 2017&#39;</span><span class="p">:</span> <span class="mf">0.1</span><span class="p">,</span>
         <span class="s1">&#39;FENJA (PIL) 2015&#39;</span><span class="p">:</span> <span class="o">.</span><span class="mi">75</span><span class="p">}</span>
 
-    <span class="c1"># Read oil types from file (presently only for illustrative effect)</span>
-    <span class="c1"># TODO: should be removed</span>
-    <span class="n">oil_types</span> <span class="o">=</span> <span class="nb">str</span><span class="p">([</span><span class="nb">str</span><span class="p">(</span><span class="n">l</span><span class="o">.</span><span class="n">strip</span><span class="p">())</span> <span class="k">for</span> <span class="n">l</span> <span class="ow">in</span> <span class="nb">open</span><span class="p">(</span>
-                    <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">realpath</span><span class="p">(</span><span class="vm">__file__</span><span class="p">))</span> <span class="o">+</span>
-                    <span class="s1">&#39;/oil_types.txt&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">readlines</span><span class="p">()])[</span><span class="mi">1</span><span class="p">:</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
-    <span class="n">default_oil</span> <span class="o">=</span> <span class="n">oil_types</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;,&#39;</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
-
-    <span class="c1"># Configuration</span>
     <span class="n">configspec</span> <span class="o">=</span> <span class="s1">&#39;&#39;&#39;</span>
-<span class="s1">        [input]</span>
-<span class="s1">            [[spill]]</span>
-<span class="s1">                oil_type = option(</span><span class="si">%s</span><span class="s1">, default=</span><span class="si">%s</span><span class="s1">)</span>
-<span class="s1">                droplet_diameter_min_subsea = float(min=1e-8, max=1, default=0.0005)</span>
-<span class="s1">                droplet_diameter_max_subsea = float(min=1e-8, max=1, default=0.005)</span>
+<span class="s1">        [seed]</span>
+<span class="s1">            m3_per_hour = float(min=0, max=1e10, default=1)</span>
+<span class="s1">            droplet_diameter_min_subsea = float(min=1e-8, max=1, default=0.0005)</span>
+<span class="s1">            droplet_diameter_max_subsea = float(min=1e-8, max=1, default=0.005)</span>
 <span class="s1">        [processes]</span>
 <span class="s1">            dispersion = boolean(default=True)</span>
 <span class="s1">            evaporation = boolean(default=True)</span>
@@ -421,12 +413,12 @@
 <span class="s1">        [wave_entrainment]</span>
 <span class="s1">            droplet_size_distribution = option(&#39;Johansen et al. (2015)&#39;, &#39;Li et al. (2017)&#39;, default=&#39;Johansen et al. (2015)&#39;)</span>
 <span class="s1">            entrainment_rate = option(&#39;Li et al. (2017)&#39;, default=&#39;Li et al. (2017)&#39;)</span>
-<span class="s1">    &#39;&#39;&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">oil_types</span><span class="p">,</span> <span class="n">default_oil</span><span class="p">)</span> 
+<span class="s1">    &#39;&#39;&#39;</span>
 
 
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">weathering_model</span><span class="o">=</span><span class="s1">&#39;noaa&#39;</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
 
-        <span class="k">if</span> <span class="n">weathering_model</span> <span class="o">==</span> <span class="s1">&#39;noaa&#39;</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">weathering_model</span> <span class="o">==</span> <span class="s1">&#39;noaa&#39;</span><span class="p">:</span>  <span class="c1"># Currently the only option</span>
             <span class="k">try</span><span class="p">:</span>
                 <span class="kn">from</span> <span class="nn">oil_library</span> <span class="kn">import</span> <span class="n">_get_db_session</span>
                 <span class="kn">from</span> <span class="nn">oil_library.models</span> <span class="kn">import</span> <span class="n">Oil</span><span class="p">,</span> <span class="n">ImportedRecord</span>
@@ -448,21 +440,6 @@
                 <span class="bp">self</span><span class="o">.</span><span class="n">oiltypes</span> <span class="o">=</span> <span class="n">session</span><span class="o">.</span><span class="n">query</span><span class="p">(</span><span class="n">Oil</span><span class="o">.</span><span class="n">name</span><span class="p">)</span><span class="o">.</span><span class="n">all</span><span class="p">()</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">oiltypes</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">([</span><span class="n">o</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="k">for</span> <span class="n">o</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">oiltypes</span><span class="p">])</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">oiltypes</span> <span class="o">=</span> <span class="p">[</span><span class="n">ot</span> <span class="k">for</span> <span class="n">ot</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">oiltypes</span> <span class="k">if</span> <span class="n">ot</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">duplicate_oils</span><span class="p">]</span>
-        <span class="k">elif</span> <span class="n">weathering_model</span><span class="o">==</span><span class="s1">&#39;basic&#39;</span><span class="p">:</span>
-            <span class="c1"># Read oil properties from file</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">oiltype_file</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">realpath</span><span class="p">(</span><span class="vm">__file__</span><span class="p">))</span> <span class="o">+</span> \
-                <span class="s1">&#39;/oilprop.dat&#39;</span>
-            <span class="n">oiltypes</span> <span class="o">=</span> <span class="p">[]</span>
-            <span class="n">linenumbers</span> <span class="o">=</span> <span class="p">[]</span>
-            <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">oiltype_file</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
-                <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">line</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">f</span><span class="p">):</span>
-                    <span class="k">if</span> <span class="n">line</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">isalpha</span><span class="p">():</span>
-                        <span class="n">oiltype</span> <span class="o">=</span> <span class="n">line</span><span class="o">.</span><span class="n">strip</span><span class="p">()[:</span><span class="o">-</span><span class="mi">2</span><span class="p">]</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
-                        <span class="n">oiltypes</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">oiltype</span><span class="p">)</span>
-                        <span class="n">linenumbers</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">i</span><span class="p">)</span>
-            <span class="n">oiltypes</span><span class="p">,</span> <span class="n">linenumbers</span> <span class="o">=</span> <span class="nb">zip</span><span class="p">(</span><span class="o">*</span><span class="nb">sorted</span><span class="p">(</span><span class="nb">zip</span><span class="p">(</span><span class="n">oiltypes</span><span class="p">,</span> <span class="n">linenumbers</span><span class="p">)))</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">oiltypes</span> <span class="o">=</span> <span class="n">oiltypes</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">oiltypes_linenumbers</span> <span class="o">=</span> <span class="n">linenumbers</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;Weathering model unknown: &#39;</span> <span class="o">+</span> <span class="n">weathering_model</span><span class="p">)</span>
 
@@ -693,25 +670,7 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">timer_start</span><span class="p">(</span><span class="s1">&#39;main loop:updating elements:oil weathering&#39;</span><span class="p">)</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">oil_weathering_model</span> <span class="o">==</span> <span class="s1">&#39;noaa&#39;</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">oil_weathering_noaa</span><span class="p">()</span>
-        <span class="k">else</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">oil_weathering_basic</span><span class="p">()</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">timer_end</span><span class="p">(</span><span class="s1">&#39;main loop:updating elements:oil weathering&#39;</span><span class="p">)</span></div>
-
-<div class="viewcode-block" id="OpenOil.oil_weathering_basic"><a class="viewcode-back" href="../../../autoapi/opendrift/models/openoil/index.html#opendrift.models.openoil.OpenOil.oil_weathering_basic">[docs]</a>    <span class="k">def</span> <span class="nf">oil_weathering_basic</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-
-        <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;Basic oil weathering&#39;</span><span class="p">)</span>
-
-        <span class="c1">## Evaporation</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">evaporate</span><span class="p">()</span>
-
-        <span class="c1"># Emulsification</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">emulsification</span><span class="p">()</span>
-
-        <span class="c1"># Dispersion</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">disperse</span><span class="p">()</span>
-
-        <span class="c1"># Biodegradation</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">biodegradation</span><span class="p">()</span></div>
 
 <div class="viewcode-block" id="OpenOil.prepare_run"><a class="viewcode-back" href="../../../autoapi/opendrift/models/openoil/index.html#opendrift.models.openoil.OpenOil.prepare_run">[docs]</a>    <span class="k">def</span> <span class="nf">prepare_run</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 
@@ -730,10 +689,7 @@
             <span class="bp">self</span><span class="o">.</span><span class="n">oil_water_interfacial_tension</span> <span class="o">=</span> \
                 <span class="bp">self</span><span class="o">.</span><span class="n">oiltype</span><span class="o">.</span><span class="n">oil_water_surface_tension</span><span class="p">()[</span><span class="mi">0</span><span class="p">]</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s1">&#39;Oil-water surface tension is </span><span class="si">%f</span><span class="s1"> Nm&#39;</span> <span class="o">%</span>
-                         <span class="bp">self</span><span class="o">.</span><span class="n">oil_water_interfacial_tension</span><span class="p">)</span>
-        <span class="k">else</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s1">&#39;Using default oil-water tension of 0.03Nm&#39;</span><span class="p">)</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">oil_water_interfacial_tension</span> <span class="o">=</span> <span class="mf">0.03</span></div>
+                         <span class="bp">self</span><span class="o">.</span><span class="n">oil_water_interfacial_tension</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="OpenOil.oil_weathering_noaa"><a class="viewcode-back" href="../../../autoapi/opendrift/models/openoil/index.html#opendrift.models.openoil.OpenOil.oil_weathering_noaa">[docs]</a>    <span class="k">def</span> <span class="nf">oil_weathering_noaa</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&#39;&#39;&#39;Oil weathering scheme adopted from NOAA PyGNOME model:</span>
@@ -1540,8 +1496,8 @@
         <span class="n">subsea</span> <span class="o">=</span> <span class="n">z</span> <span class="o">&lt;</span> <span class="mi">0</span>
         <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">subsea</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span> <span class="ow">and</span> <span class="s1">&#39;diameter&#39;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">kwargs</span><span class="p">:</span>
             <span class="c1"># Droplet min and max for particles seeded below sea surface</span>
-            <span class="n">sub_dmin</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_config</span><span class="p">(</span><span class="s1">&#39;input:spill:droplet_diameter_min_subsea&#39;</span><span class="p">)</span>
-            <span class="n">sub_dmax</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_config</span><span class="p">(</span><span class="s1">&#39;input:spill:droplet_diameter_max_subsea&#39;</span><span class="p">)</span>
+            <span class="n">sub_dmin</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_config</span><span class="p">(</span><span class="s1">&#39;seed:droplet_diameter_min_subsea&#39;</span><span class="p">)</span>
+            <span class="n">sub_dmax</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_config</span><span class="p">(</span><span class="s1">&#39;seed:droplet_diameter_max_subsea&#39;</span><span class="p">)</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s1">&#39;Using particle diameters between </span><span class="si">%s</span><span class="s1"> and </span><span class="si">%s</span><span class="s1"> m for &#39;</span>
                          <span class="s1">&#39;elements seeded below sea surface.&#39;</span> <span class="o">%</span>
                          <span class="p">(</span><span class="n">sub_dmin</span><span class="p">,</span> <span class="n">sub_dmax</span><span class="p">))</span>
@@ -1560,55 +1516,42 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">set_oiltype</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">get_config</span><span class="p">(</span><span class="s1">&#39;seed:oil_type&#39;</span><span class="p">))</span>
 
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">oil_weathering_model</span> <span class="o">==</span> <span class="s1">&#39;noaa&#39;</span><span class="p">:</span>
-            <span class="k">try</span><span class="p">:</span>  <span class="c1"># Older version of OilLibrary</span>
-                <span class="n">oil_density</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">oiltype</span><span class="o">.</span><span class="n">get_density</span><span class="p">(</span><span class="mi">285</span><span class="p">)</span>  <span class="c1"># 12 degrees</span>
-                <span class="n">oil_viscosity</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">oiltype</span><span class="o">.</span><span class="n">get_viscosity</span><span class="p">(</span><span class="mi">285</span><span class="p">)</span>
-            <span class="k">except</span><span class="p">:</span>  <span class="c1"># Newer version of OilLibrary</span>
-                <span class="n">oil_density</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">oiltype</span><span class="o">.</span><span class="n">density_at_temp</span><span class="p">(</span><span class="mi">285</span><span class="p">)</span>
-                <span class="n">oil_viscosity</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">oiltype</span><span class="o">.</span><span class="n">kvis_at_temp</span><span class="p">(</span><span class="mi">285</span><span class="p">)</span>
+            <span class="n">oil_density</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">oiltype</span><span class="o">.</span><span class="n">density_at_temp</span><span class="p">(</span><span class="mi">285</span><span class="p">)</span>
+            <span class="n">oil_viscosity</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">oiltype</span><span class="o">.</span><span class="n">kvis_at_temp</span><span class="p">(</span><span class="mi">285</span><span class="p">)</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s1">&#39;Using density </span><span class="si">%s</span><span class="s1"> and viscosity </span><span class="si">%s</span><span class="s1"> of oiltype </span><span class="si">%s</span><span class="s1">&#39;</span> <span class="o">%</span>
                          <span class="p">(</span><span class="n">oil_density</span><span class="p">,</span> <span class="n">oil_viscosity</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_config</span><span class="p">(</span><span class="s1">&#39;seed:oil_type&#39;</span><span class="p">)))</span>
             <span class="n">kwargs</span><span class="p">[</span><span class="s1">&#39;density&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">oil_density</span>
             <span class="n">kwargs</span><span class="p">[</span><span class="s1">&#39;viscosity&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">oil_viscosity</span>
 
         <span class="k">if</span> <span class="s1">&#39;m3_per_hour&#39;</span> <span class="ow">in</span> <span class="n">kwargs</span><span class="p">:</span>
-            <span class="c1"># From given volume rate, we calculate the mass per element</span>
-            <span class="n">num_elements</span> <span class="o">=</span> <span class="n">kwargs</span><span class="p">[</span><span class="s1">&#39;number&#39;</span><span class="p">]</span>
-            <span class="n">time</span> <span class="o">=</span> <span class="n">kwargs</span><span class="p">[</span><span class="s1">&#39;time&#39;</span><span class="p">]</span>
-            <span class="k">if</span> <span class="nb">type</span><span class="p">(</span><span class="n">time</span><span class="p">)</span> <span class="ow">is</span> <span class="nb">list</span><span class="p">:</span>
-                <span class="n">duration_hours</span> <span class="o">=</span> <span class="p">((</span><span class="n">time</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">-</span> <span class="n">time</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span><span class="o">.</span><span class="n">total_seconds</span><span class="p">())</span><span class="o">/</span><span class="mi">3600</span>
-                <span class="k">if</span> <span class="n">duration_hours</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
-                    <span class="n">duration_hours</span> <span class="o">=</span> <span class="mf">1.</span>
-            <span class="k">else</span><span class="p">:</span>
-                <span class="n">duration_hours</span> <span class="o">=</span> <span class="mf">1.</span>  <span class="c1"># For instantaneous spill, we use 1h</span>
-            <span class="n">kwargs</span><span class="p">[</span><span class="s1">&#39;mass_oil&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="n">kwargs</span><span class="p">[</span><span class="s1">&#39;m3_per_hour&#39;</span><span class="p">]</span><span class="o">*</span><span class="n">duration_hours</span><span class="o">/</span>
-                                  <span class="n">num_elements</span><span class="o">*</span><span class="n">kwargs</span><span class="p">[</span><span class="s1">&#39;density&#39;</span><span class="p">])</span>
+            <span class="n">m3_per_hour</span> <span class="o">=</span> <span class="n">kwargs</span><span class="p">[</span><span class="s1">&#39;m3_per_hour&#39;</span><span class="p">]</span>
             <span class="k">del</span> <span class="n">kwargs</span><span class="p">[</span><span class="s1">&#39;m3_per_hour&#39;</span><span class="p">]</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">m3_per_hour</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_config</span><span class="p">(</span><span class="s1">&#39;seed:m3_per_hour&#39;</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="s1">&#39;number&#39;</span> <span class="ow">in</span> <span class="n">kwargs</span><span class="p">:</span>
+            <span class="n">num_elements</span> <span class="o">=</span> <span class="n">kwargs</span><span class="p">[</span><span class="s1">&#39;number&#39;</span><span class="p">]</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">num_elements</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_config</span><span class="p">(</span><span class="s1">&#39;seed:number_of_elements&#39;</span><span class="p">)</span>
+        <span class="n">time</span> <span class="o">=</span> <span class="n">kwargs</span><span class="p">[</span><span class="s1">&#39;time&#39;</span><span class="p">]</span>
+        <span class="k">if</span> <span class="nb">type</span><span class="p">(</span><span class="n">time</span><span class="p">)</span> <span class="ow">is</span> <span class="nb">list</span><span class="p">:</span>
+            <span class="n">duration_hours</span> <span class="o">=</span> <span class="p">((</span><span class="n">time</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">-</span> <span class="n">time</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span><span class="o">.</span><span class="n">total_seconds</span><span class="p">())</span><span class="o">/</span><span class="mi">3600</span>
+            <span class="k">if</span> <span class="n">duration_hours</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="n">duration_hours</span> <span class="o">=</span> <span class="mf">1.</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">duration_hours</span> <span class="o">=</span> <span class="mf">1.</span>  <span class="c1"># For instantaneous spill, we use 1h</span>
+        <span class="n">kwargs</span><span class="p">[</span><span class="s1">&#39;mass_oil&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="n">m3_per_hour</span><span class="o">*</span><span class="n">duration_hours</span><span class="o">/</span>
+                              <span class="n">num_elements</span><span class="o">*</span><span class="n">kwargs</span><span class="p">[</span><span class="s1">&#39;density&#39;</span><span class="p">])</span>
 
         <span class="nb">super</span><span class="p">(</span><span class="n">OpenOil</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">seed_elements</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
 
         <span class="c1"># Add oil metadata</span>
-        <span class="k">try</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">add_metadata</span><span class="p">(</span><span class="s1">&#39;seed_oil_density&#39;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">oiltype</span><span class="o">.</span><span class="n">get_density</span><span class="p">())</span>
-            <span class="n">seed_json</span><span class="p">[</span><span class="s1">&#39;oil_density&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">oiltype</span><span class="o">.</span><span class="n">get_density</span><span class="p">()</span>
-        <span class="k">except</span><span class="p">:</span>
-            <span class="k">try</span><span class="p">:</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">add_metadata</span><span class="p">(</span><span class="s1">&#39;seed_oil_density&#39;</span><span class="p">,</span>
-                                  <span class="bp">self</span><span class="o">.</span><span class="n">oiltype</span><span class="o">.</span><span class="n">density_at_temp</span><span class="p">(</span><span class="mi">283</span><span class="p">))</span>
-                <span class="n">seed_json</span><span class="p">[</span><span class="s1">&#39;oil_density&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">oiltype</span><span class="o">.</span><span class="n">density_at_temp</span><span class="p">(</span><span class="mi">283</span><span class="p">)</span>
-            <span class="k">except</span><span class="p">:</span>
-                <span class="k">pass</span>
-        <span class="k">try</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">add_metadata</span><span class="p">(</span><span class="s1">&#39;seed_oil_viscosity&#39;</span><span class="p">,</span>
-                              <span class="bp">self</span><span class="o">.</span><span class="n">oiltype</span><span class="o">.</span><span class="n">get_viscosity</span><span class="p">(</span><span class="mi">283</span><span class="p">))</span>
-            <span class="n">seed_json</span><span class="p">[</span><span class="s1">&#39;oil_viscosity&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">oiltype</span><span class="o">.</span><span class="n">get_viscosity</span><span class="p">(</span><span class="mi">283</span><span class="p">)</span>
-        <span class="k">except</span><span class="p">:</span>
-            <span class="k">try</span><span class="p">:</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">add_metadata</span><span class="p">(</span><span class="s1">&#39;seed_oil_viscosity&#39;</span><span class="p">,</span>
-                                  <span class="bp">self</span><span class="o">.</span><span class="n">oiltype</span><span class="o">.</span><span class="n">kvis_at_temp</span><span class="p">(</span><span class="mi">283</span><span class="p">))</span>
-                <span class="n">seed_json</span><span class="p">[</span><span class="s1">&#39;oil_viscosity&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">oiltype</span><span class="o">.</span><span class="n">kvis_at_temp</span><span class="p">(</span><span class="mi">283</span><span class="p">)</span>
-            <span class="k">except</span><span class="p">:</span>
-                <span class="k">pass</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">add_metadata</span><span class="p">(</span><span class="s1">&#39;seed_oil_density&#39;</span><span class="p">,</span>
+                          <span class="bp">self</span><span class="o">.</span><span class="n">oiltype</span><span class="o">.</span><span class="n">density_at_temp</span><span class="p">(</span><span class="mi">283</span><span class="p">))</span>
+        <span class="n">seed_json</span><span class="p">[</span><span class="s1">&#39;oil_density&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">oiltype</span><span class="o">.</span><span class="n">density_at_temp</span><span class="p">(</span><span class="mi">283</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">add_metadata</span><span class="p">(</span><span class="s1">&#39;seed_oil_viscosity&#39;</span><span class="p">,</span>
+                          <span class="bp">self</span><span class="o">.</span><span class="n">oiltype</span><span class="o">.</span><span class="n">kvis_at_temp</span><span class="p">(</span><span class="mi">283</span><span class="p">))</span>
+        <span class="n">seed_json</span><span class="p">[</span><span class="s1">&#39;oil_viscosity&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">oiltype</span><span class="o">.</span><span class="n">kvis_at_temp</span><span class="p">(</span><span class="mi">283</span><span class="p">)</span>
 
         <span class="k">if</span> <span class="ow">not</span> <span class="nb">hasattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s1">&#39;seed_json&#39;</span><span class="p">):</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">seed_json</span> <span class="o">=</span> <span class="p">[]</span>
