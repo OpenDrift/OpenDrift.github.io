@@ -603,11 +603,19 @@
             <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;No Stokes drift velocity available&#39;</span><span class="p">)</span>
             <span class="k">return</span>
 
+        <span class="n">wave_height</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">significant_wave_height</span><span class="p">()</span>
+        <span class="n">wave_period</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">wave_period</span><span class="p">()</span>
+        <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">wave_height</span><span class="p">))</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;Stokes drift is available, but not Hs: using Hs=1 for Stokes profile&#39;</span><span class="p">)</span>
+            <span class="n">wave_height</span> <span class="o">=</span> <span class="mi">1</span>
+        <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">wave_period</span><span class="p">))</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;Stokes drift is available, but not Tp: using Tp=8 for Stokes profile&#39;</span><span class="p">)</span>
+            <span class="n">wave_period</span> <span class="o">=</span> <span class="mi">8</span>
+
         <span class="n">stokes_u</span><span class="p">,</span> <span class="n">stokes_v</span><span class="p">,</span> <span class="n">s</span> <span class="o">=</span> <span class="n">stokes_drift_profile_breivik</span><span class="p">(</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">environment</span><span class="o">.</span><span class="n">sea_surface_wave_stokes_drift_x_velocity</span><span class="p">,</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">environment</span><span class="o">.</span><span class="n">sea_surface_wave_stokes_drift_y_velocity</span><span class="p">,</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">significant_wave_height</span><span class="p">(),</span> <span class="bp">self</span><span class="o">.</span><span class="n">wave_period</span><span class="p">(),</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">elements</span><span class="o">.</span><span class="n">z</span><span class="p">)</span>
+            <span class="n">wave_height</span><span class="p">,</span> <span class="n">wave_period</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">elements</span><span class="o">.</span><span class="n">z</span><span class="p">)</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">update_positions</span><span class="p">(</span><span class="n">stokes_u</span><span class="o">*</span><span class="n">factor</span><span class="p">,</span> <span class="n">stokes_v</span><span class="o">*</span><span class="n">factor</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">s</span><span class="o">.</span><span class="n">min</span><span class="p">()</span> <span class="o">==</span> <span class="n">s</span><span class="o">.</span><span class="n">max</span><span class="p">():</span>
