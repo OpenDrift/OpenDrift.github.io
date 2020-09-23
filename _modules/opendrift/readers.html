@@ -166,11 +166,28 @@
            <div itemprop="articleBody">
             
   <h1>Source code for opendrift.readers</h1><div class="highlight"><pre>
-<span></span><span class="kn">import</span> <span class="nn">logging</span>
+<span></span><span class="kn">import</span> <span class="nn">importlib</span>
+<span class="kn">import</span> <span class="nn">logging</span>
 <span class="kn">import</span> <span class="nn">glob</span>
+<span class="kn">import</span> <span class="nn">json</span>
 
 <div class="viewcode-block" id="reader_from_url"><a class="viewcode-back" href="../../autoapi/opendrift/readers/index.html#opendrift.readers.reader_from_url">[docs]</a><span class="k">def</span> <span class="nf">reader_from_url</span><span class="p">(</span><span class="n">url</span><span class="p">,</span> <span class="n">timeout</span><span class="o">=</span><span class="mi">10</span><span class="p">):</span>
     <span class="sd">&#39;&#39;&#39;Make readers from URLs or paths to datasets&#39;&#39;&#39;</span>
+
+    <span class="k">try</span><span class="p">:</span>  <span class="c1"># Initialise reader from JSON string</span>
+        <span class="n">j</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">loads</span><span class="p">(</span><span class="n">url</span><span class="p">)</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">reader_module</span> <span class="o">=</span> <span class="n">importlib</span><span class="o">.</span><span class="n">import_module</span><span class="p">(</span>
+                    <span class="s1">&#39;opendrift.readers.&#39;</span> <span class="o">+</span> <span class="n">j</span><span class="p">[</span><span class="s1">&#39;reader&#39;</span><span class="p">])</span>
+            <span class="n">reader</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">reader_module</span><span class="p">,</span> <span class="s1">&#39;Reader&#39;</span><span class="p">)</span>
+            <span class="k">del</span> <span class="n">j</span><span class="p">[</span><span class="s1">&#39;reader&#39;</span><span class="p">]</span>
+            <span class="n">reader</span> <span class="o">=</span> <span class="n">reader</span><span class="p">(</span><span class="o">**</span><span class="n">j</span><span class="p">)</span>
+            <span class="k">return</span> <span class="n">reader</span>
+        <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+            <span class="n">logging</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="s1">&#39;Creating reader from JSON failed:&#39;</span><span class="p">)</span>
+            <span class="n">logging</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="n">e</span><span class="p">)</span>
+    <span class="k">except</span><span class="p">:</span>
+        <span class="k">pass</span>
 
     <span class="kn">from</span> <span class="nn">opendrift.readers</span> <span class="kn">import</span> <span class="n">reader_netCDF_CF_generic</span>
 

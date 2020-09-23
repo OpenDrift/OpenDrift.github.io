@@ -333,65 +333,6 @@
 
     <span class="k">return</span> <span class="n">o</span></div>
 
-<div class="viewcode-block" id="sensitivity_simulation"><a class="viewcode-back" href="../autoapi/opendrift/index.html#opendrift.sensitivity_simulation">[docs]</a><span class="k">def</span> <span class="nf">sensitivity_simulation</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">lon</span><span class="o">=</span><span class="mf">4.7</span><span class="p">,</span> <span class="n">lat</span><span class="o">=</span><span class="mf">60.0</span><span class="p">,</span> <span class="n">z</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">readers</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
-                           <span class="n">number</span><span class="o">=</span><span class="mi">1000</span><span class="p">,</span> <span class="n">radius</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">seed_time</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
-                           <span class="n">time_step</span><span class="o">=</span><span class="mi">3600</span><span class="p">,</span> <span class="n">time_step_output</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
-                           <span class="n">duration</span><span class="o">=</span><span class="n">timedelta</span><span class="p">(</span><span class="n">hours</span><span class="o">=</span><span class="mi">2</span><span class="p">),</span>
-                           <span class="n">filenames</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">recalculate</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
-
-    <span class="k">if</span> <span class="n">recalculate</span> <span class="ow">is</span> <span class="kc">False</span><span class="p">:</span>
-        <span class="k">try</span><span class="p">:</span>
-            <span class="n">o1</span> <span class="o">=</span> <span class="bp">cls</span><span class="p">()</span>
-            <span class="n">o1</span><span class="o">.</span><span class="n">io_import_file</span><span class="p">(</span><span class="s1">&#39;o0.nc&#39;</span><span class="p">)</span>
-            <span class="n">o2</span> <span class="o">=</span> <span class="bp">cls</span><span class="p">()</span>
-            <span class="n">o2</span><span class="o">.</span><span class="n">io_import_file</span><span class="p">(</span><span class="s1">&#39;o1.nc&#39;</span><span class="p">)</span>
-            <span class="k">return</span> <span class="n">o1</span><span class="p">,</span> <span class="n">o2</span>
-        <span class="k">except</span><span class="p">:</span>
-            <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Could not import&#39;</span><span class="p">)</span>
-    <span class="n">lon</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">atleast_1d</span><span class="p">(</span><span class="n">lon</span><span class="p">)</span>
-    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">lon</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
-        <span class="n">lon</span> <span class="o">=</span> <span class="p">[</span><span class="n">lon</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">lon</span><span class="p">[</span><span class="mi">0</span><span class="p">]]</span>
-    <span class="n">lat</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">atleast_1d</span><span class="p">(</span><span class="n">lat</span><span class="p">)</span>
-    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">lat</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
-        <span class="n">lat</span> <span class="o">=</span> <span class="p">[</span><span class="n">lat</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">lat</span><span class="p">[</span><span class="mi">0</span><span class="p">]]</span>
-    <span class="k">try</span><span class="p">:</span>
-        <span class="n">z</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
-    <span class="k">except</span><span class="p">:</span>
-        <span class="n">z</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">atleast_1d</span><span class="p">(</span><span class="n">z</span><span class="p">)</span>
-        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">z</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
-            <span class="n">z</span> <span class="o">=</span> <span class="p">[</span><span class="n">z</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">z</span><span class="p">[</span><span class="mi">0</span><span class="p">]]</span>
-
-    <span class="n">radius</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">atleast_1d</span><span class="p">(</span><span class="n">radius</span><span class="p">)</span>
-
-    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">):</span>
-        <span class="nb">print</span><span class="p">(</span><span class="n">i</span><span class="p">)</span>
-        <span class="n">o</span> <span class="o">=</span> <span class="bp">cls</span><span class="p">()</span>
-        <span class="n">o</span><span class="o">.</span><span class="n">add_readers_from_list</span><span class="p">(</span><span class="n">readers</span><span class="p">)</span>
-        <span class="k">if</span> <span class="n">seed_time</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="nb">print</span><span class="p">(</span><span class="nb">dir</span><span class="p">(</span><span class="n">o</span><span class="p">))</span>
-            <span class="nb">print</span><span class="p">(</span><span class="n">o</span><span class="o">.</span><span class="n">readers</span><span class="p">)</span>
-            <span class="nb">print</span><span class="p">(</span><span class="nb">type</span><span class="p">(</span><span class="n">o</span><span class="o">.</span><span class="n">readers</span><span class="p">))</span>
-            <span class="k">for</span> <span class="n">r</span> <span class="ow">in</span> <span class="n">o</span><span class="o">.</span><span class="n">readers</span><span class="p">:</span>
-                <span class="n">seed_time</span> <span class="o">=</span> <span class="n">o</span><span class="o">.</span><span class="n">readers</span><span class="p">[</span><span class="n">r</span><span class="p">]</span><span class="o">.</span><span class="n">start_time</span>
-                <span class="k">break</span>
-        <span class="n">o</span><span class="o">.</span><span class="n">seed_elements</span><span class="p">(</span><span class="n">lon</span><span class="o">=</span><span class="n">lon</span><span class="p">[</span><span class="n">i</span><span class="p">],</span> <span class="n">lat</span><span class="o">=</span><span class="n">lat</span><span class="p">[</span><span class="n">i</span><span class="p">],</span> <span class="n">z</span><span class="o">=</span><span class="n">z</span><span class="p">[</span><span class="n">i</span><span class="p">],</span> <span class="n">number</span><span class="o">=</span><span class="n">number</span><span class="p">,</span>
-                        <span class="n">radius</span><span class="o">=</span><span class="n">radius</span><span class="p">,</span> <span class="n">time</span><span class="o">=</span><span class="n">seed_time</span><span class="p">)</span>
-        <span class="k">if</span> <span class="n">time_step_output</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="n">time_step_output</span> <span class="o">=</span> <span class="n">time_step</span>
-        <span class="nb">print</span><span class="p">(</span><span class="n">o</span><span class="p">)</span>
-        <span class="nb">print</span><span class="p">(</span><span class="n">duration</span><span class="p">,</span> <span class="n">time_step</span><span class="p">,</span> <span class="n">time_step_output</span><span class="p">)</span>
-        <span class="c1">#stop</span>
-        <span class="n">eargs</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;outfile&#39;</span><span class="p">:</span> <span class="s1">&#39;o</span><span class="si">%d</span><span class="s1">.nc&#39;</span> <span class="o">%</span> <span class="n">i</span><span class="p">}</span>
-        <span class="n">o</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">duration</span><span class="o">=</span><span class="n">duration</span><span class="p">,</span> <span class="n">time_step</span><span class="o">=</span><span class="n">time_step</span><span class="p">,</span>
-              <span class="n">time_step_output</span><span class="o">=</span><span class="n">time_step_output</span><span class="p">,</span> <span class="o">**</span><span class="n">eargs</span><span class="p">)</span>
-        <span class="k">if</span> <span class="n">i</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
-            <span class="n">o1</span> <span class="o">=</span> <span class="n">o</span>
-        <span class="k">else</span><span class="p">:</span>
-            <span class="n">o2</span> <span class="o">=</span> <span class="n">o</span>
-
-    <span class="k">return</span> <span class="n">o1</span><span class="p">,</span> <span class="n">o2</span></div>
-
-
 <span class="c1"># Add timer for unittest</span>
 <div class="viewcode-block" id="setUp"><a class="viewcode-back" href="../autoapi/opendrift/index.html#opendrift.setUp">[docs]</a><span class="k">def</span> <span class="nf">setUp</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
     <span class="bp">self</span><span class="o">.</span><span class="n">_started_at</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
