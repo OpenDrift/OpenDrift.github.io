@@ -1433,8 +1433,13 @@
 <span class="sd">        Also assigns a unique ID to each particle, monotonically increasing.&quot;&quot;&quot;</span>
 
         <span class="c1"># prepare time</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">time</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">):</span>
+            <span class="n">time</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">time</span><span class="p">)</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">time</span><span class="p">,</span> <span class="nb">list</span><span class="p">):</span>
-            <span class="n">time</span> <span class="o">=</span> <span class="p">[</span><span class="n">time</span><span class="p">]</span><span class="o">*</span><span class="nb">len</span><span class="p">(</span><span class="n">elements</span><span class="p">)</span>  <span class="c1"># Convert to array of same length</span>
+            <span class="n">time</span> <span class="o">=</span> <span class="p">[</span><span class="n">time</span><span class="p">]</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">time</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span> <span class="ow">and</span> <span class="nb">len</span><span class="p">(</span><span class="n">elements</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="n">time</span> <span class="o">=</span> <span class="n">time</span><span class="o">*</span><span class="nb">len</span><span class="p">(</span><span class="n">elements</span><span class="p">)</span>
+
         <span class="k">if</span> <span class="ow">not</span> <span class="nb">hasattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s1">&#39;elements_scheduled&#39;</span><span class="p">):</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">elements_scheduled</span> <span class="o">=</span> <span class="n">elements</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">elements_scheduled_time</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">time</span><span class="p">)</span>
@@ -1714,22 +1719,15 @@
                 <span class="n">kwargs</span><span class="p">[</span><span class="s1">&#39;z&#39;</span><span class="p">]</span> <span class="o">=</span> \
                     <span class="o">-</span><span class="n">env</span><span class="p">[</span><span class="s1">&#39;sea_floor_depth_below_sea_level&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="s1">&#39;float32&#39;</span><span class="p">)</span> <span class="o">+</span> <span class="n">meters_above_seafloor</span>
 
-            <span class="c1"># Recursively seeding elements around each point</span>
-            <span class="n">scalarargs</span> <span class="o">=</span> <span class="p">{}</span>
+            <span class="c1"># Seeding array and returning</span>
             <span class="k">if</span> <span class="s1">&#39;time_array&#39;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="nb">locals</span><span class="p">():</span>
                 <span class="n">time_array</span> <span class="o">=</span> <span class="n">time</span>
-            <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">lon</span><span class="p">)):</span>
-                <span class="k">for</span> <span class="n">kwarg</span> <span class="ow">in</span> <span class="n">kwargs</span><span class="p">:</span>
-                    <span class="k">try</span><span class="p">:</span>
-                        <span class="n">scalarargs</span><span class="p">[</span><span class="n">kwarg</span><span class="p">]</span> <span class="o">=</span> <span class="n">kwargs</span><span class="p">[</span><span class="n">kwarg</span><span class="p">][</span><span class="n">i</span><span class="p">]</span>
-                    <span class="k">except</span><span class="p">:</span>
-                        <span class="n">scalarargs</span><span class="p">[</span><span class="n">kwarg</span><span class="p">]</span> <span class="o">=</span> <span class="n">kwargs</span><span class="p">[</span><span class="n">kwarg</span><span class="p">]</span>
-                <span class="c1"># Make sure to call seed function of base class,</span>
-                <span class="c1"># not of a specific Children class</span>
-                <span class="n">OpenDriftSimulation</span><span class="o">.</span><span class="n">seed_elements</span><span class="p">(</span>
-                    <span class="bp">self</span><span class="p">,</span> <span class="n">lon</span><span class="o">=</span><span class="p">[</span><span class="n">lon</span><span class="p">[</span><span class="n">i</span><span class="p">]],</span> <span class="n">lat</span><span class="o">=</span><span class="p">[</span><span class="n">lat</span><span class="p">[</span><span class="n">i</span><span class="p">]],</span> <span class="n">radius</span><span class="o">=</span><span class="n">radius_array</span><span class="p">[</span><span class="n">i</span><span class="p">],</span>
-                    <span class="n">number</span><span class="o">=</span><span class="nb">int</span><span class="p">(</span><span class="n">number_array</span><span class="p">[</span><span class="n">i</span><span class="p">]),</span>
-                    <span class="n">time</span><span class="o">=</span><span class="n">time_array</span><span class="p">[</span><span class="n">i</span><span class="p">],</span> <span class="n">cone</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="o">**</span><span class="n">scalarargs</span><span class="p">)</span>
+            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">time_array</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="nb">list</span><span class="p">):</span>
+                <span class="n">time_array</span> <span class="o">=</span> <span class="p">[</span><span class="n">t</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="k">for</span> <span class="n">t</span> <span class="ow">in</span> <span class="n">time_array</span><span class="p">]</span>
+
+            <span class="n">elements</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">ElementType</span><span class="p">(</span><span class="n">lon</span><span class="o">=</span><span class="n">lon</span><span class="p">,</span> <span class="n">lat</span><span class="o">=</span><span class="n">lat</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+            <span class="n">time_array</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">time_array</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">schedule_elements</span><span class="p">(</span><span class="n">elements</span><span class="p">,</span> <span class="n">time_array</span><span class="p">)</span>
             <span class="k">return</span>
 
         <span class="c1"># Below we have only for single points</span>
