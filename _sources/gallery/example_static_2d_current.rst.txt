@@ -1,0 +1,324 @@
+.. only:: html
+
+    .. note::
+        :class: sphx-glr-download-link-note
+
+        Click :ref:`here <sphx_glr_download_gallery_example_static_2d_current.py>`     to download the full example code
+    .. rst-class:: sphx-glr-example-title
+
+    .. _sphx_glr_gallery_example_static_2d_current.py:
+
+
+Static 2D current field
+=======================
+
+
+.. code-block:: default
+
+
+    from datetime import datetime, timedelta
+    import numpy as np
+
+    from opendrift.readers.reader_constant_2d import Reader
+    from opendrift.models.oceandrift import OceanDrift
+
+
+
+
+
+
+
+
+Constructing a static, rotating ocean current field, 
+
+
+.. code-block:: default
+
+    lon, lat = np.meshgrid(np.linspace(2,6,30), np.linspace(59,62,30))
+    lon0 = 4
+    lat0 = 60.5
+    u = -(lat-lat0)/np.sqrt((lon-lon0)**2 + (lat-lat0)**2)
+    v = (lon-lon0)/np.sqrt((lon-lon0)**2 + (lat-lat0)**2)
+    lon = np.linspace(0,5,30)
+    lat = np.linspace(59,62,30)
+
+    r = Reader(x=lon, y=lat, proj4='+proj=latlong',
+               array_dict = {'x_sea_water_velocity': u, 'y_sea_water_velocity': v})
+
+    o = OceanDrift(loglevel=20)
+    o.fallback_values['land_binary_mask'] = 0
+    o.add_reader(r)
+    o.seed_elements(lon=3, lat=60.5, number=1000, radius=30000, time=datetime.now())
+    o.run(duration=timedelta(hours=200))
+    o.animation(fast=True)
+
+
+
+
+
+.. rst-class:: sphx-glr-script-out
+
+ Out:
+
+ .. code-block:: none
+
+    13:27:59 INFO: OpenDriftSimulation initialised (version 1.3.3)
+    13:27:59 INFO: Config validation OK
+    13:27:59 INFO: Fallback values will be used for the following variables which have no readers: 
+    13:27:59 INFO:  x_wind: 0.000000
+    13:27:59 INFO:  y_wind: 0.000000
+    13:27:59 INFO:  upward_sea_water_velocity: 0.000000
+    13:27:59 INFO:  ocean_vertical_diffusivity: 0.000000
+    13:27:59 INFO:  sea_surface_wave_significant_height: 0.000000
+    13:27:59 INFO:  sea_surface_wave_stokes_drift_x_velocity: 0.000000
+    13:27:59 INFO:  sea_surface_wave_stokes_drift_y_velocity: 0.000000
+    13:27:59 INFO:  sea_surface_wave_period_at_variance_spectral_density_maximum: 0.000000
+    13:27:59 INFO:  sea_surface_wave_mean_period_from_variance_spectral_density_second_frequency_moment: 0.000000
+    13:27:59 INFO:  surface_downward_x_stress: 0.000000
+    13:27:59 INFO:  surface_downward_y_stress: 0.000000
+    13:27:59 INFO:  turbulent_kinetic_energy: 0.000000
+    13:27:59 INFO:  turbulent_generic_length_scale: 0.000000
+    13:27:59 INFO:  sea_floor_depth_below_sea_level: 10000.000000
+    13:27:59 INFO: 2020-10-23 13:27:59.489062 - step 1 of 200 - 1000 active elements (0 deactivated)
+    13:27:59 INFO: 2020-10-23 14:27:59.489062 - step 2 of 200 - 1000 active elements (0 deactivated)
+    13:27:59 INFO: 2020-10-23 15:27:59.489062 - step 3 of 200 - 1000 active elements (0 deactivated)
+    13:27:59 INFO: 2020-10-23 16:27:59.489062 - step 4 of 200 - 1000 active elements (0 deactivated)
+    13:27:59 INFO: 2020-10-23 17:27:59.489062 - step 5 of 200 - 1000 active elements (0 deactivated)
+    13:27:59 INFO: 2020-10-23 18:27:59.489062 - step 6 of 200 - 1000 active elements (0 deactivated)
+    13:27:59 INFO: 2020-10-23 19:27:59.489062 - step 7 of 200 - 1000 active elements (0 deactivated)
+    13:27:59 INFO: 2020-10-23 20:27:59.489062 - step 8 of 200 - 1000 active elements (0 deactivated)
+    13:27:59 INFO: 2020-10-23 21:27:59.489062 - step 9 of 200 - 1000 active elements (0 deactivated)
+    13:27:59 INFO: 2020-10-23 22:27:59.489062 - step 10 of 200 - 1000 active elements (0 deactivated)
+    13:27:59 INFO: 2020-10-23 23:27:59.489062 - step 11 of 200 - 1000 active elements (0 deactivated)
+    13:27:59 INFO: 2020-10-24 00:27:59.489062 - step 12 of 200 - 1000 active elements (0 deactivated)
+    13:27:59 INFO: 2020-10-24 01:27:59.489062 - step 13 of 200 - 1000 active elements (0 deactivated)
+    13:27:59 INFO: 2020-10-24 02:27:59.489062 - step 14 of 200 - 1000 active elements (0 deactivated)
+    13:27:59 INFO: 2020-10-24 03:27:59.489062 - step 15 of 200 - 1000 active elements (0 deactivated)
+    13:27:59 INFO: 2020-10-24 04:27:59.489062 - step 16 of 200 - 1000 active elements (0 deactivated)
+    13:27:59 INFO: 2020-10-24 05:27:59.489062 - step 17 of 200 - 1000 active elements (0 deactivated)
+    13:27:59 INFO: 2020-10-24 06:27:59.489062 - step 18 of 200 - 1000 active elements (0 deactivated)
+    13:28:00 INFO: 2020-10-24 07:27:59.489062 - step 19 of 200 - 1000 active elements (0 deactivated)
+    13:28:00 INFO: 2020-10-24 08:27:59.489062 - step 20 of 200 - 1000 active elements (0 deactivated)
+    13:28:00 INFO: 2020-10-24 09:27:59.489062 - step 21 of 200 - 1000 active elements (0 deactivated)
+    13:28:00 INFO: 2020-10-24 10:27:59.489062 - step 22 of 200 - 1000 active elements (0 deactivated)
+    13:28:00 INFO: 2020-10-24 11:27:59.489062 - step 23 of 200 - 1000 active elements (0 deactivated)
+    13:28:00 INFO: 2020-10-24 12:27:59.489062 - step 24 of 200 - 1000 active elements (0 deactivated)
+    13:28:00 INFO: 2020-10-24 13:27:59.489062 - step 25 of 200 - 1000 active elements (0 deactivated)
+    13:28:00 INFO: 2020-10-24 14:27:59.489062 - step 26 of 200 - 1000 active elements (0 deactivated)
+    13:28:00 INFO: 2020-10-24 15:27:59.489062 - step 27 of 200 - 1000 active elements (0 deactivated)
+    13:28:00 INFO: 2020-10-24 16:27:59.489062 - step 28 of 200 - 1000 active elements (0 deactivated)
+    13:28:00 INFO: 2020-10-24 17:27:59.489062 - step 29 of 200 - 1000 active elements (0 deactivated)
+    13:28:00 INFO: 2020-10-24 18:27:59.489062 - step 30 of 200 - 1000 active elements (0 deactivated)
+    13:28:00 INFO: 2020-10-24 19:27:59.489062 - step 31 of 200 - 1000 active elements (0 deactivated)
+    13:28:00 INFO: 2020-10-24 20:27:59.489062 - step 32 of 200 - 1000 active elements (0 deactivated)
+    13:28:00 INFO: 2020-10-24 21:27:59.489062 - step 33 of 200 - 1000 active elements (0 deactivated)
+    13:28:00 INFO: 2020-10-24 22:27:59.489062 - step 34 of 200 - 1000 active elements (0 deactivated)
+    13:28:00 INFO: 2020-10-24 23:27:59.489062 - step 35 of 200 - 1000 active elements (0 deactivated)
+    13:28:00 INFO: 2020-10-25 00:27:59.489062 - step 36 of 200 - 1000 active elements (0 deactivated)
+    13:28:00 INFO: 2020-10-25 01:27:59.489062 - step 37 of 200 - 1000 active elements (0 deactivated)
+    13:28:00 INFO: 2020-10-25 02:27:59.489062 - step 38 of 200 - 1000 active elements (0 deactivated)
+    13:28:00 INFO: 2020-10-25 03:27:59.489062 - step 39 of 200 - 1000 active elements (0 deactivated)
+    13:28:00 INFO: 2020-10-25 04:27:59.489062 - step 40 of 200 - 1000 active elements (0 deactivated)
+    13:28:00 INFO: 2020-10-25 05:27:59.489062 - step 41 of 200 - 1000 active elements (0 deactivated)
+    13:28:00 INFO: 2020-10-25 06:27:59.489062 - step 42 of 200 - 1000 active elements (0 deactivated)
+    13:28:00 INFO: 2020-10-25 07:27:59.489062 - step 43 of 200 - 1000 active elements (0 deactivated)
+    13:28:00 INFO: 2020-10-25 08:27:59.489062 - step 44 of 200 - 1000 active elements (0 deactivated)
+    13:28:00 INFO: 2020-10-25 09:27:59.489062 - step 45 of 200 - 1000 active elements (0 deactivated)
+    13:28:00 INFO: 2020-10-25 10:27:59.489062 - step 46 of 200 - 1000 active elements (0 deactivated)
+    13:28:00 INFO: 2020-10-25 11:27:59.489062 - step 47 of 200 - 1000 active elements (0 deactivated)
+    13:28:00 INFO: 2020-10-25 12:27:59.489062 - step 48 of 200 - 1000 active elements (0 deactivated)
+    13:28:00 INFO: 2020-10-25 13:27:59.489062 - step 49 of 200 - 1000 active elements (0 deactivated)
+    13:28:00 INFO: 2020-10-25 14:27:59.489062 - step 50 of 200 - 1000 active elements (0 deactivated)
+    13:28:00 INFO: 2020-10-25 15:27:59.489062 - step 51 of 200 - 1000 active elements (0 deactivated)
+    13:28:00 INFO: 2020-10-25 16:27:59.489062 - step 52 of 200 - 1000 active elements (0 deactivated)
+    13:28:00 INFO: 2020-10-25 17:27:59.489062 - step 53 of 200 - 1000 active elements (0 deactivated)
+    13:28:00 INFO: 2020-10-25 18:27:59.489062 - step 54 of 200 - 1000 active elements (0 deactivated)
+    13:28:00 INFO: 2020-10-25 19:27:59.489062 - step 55 of 200 - 1000 active elements (0 deactivated)
+    13:28:00 INFO: 2020-10-25 20:27:59.489062 - step 56 of 200 - 1000 active elements (0 deactivated)
+    13:28:00 INFO: 2020-10-25 21:27:59.489062 - step 57 of 200 - 1000 active elements (0 deactivated)
+    13:28:00 INFO: 2020-10-25 22:27:59.489062 - step 58 of 200 - 1000 active elements (0 deactivated)
+    13:28:00 INFO: 2020-10-25 23:27:59.489062 - step 59 of 200 - 1000 active elements (0 deactivated)
+    13:28:00 INFO: 2020-10-26 00:27:59.489062 - step 60 of 200 - 1000 active elements (0 deactivated)
+    13:28:00 INFO: 2020-10-26 01:27:59.489062 - step 61 of 200 - 1000 active elements (0 deactivated)
+    13:28:00 INFO: 2020-10-26 02:27:59.489062 - step 62 of 200 - 1000 active elements (0 deactivated)
+    13:28:00 INFO: 2020-10-26 03:27:59.489062 - step 63 of 200 - 1000 active elements (0 deactivated)
+    13:28:00 INFO: 2020-10-26 04:27:59.489062 - step 64 of 200 - 1000 active elements (0 deactivated)
+    13:28:00 INFO: 2020-10-26 05:27:59.489062 - step 65 of 200 - 1000 active elements (0 deactivated)
+    13:28:01 INFO: 2020-10-26 06:27:59.489062 - step 66 of 200 - 1000 active elements (0 deactivated)
+    13:28:01 INFO: 2020-10-26 07:27:59.489062 - step 67 of 200 - 1000 active elements (0 deactivated)
+    13:28:01 INFO: 2020-10-26 08:27:59.489062 - step 68 of 200 - 1000 active elements (0 deactivated)
+    13:28:01 INFO: 2020-10-26 09:27:59.489062 - step 69 of 200 - 1000 active elements (0 deactivated)
+    13:28:01 INFO: 2020-10-26 10:27:59.489062 - step 70 of 200 - 1000 active elements (0 deactivated)
+    13:28:01 INFO: 2020-10-26 11:27:59.489062 - step 71 of 200 - 1000 active elements (0 deactivated)
+    13:28:01 INFO: 2020-10-26 12:27:59.489062 - step 72 of 200 - 1000 active elements (0 deactivated)
+    13:28:01 INFO: 2020-10-26 13:27:59.489062 - step 73 of 200 - 1000 active elements (0 deactivated)
+    13:28:01 INFO: 2020-10-26 14:27:59.489062 - step 74 of 200 - 1000 active elements (0 deactivated)
+    13:28:01 INFO: 2020-10-26 15:27:59.489062 - step 75 of 200 - 1000 active elements (0 deactivated)
+    13:28:01 INFO: 2020-10-26 16:27:59.489062 - step 76 of 200 - 1000 active elements (0 deactivated)
+    13:28:01 INFO: 2020-10-26 17:27:59.489062 - step 77 of 200 - 1000 active elements (0 deactivated)
+    13:28:01 INFO: 2020-10-26 18:27:59.489062 - step 78 of 200 - 1000 active elements (0 deactivated)
+    13:28:01 INFO: 2020-10-26 19:27:59.489062 - step 79 of 200 - 1000 active elements (0 deactivated)
+    13:28:01 INFO: 2020-10-26 20:27:59.489062 - step 80 of 200 - 1000 active elements (0 deactivated)
+    13:28:01 INFO: 2020-10-26 21:27:59.489062 - step 81 of 200 - 1000 active elements (0 deactivated)
+    13:28:01 INFO: 2020-10-26 22:27:59.489062 - step 82 of 200 - 1000 active elements (0 deactivated)
+    13:28:01 INFO: 2020-10-26 23:27:59.489062 - step 83 of 200 - 1000 active elements (0 deactivated)
+    13:28:01 INFO: 2020-10-27 00:27:59.489062 - step 84 of 200 - 1000 active elements (0 deactivated)
+    13:28:01 INFO: 2020-10-27 01:27:59.489062 - step 85 of 200 - 1000 active elements (0 deactivated)
+    13:28:01 INFO: 2020-10-27 02:27:59.489062 - step 86 of 200 - 1000 active elements (0 deactivated)
+    13:28:01 INFO: 2020-10-27 03:27:59.489062 - step 87 of 200 - 1000 active elements (0 deactivated)
+    13:28:01 INFO: 2020-10-27 04:27:59.489062 - step 88 of 200 - 1000 active elements (0 deactivated)
+    13:28:01 INFO: 2020-10-27 05:27:59.489062 - step 89 of 200 - 1000 active elements (0 deactivated)
+    13:28:01 INFO: 2020-10-27 06:27:59.489062 - step 90 of 200 - 1000 active elements (0 deactivated)
+    13:28:01 INFO: 2020-10-27 07:27:59.489062 - step 91 of 200 - 1000 active elements (0 deactivated)
+    13:28:01 INFO: 2020-10-27 08:27:59.489062 - step 92 of 200 - 1000 active elements (0 deactivated)
+    13:28:01 INFO: 2020-10-27 09:27:59.489062 - step 93 of 200 - 1000 active elements (0 deactivated)
+    13:28:01 INFO: 2020-10-27 10:27:59.489062 - step 94 of 200 - 1000 active elements (0 deactivated)
+    13:28:01 INFO: 2020-10-27 11:27:59.489062 - step 95 of 200 - 1000 active elements (0 deactivated)
+    13:28:01 INFO: 2020-10-27 12:27:59.489062 - step 96 of 200 - 1000 active elements (0 deactivated)
+    13:28:01 INFO: 2020-10-27 13:27:59.489062 - step 97 of 200 - 1000 active elements (0 deactivated)
+    13:28:01 INFO: 2020-10-27 14:27:59.489062 - step 98 of 200 - 1000 active elements (0 deactivated)
+    13:28:01 INFO: 2020-10-27 15:27:59.489062 - step 99 of 200 - 1000 active elements (0 deactivated)
+    13:28:01 INFO: 2020-10-27 16:27:59.489062 - step 100 of 200 - 1000 active elements (0 deactivated)
+    13:28:01 INFO: 2020-10-27 17:27:59.489062 - step 101 of 200 - 1000 active elements (0 deactivated)
+    13:28:01 INFO: 2020-10-27 18:27:59.489062 - step 102 of 200 - 1000 active elements (0 deactivated)
+    13:28:01 INFO: 2020-10-27 19:27:59.489062 - step 103 of 200 - 1000 active elements (0 deactivated)
+    13:28:01 INFO: 2020-10-27 20:27:59.489062 - step 104 of 200 - 1000 active elements (0 deactivated)
+    13:28:01 INFO: 2020-10-27 21:27:59.489062 - step 105 of 200 - 1000 active elements (0 deactivated)
+    13:28:01 INFO: 2020-10-27 22:27:59.489062 - step 106 of 200 - 1000 active elements (0 deactivated)
+    13:28:01 INFO: 2020-10-27 23:27:59.489062 - step 107 of 200 - 1000 active elements (0 deactivated)
+    13:28:01 INFO: 2020-10-28 00:27:59.489062 - step 108 of 200 - 1000 active elements (0 deactivated)
+    13:28:01 INFO: 2020-10-28 01:27:59.489062 - step 109 of 200 - 1000 active elements (0 deactivated)
+    13:28:01 INFO: 2020-10-28 02:27:59.489062 - step 110 of 200 - 1000 active elements (0 deactivated)
+    13:28:01 INFO: 2020-10-28 03:27:59.489062 - step 111 of 200 - 1000 active elements (0 deactivated)
+    13:28:01 INFO: 2020-10-28 04:27:59.489062 - step 112 of 200 - 1000 active elements (0 deactivated)
+    13:28:02 INFO: 2020-10-28 05:27:59.489062 - step 113 of 200 - 1000 active elements (0 deactivated)
+    13:28:02 INFO: 2020-10-28 06:27:59.489062 - step 114 of 200 - 1000 active elements (0 deactivated)
+    13:28:02 INFO: 2020-10-28 07:27:59.489062 - step 115 of 200 - 1000 active elements (0 deactivated)
+    13:28:02 INFO: 2020-10-28 08:27:59.489062 - step 116 of 200 - 1000 active elements (0 deactivated)
+    13:28:02 INFO: 2020-10-28 09:27:59.489062 - step 117 of 200 - 1000 active elements (0 deactivated)
+    13:28:02 INFO: 2020-10-28 10:27:59.489062 - step 118 of 200 - 1000 active elements (0 deactivated)
+    13:28:02 INFO: 2020-10-28 11:27:59.489062 - step 119 of 200 - 1000 active elements (0 deactivated)
+    13:28:02 INFO: 2020-10-28 12:27:59.489062 - step 120 of 200 - 1000 active elements (0 deactivated)
+    13:28:02 INFO: 2020-10-28 13:27:59.489062 - step 121 of 200 - 1000 active elements (0 deactivated)
+    13:28:02 INFO: 2020-10-28 14:27:59.489062 - step 122 of 200 - 1000 active elements (0 deactivated)
+    13:28:02 INFO: 2020-10-28 15:27:59.489062 - step 123 of 200 - 1000 active elements (0 deactivated)
+    13:28:02 INFO: 2020-10-28 16:27:59.489062 - step 124 of 200 - 1000 active elements (0 deactivated)
+    13:28:02 INFO: 2020-10-28 17:27:59.489062 - step 125 of 200 - 1000 active elements (0 deactivated)
+    13:28:02 INFO: 2020-10-28 18:27:59.489062 - step 126 of 200 - 1000 active elements (0 deactivated)
+    13:28:02 INFO: 2020-10-28 19:27:59.489062 - step 127 of 200 - 1000 active elements (0 deactivated)
+    13:28:02 INFO: 2020-10-28 20:27:59.489062 - step 128 of 200 - 1000 active elements (0 deactivated)
+    13:28:02 INFO: 2020-10-28 21:27:59.489062 - step 129 of 200 - 1000 active elements (0 deactivated)
+    13:28:02 INFO: 2020-10-28 22:27:59.489062 - step 130 of 200 - 1000 active elements (0 deactivated)
+    13:28:02 INFO: 2020-10-28 23:27:59.489062 - step 131 of 200 - 1000 active elements (0 deactivated)
+    13:28:02 INFO: 2020-10-29 00:27:59.489062 - step 132 of 200 - 1000 active elements (0 deactivated)
+    13:28:02 INFO: 2020-10-29 01:27:59.489062 - step 133 of 200 - 1000 active elements (0 deactivated)
+    13:28:02 INFO: 2020-10-29 02:27:59.489062 - step 134 of 200 - 1000 active elements (0 deactivated)
+    13:28:02 INFO: 2020-10-29 03:27:59.489062 - step 135 of 200 - 1000 active elements (0 deactivated)
+    13:28:02 INFO: 2020-10-29 04:27:59.489062 - step 136 of 200 - 1000 active elements (0 deactivated)
+    13:28:02 INFO: 2020-10-29 05:27:59.489062 - step 137 of 200 - 1000 active elements (0 deactivated)
+    13:28:02 INFO: 2020-10-29 06:27:59.489062 - step 138 of 200 - 1000 active elements (0 deactivated)
+    13:28:02 INFO: 2020-10-29 07:27:59.489062 - step 139 of 200 - 1000 active elements (0 deactivated)
+    13:28:02 INFO: 2020-10-29 08:27:59.489062 - step 140 of 200 - 1000 active elements (0 deactivated)
+    13:28:02 INFO: 2020-10-29 09:27:59.489062 - step 141 of 200 - 1000 active elements (0 deactivated)
+    13:28:02 INFO: 2020-10-29 10:27:59.489062 - step 142 of 200 - 1000 active elements (0 deactivated)
+    13:28:02 INFO: 2020-10-29 11:27:59.489062 - step 143 of 200 - 1000 active elements (0 deactivated)
+    13:28:02 INFO: 2020-10-29 12:27:59.489062 - step 144 of 200 - 1000 active elements (0 deactivated)
+    13:28:02 INFO: 2020-10-29 13:27:59.489062 - step 145 of 200 - 1000 active elements (0 deactivated)
+    13:28:02 INFO: 2020-10-29 14:27:59.489062 - step 146 of 200 - 1000 active elements (0 deactivated)
+    13:28:02 INFO: 2020-10-29 15:27:59.489062 - step 147 of 200 - 1000 active elements (0 deactivated)
+    13:28:02 INFO: 2020-10-29 16:27:59.489062 - step 148 of 200 - 1000 active elements (0 deactivated)
+    13:28:02 INFO: 2020-10-29 17:27:59.489062 - step 149 of 200 - 1000 active elements (0 deactivated)
+    13:28:02 INFO: 2020-10-29 18:27:59.489062 - step 150 of 200 - 1000 active elements (0 deactivated)
+    13:28:02 INFO: 2020-10-29 19:27:59.489062 - step 151 of 200 - 1000 active elements (0 deactivated)
+    13:28:02 INFO: 2020-10-29 20:27:59.489062 - step 152 of 200 - 1000 active elements (0 deactivated)
+    13:28:02 INFO: 2020-10-29 21:27:59.489062 - step 153 of 200 - 1000 active elements (0 deactivated)
+    13:28:02 INFO: 2020-10-29 22:27:59.489062 - step 154 of 200 - 1000 active elements (0 deactivated)
+    13:28:02 INFO: 2020-10-29 23:27:59.489062 - step 155 of 200 - 1000 active elements (0 deactivated)
+    13:28:02 INFO: 2020-10-30 00:27:59.489062 - step 156 of 200 - 1000 active elements (0 deactivated)
+    13:28:02 INFO: 2020-10-30 01:27:59.489062 - step 157 of 200 - 1000 active elements (0 deactivated)
+    13:28:02 INFO: 2020-10-30 02:27:59.489062 - step 158 of 200 - 1000 active elements (0 deactivated)
+    13:28:02 INFO: 2020-10-30 03:27:59.489062 - step 159 of 200 - 1000 active elements (0 deactivated)
+    13:28:03 INFO: 2020-10-30 04:27:59.489062 - step 160 of 200 - 1000 active elements (0 deactivated)
+    13:28:03 INFO: 2020-10-30 05:27:59.489062 - step 161 of 200 - 1000 active elements (0 deactivated)
+    13:28:03 INFO: 2020-10-30 06:27:59.489062 - step 162 of 200 - 1000 active elements (0 deactivated)
+    13:28:03 INFO: 2020-10-30 07:27:59.489062 - step 163 of 200 - 1000 active elements (0 deactivated)
+    13:28:03 INFO: 2020-10-30 08:27:59.489062 - step 164 of 200 - 1000 active elements (0 deactivated)
+    13:28:03 INFO: 2020-10-30 09:27:59.489062 - step 165 of 200 - 1000 active elements (0 deactivated)
+    13:28:03 INFO: 2020-10-30 10:27:59.489062 - step 166 of 200 - 1000 active elements (0 deactivated)
+    13:28:03 INFO: 2020-10-30 11:27:59.489062 - step 167 of 200 - 1000 active elements (0 deactivated)
+    13:28:03 INFO: 2020-10-30 12:27:59.489062 - step 168 of 200 - 1000 active elements (0 deactivated)
+    13:28:03 INFO: 2020-10-30 13:27:59.489062 - step 169 of 200 - 1000 active elements (0 deactivated)
+    13:28:03 INFO: 2020-10-30 14:27:59.489062 - step 170 of 200 - 1000 active elements (0 deactivated)
+    13:28:03 INFO: 2020-10-30 15:27:59.489062 - step 171 of 200 - 1000 active elements (0 deactivated)
+    13:28:03 INFO: 2020-10-30 16:27:59.489062 - step 172 of 200 - 1000 active elements (0 deactivated)
+    13:28:03 INFO: 2020-10-30 17:27:59.489062 - step 173 of 200 - 1000 active elements (0 deactivated)
+    13:28:03 INFO: 2020-10-30 18:27:59.489062 - step 174 of 200 - 1000 active elements (0 deactivated)
+    13:28:03 INFO: 2020-10-30 19:27:59.489062 - step 175 of 200 - 1000 active elements (0 deactivated)
+    13:28:03 INFO: 2020-10-30 20:27:59.489062 - step 176 of 200 - 1000 active elements (0 deactivated)
+    13:28:03 INFO: 2020-10-30 21:27:59.489062 - step 177 of 200 - 1000 active elements (0 deactivated)
+    13:28:03 INFO: 2020-10-30 22:27:59.489062 - step 178 of 200 - 1000 active elements (0 deactivated)
+    13:28:03 INFO: 2020-10-30 23:27:59.489062 - step 179 of 200 - 1000 active elements (0 deactivated)
+    13:28:03 INFO: 2020-10-31 00:27:59.489062 - step 180 of 200 - 1000 active elements (0 deactivated)
+    13:28:03 INFO: 2020-10-31 01:27:59.489062 - step 181 of 200 - 1000 active elements (0 deactivated)
+    13:28:03 INFO: 2020-10-31 02:27:59.489062 - step 182 of 200 - 1000 active elements (0 deactivated)
+    13:28:03 INFO: 2020-10-31 03:27:59.489062 - step 183 of 200 - 1000 active elements (0 deactivated)
+    13:28:03 INFO: 2020-10-31 04:27:59.489062 - step 184 of 200 - 1000 active elements (0 deactivated)
+    13:28:03 INFO: 2020-10-31 05:27:59.489062 - step 185 of 200 - 1000 active elements (0 deactivated)
+    13:28:03 INFO: 2020-10-31 06:27:59.489062 - step 186 of 200 - 1000 active elements (0 deactivated)
+    13:28:03 INFO: 2020-10-31 07:27:59.489062 - step 187 of 200 - 1000 active elements (0 deactivated)
+    13:28:03 INFO: 2020-10-31 08:27:59.489062 - step 188 of 200 - 1000 active elements (0 deactivated)
+    13:28:03 INFO: 2020-10-31 09:27:59.489062 - step 189 of 200 - 1000 active elements (0 deactivated)
+    13:28:03 INFO: 2020-10-31 10:27:59.489062 - step 190 of 200 - 1000 active elements (0 deactivated)
+    13:28:03 INFO: 2020-10-31 11:27:59.489062 - step 191 of 200 - 1000 active elements (0 deactivated)
+    13:28:03 INFO: 2020-10-31 12:27:59.489062 - step 192 of 200 - 1000 active elements (0 deactivated)
+    13:28:03 INFO: 2020-10-31 13:27:59.489062 - step 193 of 200 - 1000 active elements (0 deactivated)
+    13:28:03 INFO: 2020-10-31 14:27:59.489062 - step 194 of 200 - 1000 active elements (0 deactivated)
+    13:28:03 INFO: 2020-10-31 15:27:59.489062 - step 195 of 200 - 1000 active elements (0 deactivated)
+    13:28:03 INFO: 2020-10-31 16:27:59.489062 - step 196 of 200 - 1000 active elements (0 deactivated)
+    13:28:03 INFO: 2020-10-31 17:27:59.489062 - step 197 of 200 - 1000 active elements (0 deactivated)
+    13:28:03 INFO: 2020-10-31 18:27:59.489062 - step 198 of 200 - 1000 active elements (0 deactivated)
+    13:28:03 INFO: 2020-10-31 19:27:59.489062 - step 199 of 200 - 1000 active elements (0 deactivated)
+    13:28:03 INFO: 2020-10-31 20:27:59.489062 - step 200 of 200 - 1000 active elements (0 deactivated)
+    13:28:03 WARNING: plotting fast. This will make your plots less accurate.
+    13:28:05 INFO: Saving animation to /root/project/docs/source/gallery/animations/example_static_2d_current_0.gif...
+    13:28:05 INFO: Making animated gif...
+    13:28:41 INFO: Could not save animation:
+    13:28:41 INFO: Command '['convert', '-size', '886x1100', '-depth', '8', '-delay', '10.0', '-loop', '0', 'rgba:-', '/root/project/docs/source/gallery/animations/example_static_2d_current_0.gif']' returned non-zero exit status 1.
+
+
+
+
+.. image:: /gallery/animations/example_static_2d_current.gif
+
+
+.. rst-class:: sphx-glr-timing
+
+   **Total running time of the script:** ( 0 minutes  42.130 seconds)
+
+
+.. _sphx_glr_download_gallery_example_static_2d_current.py:
+
+
+.. only :: html
+
+ .. container:: sphx-glr-footer
+    :class: sphx-glr-footer-example
+
+
+
+  .. container:: sphx-glr-download sphx-glr-download-python
+
+     :download:`Download Python source code: example_static_2d_current.py <example_static_2d_current.py>`
+
+
+
+  .. container:: sphx-glr-download sphx-glr-download-jupyter
+
+     :download:`Download Jupyter notebook: example_static_2d_current.ipynb <example_static_2d_current.ipynb>`
+
+
+.. only:: html
+
+ .. rst-class:: sphx-glr-signature
+
+    `Gallery generated by Sphinx-Gallery <https://sphinx-gallery.github.io>`_
