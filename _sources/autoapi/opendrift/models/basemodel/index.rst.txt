@@ -392,38 +392,57 @@ Classes
       Return the closest ocean points for given lon, lat
 
 
-   .. method:: seed_elements(self, lon, lat, radius=0, number=None, time=None, cone=False, radius_type='gaussian', **kwargs)
+   .. method:: seed_elements(self, lon, lat, time, radius=0, number=None, radius_type='gaussian', **kwargs)
 
-      Seed a given number of particles around given position(s).
+      Seed elements with given position(s), time and properties.
 
       Arguments:
-          lon: scalar or array, central longitude(s).
-          lat: scalar or array, central latitude(s).
-          radius: scalar or array, radius in meters around each lon-lat
-          pair, within which particles will be randomly seeded.
-
+          lon: scalar or array
+              central longitude(s).
+          lat: scalar or array
+              central latitude(s).
+          radius: scalar or array
+              radius in meters around each lon-lat pair,
+              within which particles will be randomly seeded.
           number: integer, total number of particles to be seeded
-          Elements are spread equally among the given lon/lat points.
-          Default is one particle for each lon-lat pair.
-
-          time: datenum, the time at which particles are seeded/released.
-          If time is an array with two elements, elements are seeded
-          continously from start/first to end/last time.
-
-          cone: boolean or integer. If True, lon and lat must be two element
-          arrays, interpreted as the start and end position of a cone
-          within which elements will be seeded. Radius may also be a
-          two element array specifying the radius around the points.
-
+              If number is None, the number of elements is the
+              length of lon/lat or time if these are arrays. Otherwise
+              the number of elements are obtained from the config-default.
+          time: datenum or list
+              The time at which particles are seeded/released.
+              If time is a list with two elements, elements are seeded
+              continously from start/first to end/last time.
+              If time is a list with more than two elements, the number of elements
+              is equal to len(time) and are seeded as a time series.
           radius_type: string
-          If 'gaussian' (default), the radius is the standard deviation in
-          x-y-directions. If 'uniform', elements are spread evenly and
-          always inside a circle with the given radius.
+              If 'gaussian' (default), the radius is the standard deviation in
+              x-y-directions. If 'uniform', elements are spread evenly and
+              always inside a circle with the given radius.
+          kwargs:
+              keyword arguments containing properties/attributes and
+              values corresponding to the actual particle type (ElementType).
+              These are forwarded to the ElementType class. All properties
+              for which there are no default value must be specified.
 
-          kwargs: keyword arguments containing properties/attributes and
-          values corresponding to the actual particle type (ElementType).
-          These are forwarded to the ElementType class. All properties
-          for which there are no default value must be specified.
+
+   .. method:: seed_cone(self, lon, lat, time, radius=0, number=None, **kwargs)
+
+      Seed elements along a transect/cone between two points/times
+
+      Arguments:
+          lon: scalar or list with 2 elements [lon0, lon1]
+          lat: scalar or list with 2 elements [lat0, lat]
+          time: datetime or list with 2 elements [t0, t1]
+          radius: scalar or list with 2 elements [r0, r1] Unit: meters
+          number: int
+              The number of elements. If this is None, the number of 
+              elements is taken from configuration.
+
+      Elements are seeded along a transect from
+          (lon0, lat0) with uncertainty radius r0 at time t0, towards
+          (lon1, lat1) with uncertainty radius r1 at time t1.
+          If r0 != r1, the unceetainty radius is linearly changed along
+          the transect, thus outlining a "cone".
 
 
    .. method:: seed_repeated_segment(self, lons, lats, start_time, end_time, time_interval=None, number_per_segment=None, total_number=None, **kwargs)
@@ -439,7 +458,7 @@ Classes
          Any extra elements are duplicated along at the first segment.
 
 
-   .. method:: seed_within_polygon(self, lons, lats, number, **kwargs)
+   .. method:: seed_within_polygon(self, lons, lats, number=None, **kwargs)
 
       Seed a number of elements within given polygon.
 
@@ -456,7 +475,7 @@ Classes
           for which there are no default value must be specified.
 
 
-   .. method:: seed_from_wkt(self, wkt, number, **kwargs)
+   .. method:: seed_from_wkt(self, wkt, number=None, **kwargs)
 
       Seeds elements within (multi)polygons from WKT
 

@@ -114,12 +114,12 @@
 <li class="toctree-l3"><a class="reference internal" href="../../index.html#package-contents">Package Contents</a></li>
 </ul>
 </li>
-<li class="toctree-l2"><a class="reference internal" href="../../../opendrift_plot/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">opendrift_plot</span></code></a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../../opendrift_animate/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">opendrift_animate</span></code></a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../../opendrift_animate_profile/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">opendrift_animate_profile</span></code></a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../../readerinfo/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">readerinfo</span></code></a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../../opendrift_gui/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">opendrift_gui</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../opendrift_animate_profile/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">opendrift_animate_profile</span></code></a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../../hodograph/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">hodograph</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../opendrift_plot/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">opendrift_plot</span></code></a></li>
 </ul>
 </li>
 </ul>
@@ -640,31 +640,60 @@ each of the variable_groups.</p>
 
 <dl class="py method">
 <dt id="opendrift.models.basemodel.OpenDriftSimulation.seed_elements">
-<code class="sig-name descname">seed_elements</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">self</span></em>, <em class="sig-param"><span class="n">lon</span></em>, <em class="sig-param"><span class="n">lat</span></em>, <em class="sig-param"><span class="n">radius</span><span class="o">=</span><span class="default_value">0</span></em>, <em class="sig-param"><span class="n">number</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">time</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">cone</span><span class="o">=</span><span class="default_value">False</span></em>, <em class="sig-param"><span class="n">radius_type</span><span class="o">=</span><span class="default_value">'gaussian'</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../../_modules/opendrift/models/basemodel.html#OpenDriftSimulation.seed_elements"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#opendrift.models.basemodel.OpenDriftSimulation.seed_elements" title="Permalink to this definition">¶</a></dt>
-<dd><p>Seed a given number of particles around given position(s).</p>
-<dl>
-<dt>Arguments:</dt><dd><p>lon: scalar or array, central longitude(s).
-lat: scalar or array, central latitude(s).
-radius: scalar or array, radius in meters around each lon-lat
-pair, within which particles will be randomly seeded.</p>
-<p>number: integer, total number of particles to be seeded
-Elements are spread equally among the given lon/lat points.
-Default is one particle for each lon-lat pair.</p>
-<p>time: datenum, the time at which particles are seeded/released.
-If time is an array with two elements, elements are seeded
-continously from start/first to end/last time.</p>
-<p>cone: boolean or integer. If True, lon and lat must be two element
-arrays, interpreted as the start and end position of a cone
-within which elements will be seeded. Radius may also be a
-two element array specifying the radius around the points.</p>
-<p>radius_type: string
-If ‘gaussian’ (default), the radius is the standard deviation in
+<code class="sig-name descname">seed_elements</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">self</span></em>, <em class="sig-param"><span class="n">lon</span></em>, <em class="sig-param"><span class="n">lat</span></em>, <em class="sig-param"><span class="n">time</span></em>, <em class="sig-param"><span class="n">radius</span><span class="o">=</span><span class="default_value">0</span></em>, <em class="sig-param"><span class="n">number</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">radius_type</span><span class="o">=</span><span class="default_value">'gaussian'</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../../_modules/opendrift/models/basemodel.html#OpenDriftSimulation.seed_elements"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#opendrift.models.basemodel.OpenDriftSimulation.seed_elements" title="Permalink to this definition">¶</a></dt>
+<dd><p>Seed elements with given position(s), time and properties.</p>
+<dl class="simple">
+<dt>Arguments:</dt><dd><dl class="simple">
+<dt>lon: scalar or array</dt><dd><p>central longitude(s).</p>
+</dd>
+<dt>lat: scalar or array</dt><dd><p>central latitude(s).</p>
+</dd>
+<dt>radius: scalar or array</dt><dd><p>radius in meters around each lon-lat pair,
+within which particles will be randomly seeded.</p>
+</dd>
+<dt>number: integer, total number of particles to be seeded</dt><dd><p>If number is None, the number of elements is the
+length of lon/lat or time if these are arrays. Otherwise
+the number of elements are obtained from the config-default.</p>
+</dd>
+<dt>time: datenum or list</dt><dd><p>The time at which particles are seeded/released.
+If time is a list with two elements, elements are seeded
+continously from start/first to end/last time.
+If time is a list with more than two elements, the number of elements
+is equal to len(time) and are seeded as a time series.</p>
+</dd>
+<dt>radius_type: string</dt><dd><p>If ‘gaussian’ (default), the radius is the standard deviation in
 x-y-directions. If ‘uniform’, elements are spread evenly and
 always inside a circle with the given radius.</p>
-<p>kwargs: keyword arguments containing properties/attributes and
+</dd>
+<dt>kwargs:</dt><dd><p>keyword arguments containing properties/attributes and
 values corresponding to the actual particle type (ElementType).
 These are forwarded to the ElementType class. All properties
 for which there are no default value must be specified.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="opendrift.models.basemodel.OpenDriftSimulation.seed_cone">
+<code class="sig-name descname">seed_cone</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">self</span></em>, <em class="sig-param"><span class="n">lon</span></em>, <em class="sig-param"><span class="n">lat</span></em>, <em class="sig-param"><span class="n">time</span></em>, <em class="sig-param"><span class="n">radius</span><span class="o">=</span><span class="default_value">0</span></em>, <em class="sig-param"><span class="n">number</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../../_modules/opendrift/models/basemodel.html#OpenDriftSimulation.seed_cone"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#opendrift.models.basemodel.OpenDriftSimulation.seed_cone" title="Permalink to this definition">¶</a></dt>
+<dd><p>Seed elements along a transect/cone between two points/times</p>
+<dl>
+<dt>Arguments:</dt><dd><p>lon: scalar or list with 2 elements [lon0, lon1]
+lat: scalar or list with 2 elements [lat0, lat]
+time: datetime or list with 2 elements [t0, t1]
+radius: scalar or list with 2 elements [r0, r1] Unit: meters
+number: int</p>
+<blockquote>
+<div><p>The number of elements. If this is None, the number of
+elements is taken from configuration.</p>
+</div></blockquote>
+</dd>
+<dt>Elements are seeded along a transect from</dt><dd><p>(lon0, lat0) with uncertainty radius r0 at time t0, towards
+(lon1, lat1) with uncertainty radius r1 at time t1.
+If r0 != r1, the unceetainty radius is linearly changed along
+the transect, thus outlining a “cone”.</p>
 </dd>
 </dl>
 </dd></dl>
@@ -688,7 +717,7 @@ Any extra elements are duplicated along at the first segment.</p></li>
 
 <dl class="py method">
 <dt id="opendrift.models.basemodel.OpenDriftSimulation.seed_within_polygon">
-<code class="sig-name descname">seed_within_polygon</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">self</span></em>, <em class="sig-param"><span class="n">lons</span></em>, <em class="sig-param"><span class="n">lats</span></em>, <em class="sig-param"><span class="n">number</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../../_modules/opendrift/models/basemodel.html#OpenDriftSimulation.seed_within_polygon"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#opendrift.models.basemodel.OpenDriftSimulation.seed_within_polygon" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">seed_within_polygon</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">self</span></em>, <em class="sig-param"><span class="n">lons</span></em>, <em class="sig-param"><span class="n">lats</span></em>, <em class="sig-param"><span class="n">number</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../../_modules/opendrift/models/basemodel.html#OpenDriftSimulation.seed_within_polygon"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#opendrift.models.basemodel.OpenDriftSimulation.seed_within_polygon" title="Permalink to this definition">¶</a></dt>
 <dd><p>Seed a number of elements within given polygon.</p>
 <dl>
 <dt>Arguments:</dt><dd><p>lon: array of longitudes</p>
@@ -704,7 +733,7 @@ for which there are no default value must be specified.</p>
 
 <dl class="py method">
 <dt id="opendrift.models.basemodel.OpenDriftSimulation.seed_from_wkt">
-<code class="sig-name descname">seed_from_wkt</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">self</span></em>, <em class="sig-param"><span class="n">wkt</span></em>, <em class="sig-param"><span class="n">number</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../../_modules/opendrift/models/basemodel.html#OpenDriftSimulation.seed_from_wkt"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#opendrift.models.basemodel.OpenDriftSimulation.seed_from_wkt" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">seed_from_wkt</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">self</span></em>, <em class="sig-param"><span class="n">wkt</span></em>, <em class="sig-param"><span class="n">number</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../../_modules/opendrift/models/basemodel.html#OpenDriftSimulation.seed_from_wkt"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#opendrift.models.basemodel.OpenDriftSimulation.seed_from_wkt" title="Permalink to this definition">¶</a></dt>
 <dd><p>Seeds elements within (multi)polygons from WKT</p>
 </dd></dl>
 
