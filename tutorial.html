@@ -189,7 +189,6 @@
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">opendrift.models.oceandrift</span> <span class="kn">import</span> <span class="n">OceanDrift</span>
 </pre></div>
 </div>
-<p>Make sure that the opendrift folder is in your PYTHONPATH.</p>
 <p>For Search and Rescue applications, the <a class="reference internal" href="autoapi/opendrift/models/leeway/index.html#module-opendrift.models.leeway" title="opendrift.models.leeway"><code class="xref py py-mod docutils literal notranslate"><span class="pre">Leeway</span></code></a> model (class) may be imported with the command:</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">opendrift.models.leeway</span> <span class="kn">import</span> <span class="n">Leeway</span>
 </pre></div>
@@ -274,22 +273,39 @@ Different reader classes exist for different file types. E.g. for data following
 </div>
 <img alt="https://www.dropbox.com/s/wb1ztfct47eooy0/norkyst_coverage.png?raw=1" src="https://www.dropbox.com/s/wb1ztfct47eooy0/norkyst_coverage.png?raw=1" />
 <p>The variables (e.g. wind, current…) required by a specific model are given in the list “required_variables” in the model class implementation, and may be listed by:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="nb">print</span><span class="p">(</span><span class="n">OpenOil</span><span class="o">.</span><span class="n">required_variables</span><span class="p">)</span>
-<span class="p">[</span><span class="s1">&#39;x_sea_water_velocity&#39;</span><span class="p">,</span> <span class="s1">&#39;y_sea_water_velocity&#39;</span><span class="p">,</span>
- <span class="s1">&#39;sea_surface_wave_significant_height&#39;</span><span class="p">,</span> <span class="s1">&#39;sea_surface_wave_to_direction&#39;</span><span class="p">,</span>
- <span class="s1">&#39;sea_ice_area_fraction&#39;</span><span class="p">,</span> <span class="s1">&#39;x_wind&#39;</span><span class="p">,</span> <span class="s1">&#39;y_wind&#39;</span><span class="p">,</span> <span class="s1">&#39;land_binary_mask&#39;</span><span class="p">]</span>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">pprint</span> <span class="kn">import</span> <span class="n">pprint</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">pprint</span><span class="p">(</span><span class="n">OpenOil</span><span class="o">.</span><span class="n">required_variables</span><span class="p">)</span>
+<span class="go">   {&#39;land_binary_mask&#39;: {&#39;fallback&#39;: 0},</span>
+<span class="go">    &#39;ocean_vertical_diffusivity&#39;: {&#39;fallback&#39;: 0.02,</span>
+<span class="go">                                   &#39;important&#39;: False,</span>
+<span class="go">                                   &#39;profiles&#39;: True},</span>
+<span class="go">    &#39;sea_ice_area_fraction&#39;: {&#39;fallback&#39;: 0, &#39;important&#39;: False},</span>
+<span class="go">    &#39;sea_ice_x_velocity&#39;: {&#39;fallback&#39;: 0, &#39;important&#39;: False},</span>
+<span class="go">    &#39;sea_ice_y_velocity&#39;: {&#39;fallback&#39;: 0, &#39;important&#39;: False},</span>
+<span class="go">    &#39;sea_surface_wave_mean_period_from_variance_spectral_density_second_frequency_moment&#39;: {&#39;fallback&#39;: 0,</span>
+<span class="go">                                                                                            &#39;important&#39;: False},</span>
+<span class="go">    &#39;sea_surface_wave_period_at_variance_spectral_density_maximum&#39;: {&#39;fallback&#39;: 0,</span>
+<span class="go">                                                                     &#39;important&#39;: False},</span>
+<span class="go">    &#39;sea_surface_wave_significant_height&#39;: {&#39;fallback&#39;: 0, &#39;important&#39;: False},</span>
+<span class="go">    &#39;sea_surface_wave_stokes_drift_x_velocity&#39;: {&#39;fallback&#39;: 0,</span>
+<span class="go">                                                 &#39;important&#39;: False},</span>
+<span class="go">    &#39;sea_surface_wave_stokes_drift_y_velocity&#39;: {&#39;fallback&#39;: 0,</span>
+<span class="go">                                                 &#39;important&#39;: False},</span>
+<span class="go">    &#39;sea_water_salinity&#39;: {&#39;fallback&#39;: 34, &#39;profiles&#39;: True},</span>
+<span class="go">    &#39;sea_water_temperature&#39;: {&#39;fallback&#39;: 10, &#39;profiles&#39;: True},</span>
+<span class="go">    &#39;upward_sea_water_velocity&#39;: {&#39;fallback&#39;: 0, &#39;important&#39;: False},</span>
+<span class="go">    &#39;x_sea_water_velocity&#39;: {&#39;fallback&#39;: None},</span>
+<span class="go">    &#39;x_wind&#39;: {&#39;fallback&#39;: None},</span>
+<span class="go">    &#39;y_sea_water_velocity&#39;: {&#39;fallback&#39;: None},</span>
+<span class="go">    &#39;y_wind&#39;: {&#39;fallback&#39;: None}}</span>
 </pre></div>
 </div>
 <p>Variable names follow the CF-convention, ensuring that any reader may be used by any model, although developed independently.
-It is necessary to add readers for all required variables, unless they have been given a fallback (default) value:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="nb">print</span><span class="p">(</span><span class="n">OpenOil</span><span class="o">.</span><span class="n">fallback_values</span><span class="p">)</span>
-<span class="p">{</span><span class="s1">&#39;y_wind&#39;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span> <span class="s1">&#39;sea_ice_area_fraction&#39;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span> <span class="s1">&#39;y_sea_water_velocity&#39;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>
- <span class="s1">&#39;sea_surface_wave_significant_height&#39;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span> <span class="s1">&#39;x_sea_water_velocity&#39;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>
- <span class="s1">&#39;sea_surface_wave_to_direction&#39;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span> <span class="s1">&#39;x_wind&#39;</span><span class="p">:</span> <span class="mi">0</span><span class="p">}</span>
-</pre></div>
-</div>
-<p>The fallback values will also be used for elements which move out of the coverage of a reader in space or time, if there is no other readers which provides the given variable. In the above example, all required_variables have also been given a default value (0). It is thus possible to run a simulation without providing any readers, but elements will then not move.</p>
-<p>Most applications will need a landmask, for stranding towards a coastline. A high resolution landmask may e.g. be taken from the <a class="reference external" href="https://www.soest.hawaii.edu/pwessel/gshhg/">GSHHG database</a> , which is available through a dedicated Reader class:</p>
+It is necessary to add readers for all required variables, unless they have been given a fallback (default) value which is not None.
+In the above example, it is only strictly necessary to provide readers for wind and current.
+The fallback values will be used for elements which move out of the coverage of a reader in space or time, if there is no other readers which provides the given variable.
+Variables where <cite>important</cite> is set to False will only be obtained from readers which are already available, new lazy readers will not be initialized if these are missing.
+Most applications will need a landmask, for stranding towards a coastline. A high resolution landmask may e.g. be taken from the <a class="reference external" href="https://www.soest.hawaii.edu/pwessel/gshhg/">GSHHG database</a> , which is available through a dedicated Reader class:</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">opendrift.readers</span> <span class="kn">import</span> <span class="n">reader_global_landmask</span>
 <span class="n">reader_landmask</span> <span class="o">=</span> <span class="n">reader_global_landmask</span><span class="o">.</span><span class="n">Reader</span><span class="p">(</span>
                        <span class="n">extent</span><span class="o">=</span><span class="p">[</span><span class="mi">2</span><span class="p">,</span> <span class="mi">8</span><span class="p">,</span> <span class="mi">59</span><span class="p">,</span> <span class="mi">63</span><span class="p">])</span>  <span class="c1"># lonmin, lonmax, latmin, latmax</span>
@@ -303,15 +319,7 @@ It is necessary to add readers for all required variables, unless they have been
 <p>The order will decide if several readers provide the same variable. In the above example, current will be obtained from the Reader <strong>reader_norkyst</strong> whenever possible, or else from the Reader <strong>reader_nordic</strong>. The landmask will be taken from the landmask reader since this is listed first, even if the other readers would also contain a landmask (e.g. a coarse raster used by the ocean model).</p>
 <p>When later running a simulation, the readers will first read data from file/URL, before interpolating onto the element positions. The default horizontal interpolation method is ‘LinearNDFast’, which interpolates/fill holes (e.g. islands in a coarse ocean model may appears as a large square of no values) and extrapolates towards the (GSHHG) coastline.</p>
 <p>Readers also take care of reprojecting all data from their native map projection to a common projection, which is generally necessary as different readers may have different projection. This allows OpenDrift to use raw output from ocean/wave/atmosphere models, without the need to preprocess large amounts of data. Vectors (wind, current) are also rotated to the common calculation projection. By default, the common projection is taken from the first added reader, so that data from this reader must not be reprojected/rotated.</p>
-<p>In addition to providing variables interpolated to the element positions, readers may also provide vertical profiles (e.g. from a 3D ocean model) at the positions of all elements, if <code class="docutils literal notranslate"><span class="pre">required_profiles</span></code> has been specified in the model. E.g. from the model <a class="reference internal" href="autoapi/opendrift/models/pelagicegg/index.html#module-opendrift.models.pelagicegg" title="opendrift.models.pelagicegg"><code class="xref py py-mod docutils literal notranslate"><span class="pre">opendrift.models.pelagicegg</span></code></a>:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">required_profiles</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;sea_water_temperature&#39;</span><span class="p">,</span>
-                     <span class="s1">&#39;sea_water_salinity&#39;</span><span class="p">,</span>
-                     <span class="s1">&#39;ocean_vertical_diffusivity&#39;</span><span class="p">]</span>
-<span class="n">required_profiles_z_range</span> <span class="o">=</span> <span class="p">[</span><span class="o">-</span><span class="mi">120</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span>  <span class="c1"># The depth range (in m) which</span>
-                                       <span class="c1"># profiles shall cover</span>
-</pre></div>
-</div>
-<p>Vertical profiles may be used by the model (<code class="docutils literal notranslate"><span class="pre">update()</span></code> function) to calculate vertical mixing. See <a class="reference internal" href="gallery/example_codegg.html"><span class="doc">Cod egg</span></a> for a demonstration.</p>
+<p>In addition to providing variables interpolated to the element positions, readers will also provide vertical profiles (e.g. from a 3D ocean model) at all positions for variables where <code class="docutils literal notranslate"><span class="pre">profiles</span></code> is <code class="docutils literal notranslate"><span class="pre">True</span></code> in the variable listing above. Profiles are here obtained for salinity, temperature and diffusivity, as these are used for the vertical mixing algorithm. See <a class="reference internal" href="gallery/example_vertical_mixing.html"><span class="doc">Vertical mixing</span></a> for a demonstration.</p>
 <div class="section" id="lazy-readers">
 <h3>2.1 Lazy Readers<a class="headerlink" href="#lazy-readers" title="Permalink to this headline">¶</a></h3>
 <p>For an operational setup, it is convenient to have a long priority list of available readers/sources, to be sure that the desired location and time is covered by forcing data. However, initialising all readers before the simulation starts may then take some time, especially if the list of readers include some slow or potentially hanging Thredds servers.
@@ -380,15 +388,14 @@ By default, elements are seeded at the surface (z=0), but the depth may be given
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">o</span><span class="o">.</span><span class="n">elements_scheduled</span>
 </pre></div>
 </div>
-<p>Elements may be seeded along a line (or cone) between two points by specifying <code class="docutils literal notranslate"><span class="pre">cone=True</span></code>. lon and lat must then be two element arrays, indicating start and end points. An uncertainty radius may also be given as a two element array, thus tracing out a cone (where a line is a special case with same radius at both ends):</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">o</span><span class="o">.</span><span class="n">seed_elements</span><span class="p">(</span><span class="n">lon</span><span class="o">=</span><span class="p">[</span><span class="mi">4</span><span class="p">,</span> <span class="mf">4.8</span><span class="p">],</span> <span class="n">lat</span><span class="o">=</span><span class="p">[</span><span class="mi">60</span><span class="p">,</span> <span class="mi">61</span><span class="p">],</span> <span class="n">number</span><span class="o">=</span><span class="mi">1000</span><span class="p">,</span> <span class="n">radius</span><span class="o">=</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">5000</span><span class="p">],</span>
-                <span class="n">cone</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">time</span><span class="o">=</span><span class="n">reader_norkyst</span><span class="o">.</span><span class="n">start_time</span><span class="p">)</span>
+<p>Elements may be seeded along a line (or cone) between two points by using the method <code class="docutils literal notranslate"><span class="pre">seed_cone</span></code>. Lon and lat must then be two element arrays, indicating start and end points. An uncertainty radius may also be given as a two element array, thus tracing out a cone (where a line is a special case with same radius at both ends):</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">o</span><span class="o">.</span><span class="n">seed_cone</span><span class="p">(</span><span class="n">lon</span><span class="o">=</span><span class="p">[</span><span class="mi">4</span><span class="p">,</span> <span class="mf">4.8</span><span class="p">],</span> <span class="n">lat</span><span class="o">=</span><span class="p">[</span><span class="mi">60</span><span class="p">,</span> <span class="mi">61</span><span class="p">],</span> <span class="n">number</span><span class="o">=</span><span class="mi">1000</span><span class="p">,</span> <span class="n">radius</span><span class="o">=</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">5000</span><span class="p">],</span>
+            <span class="n">time</span><span class="o">=</span><span class="n">reader_norkyst</span><span class="o">.</span><span class="n">start_time</span><span class="p">)</span>
 </pre></div>
 </div>
 <p>If time is also given as a two element list (of datetime objects), elements are seeded linearly in time (here over a 5 hour interval):</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">o</span><span class="o">.</span><span class="n">seed_elements</span><span class="p">(</span><span class="n">lon</span><span class="o">=</span><span class="p">[</span><span class="mi">4</span><span class="p">,</span> <span class="mf">4.8</span><span class="p">],</span> <span class="n">lat</span><span class="o">=</span><span class="p">[</span><span class="mi">60</span><span class="p">,</span> <span class="mi">61</span><span class="p">],</span>
-                <span class="n">number</span><span class="o">=</span><span class="mi">1000</span><span class="p">,</span> <span class="n">radius</span><span class="o">=</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">5000</span><span class="p">],</span> <span class="n">cone</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
-                <span class="n">time</span><span class="o">=</span><span class="p">[</span><span class="n">norkyst</span><span class="o">.</span><span class="n">start_time</span><span class="p">,</span> <span class="n">norkyst</span><span class="o">.</span><span class="n">start_time</span><span class="o">+</span><span class="n">timedelta</span><span class="p">(</span><span class="n">hours</span><span class="o">=</span><span class="mi">5</span><span class="p">)])</span>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">o</span><span class="o">.</span><span class="n">seed_cone</span><span class="p">(</span><span class="n">lon</span><span class="o">=</span><span class="p">[</span><span class="mi">4</span><span class="p">,</span> <span class="mf">4.8</span><span class="p">],</span> <span class="n">lat</span><span class="o">=</span><span class="p">[</span><span class="mi">60</span><span class="p">,</span> <span class="mi">61</span><span class="p">],</span> <span class="n">number</span><span class="o">=</span><span class="mi">1000</span><span class="p">,</span> <span class="n">radius</span><span class="o">=</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">5000</span><span class="p">],</span>
+            <span class="n">time</span><span class="o">=</span><span class="p">[</span><span class="n">norkyst</span><span class="o">.</span><span class="n">start_time</span><span class="p">,</span> <span class="n">norkyst</span><span class="o">.</span><span class="n">start_time</span><span class="o">+</span><span class="n">timedelta</span><span class="p">(</span><span class="n">hours</span><span class="o">=</span><span class="mi">5</span><span class="p">)])</span>
 </pre></div>
 </div>
 <p>Specific OpenDrift models may have additional seed-functions. E.g. <a class="reference internal" href="autoapi/opendrift/models/openoil/index.html#module-opendrift.models.openoil" title="opendrift.models.openoil"><code class="xref py py-mod docutils literal notranslate"><span class="pre">opendrift.models.openoil</span></code></a> contains a function (seed_from_gml) to seed oil elements within contours from satellite detected oil slicks read from a GML-file. The Leeway model overloads the generic seed_elements function since it needs to read some object properties from a text-file.</p>
@@ -407,11 +414,11 @@ By default, elements are seeded at the surface (z=0), but the depth may be given
 </div>
 <p>This example specifies that the Runge-Kutta propagation scheme shall be used for the run, instead of the default Euler-scheme.</p>
 <p>The following command specifies that the elements at the ocean surface shall drift with 2 % of the wind speed (in addition to the current):</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">o</span><span class="o">.</span><span class="n">set_config</span><span class="p">(</span><span class="s1">&#39;drift:wind_drift_factor&#39;</span><span class="p">,</span> <span class="o">.</span><span class="mi">02</span><span class="p">)</span>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">o</span><span class="o">.</span><span class="n">set_config</span><span class="p">(</span><span class="s1">&#39;seed:wind_drift_factor&#39;</span><span class="p">,</span> <span class="o">.</span><span class="mi">02</span><span class="p">)</span>
 </pre></div>
 </div>
 <p>The configuration value is retrieved by:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">wind_drift_factor</span> <span class="o">=</span> <span class="n">o</span><span class="o">.</span><span class="n">get_config</span><span class="p">(</span><span class="s1">&#39;drift:wind_drift_factor&#39;</span><span class="p">)</span>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">wind_drift_factor</span> <span class="o">=</span> <span class="n">o</span><span class="o">.</span><span class="n">get_config</span><span class="p">(</span><span class="s1">&#39;seed:wind_drift_factor&#39;</span><span class="p">)</span>
 </pre></div>
 </div>
 <p>See the example-files for more examples of configuration.</p>
