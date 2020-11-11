@@ -204,14 +204,23 @@
 <span class="kn">from</span> <span class="nn">opendrift.models.oceandrift</span> <span class="kn">import</span> <span class="n">Lagrangian3DArray</span>
 
 <div class="viewcode-block" id="TemplateElementType"><a class="viewcode-back" href="../../../autoapi/opendrift/models/model_template/index.html#opendrift.models.model_template.TemplateElementType">[docs]</a><span class="k">class</span> <span class="nc">TemplateElementType</span><span class="p">(</span><span class="n">Lagrangian3DArray</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Extending LagrangianArray with relevant properties.</span>
+    <span class="sd">&quot;&quot;&quot;Extending LagrangianArray with relevant properties.&quot;&quot;&quot;</span>
 
-<span class="sd">    Define and name the properties which the elements shall have.</span>
-<span class="sd">    These are added to the inherited properties (e.g. from OceanDrift)</span>
-<span class="sd">    Property names may be freely chosen, but the &quot;update&quot; function (below)</span>
-<span class="sd">    will refer to the names in the specifications of the processes.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="c1"># Define and name the properties which the elements shall have.</span>
+    <span class="c1"># These are added to the inherited properties (e.g. from OceanDrift)</span>
+    <span class="c1"># Property names may be freely chosen, but the &quot;update&quot; function (below)</span>
+    <span class="c1"># will refer to the names in the specifications of the processes.</span>
+    <span class="c1">#</span>
+    <span class="c1"># The &quot;default&quot; value is used for alle elements, unless a custom</span>
+    <span class="c1"># value is provided at time of seeding:</span>
+    <span class="c1"># o.seed_elements(......., &lt;property&gt;=&lt;value&gt;)</span>
+    <span class="c1">#</span>
+    <span class="c1"># The default value can also be updated by the user</span>
+    <span class="c1"># before seeding with the config mechanism:</span>
+    <span class="c1"># o.set_config(&#39;seed:&lt;property&gt;&#39;, &lt;new default value&gt;)</span>
+    <span class="c1">#</span>
+    <span class="c1"># The &quot;units&quot; attribute is used for labeling.</span>
+
     <span class="n">variables</span> <span class="o">=</span> <span class="n">Lagrangian3DArray</span><span class="o">.</span><span class="n">add_variables</span><span class="p">([</span>
         <span class="p">(</span><span class="s1">&#39;new_property_1&#39;</span><span class="p">,</span> <span class="p">{</span><span class="s1">&#39;dtype&#39;</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">float32</span><span class="p">,</span>
                             <span class="s1">&#39;units&#39;</span><span class="p">:</span> <span class="s1">&#39;1&#39;</span><span class="p">,</span>
@@ -230,7 +239,7 @@
 <span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="c1"># Specify which element/particle type (class) to be used by this model.</span>
-    <span class="c1"># Presently, a model can have/use only one element type</span>
+    <span class="c1"># A model can have/use only one element type</span>
     <span class="n">ElementType</span> <span class="o">=</span> <span class="n">TemplateElementType</span>
 
     <span class="c1"># Specify which environment variables (e.g. wind, waves, currents...)</span>
@@ -243,89 +252,135 @@
     <span class="n">required_variables</span> <span class="o">=</span> <span class="p">{</span>
         <span class="s1">&#39;x_sea_water_velocity&#39;</span><span class="p">:</span> <span class="p">{</span><span class="s1">&#39;fallback&#39;</span><span class="p">:</span> <span class="mi">0</span><span class="p">},</span>
         <span class="s1">&#39;y_sea_water_velocity&#39;</span><span class="p">:</span> <span class="p">{</span><span class="s1">&#39;fallback&#39;</span><span class="p">:</span> <span class="mi">0</span><span class="p">},</span>
-        <span class="s1">&#39;x_wind&#39;</span><span class="p">:</span> <span class="p">{</span><span class="s1">&#39;fallback&#39;</span><span class="p">:</span> <span class="mi">0</span><span class="p">},</span>
-        <span class="s1">&#39;y_wind&#39;</span><span class="p">:</span> <span class="p">{</span><span class="s1">&#39;fallback&#39;</span><span class="p">:</span> <span class="mi">0</span><span class="p">},</span>
+        <span class="s1">&#39;x_wind&#39;</span><span class="p">:</span> <span class="p">{</span><span class="s1">&#39;fallback&#39;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span> <span class="s1">&#39;important&#39;</span><span class="p">:</span> <span class="kc">False</span><span class="p">},</span>
+        <span class="s1">&#39;y_wind&#39;</span><span class="p">:</span> <span class="p">{</span><span class="s1">&#39;fallback&#39;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span> <span class="s1">&#39;important&#39;</span><span class="p">:</span> <span class="kc">False</span><span class="p">},</span>
+        <span class="s1">&#39;ocean_vertical_diffusivity&#39;</span><span class="p">:</span> <span class="p">{</span><span class="s1">&#39;fallback&#39;</span><span class="p">:</span> <span class="mf">0.02</span><span class="p">,</span> <span class="s1">&#39;important&#39;</span><span class="p">:</span> <span class="kc">False</span><span class="p">,</span> <span class="s1">&#39;profiles&#39;</span><span class="p">:</span> <span class="kc">True</span><span class="p">},</span>
         <span class="s1">&#39;land_binary_mask&#39;</span><span class="p">:</span> <span class="p">{</span><span class="s1">&#39;fallback&#39;</span><span class="p">:</span> <span class="kc">None</span><span class="p">},</span>
         <span class="p">}</span>
-    <span class="c1"># Default (fallback) numerical values may be specified.</span>
-    <span class="c1"># These values will be used for particles outside of the</span>
-    <span class="c1"># spatial or tempoaral domain of all the available readers,</span>
+    <span class="c1"># Default (fallback) numerical values will be used for particles </span>
+    <span class="c1"># outside of the spatial or tempoaral domain of all the available readers,</span>
     <span class="c1"># or if no readers are given for the specific variables.</span>
-
+    <span class="c1"># If the fallback value is None, this means that simulation will</span>
+    <span class="c1"># not run unless a reader has been added to provide this variable.</span>
+    <span class="c1"># The attribute *important&#39; relates to the concept of Lazy readers:</span>
+    <span class="c1"># https://opendrift.github.io/tutorial.html#lazy-readers</span>
+    <span class="c1"># Lazy readers will be initialized successively until there are active</span>
+    <span class="c1"># readers for all variables, except for variables which are</span>
+    <span class="c1"># marked as not important, as for wind in the example above.</span>
+    <span class="c1"># If the attribute &#39;profiles&#39; is True for a variable (as for</span>
+    <span class="c1"># ocean_vertical_diffusivity in the example above), a vertical profile</span>
+    <span class="c1"># of this variable is obtained over the vertical depth interval as </span>
+    <span class="c1"># defined below. These profiles are used for the vertical turbulence scheme:</span>
+    <span class="c1"># https://opendrift.github.io/_modules/opendrift/models/oceandrift.html#OceanDrift.vertical_mixing</span>
+    <span class="c1"># Profiles are typically required for ocean_vertical_diffusivity, and sometimes for </span>
+    <span class="c1"># salinity and temperature in order to calculate the stratification.</span>
+    <span class="n">required_profiles_z_range</span> <span class="o">=</span> <span class="p">[</span><span class="o">-</span><span class="mi">50</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span>
+    
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
 
-<span class="sd">        Here any preprocessing and initialisation of a simulation</span>
-<span class="sd">        may be performed, e.g. importing external data from file.</span>
+        <span class="c1"># Here any preprocessing and initialisation of a simulation</span>
+        <span class="c1"># may be performed, e.g. importing external data from file.</span>
 
-<span class="sd">        .. code::</span>
-
-<span class="sd">            print(&#39;preprocessing...&#39;)</span>
-
-<span class="sd">        Constructor of parent class must always be called</span>
-<span class="sd">        to perform some necessary common initialisation tasks</span>
-
-<span class="sd">        .. code::</span>
-<span class="sd">            super(ModelTemplate, self).__init__(*args, **kwargs)</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># The constructor of parent class must always be called</span>
+        <span class="c1"># to perform some necessary common initialisation tasks:</span>
         <span class="nb">super</span><span class="p">(</span><span class="n">ModelTemplate</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+            
+        <span class="c1"># The above initialisation includes adding common config options.</span>
+        <span class="c1"># Further config options specific to this subclass can be</span>
+        <span class="c1"># added with the following method (example options below from OpenOil):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_add_config</span><span class="p">({</span>
+            <span class="s1">&#39;seed:m3_per_hour&#39;</span><span class="p">:</span> <span class="p">{</span><span class="s1">&#39;type&#39;</span><span class="p">:</span> <span class="s1">&#39;float&#39;</span><span class="p">,</span> <span class="s1">&#39;default&#39;</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span>
+                <span class="s1">&#39;min&#39;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span> <span class="s1">&#39;max&#39;</span><span class="p">:</span> <span class="mf">1e10</span><span class="p">,</span> <span class="s1">&#39;units&#39;</span><span class="p">:</span> <span class="s1">&#39;m3 per hour&#39;</span><span class="p">,</span>
+                <span class="s1">&#39;description&#39;</span><span class="p">:</span> <span class="s1">&#39;The amount (volume) of oil released per hour (or total amount if release is instantaneous)&#39;</span><span class="p">,</span>
+                <span class="s1">&#39;level&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">CONFIG_LEVEL_ESSENTIAL</span><span class="p">},</span>
+            <span class="s1">&#39;seed:droplet_diameter_min_subsea&#39;</span><span class="p">:</span> <span class="p">{</span><span class="s1">&#39;type&#39;</span><span class="p">:</span> <span class="s1">&#39;float&#39;</span><span class="p">,</span> <span class="s1">&#39;default&#39;</span><span class="p">:</span> <span class="mf">0.0005</span><span class="p">,</span>
+                <span class="s1">&#39;min&#39;</span><span class="p">:</span> <span class="mf">1e-8</span><span class="p">,</span> <span class="s1">&#39;max&#39;</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span> <span class="s1">&#39;units&#39;</span><span class="p">:</span> <span class="s1">&#39;meters&#39;</span><span class="p">,</span>
+                <span class="s1">&#39;description&#39;</span><span class="p">:</span> <span class="s1">&#39;The minimum dimaeter of oil droplet for a subsea release.&#39;</span><span class="p">,</span>
+                <span class="s1">&#39;level&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">CONFIG_LEVEL_BASIC</span><span class="p">},</span>
+            <span class="s1">&#39;processes:dispersion&#39;</span><span class="p">:</span> <span class="p">{</span><span class="s1">&#39;type&#39;</span><span class="p">:</span> <span class="s1">&#39;bool&#39;</span><span class="p">,</span> <span class="s1">&#39;default&#39;</span><span class="p">:</span> <span class="kc">True</span><span class="p">,</span>
+                <span class="s1">&#39;description&#39;</span><span class="p">:</span> <span class="s1">&#39;Oil is removed from simulation (dispersed), if entrained as very small droplets.&#39;</span><span class="p">,</span>
+                <span class="s1">&#39;level&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">CONFIG_LEVEL_BASIC</span><span class="p">},</span>
+            <span class="s1">&#39;wave_entrainment:droplet_size_distribution&#39;</span><span class="p">:</span> <span class="p">{</span><span class="s1">&#39;type&#39;</span><span class="p">:</span> <span class="s1">&#39;enum&#39;</span><span class="p">,</span> <span class="s1">&#39;enum&#39;</span><span class="p">:</span> <span class="p">[</span><span class="s1">&#39;Johansen et al. (2015)&#39;</span><span class="p">,</span> <span class="s1">&#39;Li et al. (2017)&#39;</span><span class="p">],</span> <span class="s1">&#39;default&#39;</span><span class="p">:</span> <span class="s1">&#39;Johansen et al. (2015)&#39;</span><span class="p">,</span>
+                <span class="s1">&#39;level&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">CONFIG_LEVEL_ADVANCED</span><span class="p">,</span> <span class="s1">&#39;description&#39;</span><span class="p">:</span>
+                <span class="s1">&#39;Algorithm to be used for calculating oil droplet size spectrum after entrainment by breaking waves.&#39;</span><span class="p">},</span>
+           <span class="p">})</span>
+        
+        <span class="c1"># The _add_config method takes a dictionary where keys are config settings,</span>
+        <span class="c1"># which can be adjusted by the user by:</span>
+        <span class="c1"># &gt;&gt;&gt; o.set_config(key, value)</span>
+        <span class="c1"># and whose actual value is obtained during the simulation (*update* method below) by</span>
+        <span class="c1"># value = o.get_config(key)</span>
+        <span class="c1"># The config keys have a colon (:) separator for logical grouping into categories.</span>
+        <span class="c1"># The config specification above has the following items:</span>
+        <span class="c1"># - type: one of [&#39;float&#39;, &#39;int&#39;, &#39;bool&#39;, &#39;enum&#39;]</span>
+        <span class="c1"># - default: the default value</span>
+        <span class="c1"># - units: the unit, used for labeling (potentially later for automatic scaling)</span>
+        <span class="c1"># - description: a human readable help text, e.g. to be displayed in the GUI</span>
+        <span class="c1"># - level:</span>
+        <span class="c1">#   - CONFIG_LEVEL_ESSENTIAL (1): for config settings which the user must consider.</span>
+        <span class="c1">#        These config items are e.g. shown on the front/seeding page of a GUI</span>
+        <span class="c1">#   - CONFIG_LEVEL_BASIC (2): for config settings which most users may consider to change</span>
+        <span class="c1">#   - CONFIG_LEVEL_ADVANCED (3): for config setting which only advanced users might change</span>
+        <span class="c1">#</span>
+        <span class="c1"># - If &#39;type&#39; is &#39;float&#39; or &#39;int&#39; there are two additional items:</span>
+        <span class="c1">#    - &#39;min&#39; and &#39;max&#39; which are the minimum and maximum allowed values of this setting.</span>
+        <span class="c1">#       The set_config() method will raise an error of provided values are outside of this range.</span>
+        <span class="c1"># - If &#39;type&#39; is &#39;enum&#39; there is an additional item &#39;enum&#39; which is a list</span>
+        <span class="c1">#     of the allowed values. These may be strings or numbers.</span>
+        <span class="c1">#</span>
+        <span class="c1"># Dafault values of config-settings which are inherited from parent models</span>
+        <span class="c1"># may be overriden for the current module by:</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_set_config_default</span><span class="p">(</span><span class="s1">&#39;drift:vertical_mixing&#39;</span><span class="p">,</span> <span class="kc">True</span><span class="p">)</span>
 
 <div class="viewcode-block" id="ModelTemplate.update"><a class="viewcode-back" href="../../../autoapi/opendrift/models/model_template/index.html#opendrift.models.model_template.ModelTemplate.update">[docs]</a>    <span class="k">def</span> <span class="nf">update</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Update positions and properties of particles.</span>
+        <span class="sd">&quot;&quot;&quot;Update positions and properties of particles.&quot;&quot;&quot;</span>
 
-<span class="sd">        This function (``update``, may not be renamed) defines</span>
-<span class="sd">        the actions (processes) to be performed at each time step.</span>
-<span class="sd">        The default timestep is one hour, but this may be overriden</span>
-<span class="sd">        by the user.</span>
+        <span class="c1"># This function (``update``, may not be renamed) defines</span>
+        <span class="c1"># the actions (processes) to be performed at each time step.</span>
+        <span class="c1"># The default timestep is one hour, but this may be overriden</span>
+        <span class="c1"># by the user.</span>
+        <span class="c1">#</span>
+        <span class="c1"># The elements and corresponding environment information</span>
+        <span class="c1"># (wind, waves, current...) is available to this function as</span>
+        <span class="c1"># the recarrays ``elements`` and ``environment``, respectively.</span>
+        <span class="c1"># Element properties and environvent variables are named arrays</span>
+        <span class="c1"># of same length (number of active particles), or scalars.</span>
+        <span class="c1">#</span>
+        <span class="c1"># E.g.:</span>
+        <span class="c1">#    self.elements.z</span>
+        <span class="c1">#    self.elements.mass</span>
+        <span class="c1">#    self.environment.x_wind</span>
+        <span class="c1">#    self.environment.y_wind</span>
+        <span class="c1">#</span>
+        <span class="c1"># E.g. to specify evaporation (mass reduction) proportional to wind speed:</span>
+        <span class="c1">#</span>
+        <span class="c1">#    self.elements.mass = self.elements.mass - \</span>
+        <span class="c1">#        np.sqrt(self.environment.x_wind**2 + \</span>
+        <span class="c1">#                self.environment.y_wind**2)*.01</span>
+        <span class="c1">#</span>
+        <span class="c1"># If particles need to be deactived (e.g. if</span>
+        <span class="c1"># self.environemtn.someproperty is 0), the special function</span>
+        <span class="c1"># `self.deactivate_elements()` should be used:</span>
+        <span class="c1"># `self.deactivate_elements(self.environment.someproperty==0)`</span>
+        <span class="c1"># </span>
+        <span class="c1"># Interaction with coast is handled by ``basemodel`` and is</span>
+        <span class="c1"># chosen with configutation mechanism available to each module.</span>
+        <span class="c1">#</span>
+        <span class="c1"># Horizontal position of the particles (lon, lat) are the</span>
+        <span class="c1"># only properties which should not be modified directly/freely.</span>
+        <span class="c1"># Due to the need to correct for the curvature of the coordinate</span>
+        <span class="c1"># systems, and taking into account vector orientations, a dedicated </span>
+        <span class="c1"># method ``self.update_positions()`` is</span>
+        <span class="c1"># available using x- and y-velocity as arguments:</span>
+        <span class="c1"># E.g. to simply move particles with ambient current:</span>
+        <span class="c1">#</span>
+        <span class="c1"># self.update_positions(self.environment.x_sea_water_velocity,</span>
+        <span class="c1">#                       self.environment.y_sea_water_velocity)``</span>
+        <span class="c1">#</span>
+        <span class="c1"># However, instead of using this method directly, most</span>
+        <span class="c1"># OpenDrift modules use a set of ready-made and reusable</span>
+        <span class="c1"># advection methods, added below. </span>
 
-<span class="sd">        The elements and corresponding environment information</span>
-<span class="sd">        (wind, waves, current...) is available to this function as</span>
-<span class="sd">        the recarrays ``elements`` and ``environment``, respectively.</span>
-<span class="sd">        Element properties and environvent variables are named arrays</span>
-<span class="sd">        of same length (number of active particles), or scalars.</span>
-
-<span class="sd">        E.g.:</span>
-
-<span class="sd">        .. code::</span>
-
-<span class="sd">            self.elements.z</span>
-<span class="sd">            self.elements.mass</span>
-<span class="sd">            self.environment.x_wind</span>
-<span class="sd">            self.environment.y_wind</span>
-
-<span class="sd">        E.g. to specify evaporation (mass reduction) proportional to wind speed:</span>
-
-<span class="sd">        .. code::</span>
-
-<span class="sd">            self.elements.mass = self.elements.mass - \</span>
-<span class="sd">                np.sqrt(self.environment.x_wind**2 + \</span>
-<span class="sd">                        self.environment.y_wind**2)*.01</span>
-
-<span class="sd">        If particles need to be deactived (e.g. if</span>
-<span class="sd">        self.environemtn.someproperty is 0), the special function</span>
-<span class="sd">        `self.deactivate_elements()` should be used:</span>
-<span class="sd">        `self.deactivate_elements(self.environment.someproperty==0)`</span>
-
-<span class="sd">        Interaction with coast is handled by ``basemodel`` and is</span>
-<span class="sd">        chosen with configutation mechanism available to each module.</span>
-
-<span class="sd">        Horizontal position of the particles (lon, lat) are the</span>
-<span class="sd">        only properties which should not be modified directly/freely.</span>
-<span class="sd">        Due to the need to correct for the curvature of the coordinate</span>
-<span class="sd">        systems, and taking into account vector orientations, a dedicated </span>
-<span class="sd">        method ``self.update_positions()`` is</span>
-<span class="sd">        available using x- and y-velocity as arguments:</span>
-<span class="sd">        E.g. to simply move particles with ambient current:</span>
-<span class="sd">        ``</span>
-<span class="sd">        self.update_positions(self.environment.x_sea_water_velocity,</span>
-<span class="sd">                              self.environment.y_sea_water_velocity)``</span>
-
-<span class="sd">        However, instead of using this method directly, most</span>
-<span class="sd">        OpenDrift modules use a set of ready-made and reusable</span>
-<span class="sd">        advection methods, added below. </span>
-
-<span class="sd">        &quot;&quot;&quot;</span>
-       
         <span class="c1"># Advection with horizontal ocean currents</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">advect_ocean_current</span><span class="p">()</span>
 

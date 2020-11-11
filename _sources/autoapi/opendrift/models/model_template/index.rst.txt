@@ -40,11 +40,6 @@ Classes
 
    Extending LagrangianArray with relevant properties.
 
-   Define and name the properties which the elements shall have.
-   These are added to the inherited properties (e.g. from OceanDrift)
-   Property names may be freely chosen, but the "update" function (below)
-   will refer to the names in the specifications of the processes.
-
    .. attribute:: variables
       
 
@@ -71,58 +66,14 @@ Classes
 
       
 
+   .. attribute:: required_profiles_z_range
+      
+
+      
+
    .. method:: update(self)
 
       Update positions and properties of particles.
-
-      This function (``update``, may not be renamed) defines
-      the actions (processes) to be performed at each time step.
-      The default timestep is one hour, but this may be overriden
-      by the user.
-
-      The elements and corresponding environment information
-      (wind, waves, current...) is available to this function as
-      the recarrays ``elements`` and ``environment``, respectively.
-      Element properties and environvent variables are named arrays
-      of same length (number of active particles), or scalars.
-
-      E.g.:
-
-      .. code::
-
-          self.elements.z
-          self.elements.mass
-          self.environment.x_wind
-          self.environment.y_wind
-
-      E.g. to specify evaporation (mass reduction) proportional to wind speed:
-
-      .. code::
-
-          self.elements.mass = self.elements.mass -                 np.sqrt(self.environment.x_wind**2 +                         self.environment.y_wind**2)*.01
-
-      If particles need to be deactived (e.g. if
-      self.environemtn.someproperty is 0), the special function
-      `self.deactivate_elements()` should be used:
-      `self.deactivate_elements(self.environment.someproperty==0)`
-
-      Interaction with coast is handled by ``basemodel`` and is
-      chosen with configutation mechanism available to each module.
-
-      Horizontal position of the particles (lon, lat) are the
-      only properties which should not be modified directly/freely.
-      Due to the need to correct for the curvature of the coordinate
-      systems, and taking into account vector orientations, a dedicated 
-      method ``self.update_positions()`` is
-      available using x- and y-velocity as arguments:
-      E.g. to simply move particles with ambient current:
-      ``
-      self.update_positions(self.environment.x_sea_water_velocity,
-                            self.environment.y_sea_water_velocity)``
-
-      However, instead of using this method directly, most
-      OpenDrift modules use a set of ready-made and reusable
-      advection methods, added below. 
 
 
    .. method:: prepare_run(self)
