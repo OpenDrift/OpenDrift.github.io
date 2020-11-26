@@ -350,13 +350,15 @@
             <span class="c1"># is there a better way??</span>
             <span class="k">if</span> <span class="n">standard_name</span> <span class="o">==</span> <span class="s1">&#39;longitude&#39;</span> <span class="ow">or</span> \
                     <span class="n">CoordinateAxisType</span> <span class="o">==</span> <span class="s1">&#39;Lon&#39;</span> <span class="ow">or</span> \
-                    <span class="n">long_name</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="o">==</span> <span class="s1">&#39;longitude&#39;</span><span class="p">:</span>
+                    <span class="n">long_name</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="o">==</span> <span class="s1">&#39;longitude&#39;</span> <span class="ow">or</span> \
+                    <span class="n">var_name</span> <span class="o">==</span> <span class="s1">&#39;longitude&#39;</span><span class="p">:</span>
                 <span class="n">var_data</span> <span class="o">=</span> <span class="n">var</span><span class="o">.</span><span class="n">values</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">lon</span> <span class="o">=</span> <span class="n">var_data</span>
                 <span class="n">lon_var_name</span> <span class="o">=</span> <span class="n">var_name</span>
             <span class="k">if</span> <span class="n">standard_name</span> <span class="o">==</span> <span class="s1">&#39;latitude&#39;</span> <span class="ow">or</span> \
                     <span class="n">CoordinateAxisType</span> <span class="o">==</span> <span class="s1">&#39;Lat&#39;</span> <span class="ow">or</span> \
-                    <span class="n">long_name</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="o">==</span> <span class="s1">&#39;latitude&#39;</span><span class="p">:</span>
+                    <span class="n">long_name</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="o">==</span> <span class="s1">&#39;latitude&#39;</span> <span class="ow">or</span> \
+                    <span class="n">var_name</span> <span class="o">==</span> <span class="s1">&#39;latitude&#39;</span><span class="p">:</span>
                 <span class="n">var_data</span> <span class="o">=</span> <span class="n">var</span><span class="o">.</span><span class="n">values</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">lat</span> <span class="o">=</span> <span class="n">var_data</span>
                 <span class="n">lat_var_name</span> <span class="o">=</span> <span class="n">var_name</span>
@@ -482,6 +484,10 @@
                 <span class="bp">self</span><span class="o">.</span><span class="n">lon</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">lon</span><span class="p">[:]</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">lat</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">lat</span><span class="p">[:]</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">projected</span> <span class="o">=</span> <span class="kc">False</span>
+            <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">lon</span><span class="o">.</span><span class="n">ndim</span> <span class="o">==</span> <span class="mi">3</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;lon lat are 3D arrays, reading first time&#39;</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">lon</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">lon</span><span class="p">[</span><span class="mi">0</span><span class="p">,:,:]</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">lat</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">lat</span><span class="p">[</span><span class="mi">0</span><span class="p">,:,:]</span>
 
         <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s1">&#39;proj4&#39;</span><span class="p">)</span> <span class="ow">and</span> <span class="s1">&#39;latlong&#39;</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">proj4</span> <span class="ow">and</span> <span class="nb">hasattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s1">&#39;xmax&#39;</span><span class="p">)</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">xmax</span> <span class="o">&gt;</span> <span class="mi">360</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s1">&#39;Longitudes &gt; 360 degrees, subtracting 360&#39;</span><span class="p">)</span>
