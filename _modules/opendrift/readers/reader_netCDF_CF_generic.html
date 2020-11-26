@@ -188,15 +188,10 @@
 <span class="kn">from</span> <span class="nn">datetime</span> <span class="kn">import</span> <span class="n">datetime</span>
 <span class="kn">import</span> <span class="nn">pyproj</span>
 <span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
-<span class="kn">from</span> <span class="nn">netCDF4</span> <span class="kn">import</span> <span class="n">Dataset</span><span class="p">,</span> <span class="n">MFDataset</span><span class="p">,</span> <span class="n">num2date</span>
+<span class="kn">from</span> <span class="nn">netCDF4</span> <span class="kn">import</span> <span class="n">num2date</span>
 
 <span class="kn">from</span> <span class="nn">opendrift.readers.basereader</span> <span class="kn">import</span> <span class="n">BaseReader</span>
-
-<span class="k">try</span><span class="p">:</span>
-    <span class="kn">import</span> <span class="nn">xarray</span> <span class="k">as</span> <span class="nn">xr</span>
-    <span class="n">has_xarray</span> <span class="o">=</span> <span class="kc">True</span>
-<span class="k">except</span><span class="p">:</span>
-    <span class="n">has_xarray</span> <span class="o">=</span> <span class="kc">False</span>
+<span class="kn">import</span> <span class="nn">xarray</span> <span class="k">as</span> <span class="nn">xr</span>
 
 <div class="viewcode-block" id="proj_from_CF_dict"><a class="viewcode-back" href="../../../autoapi/opendrift/readers/reader_netCDF_CF_generic/index.html#opendrift.readers.reader_netCDF_CF_generic.proj_from_CF_dict">[docs]</a><span class="k">def</span> <span class="nf">proj_from_CF_dict</span><span class="p">(</span><span class="n">c</span><span class="p">):</span>
 
@@ -300,21 +295,11 @@
             <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s1">&#39;Opening dataset: &#39;</span> <span class="o">+</span> <span class="n">filestr</span><span class="p">)</span>
             <span class="k">if</span> <span class="p">(</span><span class="s1">&#39;*&#39;</span> <span class="ow">in</span> <span class="n">filestr</span><span class="p">)</span> <span class="ow">or</span> <span class="p">(</span><span class="s1">&#39;?&#39;</span> <span class="ow">in</span> <span class="n">filestr</span><span class="p">)</span> <span class="ow">or</span> <span class="p">(</span><span class="s1">&#39;[&#39;</span> <span class="ow">in</span> <span class="n">filestr</span><span class="p">):</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s1">&#39;Opening files with MFDataset&#39;</span><span class="p">)</span>
-                <span class="k">if</span> <span class="n">has_xarray</span><span class="p">:</span>
-                    <span class="bp">self</span><span class="o">.</span><span class="n">Dataset</span> <span class="o">=</span> <span class="n">xr</span><span class="o">.</span><span class="n">open_mfdataset</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="n">concat_dim</span><span class="o">=</span><span class="s1">&#39;time&#39;</span><span class="p">,</span> <span class="n">combine</span><span class="o">=</span><span class="s1">&#39;nested&#39;</span><span class="p">,</span>
-                                                     <span class="n">decode_times</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
-                <span class="k">else</span><span class="p">:</span>
-                    <span class="k">try</span><span class="p">:</span>
-                        <span class="bp">self</span><span class="o">.</span><span class="n">Dataset</span> <span class="o">=</span> <span class="n">MFDataset</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="n">aggdim</span><span class="o">=</span><span class="s1">&#39;time&#39;</span><span class="p">)</span>
-                    <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
-                        <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="s1">&#39;Aggdim *time* does not exist&#39;</span><span class="p">)</span>
-                        <span class="bp">self</span><span class="o">.</span><span class="n">Dataset</span> <span class="o">=</span> <span class="n">MFDataset</span><span class="p">(</span><span class="n">filename</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">Dataset</span> <span class="o">=</span> <span class="n">xr</span><span class="o">.</span><span class="n">open_mfdataset</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="n">concat_dim</span><span class="o">=</span><span class="s1">&#39;time&#39;</span><span class="p">,</span> <span class="n">combine</span><span class="o">=</span><span class="s1">&#39;nested&#39;</span><span class="p">,</span>
+                                                 <span class="n">decode_times</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
             <span class="k">else</span><span class="p">:</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s1">&#39;Opening file with Dataset&#39;</span><span class="p">)</span>
-                <span class="k">if</span> <span class="n">has_xarray</span><span class="p">:</span>
-                    <span class="bp">self</span><span class="o">.</span><span class="n">Dataset</span> <span class="o">=</span> <span class="n">xr</span><span class="o">.</span><span class="n">open_dataset</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="n">decode_times</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
-                <span class="k">else</span><span class="p">:</span>
-                    <span class="bp">self</span><span class="o">.</span><span class="n">Dataset</span> <span class="o">=</span> <span class="n">Dataset</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="s1">&#39;r&#39;</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">Dataset</span> <span class="o">=</span> <span class="n">xr</span><span class="o">.</span><span class="n">open_dataset</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="n">decode_times</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
         <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="n">e</span><span class="p">)</span>
 
@@ -327,12 +312,8 @@
             <span class="n">var</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">Dataset</span><span class="o">.</span><span class="n">variables</span><span class="p">[</span><span class="n">var_name</span><span class="p">]</span>
             <span class="c1">#if var.ndim &gt; 1:</span>
             <span class="c1">#    continue  # Coordinates must be 1D-array</span>
-            <span class="k">if</span> <span class="n">has_xarray</span><span class="p">:</span>
-                <span class="n">attributes</span> <span class="o">=</span> <span class="n">var</span><span class="o">.</span><span class="n">attrs</span>
-                <span class="n">att_dict</span> <span class="o">=</span> <span class="n">var</span><span class="o">.</span><span class="n">attrs</span>
-            <span class="k">else</span><span class="p">:</span>
-                <span class="n">attributes</span> <span class="o">=</span> <span class="n">var</span><span class="o">.</span><span class="n">ncattrs</span><span class="p">()</span>
-                <span class="n">att_dict</span> <span class="o">=</span> <span class="n">var</span><span class="o">.</span><span class="vm">__dict__</span>
+            <span class="n">attributes</span> <span class="o">=</span> <span class="n">var</span><span class="o">.</span><span class="n">attrs</span>
+            <span class="n">att_dict</span> <span class="o">=</span> <span class="n">var</span><span class="o">.</span><span class="n">attrs</span>
             <span class="n">standard_name</span> <span class="o">=</span> <span class="s1">&#39;&#39;</span>
             <span class="n">long_name</span> <span class="o">=</span> <span class="s1">&#39;&#39;</span>
             <span class="n">axis</span> <span class="o">=</span> <span class="s1">&#39;&#39;</span>
@@ -341,10 +322,7 @@
             <span class="k">if</span> <span class="ow">not</span> <span class="nb">hasattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s1">&#39;proj4&#39;</span><span class="p">):</span>
                 <span class="k">for</span> <span class="n">att</span> <span class="ow">in</span> <span class="n">attributes</span><span class="p">:</span>
                     <span class="k">if</span> <span class="s1">&#39;proj4&#39;</span> <span class="ow">in</span> <span class="n">att</span><span class="p">:</span>
-                        <span class="k">if</span> <span class="n">has_xarray</span><span class="p">:</span>
-                            <span class="bp">self</span><span class="o">.</span><span class="n">proj4</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">att_dict</span><span class="p">[</span><span class="n">att</span><span class="p">])</span>
-                        <span class="k">else</span><span class="p">:</span>
-                            <span class="bp">self</span><span class="o">.</span><span class="n">proj4</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">var</span><span class="o">.</span><span class="fm">__getattr__</span><span class="p">(</span><span class="n">att</span><span class="p">))</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">proj4</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">att_dict</span><span class="p">[</span><span class="n">att</span><span class="p">])</span>
                     <span class="k">else</span><span class="p">:</span>
                         <span class="k">if</span> <span class="s1">&#39;grid_mapping_name&#39;</span> <span class="ow">in</span> <span class="n">att</span><span class="p">:</span>
                             <span class="n">mapping_dict</span> <span class="o">=</span> <span class="n">att_dict</span>
@@ -373,19 +351,13 @@
             <span class="k">if</span> <span class="n">standard_name</span> <span class="o">==</span> <span class="s1">&#39;longitude&#39;</span> <span class="ow">or</span> \
                     <span class="n">CoordinateAxisType</span> <span class="o">==</span> <span class="s1">&#39;Lon&#39;</span> <span class="ow">or</span> \
                     <span class="n">long_name</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="o">==</span> <span class="s1">&#39;longitude&#39;</span><span class="p">:</span>
-                <span class="k">if</span> <span class="n">has_xarray</span><span class="p">:</span>
-                    <span class="n">var_data</span> <span class="o">=</span> <span class="n">var</span><span class="o">.</span><span class="n">values</span>
-                <span class="k">else</span><span class="p">:</span>
-                    <span class="n">var_data</span> <span class="o">=</span> <span class="n">var</span><span class="p">[:]</span>
+                <span class="n">var_data</span> <span class="o">=</span> <span class="n">var</span><span class="o">.</span><span class="n">values</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">lon</span> <span class="o">=</span> <span class="n">var_data</span>
                 <span class="n">lon_var_name</span> <span class="o">=</span> <span class="n">var_name</span>
             <span class="k">if</span> <span class="n">standard_name</span> <span class="o">==</span> <span class="s1">&#39;latitude&#39;</span> <span class="ow">or</span> \
                     <span class="n">CoordinateAxisType</span> <span class="o">==</span> <span class="s1">&#39;Lat&#39;</span> <span class="ow">or</span> \
                     <span class="n">long_name</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="o">==</span> <span class="s1">&#39;latitude&#39;</span><span class="p">:</span>
-                <span class="k">if</span> <span class="n">has_xarray</span><span class="p">:</span>
-                    <span class="n">var_data</span> <span class="o">=</span> <span class="n">var</span><span class="o">.</span><span class="n">values</span>
-                <span class="k">else</span><span class="p">:</span>
-                    <span class="n">var_data</span> <span class="o">=</span> <span class="n">var</span><span class="p">[:]</span>
+                <span class="n">var_data</span> <span class="o">=</span> <span class="n">var</span><span class="o">.</span><span class="n">values</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">lat</span> <span class="o">=</span> <span class="n">var_data</span>
                 <span class="n">lat_var_name</span> <span class="o">=</span> <span class="n">var_name</span>
             <span class="k">if</span> <span class="n">axis</span> <span class="o">==</span> <span class="s1">&#39;X&#39;</span> <span class="ow">or</span> \
@@ -398,10 +370,7 @@
                     <span class="n">unitfactor</span> <span class="o">=</span> <span class="mi">100000</span>
                 <span class="k">else</span><span class="p">:</span>
                     <span class="n">unitfactor</span> <span class="o">=</span> <span class="mi">1</span>
-                <span class="k">if</span> <span class="n">has_xarray</span><span class="p">:</span>
-                    <span class="n">var_data</span> <span class="o">=</span> <span class="n">var</span><span class="o">.</span><span class="n">values</span>
-                <span class="k">else</span><span class="p">:</span>
-                    <span class="n">var_data</span> <span class="o">=</span> <span class="n">var</span><span class="p">[:]</span>
+                <span class="n">var_data</span> <span class="o">=</span> <span class="n">var</span><span class="o">.</span><span class="n">values</span>
                 <span class="n">x</span> <span class="o">=</span> <span class="n">var_data</span><span class="o">*</span><span class="n">unitfactor</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">numx</span> <span class="o">=</span> <span class="n">var_data</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
             <span class="k">if</span> <span class="n">axis</span> <span class="o">==</span> <span class="s1">&#39;Y&#39;</span> <span class="ow">or</span> \
@@ -415,17 +384,11 @@
                 <span class="k">else</span><span class="p">:</span>
                     <span class="n">unitfactor</span> <span class="o">=</span> <span class="mi">1</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">unitfactor</span> <span class="o">=</span> <span class="n">unitfactor</span>
-                <span class="k">if</span> <span class="n">has_xarray</span><span class="p">:</span>
-                    <span class="n">var_data</span> <span class="o">=</span> <span class="n">var</span><span class="o">.</span><span class="n">values</span>
-                <span class="k">else</span><span class="p">:</span>
-                    <span class="n">var_data</span> <span class="o">=</span> <span class="n">var</span><span class="p">[:]</span>
+                <span class="n">var_data</span> <span class="o">=</span> <span class="n">var</span><span class="o">.</span><span class="n">values</span>
                 <span class="n">y</span> <span class="o">=</span> <span class="n">var_data</span><span class="o">*</span><span class="n">unitfactor</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">numy</span> <span class="o">=</span> <span class="n">var_data</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
             <span class="k">if</span> <span class="n">standard_name</span> <span class="o">==</span> <span class="s1">&#39;depth&#39;</span> <span class="ow">or</span> <span class="n">axis</span> <span class="o">==</span> <span class="s1">&#39;Z&#39;</span><span class="p">:</span>
-                <span class="k">if</span> <span class="n">has_xarray</span><span class="p">:</span>
-                    <span class="n">var_data</span> <span class="o">=</span> <span class="n">var</span><span class="o">.</span><span class="n">values</span>
-                <span class="k">else</span><span class="p">:</span>
-                    <span class="n">var_data</span> <span class="o">=</span> <span class="n">var</span><span class="p">[:]</span>
+                <span class="n">var_data</span> <span class="o">=</span> <span class="n">var</span><span class="o">.</span><span class="n">values</span>
                 <span class="k">if</span> <span class="n">var_data</span><span class="o">.</span><span class="n">ndim</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
                     <span class="k">if</span> <span class="s1">&#39;positive&#39;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">attributes</span> <span class="ow">or</span> \
                             <span class="n">att_dict</span><span class="p">[</span><span class="s1">&#39;positive&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="s1">&#39;up&#39;</span><span class="p">:</span>
@@ -434,11 +397,7 @@
                         <span class="bp">self</span><span class="o">.</span><span class="n">z</span> <span class="o">=</span> <span class="o">-</span><span class="n">var_data</span>
             <span class="k">if</span> <span class="n">standard_name</span> <span class="o">==</span> <span class="s1">&#39;time&#39;</span> <span class="ow">or</span> <span class="n">axis</span> <span class="o">==</span> <span class="s1">&#39;T&#39;</span> <span class="ow">or</span> <span class="n">var_name</span> <span class="ow">in</span> <span class="p">[</span><span class="s1">&#39;time&#39;</span><span class="p">,</span> <span class="s1">&#39;vtime&#39;</span><span class="p">]:</span>
                 <span class="c1"># Read and store time coverage (of this particular file)</span>
-                <span class="k">if</span> <span class="n">has_xarray</span><span class="p">:</span>
-                    <span class="n">var_data</span> <span class="o">=</span> <span class="n">var</span><span class="o">.</span><span class="n">values</span>
-                <span class="k">else</span><span class="p">:</span>
-                    <span class="n">var</span><span class="o">.</span><span class="n">set_auto_mask</span><span class="p">(</span><span class="kc">False</span><span class="p">)</span>  <span class="c1"># workaround</span>
-                    <span class="n">var_data</span> <span class="o">=</span> <span class="n">var</span><span class="p">[:]</span>
+                <span class="n">var_data</span> <span class="o">=</span> <span class="n">var</span><span class="o">.</span><span class="n">values</span>
                 <span class="n">time</span> <span class="o">=</span> <span class="n">var_data</span>
                 <span class="n">time_units</span> <span class="o">=</span> <span class="n">units</span>
 
@@ -463,10 +422,7 @@
                 <span class="k">else</span><span class="p">:</span>
                     <span class="bp">self</span><span class="o">.</span><span class="n">time_step</span> <span class="o">=</span> <span class="kc">None</span>
             <span class="k">if</span> <span class="n">standard_name</span> <span class="o">==</span> <span class="s1">&#39;realization&#39;</span><span class="p">:</span>
-                <span class="k">if</span> <span class="n">has_xarray</span><span class="p">:</span>
-                    <span class="n">var_data</span> <span class="o">=</span> <span class="n">var</span><span class="o">.</span><span class="n">values</span>
-                <span class="k">else</span><span class="p">:</span>
-                    <span class="n">var_data</span> <span class="o">=</span> <span class="n">var</span><span class="p">[:]</span>
+                <span class="n">var_data</span> <span class="o">=</span> <span class="n">var</span><span class="o">.</span><span class="n">values</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">realizations</span> <span class="o">=</span> <span class="n">var_data</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;</span><span class="si">%i</span><span class="s1"> ensemble members available&#39;</span>
                               <span class="o">%</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">realizations</span><span class="p">))</span>
@@ -540,12 +496,8 @@
             <span class="k">if</span> <span class="n">var_name</span> <span class="ow">in</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">xname</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">yname</span><span class="p">,</span> <span class="s1">&#39;depth&#39;</span><span class="p">]:</span>
                 <span class="k">continue</span>  <span class="c1"># Skip coordinate variables</span>
             <span class="n">var</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">Dataset</span><span class="o">.</span><span class="n">variables</span><span class="p">[</span><span class="n">var_name</span><span class="p">]</span>
-            <span class="k">if</span> <span class="n">has_xarray</span><span class="p">:</span>
-                <span class="n">attributes</span> <span class="o">=</span> <span class="n">var</span><span class="o">.</span><span class="n">attrs</span>
-                <span class="n">att_dict</span> <span class="o">=</span> <span class="n">var</span><span class="o">.</span><span class="n">attrs</span>
-            <span class="k">else</span><span class="p">:</span>
-                <span class="n">attributes</span> <span class="o">=</span> <span class="n">var</span><span class="o">.</span><span class="n">ncattrs</span><span class="p">()</span>
-                <span class="n">att_dict</span> <span class="o">=</span> <span class="n">var</span><span class="o">.</span><span class="vm">__dict__</span>
+            <span class="n">attributes</span> <span class="o">=</span> <span class="n">var</span><span class="o">.</span><span class="n">attrs</span>
+            <span class="n">att_dict</span> <span class="o">=</span> <span class="n">var</span><span class="o">.</span><span class="n">attrs</span>
             <span class="k">if</span> <span class="s1">&#39;standard_name&#39;</span> <span class="ow">in</span> <span class="n">attributes</span><span class="p">:</span>
                 <span class="n">standard_name</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">att_dict</span><span class="p">[</span><span class="s1">&#39;standard_name&#39;</span><span class="p">])</span>
                 <span class="k">if</span> <span class="n">standard_name</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">variable_aliases</span><span class="p">:</span>  <span class="c1"># Mapping if needed</span>
@@ -676,8 +628,7 @@
                                 <span class="n">indy</span><span class="p">,</span> <span class="n">indx_right</span><span class="p">]</span>
                     <span class="n">variables</span><span class="p">[</span><span class="n">par</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">ma</span><span class="o">.</span><span class="n">concatenate</span><span class="p">((</span><span class="n">left</span><span class="p">,</span> <span class="n">right</span><span class="p">),</span> <span class="mi">3</span><span class="p">)</span>
 
-            <span class="k">if</span> <span class="n">has_xarray</span> <span class="ow">is</span> <span class="kc">True</span><span class="p">:</span>
-                <span class="n">variables</span><span class="p">[</span><span class="n">par</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">variables</span><span class="p">[</span><span class="n">par</span><span class="p">])</span>
+            <span class="n">variables</span><span class="p">[</span><span class="n">par</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">variables</span><span class="p">[</span><span class="n">par</span><span class="p">])</span>
 
             <span class="c1"># If 2D array is returned due to the fancy slicing</span>
             <span class="c1"># methods of netcdf-python, we need to take the diagonal</span>
@@ -723,9 +674,8 @@
         <span class="k">else</span><span class="p">:</span>
             <span class="n">variables</span><span class="p">[</span><span class="s1">&#39;x&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">xmin</span> <span class="o">+</span> <span class="p">(</span><span class="n">indx</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span><span class="o">*</span><span class="bp">self</span><span class="o">.</span><span class="n">delta_x</span>
             <span class="n">variables</span><span class="p">[</span><span class="s1">&#39;y&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">ymin</span> <span class="o">+</span> <span class="p">(</span><span class="n">indy</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span><span class="o">*</span><span class="bp">self</span><span class="o">.</span><span class="n">delta_y</span>
-        <span class="k">if</span> <span class="n">has_xarray</span> <span class="ow">is</span> <span class="kc">True</span><span class="p">:</span>
-            <span class="n">variables</span><span class="p">[</span><span class="s1">&#39;x&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">variables</span><span class="p">[</span><span class="s1">&#39;x&#39;</span><span class="p">])</span>
-            <span class="n">variables</span><span class="p">[</span><span class="s1">&#39;y&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">variables</span><span class="p">[</span><span class="s1">&#39;y&#39;</span><span class="p">])</span>
+        <span class="n">variables</span><span class="p">[</span><span class="s1">&#39;x&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">variables</span><span class="p">[</span><span class="s1">&#39;x&#39;</span><span class="p">])</span>
+        <span class="n">variables</span><span class="p">[</span><span class="s1">&#39;y&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">variables</span><span class="p">[</span><span class="s1">&#39;y&#39;</span><span class="p">])</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">global_coverage</span><span class="p">():</span>
             <span class="c1"># TODO: this should be checked</span>
             <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">xmax</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">delta_x</span> <span class="o">&gt;=</span> <span class="mi">360</span> <span class="ow">and</span> <span class="n">variables</span><span class="p">[</span><span class="s1">&#39;x&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">max</span><span class="p">()</span> <span class="o">&gt;</span> <span class="mi">180</span><span class="p">:</span>
