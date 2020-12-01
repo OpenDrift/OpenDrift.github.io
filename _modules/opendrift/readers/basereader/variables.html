@@ -1,0 +1,1020 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>opendrift.readers.basereader.variables &mdash; OpenDrift  documentation</title>
+  
+
+  
+  <link rel="stylesheet" href="../../../../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../../../../_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="../../../../_static/theme_overrides.css" type="text/css" />
+
+  
+  
+  
+  
+
+  
+  <!--[if lt IE 9]>
+    <script src="../../../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../../../../" src="../../../../_static/documentation_options.js"></script>
+        <script src="../../../../_static/jquery.js"></script>
+        <script src="../../../../_static/underscore.js"></script>
+        <script src="../../../../_static/doctools.js"></script>
+        <script src="../../../../_static/language_data.js"></script>
+    
+    <script type="text/javascript" src="../../../../_static/js/theme.js"></script>
+
+    
+    <link rel="index" title="Index" href="../../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="../../../../index.html" class="icon icon-home" alt="Documentation Home"> OpenDrift
+          
+
+          
+            
+            <img src="../../../../_static/opendrift_logo.png" class="logo" alt="Logo"/>
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../index.html">Introduction to OpenDrift</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../history_link.html">History</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../install.html">Installing OpenDrift</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../tutorial.html">Tutorial</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../theory/index.html">Theory</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../choosing_a_model.html">How to choose which model to use</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../writing_a_new_model.html">How to write a new module</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../gallery/index.html">Gallery</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../oil_types.html">Oil types</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../interaction_with_coastline.html">Interaction with coastline</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../docker.html">Using OpenDrift in a container</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../gui.html">Graphical User Interface</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../references.html">Publications</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../autoapi/index.html">API Reference</a></li>
+</ul>
+
+            
+          
+        </div>
+        
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../../index.html">OpenDrift</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../../../../index.html" class="icon icon-home"></a> &raquo;</li>
+        
+          <li><a href="../../../index.html">Module code</a> &raquo;</li>
+        
+          <li><a href="../../../opendrift.html">opendrift</a> &raquo;</li>
+        
+          <li><a href="../../readers.html">opendrift.readers</a> &raquo;</li>
+        
+          <li><a href="../basereader.html">opendrift.readers.basereader</a> &raquo;</li>
+        
+      <li>opendrift.readers.basereader.variables</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <h1>Source code for opendrift.readers.basereader.variables</h1><div class="highlight"><pre>
+<span></span><span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">pyproj</span>
+<span class="kn">from</span> <span class="nn">scipy.ndimage</span> <span class="kn">import</span> <span class="n">map_coordinates</span>
+<span class="kn">from</span> <span class="nn">bisect</span> <span class="kn">import</span> <span class="n">bisect_left</span>
+<span class="kn">from</span> <span class="nn">multiprocessing</span> <span class="kn">import</span> <span class="n">Process</span><span class="p">,</span> <span class="n">Manager</span><span class="p">,</span> <span class="n">cpu_count</span>
+<span class="kn">import</span> <span class="nn">copy</span>
+<span class="kn">from</span> <span class="nn">abc</span> <span class="kn">import</span> <span class="n">abstractmethod</span>
+<span class="kn">import</span> <span class="nn">logging</span>
+<span class="n">logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span>
+
+<span class="kn">from</span> <span class="nn">opendrift.timer</span> <span class="kn">import</span> <span class="n">Timeable</span>
+<span class="kn">from</span> <span class="nn">.consts</span> <span class="kn">import</span> <span class="n">standard_names</span><span class="p">,</span> <span class="n">vector_pairs_xy</span>
+
+
+<div class="viewcode-block" id="ReaderDomain"><a class="viewcode-back" href="../../../../autoapi/opendrift/readers/basereader/variables/index.html#opendrift.readers.basereader.ReaderDomain">[docs]</a><span class="k">class</span> <span class="nc">ReaderDomain</span><span class="p">(</span><span class="n">Timeable</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Projection, spatial and temporal domain of reader.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">simulation_SRS</span> <span class="o">=</span> <span class="kc">False</span>
+    <span class="n">projected</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">proj4</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">proj</span> <span class="o">=</span> <span class="kc">None</span>
+
+    <span class="n">lon</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">lat</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">xmin</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">xmax</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">ymin</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">ymax</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">zmin</span> <span class="o">=</span> <span class="o">-</span><span class="n">np</span><span class="o">.</span><span class="n">inf</span>
+    <span class="n">zmax</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">inf</span>
+    <span class="n">delta_x</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">delta_y</span> <span class="o">=</span> <span class="kc">None</span>
+
+    <span class="c1">## Temporal</span>
+    <span class="n">start_time</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">end_time</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">time_step</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">times</span> <span class="o">=</span> <span class="kc">None</span>
+
+<div class="viewcode-block" id="ReaderDomain.rotate_vectors"><a class="viewcode-back" href="../../../../autoapi/opendrift/readers/basereader/variables/index.html#opendrift.readers.basereader.ReaderDomain.rotate_vectors">[docs]</a>    <span class="k">def</span> <span class="nf">rotate_vectors</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">reader_x</span><span class="p">,</span> <span class="n">reader_y</span><span class="p">,</span> <span class="n">u_component</span><span class="p">,</span> <span class="n">v_component</span><span class="p">,</span>
+                       <span class="n">proj_from</span><span class="p">,</span> <span class="n">proj_to</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Rotate vectors from one srs to another.&quot;&quot;&quot;</span>
+
+        <span class="k">if</span> <span class="nb">type</span><span class="p">(</span><span class="n">proj_from</span><span class="p">)</span> <span class="ow">is</span> <span class="nb">str</span><span class="p">:</span>
+            <span class="n">proj_from</span> <span class="o">=</span> <span class="n">pyproj</span><span class="o">.</span><span class="n">Proj</span><span class="p">(</span><span class="n">proj_from</span><span class="p">)</span>
+        <span class="k">if</span> <span class="nb">type</span><span class="p">(</span><span class="n">proj_from</span><span class="p">)</span> <span class="ow">is</span> <span class="ow">not</span> <span class="n">pyproj</span><span class="o">.</span><span class="n">Proj</span><span class="p">:</span>
+            <span class="n">proj_from</span> <span class="o">=</span> <span class="n">pyproj</span><span class="o">.</span><span class="n">Proj</span><span class="p">(</span><span class="s1">&#39;+proj=latlong +R=6370997.0 +ellps=WGS84&#39;</span><span class="p">)</span>
+            <span class="n">reader_x</span><span class="p">,</span> <span class="n">reader_y</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">xy2lonlat</span><span class="p">(</span><span class="n">reader_x</span><span class="p">,</span> <span class="n">reader_y</span><span class="p">)</span>
+        <span class="k">if</span> <span class="nb">type</span><span class="p">(</span><span class="n">proj_to</span><span class="p">)</span> <span class="ow">is</span> <span class="nb">str</span><span class="p">:</span>
+            <span class="n">proj_to</span> <span class="o">=</span> <span class="n">pyproj</span><span class="o">.</span><span class="n">Proj</span><span class="p">(</span><span class="n">proj_to</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">proj_from</span><span class="o">.</span><span class="n">crs</span><span class="o">.</span><span class="n">is_geographic</span><span class="p">:</span>
+            <span class="n">delta_y</span> <span class="o">=</span> <span class="o">.</span><span class="mi">1</span>  <span class="c1"># 0.1 degree northwards</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">delta_y</span> <span class="o">=</span> <span class="mi">10</span>  <span class="c1"># 10 m along y-axis</span>
+
+        <span class="n">transformer</span> <span class="o">=</span> <span class="n">pyproj</span><span class="o">.</span><span class="n">Transformer</span><span class="o">.</span><span class="n">from_proj</span><span class="p">(</span><span class="n">proj_from</span><span class="p">,</span> <span class="n">proj_to</span><span class="p">)</span>
+        <span class="n">x2</span><span class="p">,</span> <span class="n">y2</span> <span class="o">=</span> <span class="n">transformer</span><span class="o">.</span><span class="n">transform</span><span class="p">(</span><span class="n">reader_x</span><span class="p">,</span> <span class="n">reader_y</span><span class="p">)</span>
+        <span class="n">x2_delta</span><span class="p">,</span> <span class="n">y2_delta</span> <span class="o">=</span> <span class="n">transformer</span><span class="o">.</span><span class="n">transform</span><span class="p">(</span><span class="n">reader_x</span><span class="p">,</span>
+                                                   <span class="n">reader_y</span> <span class="o">+</span> <span class="n">delta_y</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">proj_to</span><span class="o">.</span><span class="n">crs</span><span class="o">.</span><span class="n">is_geographic</span><span class="p">:</span>
+            <span class="n">geod</span> <span class="o">=</span> <span class="n">pyproj</span><span class="o">.</span><span class="n">Geod</span><span class="p">(</span><span class="n">ellps</span><span class="o">=</span><span class="s1">&#39;WGS84&#39;</span><span class="p">)</span>
+            <span class="n">rot_angle_vectors_rad</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">radians</span><span class="p">(</span>
+                <span class="n">geod</span><span class="o">.</span><span class="n">inv</span><span class="p">(</span><span class="n">x2</span><span class="p">,</span> <span class="n">y2</span><span class="p">,</span> <span class="n">x2_delta</span><span class="p">,</span> <span class="n">y2_delta</span><span class="p">)[</span><span class="mi">0</span><span class="p">])</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">rot_angle_vectors_rad</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arctan2</span><span class="p">(</span><span class="n">x2_delta</span> <span class="o">-</span> <span class="n">x2</span><span class="p">,</span> <span class="n">y2_delta</span> <span class="o">-</span> <span class="n">y2</span><span class="p">)</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;Rotating vectors between </span><span class="si">%s</span><span class="s1"> and </span><span class="si">%s</span><span class="s1"> degrees.&#39;</span> <span class="o">%</span>
+                     <span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">degrees</span><span class="p">(</span><span class="n">rot_angle_vectors_rad</span><span class="p">)</span><span class="o">.</span><span class="n">min</span><span class="p">(),</span>
+                      <span class="n">np</span><span class="o">.</span><span class="n">degrees</span><span class="p">(</span><span class="n">rot_angle_vectors_rad</span><span class="p">)</span><span class="o">.</span><span class="n">max</span><span class="p">()))</span>
+        <span class="n">rot_angle_rad</span> <span class="o">=</span> <span class="o">-</span><span class="n">rot_angle_vectors_rad</span>
+        <span class="n">u_rot</span> <span class="o">=</span> <span class="p">(</span><span class="n">u_component</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">cos</span><span class="p">(</span><span class="n">rot_angle_rad</span><span class="p">)</span> <span class="o">-</span>
+                 <span class="n">v_component</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="n">rot_angle_rad</span><span class="p">))</span>
+        <span class="n">v_rot</span> <span class="o">=</span> <span class="p">(</span><span class="n">u_component</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="n">rot_angle_rad</span><span class="p">)</span> <span class="o">+</span>
+                 <span class="n">v_component</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">cos</span><span class="p">(</span><span class="n">rot_angle_rad</span><span class="p">))</span>
+
+        <span class="k">return</span> <span class="n">u_rot</span><span class="p">,</span> <span class="n">v_rot</span></div>
+
+<div class="viewcode-block" id="ReaderDomain.xy2lonlat"><a class="viewcode-back" href="../../../../autoapi/opendrift/readers/basereader/variables/index.html#opendrift.readers.basereader.ReaderDomain.xy2lonlat">[docs]</a>    <span class="k">def</span> <span class="nf">xy2lonlat</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Calculate x,y in own projection from given lon,lat (scalars/arrays).</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">projected</span> <span class="ow">is</span> <span class="kc">True</span><span class="p">:</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">proj</span><span class="o">.</span><span class="n">crs</span><span class="o">.</span><span class="n">is_geographic</span><span class="p">:</span>
+                <span class="k">if</span> <span class="s1">&#39;ob_tran&#39;</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">proj4</span><span class="p">:</span>
+                    <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;NB: Converting degrees to radians &#39;</span> <span class="o">+</span>
+                                 <span class="s1">&#39;due to ob_tran srs&#39;</span><span class="p">)</span>
+                    <span class="n">x</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">radians</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">x</span><span class="p">))</span>
+                    <span class="n">y</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">radians</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">y</span><span class="p">))</span>
+                    <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">proj</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">inverse</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="k">return</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">proj</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">inverse</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">np</span><span class="o">.</span><span class="n">seterr</span><span class="p">(</span><span class="n">invalid</span><span class="o">=</span><span class="s1">&#39;ignore&#39;</span><span class="p">)</span>  <span class="c1"># Disable warnings for nan-values</span>
+            <span class="n">y</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">atleast_1d</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">y</span><span class="p">))</span>
+            <span class="n">x</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">atleast_1d</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">x</span><span class="p">))</span>
+
+            <span class="c1"># NB: mask coordinates outside domain</span>
+            <span class="n">x</span><span class="p">[</span><span class="n">x</span> <span class="o">&lt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">xmin</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span>
+            <span class="n">x</span><span class="p">[</span><span class="n">x</span> <span class="o">&gt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">xmax</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span>
+            <span class="n">y</span><span class="p">[</span><span class="n">y</span> <span class="o">&lt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">ymin</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span>
+            <span class="n">y</span><span class="p">[</span><span class="n">y</span> <span class="o">&lt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">ymin</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span>
+
+            <span class="n">lon</span> <span class="o">=</span> <span class="n">map_coordinates</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">lon</span><span class="p">,</span> <span class="p">[</span><span class="n">y</span><span class="p">,</span> <span class="n">x</span><span class="p">],</span>
+                                  <span class="n">order</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
+                                  <span class="n">cval</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">nan</span><span class="p">,</span>
+                                  <span class="n">mode</span><span class="o">=</span><span class="s1">&#39;nearest&#39;</span><span class="p">)</span>
+            <span class="n">lat</span> <span class="o">=</span> <span class="n">map_coordinates</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">lat</span><span class="p">,</span> <span class="p">[</span><span class="n">y</span><span class="p">,</span> <span class="n">x</span><span class="p">],</span>
+                                  <span class="n">order</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
+                                  <span class="n">cval</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">nan</span><span class="p">,</span>
+                                  <span class="n">mode</span><span class="o">=</span><span class="s1">&#39;nearest&#39;</span><span class="p">)</span>
+            <span class="k">return</span> <span class="p">(</span><span class="n">lon</span><span class="p">,</span> <span class="n">lat</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="ReaderDomain.lonlat2xy"><a class="viewcode-back" href="../../../../autoapi/opendrift/readers/basereader/variables/index.html#opendrift.readers.basereader.ReaderDomain.lonlat2xy">[docs]</a>    <span class="k">def</span> <span class="nf">lonlat2xy</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">lon</span><span class="p">,</span> <span class="n">lat</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Calculate lon,lat from given x,y (scalars/arrays) in own projection.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="c1"># Two methods needed for parallelisation</span>
+        <span class="k">def</span> <span class="nf">get_x</span><span class="p">(</span><span class="n">lon_part</span><span class="p">,</span> <span class="n">lat_part</span><span class="p">,</span> <span class="n">num</span><span class="p">):</span>
+            <span class="n">out_x</span><span class="p">[</span><span class="n">num</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">spl_x</span><span class="p">(</span><span class="n">lon_part</span><span class="p">,</span> <span class="n">lat_part</span><span class="p">)</span>
+
+        <span class="k">def</span> <span class="nf">get_y</span><span class="p">(</span><span class="n">lon_part</span><span class="p">,</span> <span class="n">lat_part</span><span class="p">,</span> <span class="n">num</span><span class="p">):</span>
+            <span class="n">out_y</span><span class="p">[</span><span class="n">num</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">spl_y</span><span class="p">(</span><span class="n">lon_part</span><span class="p">,</span> <span class="n">lat_part</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">projected</span> <span class="ow">is</span> <span class="kc">True</span><span class="p">:</span>
+            <span class="k">if</span> <span class="s1">&#39;ob_tran&#39;</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">proj4</span><span class="p">:</span>
+                <span class="n">x</span><span class="p">,</span> <span class="n">y</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">proj</span><span class="p">(</span><span class="n">lon</span><span class="p">,</span> <span class="n">lat</span><span class="p">,</span> <span class="n">inverse</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+                <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">degrees</span><span class="p">(</span><span class="n">x</span><span class="p">),</span> <span class="n">np</span><span class="o">.</span><span class="n">degrees</span><span class="p">(</span><span class="n">y</span><span class="p">)</span>
+            <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">proj</span><span class="o">.</span><span class="n">crs</span><span class="o">.</span><span class="n">is_geographic</span><span class="p">:</span>
+                <span class="k">return</span> <span class="n">lon</span><span class="p">,</span> <span class="n">lat</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">x</span><span class="p">,</span> <span class="n">y</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">proj</span><span class="p">(</span><span class="n">lon</span><span class="p">,</span> <span class="n">lat</span><span class="p">,</span> <span class="n">inverse</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+                <span class="k">return</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="c1"># TODO: Use ThreadPool, maximum number of threads should not exceed</span>
+            <span class="c1"># available cpus.</span>
+
+            <span class="c1"># For larger arrays, we split and calculate in parallel</span>
+            <span class="c1"># The number of CPUs to use can be improved/optimised</span>
+            <span class="n">num_elements</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">atleast_1d</span><span class="p">(</span><span class="n">lon</span><span class="p">))</span>
+            <span class="k">if</span> <span class="n">num_elements</span> <span class="o">&gt;</span> <span class="mi">100</span> <span class="ow">and</span> <span class="ow">not</span> <span class="nb">hasattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span>
+                                                  <span class="s1">&#39;multiprocessing_fail&#39;</span><span class="p">):</span>
+                <span class="k">try</span><span class="p">:</span>
+                    <span class="n">nproc</span> <span class="o">=</span> <span class="mi">2</span>
+                    <span class="k">if</span> <span class="n">num_elements</span> <span class="o">&gt;</span> <span class="mi">1000</span><span class="p">:</span>
+                        <span class="n">nproc</span> <span class="o">=</span> <span class="mi">16</span>
+                    <span class="k">if</span> <span class="n">num_elements</span> <span class="o">&gt;</span> <span class="mi">100000</span><span class="p">:</span>
+                        <span class="n">nproc</span> <span class="o">=</span> <span class="mi">32</span>
+                    <span class="k">if</span> <span class="n">num_elements</span> <span class="o">&gt;</span> <span class="mi">1000000</span><span class="p">:</span>
+                        <span class="n">nproc</span> <span class="o">=</span> <span class="mi">64</span>
+                    <span class="n">cpus</span> <span class="o">=</span> <span class="n">cpu_count</span><span class="p">()</span>
+                    <span class="n">nproc</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">minimum</span><span class="p">(</span><span class="n">nproc</span><span class="p">,</span> <span class="n">cpus</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span>
+                    <span class="n">nproc</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">maximum</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="n">nproc</span><span class="p">)</span>
+                    <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span>
+                        <span class="s1">&#39;Running lonlat2xy in parallel, using </span><span class="si">%i</span><span class="s1"> of </span><span class="si">%i</span><span class="s1"> CPUs&#39;</span> <span class="o">%</span>
+                        <span class="p">(</span><span class="n">nproc</span><span class="p">,</span> <span class="n">cpus</span><span class="p">))</span>
+                    <span class="n">split_lon</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array_split</span><span class="p">(</span><span class="n">lon</span><span class="p">,</span> <span class="n">nproc</span><span class="p">)</span>
+                    <span class="n">split_lat</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array_split</span><span class="p">(</span><span class="n">lat</span><span class="p">,</span> <span class="n">nproc</span><span class="p">)</span>
+                    <span class="n">out_x</span> <span class="o">=</span> <span class="n">Manager</span><span class="p">()</span><span class="o">.</span><span class="n">dict</span><span class="p">()</span>
+                    <span class="n">out_y</span> <span class="o">=</span> <span class="n">Manager</span><span class="p">()</span><span class="o">.</span><span class="n">dict</span><span class="p">()</span>
+                    <span class="n">processes</span> <span class="o">=</span> <span class="p">[]</span>
+                    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">nproc</span><span class="p">):</span>
+                        <span class="n">processes</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+                            <span class="n">Process</span><span class="p">(</span><span class="n">target</span><span class="o">=</span><span class="n">get_x</span><span class="p">,</span>
+                                    <span class="n">args</span><span class="o">=</span><span class="p">(</span><span class="n">split_lon</span><span class="p">[</span><span class="n">i</span><span class="p">],</span> <span class="n">split_lat</span><span class="p">[</span><span class="n">i</span><span class="p">],</span> <span class="n">i</span><span class="p">)))</span>
+                        <span class="n">processes</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+                            <span class="n">Process</span><span class="p">(</span><span class="n">target</span><span class="o">=</span><span class="n">get_y</span><span class="p">,</span>
+                                    <span class="n">args</span><span class="o">=</span><span class="p">(</span><span class="n">split_lon</span><span class="p">[</span><span class="n">i</span><span class="p">],</span> <span class="n">split_lat</span><span class="p">[</span><span class="n">i</span><span class="p">],</span> <span class="n">i</span><span class="p">)))</span>
+                    <span class="p">[</span><span class="n">p</span><span class="o">.</span><span class="n">start</span><span class="p">()</span> <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">processes</span><span class="p">]</span>
+                    <span class="p">[</span><span class="n">p</span><span class="o">.</span><span class="n">join</span><span class="p">()</span> <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">processes</span><span class="p">]</span>
+                    <span class="n">x</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">concatenate</span><span class="p">(</span><span class="n">out_x</span><span class="p">)</span>
+                    <span class="n">y</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">concatenate</span><span class="p">(</span><span class="n">out_y</span><span class="p">)</span>
+                    <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;Completed lonlat2xy in parallel&#39;</span><span class="p">)</span>
+                    <span class="k">return</span> <span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">)</span>
+                <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+                    <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="s1">&#39;Parallelprocessing failed:&#39;</span><span class="p">)</span>
+                    <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="n">e</span><span class="p">)</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">multiprocessing_fail</span> <span class="o">=</span> <span class="kc">True</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s1">&#39;multiprocessing_fail&#39;</span><span class="p">):</span>
+                    <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span>
+                        <span class="s1">&#39;Multiprocessing has previously failed, reverting to using single processor for lonlat -&gt; xy&#39;</span>
+                    <span class="p">)</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="c1"># For smaller arrays, we run sequentially</span>
+                    <span class="k">pass</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;Calculating lonlat-&gt;xy sequentially&#39;</span><span class="p">)</span>
+            <span class="n">x</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">spl_x</span><span class="p">(</span><span class="n">lon</span><span class="p">,</span> <span class="n">lat</span><span class="p">)</span>
+            <span class="n">y</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">spl_y</span><span class="p">(</span><span class="n">lon</span><span class="p">,</span> <span class="n">lat</span><span class="p">)</span>
+            <span class="k">return</span> <span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="ReaderDomain.y_azimuth"><a class="viewcode-back" href="../../../../autoapi/opendrift/readers/basereader/variables/index.html#opendrift.readers.basereader.ReaderDomain.y_azimuth">[docs]</a>    <span class="k">def</span> <span class="nf">y_azimuth</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">lon</span><span class="p">,</span> <span class="n">lat</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Calculate azimuth orientation of the y-axis of the reader SRS.&quot;&quot;&quot;</span>
+        <span class="n">x0</span><span class="p">,</span> <span class="n">y0</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">lonlat2xy</span><span class="p">(</span><span class="n">lon</span><span class="p">,</span> <span class="n">lat</span><span class="p">)</span>
+        <span class="n">distance</span> <span class="o">=</span> <span class="mf">1000.0</span>  <span class="c1"># Create points 1 km away to determine azimuth</span>
+        <span class="n">lon_2</span><span class="p">,</span> <span class="n">lat_2</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">xy2lonlat</span><span class="p">(</span><span class="n">x0</span><span class="p">,</span> <span class="n">y0</span> <span class="o">+</span> <span class="n">distance</span><span class="p">)</span>
+        <span class="n">geod</span> <span class="o">=</span> <span class="n">pyproj</span><span class="o">.</span><span class="n">Geod</span><span class="p">(</span><span class="n">ellps</span><span class="o">=</span><span class="s1">&#39;WGS84&#39;</span><span class="p">)</span>  <span class="c1"># Define an ellipsoid</span>
+        <span class="n">y_az</span> <span class="o">=</span> <span class="n">geod</span><span class="o">.</span><span class="n">inv</span><span class="p">(</span><span class="n">lon_2</span><span class="p">,</span> <span class="n">lat_2</span><span class="p">,</span> <span class="n">lon</span><span class="p">,</span> <span class="n">lat</span><span class="p">,</span> <span class="n">radians</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+        <span class="n">dist</span> <span class="o">=</span> <span class="n">y_az</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span>
+        <span class="k">return</span> <span class="n">y_az</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span></div>
+
+<div class="viewcode-block" id="ReaderDomain.pixel_size"><a class="viewcode-back" href="../../../../autoapi/opendrift/readers/basereader/variables/index.html#opendrift.readers.basereader.ReaderDomain.pixel_size">[docs]</a>    <span class="k">def</span> <span class="nf">pixel_size</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="c1"># Find typical pixel size (e.g. for calculating size of buffer)</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">projected</span> <span class="ow">is</span> <span class="kc">True</span><span class="p">:</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">delta_x</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="n">pixelsize</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">delta_x</span>
+                <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">proj</span><span class="o">.</span><span class="n">crs</span><span class="o">.</span><span class="n">is_geographic</span> <span class="ow">is</span> <span class="kc">True</span> <span class="ow">or</span> \
+                        <span class="p">(</span><span class="s1">&#39;ob_tran&#39;</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">proj4</span><span class="p">)</span> <span class="ow">or</span> \
+                        <span class="p">(</span><span class="s1">&#39;longlat&#39;</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">proj4</span><span class="p">)</span> <span class="ow">or</span> \
+                        <span class="p">(</span><span class="s1">&#39;latlon&#39;</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">proj4</span><span class="p">):</span>
+                    <span class="n">pixelsize</span> <span class="o">=</span> <span class="n">pixelsize</span> <span class="o">*</span> <span class="mi">111000</span>  <span class="c1"># deg to meters</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">pixelsize</span> <span class="o">=</span> <span class="kc">None</span>  <span class="c1"># Pixel size not defined</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">lons</span><span class="p">,</span> <span class="n">lats</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">xy2lonlat</span><span class="p">([</span><span class="bp">self</span><span class="o">.</span><span class="n">xmin</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">xmax</span><span class="p">],</span>
+                                        <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">ymin</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">ymin</span><span class="p">])</span>
+            <span class="n">typicalsize</span> <span class="o">=</span> <span class="n">lons</span>
+            <span class="n">geod</span> <span class="o">=</span> <span class="n">pyproj</span><span class="o">.</span><span class="n">Geod</span><span class="p">(</span><span class="n">ellps</span><span class="o">=</span><span class="s1">&#39;WGS84&#39;</span><span class="p">)</span>  <span class="c1"># Define an ellipsoid</span>
+            <span class="n">dist</span> <span class="o">=</span> <span class="n">geod</span><span class="o">.</span><span class="n">inv</span><span class="p">(</span><span class="n">lons</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">lats</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">lons</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">lats</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span>
+                            <span class="n">radians</span><span class="o">=</span><span class="kc">False</span><span class="p">)[</span><span class="mi">2</span><span class="p">]</span>
+            <span class="n">pixelsize</span> <span class="o">=</span> <span class="n">dist</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="k">return</span> <span class="n">pixelsize</span></div>
+
+<div class="viewcode-block" id="ReaderDomain.covers_positions_xy"><a class="viewcode-back" href="../../../../autoapi/opendrift/readers/basereader/variables/index.html#opendrift.readers.basereader.ReaderDomain.covers_positions_xy">[docs]</a>    <span class="k">def</span> <span class="nf">covers_positions_xy</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">z</span><span class="o">=</span><span class="mi">0</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Return indices of input points covered by reader.</span>
+
+<span class="sd">        Arguments in native projection of reader.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">z</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">atleast_1d</span><span class="p">(</span><span class="n">z</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">global_coverage</span><span class="p">():</span>
+            <span class="c1"># We need only check north-south and z coverage</span>
+            <span class="n">indices</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">((</span><span class="n">y</span> <span class="o">&gt;=</span> <span class="bp">self</span><span class="o">.</span><span class="n">ymin</span><span class="p">)</span> <span class="o">&amp;</span> <span class="p">(</span><span class="n">y</span> <span class="o">&lt;=</span> <span class="bp">self</span><span class="o">.</span><span class="n">ymax</span><span class="p">)</span>
+                               <span class="o">&amp;</span> <span class="p">(</span><span class="n">z</span> <span class="o">&gt;=</span> <span class="bp">self</span><span class="o">.</span><span class="n">zmin</span><span class="p">)</span> <span class="o">&amp;</span> <span class="p">(</span><span class="n">z</span> <span class="o">&lt;=</span> <span class="bp">self</span><span class="o">.</span><span class="n">zmax</span><span class="p">))[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">indices</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">((</span><span class="n">x</span> <span class="o">&gt;=</span> <span class="bp">self</span><span class="o">.</span><span class="n">xmin</span><span class="p">)</span> <span class="o">&amp;</span> <span class="p">(</span><span class="n">x</span> <span class="o">&lt;=</span> <span class="bp">self</span><span class="o">.</span><span class="n">xmax</span><span class="p">)</span>
+                               <span class="o">&amp;</span> <span class="p">(</span><span class="n">y</span> <span class="o">&gt;=</span> <span class="bp">self</span><span class="o">.</span><span class="n">ymin</span><span class="p">)</span> <span class="o">&amp;</span> <span class="p">(</span><span class="n">y</span> <span class="o">&lt;=</span> <span class="bp">self</span><span class="o">.</span><span class="n">ymax</span><span class="p">)</span>
+                               <span class="o">&amp;</span> <span class="p">(</span><span class="n">z</span> <span class="o">&gt;=</span> <span class="bp">self</span><span class="o">.</span><span class="n">zmin</span><span class="p">)</span> <span class="o">&amp;</span> <span class="p">(</span><span class="n">z</span> <span class="o">&lt;=</span> <span class="bp">self</span><span class="o">.</span><span class="n">zmax</span><span class="p">))[</span><span class="mi">0</span><span class="p">]</span>
+
+        <span class="k">try</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">indices</span><span class="p">,</span> <span class="n">x</span><span class="p">[</span><span class="n">indices</span><span class="p">],</span> <span class="n">y</span><span class="p">[</span><span class="n">indices</span><span class="p">]</span>
+        <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">ex</span><span class="p">:</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">exception</span><span class="p">(</span><span class="n">ex</span><span class="p">)</span>
+            <span class="k">return</span> <span class="n">indices</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span></div>
+
+<div class="viewcode-block" id="ReaderDomain.covers_positions"><a class="viewcode-back" href="../../../../autoapi/opendrift/readers/basereader/variables/index.html#opendrift.readers.basereader.ReaderDomain.covers_positions">[docs]</a>    <span class="k">def</span> <span class="nf">covers_positions</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">lon</span><span class="p">,</span> <span class="n">lat</span><span class="p">,</span> <span class="n">z</span><span class="o">=</span><span class="mi">0</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Return indices of input points covered by reader.&quot;&quot;&quot;</span>
+
+        <span class="n">x</span><span class="p">,</span> <span class="n">y</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">lonlat2xy</span><span class="p">(</span><span class="n">lon</span><span class="p">,</span> <span class="n">lat</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">covers_positions_xy</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">z</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="ReaderDomain.global_coverage"><a class="viewcode-back" href="../../../../autoapi/opendrift/readers/basereader/variables/index.html#opendrift.readers.basereader.ReaderDomain.global_coverage">[docs]</a>    <span class="k">def</span> <span class="nf">global_coverage</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Return True if global coverage east-west&quot;&quot;&quot;</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">proj</span><span class="o">.</span><span class="n">crs</span><span class="o">.</span><span class="n">is_geographic</span> <span class="ow">is</span> <span class="kc">True</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">delta_x</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">if</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">xmin</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">delta_x</span> <span class="o">&lt;=</span> <span class="mi">0</span><span class="p">)</span> <span class="ow">and</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">xmax</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">delta_x</span> <span class="o">&gt;=</span>
+                                                    <span class="mi">360</span><span class="p">):</span>
+                <span class="k">return</span> <span class="kc">True</span>  <span class="c1"># Global 0 to 360</span>
+            <span class="k">if</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">xmin</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">delta_x</span> <span class="o">&lt;=</span> <span class="o">-</span><span class="mi">180</span><span class="p">)</span> <span class="ow">and</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">xmax</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">delta_x</span>
+                                                       <span class="o">&gt;=</span> <span class="mi">180</span><span class="p">):</span>
+                <span class="k">return</span> <span class="kc">True</span>  <span class="c1"># Global -180 to 180</span>
+
+        <span class="k">return</span> <span class="kc">False</span></div>
+
+<div class="viewcode-block" id="ReaderDomain.domain_grid"><a class="viewcode-back" href="../../../../autoapi/opendrift/readers/basereader/variables/index.html#opendrift.readers.basereader.ReaderDomain.domain_grid">[docs]</a>    <span class="k">def</span> <span class="nf">domain_grid</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">npoints</span><span class="o">=</span><span class="mi">1000</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Return arrays of lon,lat points spread evenly over reader domain.&quot;&quot;&quot;</span>
+        <span class="n">numx</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">floor</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">npoints</span><span class="p">))</span>
+        <span class="n">numy</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">floor</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">npoints</span><span class="p">))</span>
+        <span class="n">x</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">xmin</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">xmax</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">delta_x</span><span class="p">,</span> <span class="n">numx</span><span class="p">)</span>
+        <span class="n">y</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">ymin</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">ymax</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">delta_y</span><span class="p">,</span> <span class="n">numy</span><span class="p">)</span>
+        <span class="n">x</span><span class="p">,</span> <span class="n">y</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">meshgrid</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">)</span>
+        <span class="n">lons</span><span class="p">,</span> <span class="n">lats</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">xy2lonlat</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">lons</span><span class="p">,</span> <span class="n">lats</span></div>
+
+<div class="viewcode-block" id="ReaderDomain.coverage_string"><a class="viewcode-back" href="../../../../autoapi/opendrift/readers/basereader/variables/index.html#opendrift.readers.basereader.ReaderDomain.coverage_string">[docs]</a>    <span class="k">def</span> <span class="nf">coverage_string</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Coverage of reader to be reported as string for debug output&quot;&quot;&quot;</span>
+        <span class="n">corners</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">xy2lonlat</span><span class="p">([</span><span class="bp">self</span><span class="o">.</span><span class="n">xmin</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">xmin</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">xmax</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">xmax</span><span class="p">],</span>
+                                 <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">ymax</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">ymin</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">ymax</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">ymin</span><span class="p">])</span>
+        <span class="k">return</span> <span class="s1">&#39;</span><span class="si">%.2f</span><span class="s1">-</span><span class="si">%.2f</span><span class="s1">E, </span><span class="si">%.2f</span><span class="s1">-</span><span class="si">%.2f</span><span class="s1">N&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">min</span><span class="p">(</span>
+            <span class="n">corners</span><span class="p">[</span><span class="mi">0</span><span class="p">]),</span> <span class="n">np</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="n">corners</span><span class="p">[</span><span class="mi">0</span><span class="p">]),</span> <span class="n">np</span><span class="o">.</span><span class="n">min</span><span class="p">(</span>
+                <span class="n">corners</span><span class="p">[</span><span class="mi">1</span><span class="p">]),</span> <span class="n">np</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="n">corners</span><span class="p">[</span><span class="mi">1</span><span class="p">]))</span></div>
+
+<div class="viewcode-block" id="ReaderDomain.check_arguments"><a class="viewcode-back" href="../../../../autoapi/opendrift/readers/basereader/variables/index.html#opendrift.readers.basereader.ReaderDomain.check_arguments">[docs]</a>    <span class="k">def</span> <span class="nf">check_arguments</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">variables</span><span class="p">,</span> <span class="n">time</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">z</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Check validity of arguments input to method get_variables.</span>
+
+<span class="sd">        Checks that requested positions and time are within coverage of</span>
+<span class="sd">        this reader, and that it can provide the requested variable(s).</span>
+<span class="sd">        Returns the input arguments, possibly modified/corrected (below)</span>
+
+<span class="sd">        Arguments:</span>
+<span class="sd">            See function get_variables for definition.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            variables: same as input, but converted to list if given as string.</span>
+<span class="sd">            time: same as input, or start_time of reader if given as None.</span>
+<span class="sd">            x, y, z: same as input, but converted to ndarrays</span>
+<span class="sd">                if given as scalars.</span>
+<span class="sd">            outside: boolean array which is True for any particles outside</span>
+<span class="sd">                the spatial domain covered by this reader.</span>
+
+<span class="sd">        Raises:</span>
+<span class="sd">            ValueError:</span>
+<span class="sd">                - if requested time is outside coverage of reader.</span>
+<span class="sd">                - if all requested positions are outside coverage of reader.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="c1"># Check time</span>
+        <span class="k">if</span> <span class="n">time</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">time</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">start_time</span>  <span class="c1"># Use first timestep, if not given</span>
+
+        <span class="c1"># Convert variables to list and x,y to ndarrays</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">variables</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
+            <span class="n">variables</span> <span class="o">=</span> <span class="p">[</span><span class="n">variables</span><span class="p">]</span>
+        <span class="n">x</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">atleast_1d</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+        <span class="n">y</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">atleast_1d</span><span class="p">(</span><span class="n">y</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">z</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">z</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">z</span><span class="p">)</span>
+
+        <span class="k">for</span> <span class="n">variable</span> <span class="ow">in</span> <span class="n">variables</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">variable</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">variables</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;Variable not available: &#39;</span> <span class="o">+</span> <span class="n">variable</span> <span class="o">+</span>
+                                 <span class="s1">&#39;</span><span class="se">\n</span><span class="s1">Available parameters are: &#39;</span> <span class="o">+</span>
+                                 <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">variables</span><span class="p">))</span>
+        <span class="k">if</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">start_time</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
+                <span class="ow">and</span> <span class="n">time</span> <span class="o">&lt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">start_time</span><span class="p">)</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">always_valid</span> <span class="ow">is</span> <span class="kc">False</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;Requested time (</span><span class="si">%s</span><span class="s1">) is before first available &#39;</span>
+                             <span class="s1">&#39;time (</span><span class="si">%s</span><span class="s1">) of </span><span class="si">%s</span><span class="s1">&#39;</span> <span class="o">%</span>
+                             <span class="p">(</span><span class="n">time</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">start_time</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">))</span>
+        <span class="k">if</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">end_time</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
+                <span class="ow">and</span> <span class="n">time</span> <span class="o">&gt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">end_time</span><span class="p">)</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">always_valid</span> <span class="ow">is</span> <span class="kc">False</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;Requested time (</span><span class="si">%s</span><span class="s1">) is after last available &#39;</span>
+                             <span class="s1">&#39;time (</span><span class="si">%s</span><span class="s1">) of </span><span class="si">%s</span><span class="s1">&#39;</span> <span class="o">%</span>
+                             <span class="p">(</span><span class="n">time</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">end_time</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">))</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">global_coverage</span><span class="p">():</span>
+            <span class="n">outside</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="o">~</span><span class="n">np</span><span class="o">.</span><span class="n">isfinite</span><span class="p">(</span><span class="n">x</span> <span class="o">+</span> <span class="n">y</span><span class="p">)</span> <span class="o">|</span> <span class="p">(</span><span class="n">y</span> <span class="o">&lt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">ymin</span><span class="p">)</span>
+                               <span class="o">|</span> <span class="p">(</span><span class="n">y</span> <span class="o">&gt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">ymax</span><span class="p">))[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">outside</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="o">~</span><span class="n">np</span><span class="o">.</span><span class="n">isfinite</span><span class="p">(</span><span class="n">x</span> <span class="o">+</span> <span class="n">y</span><span class="p">)</span> <span class="o">|</span> <span class="p">(</span><span class="n">x</span> <span class="o">&lt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">xmin</span><span class="p">)</span>
+                               <span class="o">|</span> <span class="p">(</span><span class="n">x</span> <span class="o">&gt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">xmax</span><span class="p">)</span> <span class="o">|</span> <span class="p">(</span><span class="n">y</span> <span class="o">&lt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">ymin</span><span class="p">)</span>
+                               <span class="o">|</span> <span class="p">(</span><span class="n">y</span> <span class="o">&gt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">ymax</span><span class="p">))[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">size</span><span class="p">(</span><span class="n">outside</span><span class="p">)</span> <span class="o">==</span> <span class="n">np</span><span class="o">.</span><span class="n">size</span><span class="p">(</span><span class="n">x</span><span class="p">):</span>
+            <span class="n">lon</span><span class="p">,</span> <span class="n">lat</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">xy2lonlat</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">)</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">((</span><span class="s1">&#39;Argcheck: all </span><span class="si">%s</span><span class="s1"> particles (</span><span class="si">%.2f</span><span class="s1">-</span><span class="si">%.2f</span><span class="s1">E, &#39;</span> <span class="o">+</span>
+                              <span class="s1">&#39;</span><span class="si">%.2f</span><span class="s1">-</span><span class="si">%.2f</span><span class="s1">N) are outside domain of </span><span class="si">%s</span><span class="s1"> (</span><span class="si">%s</span><span class="s1">)&#39;</span><span class="p">)</span> <span class="o">%</span>
+                             <span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">lon</span><span class="p">),</span> <span class="n">lon</span><span class="o">.</span><span class="n">min</span><span class="p">(),</span> <span class="n">lon</span><span class="o">.</span><span class="n">max</span><span class="p">(),</span> <span class="n">lat</span><span class="o">.</span><span class="n">min</span><span class="p">(),</span>
+                              <span class="n">lat</span><span class="o">.</span><span class="n">max</span><span class="p">(),</span> <span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">coverage_string</span><span class="p">()))</span>
+
+        <span class="k">return</span> <span class="n">variables</span><span class="p">,</span> <span class="n">time</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">z</span><span class="p">,</span> <span class="n">outside</span></div>
+
+<div class="viewcode-block" id="ReaderDomain.covers_time"><a class="viewcode-back" href="../../../../autoapi/opendrift/readers/basereader/variables/index.html#opendrift.readers.basereader.ReaderDomain.covers_time">[docs]</a>    <span class="k">def</span> <span class="nf">covers_time</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">time</span><span class="p">):</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">always_valid</span> <span class="ow">is</span> <span class="kc">True</span><span class="p">:</span>
+            <span class="k">return</span> <span class="kc">True</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">start_time</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">return</span> <span class="kc">True</span>  <span class="c1"># No time limitations of reader</span>
+        <span class="k">if</span> <span class="p">(</span><span class="n">time</span> <span class="o">&lt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">start_time</span><span class="p">)</span> <span class="ow">or</span> <span class="p">(</span><span class="n">time</span> <span class="o">&gt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">end_time</span><span class="p">):</span>
+            <span class="k">return</span> <span class="kc">False</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="kc">True</span></div>
+
+<div class="viewcode-block" id="ReaderDomain.nearest_time"><a class="viewcode-back" href="../../../../autoapi/opendrift/readers/basereader/variables/index.html#opendrift.readers.basereader.ReaderDomain.nearest_time">[docs]</a>    <span class="k">def</span> <span class="nf">nearest_time</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">time</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Return nearest times before and after the requested time.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            nearest_time: datetime</span>
+<span class="sd">            time_before: datetime</span>
+<span class="sd">            time_after: datetime</span>
+<span class="sd">            indx_nearest: int</span>
+<span class="sd">            indx_before: int</span>
+<span class="sd">            indx_after: int</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">start_time</span> <span class="o">==</span> <span class="bp">self</span><span class="o">.</span><span class="n">end_time</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">start_time</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">start_time</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">start_time</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">return</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">times</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>  <span class="c1"># Time as array, possibly with holes</span>
+            <span class="n">indx_before</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">max</span><span class="p">((</span><span class="mi">0</span><span class="p">,</span> <span class="n">bisect_left</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">times</span><span class="p">,</span> <span class="n">time</span><span class="p">)</span> <span class="o">-</span> <span class="mi">1</span><span class="p">))</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">times</span><span class="p">[</span><span class="n">indx_before</span> <span class="o">+</span> <span class="mi">1</span><span class="p">]</span> <span class="o">==</span> <span class="n">time</span><span class="p">:</span>
+                <span class="c1"># Correction needed when requested time exists in times</span>
+                <span class="n">indx_before</span> <span class="o">=</span> <span class="n">indx_before</span> <span class="o">+</span> <span class="mi">1</span>
+            <span class="n">time_before</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">times</span><span class="p">[</span><span class="n">indx_before</span><span class="p">]</span>
+            <span class="n">indx_after</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">minimum</span><span class="p">(</span><span class="n">indx_before</span> <span class="o">+</span> <span class="mi">1</span><span class="p">,</span>
+                                    <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">times</span><span class="p">)</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span>  <span class="c1"># At the end</span>
+            <span class="n">time_after</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">times</span><span class="p">[</span><span class="n">indx_after</span><span class="p">]</span>
+            <span class="k">if</span> <span class="p">(</span><span class="n">time</span> <span class="o">-</span> <span class="n">time_before</span><span class="p">)</span> <span class="o">&lt;</span> <span class="p">(</span><span class="n">time_after</span> <span class="o">-</span> <span class="n">time</span><span class="p">):</span>
+                <span class="n">indx_nearest</span> <span class="o">=</span> <span class="n">indx_before</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">indx_nearest</span> <span class="o">=</span> <span class="n">indx_after</span>
+            <span class="n">nearest_time</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">times</span><span class="p">[</span><span class="n">indx_nearest</span><span class="p">]</span>
+        <span class="k">else</span><span class="p">:</span>  <span class="c1"># Time step is constant (no holes)</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">time_step</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="k">return</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span>
+            <span class="n">indx</span> <span class="o">=</span> <span class="nb">float</span><span class="p">((</span><span class="n">time</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">start_time</span><span class="p">)</span><span class="o">.</span><span class="n">total_seconds</span><span class="p">())</span> <span class="o">/</span> \
+                <span class="nb">float</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">time_step</span><span class="o">.</span><span class="n">total_seconds</span><span class="p">())</span>
+            <span class="n">indx_nearest</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="nb">round</span><span class="p">(</span><span class="n">indx</span><span class="p">))</span>
+            <span class="n">nearest_time</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">start_time</span> <span class="o">+</span> <span class="n">indx_nearest</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">time_step</span>
+            <span class="n">indx_before</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">floor</span><span class="p">(</span><span class="n">indx</span><span class="p">))</span>
+            <span class="n">time_before</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">start_time</span> <span class="o">+</span> <span class="n">indx_before</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">time_step</span>
+            <span class="n">indx_after</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">ceil</span><span class="p">(</span><span class="n">indx</span><span class="p">))</span>
+            <span class="n">time_after</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">start_time</span> <span class="o">+</span> <span class="n">indx_after</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">time_step</span>
+        <span class="k">return</span> <span class="n">nearest_time</span><span class="p">,</span> <span class="n">time_before</span><span class="p">,</span> <span class="n">time_after</span><span class="p">,</span>\
+            <span class="n">indx_nearest</span><span class="p">,</span> <span class="n">indx_before</span><span class="p">,</span> <span class="n">indx_after</span></div></div>
+
+
+<div class="viewcode-block" id="Variables"><a class="viewcode-back" href="../../../../autoapi/opendrift/readers/basereader/variables/index.html#opendrift.readers.basereader.Variables">[docs]</a><span class="k">class</span> <span class="nc">Variables</span><span class="p">(</span><span class="n">ReaderDomain</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Handles reading and interpolation of variables.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">derived_variables</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">name</span> <span class="o">=</span> <span class="kc">None</span>
+
+    <span class="n">buffer</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="n">convolve</span> <span class="o">=</span> <span class="kc">None</span>  <span class="c1"># Convolution kernel or kernel size</span>
+
+    <span class="n">environment_mappers</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">environment_mappings</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="s1">&#39;wind_from_speed_and_direction&#39;</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s1">&#39;input&#39;</span><span class="p">:</span> <span class="p">[</span><span class="s1">&#39;wind_speed&#39;</span><span class="p">,</span> <span class="s1">&#39;wind_to_direction&#39;</span><span class="p">],</span>
+            <span class="s1">&#39;output&#39;</span><span class="p">:</span> <span class="p">[</span><span class="s1">&#39;x_wind&#39;</span><span class="p">,</span> <span class="s1">&#39;y_wind&#39;</span><span class="p">],</span>
+            <span class="s1">&#39;method&#39;</span><span class="p">:</span>
+            <span class="k">lambda</span> <span class="n">reader</span><span class="p">,</span> <span class="n">var</span><span class="p">:</span> <span class="n">reader</span><span class="o">.</span><span class="n">wind_from_speed_and_direction</span><span class="p">(</span><span class="n">var</span><span class="p">)</span>
+        <span class="p">},</span>
+        <span class="s1">&#39;testvar&#39;</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s1">&#39;input&#39;</span><span class="p">:</span> <span class="p">[</span><span class="s1">&#39;sea_ice_thickness&#39;</span><span class="p">],</span>
+            <span class="s1">&#39;output&#39;</span><span class="p">:</span> <span class="p">[</span><span class="s1">&#39;istjukkleik&#39;</span><span class="p">]</span>
+        <span class="p">}</span>
+    <span class="p">}</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">derived_variables</span> <span class="o">=</span> <span class="p">{}</span>
+
+<div class="viewcode-block" id="Variables.set_convolution_kernel"><a class="viewcode-back" href="../../../../autoapi/opendrift/readers/basereader/variables/index.html#opendrift.readers.basereader.Variables.set_convolution_kernel">[docs]</a>    <span class="k">def</span> <span class="nf">set_convolution_kernel</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">convolve</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Set a convolution kernel or kernel size (of array of ones) used by `get_variables` on read variables.&quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">convolve</span> <span class="o">=</span> <span class="n">convolve</span></div>
+
+<div class="viewcode-block" id="Variables.set_buffer_size"><a class="viewcode-back" href="../../../../autoapi/opendrift/readers/basereader/variables/index.html#opendrift.readers.basereader.Variables.set_buffer_size">[docs]</a>    <span class="k">def</span> <span class="nf">set_buffer_size</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">max_speed</span><span class="p">,</span> <span class="n">max_vertical_speed</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;Adjust buffer to minimise data block size needed to cover elements&#39;&#39;&#39;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">buffer</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="n">pixelsize</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">pixel_size</span><span class="p">()</span>
+        <span class="k">if</span> <span class="n">pixelsize</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">time_step</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="n">time_step_seconds</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">time_step</span><span class="o">.</span><span class="n">total_seconds</span><span class="p">()</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">time_step_seconds</span> <span class="o">=</span> <span class="mi">3600</span>  <span class="c1"># 1 hour if not given</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">buffer</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">int</span><span class="p">(</span>
+                <span class="n">np</span><span class="o">.</span><span class="n">ceil</span><span class="p">(</span><span class="n">max_speed</span> <span class="o">*</span> <span class="n">time_step_seconds</span> <span class="o">/</span> <span class="n">pixelsize</span><span class="p">))</span> <span class="o">+</span> <span class="mi">2</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;Setting buffer size </span><span class="si">%i</span><span class="s1"> for reader </span><span class="si">%s</span><span class="s1">, assuming &#39;</span>
+                         <span class="s1">&#39;a maximum average speed of </span><span class="si">%g</span><span class="s1"> m/s.&#39;</span> <span class="o">%</span>
+                         <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">buffer</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="n">max_speed</span><span class="p">))</span></div>
+
+<div class="viewcode-block" id="Variables.wind_from_speed_and_direction"><a class="viewcode-back" href="../../../../autoapi/opendrift/readers/basereader/variables/index.html#opendrift.readers.basereader.Variables.wind_from_speed_and_direction">[docs]</a>    <span class="k">def</span> <span class="nf">wind_from_speed_and_direction</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">env</span><span class="p">):</span>
+        <span class="n">north_wind</span> <span class="o">=</span> <span class="n">env</span><span class="p">[</span><span class="s1">&#39;wind_speed&#39;</span><span class="p">]</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">cos</span><span class="p">(</span>
+            <span class="n">np</span><span class="o">.</span><span class="n">radians</span><span class="p">(</span><span class="n">env</span><span class="p">[</span><span class="s1">&#39;wind_to_direction&#39;</span><span class="p">]))</span>
+        <span class="n">east_wind</span> <span class="o">=</span> <span class="n">env</span><span class="p">[</span><span class="s1">&#39;wind_speed&#39;</span><span class="p">]</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span>
+            <span class="n">np</span><span class="o">.</span><span class="n">radians</span><span class="p">(</span><span class="n">env</span><span class="p">[</span><span class="s1">&#39;wind_to_direction&#39;</span><span class="p">]))</span>
+        <span class="n">env</span><span class="p">[</span><span class="s1">&#39;x_wind&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">east_wind</span>
+        <span class="n">env</span><span class="p">[</span><span class="s1">&#39;y_wind&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">north_wind</span></div>
+        <span class="c1"># Rotating might be necessary generally</span>
+        <span class="c1">#x,y = np.meshgrid(env[&#39;x&#39;], env[&#39;y&#39;])</span>
+        <span class="c1">#env[&#39;x_wind&#39;], env[&#39;y_wind&#39;] = self.rotate_vectors(</span>
+        <span class="c1">#    x, y,</span>
+        <span class="c1">#    east_wind, north_wind,</span>
+        <span class="c1">#    None, self.proj)</span>
+
+<div class="viewcode-block" id="Variables.calculate_derived_environment_variables"><a class="viewcode-back" href="../../../../autoapi/opendrift/readers/basereader/variables/index.html#opendrift.readers.basereader.Variables.calculate_derived_environment_variables">[docs]</a>    <span class="k">def</span> <span class="nf">calculate_derived_environment_variables</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">env</span><span class="p">):</span>
+
+        <span class="k">if</span> <span class="s1">&#39;x_wind&#39;</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">derived_variables</span> <span class="ow">and</span> <span class="s1">&#39;wind_speed&#39;</span> <span class="ow">in</span> <span class="n">env</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">wind_from_speed_and_direction</span><span class="p">(</span><span class="n">env</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="Variables._get_variables_impl_"><a class="viewcode-back" href="../../../../autoapi/opendrift/readers/basereader/variables/index.html#opendrift.readers.basereader.Variables._get_variables_impl_">[docs]</a>    <span class="k">def</span> <span class="nf">_get_variables_impl_</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">variables</span><span class="p">,</span> <span class="n">profiles</span><span class="p">,</span> <span class="n">profiles_depth</span><span class="p">,</span> <span class="n">time</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span>
+                           <span class="n">y</span><span class="p">,</span> <span class="n">z</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Wrapper around reader-specific function get_variables()</span>
+
+<span class="sd">        Performs some common operations which should not be duplicated:</span>
+
+<span class="sd">            - monitor time spent by this reader</span>
+<span class="sd">            - convert any numpy arrays to masked arrays</span>
+<span class="sd">            - add points to x, y and z to get profiles if necessary</span>
+<span class="sd">            - convolve vectors if `self.convolve` is specified</span>
+
+<span class="sd">        This function calls :meth:`__get_variables_derived__` which eventually</span>
+<span class="sd">        calls :meth:`get_variables` on the implementing reader.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;Fetching variables from &#39;</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">timer_start</span><span class="p">(</span><span class="s1">&#39;reading&#39;</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">profiles</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="c1"># If profiles are requested for any parameters, we</span>
+            <span class="c1"># add two fake points at the end of array to make sure that the</span>
+            <span class="c1"># requested block has the depth range required for profiles</span>
+            <span class="n">x</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="p">[</span><span class="n">x</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">],</span> <span class="n">x</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]])</span>
+            <span class="n">y</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">y</span><span class="p">,</span> <span class="p">[</span><span class="n">y</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">],</span> <span class="n">y</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]])</span>
+            <span class="n">z</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">z</span><span class="p">,</span> <span class="p">[</span><span class="n">profiles_depth</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">profiles_depth</span><span class="p">[</span><span class="mi">1</span><span class="p">]])</span>
+
+        <span class="n">env</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">__get_variables_derived__</span><span class="p">(</span><span class="n">variables</span><span class="p">,</span> <span class="n">time</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">z</span><span class="p">)</span>
+
+        <span class="c1"># Make sure x and y are floats (and not e.g. int64)</span>
+        <span class="k">if</span> <span class="s1">&#39;x&#39;</span> <span class="ow">in</span> <span class="n">env</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+            <span class="n">env</span><span class="p">[</span><span class="s1">&#39;x&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">env</span><span class="p">[</span><span class="s1">&#39;x&#39;</span><span class="p">],</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">float</span><span class="p">)</span>
+            <span class="n">env</span><span class="p">[</span><span class="s1">&#39;y&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">env</span><span class="p">[</span><span class="s1">&#39;y&#39;</span><span class="p">],</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">float</span><span class="p">)</span>
+
+        <span class="k">for</span> <span class="n">variable</span> <span class="ow">in</span> <span class="n">variables</span><span class="p">:</span>
+            <span class="c1"># Convert any masked arrays to NumPy arrays</span>
+            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">env</span><span class="p">[</span><span class="n">variable</span><span class="p">],</span> <span class="n">np</span><span class="o">.</span><span class="n">ma</span><span class="o">.</span><span class="n">MaskedArray</span><span class="p">):</span>
+                <span class="n">env</span><span class="p">[</span><span class="n">variable</span><span class="p">]</span> <span class="o">=</span> <span class="n">env</span><span class="p">[</span><span class="n">variable</span><span class="p">]</span><span class="o">.</span><span class="n">filled</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">nan</span><span class="p">)</span>
+            <span class="c1"># Mask values outside valid_min, valid_max (self.standard_names)</span>
+            <span class="k">if</span> <span class="n">variable</span> <span class="ow">in</span> <span class="n">standard_names</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+                <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">env</span><span class="p">[</span><span class="n">variable</span><span class="p">],</span> <span class="nb">list</span><span class="p">):</span>
+                    <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span>
+                        <span class="s1">&#39;Skipping min-max checking for ensemble data&#39;</span><span class="p">)</span>
+                    <span class="k">continue</span>
+                <span class="k">with</span> <span class="n">np</span><span class="o">.</span><span class="n">errstate</span><span class="p">(</span><span class="n">invalid</span><span class="o">=</span><span class="s1">&#39;ignore&#39;</span><span class="p">):</span>
+                    <span class="n">invalid_indices</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">logical_and</span><span class="p">(</span>
+                        <span class="n">np</span><span class="o">.</span><span class="n">isfinite</span><span class="p">(</span><span class="n">env</span><span class="p">[</span><span class="n">variable</span><span class="p">]),</span>
+                        <span class="n">np</span><span class="o">.</span><span class="n">logical_or</span><span class="p">(</span>
+                            <span class="n">env</span><span class="p">[</span><span class="n">variable</span><span class="p">]</span> <span class="o">&lt;</span>
+                            <span class="n">standard_names</span><span class="p">[</span><span class="n">variable</span><span class="p">][</span><span class="s1">&#39;valid_min&#39;</span><span class="p">],</span>
+                            <span class="n">env</span><span class="p">[</span><span class="n">variable</span><span class="p">]</span> <span class="o">&gt;</span>
+                            <span class="n">standard_names</span><span class="p">[</span><span class="n">variable</span><span class="p">][</span><span class="s1">&#39;valid_max&#39;</span><span class="p">]))</span>
+                <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">invalid_indices</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+                    <span class="n">invalid_values</span> <span class="o">=</span> <span class="n">env</span><span class="p">[</span><span class="n">variable</span><span class="p">][</span><span class="n">invalid_indices</span><span class="p">]</span>
+                    <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span>
+                        <span class="s1">&#39;Invalid values (</span><span class="si">%s</span><span class="s1"> to </span><span class="si">%s</span><span class="s1">) found for </span><span class="si">%s</span><span class="s1">, replacing with NaN&#39;</span>
+                        <span class="o">%</span>
+                        <span class="p">(</span><span class="n">invalid_values</span><span class="o">.</span><span class="n">min</span><span class="p">(),</span> <span class="n">invalid_values</span><span class="o">.</span><span class="n">max</span><span class="p">(),</span> <span class="n">variable</span><span class="p">))</span>
+                    <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="s1">&#39;(allowed range: [</span><span class="si">%s</span><span class="s1">, </span><span class="si">%s</span><span class="s1">])&#39;</span> <span class="o">%</span>
+                                   <span class="p">(</span><span class="n">standard_names</span><span class="p">[</span><span class="n">variable</span><span class="p">][</span><span class="s1">&#39;valid_min&#39;</span><span class="p">],</span>
+                                    <span class="n">standard_names</span><span class="p">[</span><span class="n">variable</span><span class="p">][</span><span class="s1">&#39;valid_max&#39;</span><span class="p">]))</span>
+                    <span class="n">env</span><span class="p">[</span><span class="n">variable</span><span class="p">][</span><span class="n">invalid_indices</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span>
+
+        <span class="c1"># Convolve arrays with a kernel, if reader.convolve is set</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">convolve</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="kn">from</span> <span class="nn">scipy</span> <span class="kn">import</span> <span class="n">ndimage</span>
+            <span class="n">N</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">convolve</span>
+            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">N</span><span class="p">,</span> <span class="p">(</span><span class="nb">int</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">integer</span><span class="p">)):</span>
+                <span class="n">kernel</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">ones</span><span class="p">((</span><span class="n">N</span><span class="p">,</span> <span class="n">N</span><span class="p">))</span>
+                <span class="n">kernel</span> <span class="o">=</span> <span class="n">kernel</span> <span class="o">/</span> <span class="n">kernel</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">kernel</span> <span class="o">=</span> <span class="n">N</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;Convolving variables with kernel: </span><span class="si">%s</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="n">kernel</span><span class="p">)</span>
+            <span class="k">for</span> <span class="n">variable</span> <span class="ow">in</span> <span class="n">env</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+                <span class="k">if</span> <span class="n">variable</span> <span class="ow">in</span> <span class="p">[</span><span class="s1">&#39;x&#39;</span><span class="p">,</span> <span class="s1">&#39;y&#39;</span><span class="p">,</span> <span class="s1">&#39;z&#39;</span><span class="p">,</span> <span class="s1">&#39;time&#39;</span><span class="p">]:</span>
+                    <span class="k">pass</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="k">if</span> <span class="n">env</span><span class="p">[</span><span class="n">variable</span><span class="p">]</span><span class="o">.</span><span class="n">ndim</span> <span class="o">==</span> <span class="mi">2</span><span class="p">:</span>
+                        <span class="n">env</span><span class="p">[</span><span class="n">variable</span><span class="p">]</span> <span class="o">=</span> <span class="n">ndimage</span><span class="o">.</span><span class="n">convolve</span><span class="p">(</span><span class="n">env</span><span class="p">[</span><span class="n">variable</span><span class="p">],</span>
+                                                         <span class="n">kernel</span><span class="p">,</span>
+                                                         <span class="n">mode</span><span class="o">=</span><span class="s1">&#39;nearest&#39;</span><span class="p">)</span>
+                    <span class="k">elif</span> <span class="n">env</span><span class="p">[</span><span class="n">variable</span><span class="p">]</span><span class="o">.</span><span class="n">ndim</span> <span class="o">==</span> <span class="mi">3</span><span class="p">:</span>
+                        <span class="n">env</span><span class="p">[</span><span class="n">variable</span><span class="p">]</span> <span class="o">=</span> <span class="n">ndimage</span><span class="o">.</span><span class="n">convolve</span><span class="p">(</span><span class="n">env</span><span class="p">[</span><span class="n">variable</span><span class="p">],</span>
+                                                         <span class="n">kernel</span><span class="p">[:,</span> <span class="p">:,</span> <span class="kc">None</span><span class="p">],</span>
+                                                         <span class="n">mode</span><span class="o">=</span><span class="s1">&#39;nearest&#39;</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">timer_end</span><span class="p">(</span><span class="s1">&#39;reading&#39;</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">env</span></div>
+
+<div class="viewcode-block" id="Variables.__get_variables_derived__"><a class="viewcode-back" href="../../../../autoapi/opendrift/readers/basereader/variables/index.html#opendrift.readers.basereader.Variables.__get_variables_derived__">[docs]</a>    <span class="k">def</span> <span class="nf">__get_variables_derived__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">variables</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Wrapper around get_variables, adding derived&quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">variables</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
+            <span class="n">variables</span> <span class="o">=</span> <span class="p">[</span><span class="n">variables</span><span class="p">]</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">variables</span><span class="p">,</span> <span class="nb">list</span><span class="p">):</span>
+            <span class="n">variables</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">variables</span><span class="p">)</span>
+        <span class="n">derive_variables</span> <span class="o">=</span> <span class="kc">False</span>
+        <span class="k">for</span> <span class="n">var</span> <span class="ow">in</span> <span class="n">variables</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">var</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">derived_variables</span><span class="p">:</span>
+                <span class="n">fromvars</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">derived_variables</span><span class="p">[</span><span class="n">var</span><span class="p">]</span>
+                <span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">fromvars</span><span class="p">:</span>
+                    <span class="n">variables</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">v</span><span class="p">)</span>
+                <span class="c1"># Removing the derived variable name</span>
+                <span class="n">variables</span> <span class="o">=</span> <span class="p">[</span><span class="n">v</span> <span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">variables</span> <span class="k">if</span> <span class="n">v</span> <span class="o">!=</span> <span class="n">var</span><span class="p">]</span>
+                <span class="n">derive_variables</span> <span class="o">=</span> <span class="kc">True</span>
+
+        <span class="n">env</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_variables</span><span class="p">(</span><span class="n">variables</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">derive_variables</span> <span class="ow">is</span> <span class="kc">True</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">calculate_derived_environment_variables</span><span class="p">(</span><span class="n">env</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">env</span></div>
+
+<div class="viewcode-block" id="Variables.get_variables"><a class="viewcode-back" href="../../../../autoapi/opendrift/readers/basereader/variables/index.html#opendrift.readers.basereader.Variables.get_variables">[docs]</a>    <span class="nd">@abstractmethod</span>
+    <span class="k">def</span> <span class="nf">get_variables</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">variables</span><span class="p">,</span> <span class="n">time</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">x</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">y</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">z</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Method which must be implemented by all reader-subclasses.</span>
+
+<span class="sd">        &gt; Warning: In the future this method is likely to be a requirement of</span>
+<span class="sd">        &gt; each reader, and it will be up to the reader-type how values are</span>
+<span class="sd">        &gt; retrieved.</span>
+
+<span class="sd">        Obtain and return values of the requested variables at all positions</span>
+<span class="sd">        (x, y, z) closest to given time.</span>
+
+<span class="sd">        Arguments:</span>
+<span class="sd">            variables: string, or list of strings (standard_name) of</span>
+<span class="sd">                requested variables. These must be provided by reader.</span>
+<span class="sd">            time: datetime or None, time at which data are requested.</span>
+<span class="sd">                Can be None (default) if reader/variable has no time</span>
+<span class="sd">                dimension (e.g. climatology or landmask).</span>
+<span class="sd">            x, y: float or ndarrays; coordinates of requested points in the</span>
+<span class="sd">                Spatial Reference System (SRS) _of the reader (NB!!)_.</span>
+<span class="sd">            z: float or ndarray; vertical position (in meters, positive up)</span>
+<span class="sd">                of requested points.</span>
+<span class="sd">                default: 0 m (unless otherwise documented by reader)</span>
+<span class="sd">            block: bool, see return below</span>
+
+<span class="sd">          Returns:</span>
+<span class="sd">            data: Dictionary</span>
+<span class="sd">                keywords: variables (string)</span>
+<span class="sd">                values:</span>
+<span class="sd">                    - 1D ndarray of len(x) if StructuredReader. Nearest values</span>
+<span class="sd">                        (neighbour) of requested position are returned.</span>
+<span class="sd">                    - 3D ndarray encompassing all requested points in</span>
+<span class="sd">                        x,y,z domain if UnstructuredReader. It is task of invoking</span>
+<span class="sd">                        application (OpenDriftSimulation) to perform</span>
+<span class="sd">                        interpolation in space and time.</span>
+<span class="sd">        &quot;&quot;&quot;</span></div>
+
+<div class="viewcode-block" id="Variables._get_variables_interpolated_"><a class="viewcode-back" href="../../../../autoapi/opendrift/readers/basereader/variables/index.html#opendrift.readers.basereader.Variables._get_variables_interpolated_">[docs]</a>    <span class="nd">@abstractmethod</span>
+    <span class="k">def</span> <span class="nf">_get_variables_interpolated_</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">variables</span><span class="p">,</span> <span class="n">profiles</span><span class="p">,</span> <span class="n">profiles_depth</span><span class="p">,</span>
+                                     <span class="n">time</span><span class="p">,</span> <span class="n">reader_x</span><span class="p">,</span> <span class="n">reader_y</span><span class="p">,</span> <span class="n">z</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Implemented by different reader types (e.g. :class:`structured.StructuredReader`).</span>
+
+<span class="sd">        Arguments are in native projection of reader.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">pass</span></div>
+
+<div class="viewcode-block" id="Variables.get_variables_interpolated_xy"><a class="viewcode-back" href="../../../../autoapi/opendrift/readers/basereader/variables/index.html#opendrift.readers.basereader.Variables.get_variables_interpolated_xy">[docs]</a>    <span class="k">def</span> <span class="nf">get_variables_interpolated_xy</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span>
+                                      <span class="n">variables</span><span class="p">,</span>
+                                      <span class="n">profiles</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                                      <span class="n">profiles_depth</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                                      <span class="n">time</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                                      <span class="n">x</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                                      <span class="n">y</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                                      <span class="n">z</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                                      <span class="n">rotate_to_proj</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Get variables in native projection of reader.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">timer_start</span><span class="p">(</span><span class="s1">&#39;total&#39;</span><span class="p">)</span>
+        <span class="c1"># Raise error if time not not within coverage of reader</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">covers_time</span><span class="p">(</span><span class="n">time</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;</span><span class="si">%s</span><span class="s1"> is outside time coverage (</span><span class="si">%s</span><span class="s1"> - </span><span class="si">%s</span><span class="s1">) of </span><span class="si">%s</span><span class="s1">&#39;</span> <span class="o">%</span>
+                             <span class="p">(</span><span class="n">time</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">start_time</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">end_time</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">))</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">timer_start</span><span class="p">(</span><span class="s1">&#39;preparing&#39;</span><span class="p">)</span>
+
+        <span class="n">x</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">atleast_1d</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+        <span class="n">y</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">atleast_1d</span><span class="p">(</span><span class="n">y</span><span class="p">)</span>
+
+        <span class="n">numx</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>  <span class="c1"># To check later if all points were covered</span>
+
+        <span class="n">ind_covered</span><span class="p">,</span> <span class="n">xx</span><span class="p">,</span> <span class="n">yy</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">covers_positions_xy</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">z</span><span class="p">)</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">ind_covered</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s2">&quot;All particles outside domain!&quot;</span><span class="p">)</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">((</span><span class="s1">&#39;All </span><span class="si">%s</span><span class="s1"> particles (</span><span class="si">%.2f</span><span class="s1">-</span><span class="si">%.2f</span><span class="s1">E, </span><span class="si">%.2f</span><span class="s1">-</span><span class="si">%.2f</span><span class="s1">N) &#39;</span> <span class="o">+</span>
+                              <span class="s1">&#39;are outside domain of </span><span class="si">%s</span><span class="s1"> (</span><span class="si">%s</span><span class="s1">)&#39;</span><span class="p">)</span> <span class="o">%</span>
+                             <span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">x</span><span class="p">),</span> <span class="n">x</span><span class="o">.</span><span class="n">min</span><span class="p">(),</span> <span class="n">x</span><span class="o">.</span><span class="n">max</span><span class="p">(),</span> <span class="n">y</span><span class="o">.</span><span class="n">min</span><span class="p">(),</span> <span class="n">y</span><span class="o">.</span><span class="n">max</span><span class="p">(),</span>
+                              <span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">coverage_string</span><span class="p">()))</span>
+        <span class="n">x</span> <span class="o">=</span> <span class="n">xx</span>
+        <span class="n">y</span> <span class="o">=</span> <span class="n">yy</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">timer_end</span><span class="p">(</span><span class="s1">&#39;preparing&#39;</span><span class="p">)</span>
+
+        <span class="c1"># Make copy of z to avoid modifying original array</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">z</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span> <span class="ow">and</span> <span class="nb">len</span><span class="p">(</span><span class="n">x</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="n">z</span> <span class="o">=</span> <span class="n">z</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">ones</span><span class="p">(</span><span class="n">x</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span>
+        <span class="n">z</span> <span class="o">=</span> <span class="n">z</span><span class="o">.</span><span class="n">copy</span><span class="p">()[</span><span class="n">ind_covered</span><span class="p">]</span>
+
+        <span class="n">env</span><span class="p">,</span> <span class="n">env_profiles</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_variables_interpolated_</span><span class="p">(</span>
+            <span class="n">variables</span><span class="p">,</span> <span class="n">profiles</span><span class="p">,</span> <span class="n">profiles_depth</span><span class="p">,</span> <span class="n">time</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">z</span><span class="p">)</span>
+
+        <span class="c1"># Rotating vectors fields</span>
+        <span class="k">if</span> <span class="n">rotate_to_proj</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">simulation_SRS</span> <span class="ow">is</span> <span class="kc">True</span><span class="p">:</span>
+                <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;Reader SRS is the same as calculation SRS - &#39;</span>
+                             <span class="s1">&#39;rotation of vectors is not needed.&#39;</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">vector_pairs</span> <span class="o">=</span> <span class="p">[]</span>
+                <span class="k">for</span> <span class="n">var</span> <span class="ow">in</span> <span class="n">variables</span><span class="p">:</span>
+                    <span class="k">for</span> <span class="n">vector_pair</span> <span class="ow">in</span> <span class="n">vector_pairs_xy</span><span class="p">:</span>
+                        <span class="k">if</span> <span class="n">var</span> <span class="ow">in</span> <span class="n">vector_pair</span><span class="p">:</span>
+                            <span class="n">counterpart</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="nb">set</span><span class="p">(</span><span class="n">vector_pair</span><span class="p">)</span> <span class="o">-</span>
+                                               <span class="nb">set</span><span class="p">([</span><span class="n">var</span><span class="p">]))[</span><span class="mi">0</span><span class="p">]</span>
+                            <span class="k">if</span> <span class="n">counterpart</span> <span class="ow">in</span> <span class="n">variables</span><span class="p">:</span>
+                                <span class="n">vector_pairs</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">vector_pair</span><span class="p">)</span>
+                            <span class="k">else</span><span class="p">:</span>
+                                <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span>
+                                    <span class="s1">&#39;Missing component of vector pair, cannot rotate:&#39;</span>
+                                    <span class="o">+</span> <span class="n">counterpart</span><span class="p">)</span>
+                <span class="c1"># Extract unique vector pairs</span>
+                <span class="n">vector_pairs</span> <span class="o">=</span> <span class="p">[</span>
+                    <span class="nb">list</span><span class="p">(</span><span class="n">x</span><span class="p">)</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="nb">set</span><span class="p">(</span><span class="nb">tuple</span><span class="p">(</span><span class="n">x</span><span class="p">)</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">vector_pairs</span><span class="p">)</span>
+                <span class="p">]</span>
+
+                <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">vector_pairs</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">timer_start</span><span class="p">(</span><span class="s1">&#39;rotating vectors&#39;</span><span class="p">)</span>
+                    <span class="k">for</span> <span class="n">vector_pair</span> <span class="ow">in</span> <span class="n">vector_pairs</span><span class="p">:</span>
+                        <span class="n">env</span><span class="p">[</span><span class="n">vector_pair</span><span class="p">[</span><span class="mi">0</span><span class="p">]],</span> <span class="n">env</span><span class="p">[</span><span class="n">vector_pair</span><span class="p">[</span><span class="mi">1</span><span class="p">]]</span> <span class="o">=</span> \
+                            <span class="bp">self</span><span class="o">.</span><span class="n">rotate_vectors</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span>
+                                                <span class="n">env</span><span class="p">[</span><span class="n">vector_pair</span><span class="p">[</span><span class="mi">0</span><span class="p">]],</span>
+                                                <span class="n">env</span><span class="p">[</span><span class="n">vector_pair</span><span class="p">[</span><span class="mi">1</span><span class="p">]],</span>
+                                                <span class="bp">self</span><span class="o">.</span><span class="n">proj</span><span class="p">,</span> <span class="n">rotate_to_proj</span><span class="p">)</span>
+                        <span class="k">if</span> <span class="n">profiles</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">vector_pair</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="ow">in</span> <span class="n">profiles</span><span class="p">:</span>
+                            <span class="n">env_profiles</span><span class="p">[</span><span class="n">vector_pair</span><span class="p">[</span><span class="mi">0</span><span class="p">]],</span> <span class="n">env_profiles</span><span class="p">[</span><span class="n">vector_pair</span><span class="p">[</span><span class="mi">1</span><span class="p">]]</span> <span class="o">=</span> \
+                                    <span class="bp">self</span><span class="o">.</span><span class="n">rotate_vectors</span> <span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span>
+                                            <span class="n">env_profiles</span><span class="p">[</span><span class="n">vector_pair</span><span class="p">[</span><span class="mi">0</span><span class="p">]],</span>
+                                            <span class="n">env_profiles</span><span class="p">[</span><span class="n">vector_pair</span><span class="p">[</span><span class="mi">1</span><span class="p">]],</span>
+                                            <span class="bp">self</span><span class="o">.</span><span class="n">proj</span><span class="p">,</span>
+                                            <span class="n">rotate_to_proj</span><span class="p">)</span>
+
+                    <span class="bp">self</span><span class="o">.</span><span class="n">timer_end</span><span class="p">(</span><span class="s1">&#39;rotating vectors&#39;</span><span class="p">)</span>
+
+        <span class="c1"># Masking non-covered pixels</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">timer_start</span><span class="p">(</span><span class="s1">&#39;masking&#39;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">ind_covered</span><span class="p">)</span> <span class="o">!=</span> <span class="n">numx</span><span class="p">:</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;Masking </span><span class="si">%i</span><span class="s1"> elements outside coverage&#39;</span> <span class="o">%</span>
+                         <span class="p">(</span><span class="n">numx</span> <span class="o">-</span> <span class="nb">len</span><span class="p">(</span><span class="n">ind_covered</span><span class="p">)))</span>
+            <span class="k">for</span> <span class="n">var</span> <span class="ow">in</span> <span class="n">variables</span><span class="p">:</span>
+                <span class="n">tmp</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">ones</span><span class="p">(</span><span class="n">numx</span><span class="p">)</span>
+                <span class="n">tmp</span><span class="p">[</span><span class="n">ind_covered</span><span class="p">]</span> <span class="o">=</span> <span class="n">env</span><span class="p">[</span><span class="n">var</span><span class="p">]</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+                <span class="n">env</span><span class="p">[</span><span class="n">var</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">ma</span><span class="o">.</span><span class="n">masked_invalid</span><span class="p">(</span><span class="n">tmp</span><span class="p">)</span>
+                <span class="c1"># Filling also in missing columns</span>
+                <span class="c1"># for env_profiles outside coverage</span>
+                <span class="k">if</span> <span class="n">env_profiles</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">var</span> <span class="ow">in</span> <span class="n">env_profiles</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+                    <span class="n">tmp</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">ones</span><span class="p">((</span><span class="n">env_profiles</span><span class="p">[</span><span class="n">var</span><span class="p">]</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">numx</span><span class="p">))</span>
+                    <span class="n">tmp</span><span class="p">[:,</span> <span class="n">ind_covered</span><span class="p">]</span> <span class="o">=</span> <span class="n">env_profiles</span><span class="p">[</span><span class="n">var</span><span class="p">]</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+                    <span class="n">env_profiles</span><span class="p">[</span><span class="n">var</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">ma</span><span class="o">.</span><span class="n">masked_invalid</span><span class="p">(</span><span class="n">tmp</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">timer_end</span><span class="p">(</span><span class="s1">&#39;masking&#39;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">timer_end</span><span class="p">(</span><span class="s1">&#39;total&#39;</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">env</span><span class="p">,</span> <span class="n">env_profiles</span></div>
+
+<div class="viewcode-block" id="Variables.get_variables_interpolated"><a class="viewcode-back" href="../../../../autoapi/opendrift/readers/basereader/variables/index.html#opendrift.readers.basereader.Variables.get_variables_interpolated">[docs]</a>    <span class="k">def</span> <span class="nf">get_variables_interpolated</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span>
+                                   <span class="n">variables</span><span class="p">,</span>
+                                   <span class="n">profiles</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                                   <span class="n">profiles_depth</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                                   <span class="n">time</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                                   <span class="n">lon</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                                   <span class="n">lat</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                                   <span class="n">z</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                                   <span class="n">rotate_to_proj</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        `get_variables_interpolated` is the interface to</span>
+<span class="sd">        :class:`opendrift.basemodel.OpenDriftSimulation`, and is responsible</span>
+<span class="sd">        for returning variables at the correct positions. This is done by:</span>
+
+<span class="sd">            1. Calling :meth:`_get_variables_interpolated_` which,</span>
+<span class="sd">            2. calls :meth:`_get_variables_impl_`, which</span>
+<span class="sd">            3. calls :meth:`__get_variables_derived__`, which</span>
+<span class="sd">            4. calls :meth:`get_variables`.</span>
+
+<span class="sd">        :meth:`_get_variables_impl_`: Works on every variable. If profiles_depth, adds a point at start and end in order to get a full block. This seems specific to `StructuredReader`. Needs to work on both env and env_profiles, but also modifies the behavior to make env_profiles work in the first place.</span>
+
+<span class="sd">        :meth:`__get_variables_derived__`: Calculates derived variables from variables present in reader. Needs to work on both env and env_profiles.</span>
+
+<span class="sd">        Arguments:</span>
+<span class="sd">            variables: string, or list of strings (standard_name) of</span>
+<span class="sd">                requested variables. These must be provided by reader.</span>
+
+<span class="sd">            profiles: List of variable names that should be returned for the range in `profiles_depth`.</span>
+
+<span class="sd">            profiles_depth: A range [z-start, z-end] for which to return values for profile-variables. The exact z-depth are given by the reader and returned as `z` variable in `env_profiles`.</span>
+
+<span class="sd">            time: datetime or None, time at which data are requested.</span>
+<span class="sd">                Can be None (default) if reader/variable has no time</span>
+<span class="sd">                dimension (e.g. climatology or landmask).</span>
+
+<span class="sd">            lon: N/A</span>
+
+<span class="sd">            lat: N/A</span>
+
+<span class="sd">            z: float or ndarray; vertical position (in meters, positive up)</span>
+<span class="sd">                of requested points.</span>
+<span class="sd">                default: 0 m (unless otherwise documented by reader)</span>
+
+<span class="sd">            block: bool, see return below</span>
+
+<span class="sd">            rotate_to_proj: N/A</span>
+
+<span class="sd">          Returns:</span>
+
+<span class="sd">            (env, env_profiles)</span>
+
+<span class="sd">            Interpolated variables at x, y and z. `env` contains values at a fixed depth (`z`), while `env_profiles` contains depth-profiles in the range `profile_depth` for the variables listed in `profiles` for each element (in `x`, `y`). The exact depth is determined by the reader and specified in</span>
+<span class="sd">            `env_profiles[&#39;z&#39;]`. Thus variables in `env_profiles` are not interpolated in z-direction.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="n">x</span><span class="p">,</span> <span class="n">y</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">lonlat2xy</span><span class="p">(</span><span class="n">lon</span><span class="p">,</span> <span class="n">lat</span><span class="p">)</span>
+
+        <span class="n">env</span><span class="p">,</span> <span class="n">env_profiles</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_variables_interpolated_xy</span><span class="p">(</span>
+            <span class="n">variables</span><span class="p">,</span> <span class="n">profiles</span><span class="p">,</span> <span class="n">profiles_depth</span><span class="p">,</span> <span class="n">time</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">z</span><span class="p">,</span> <span class="n">rotate_to_proj</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">env</span><span class="p">,</span> <span class="n">env_profiles</span></div></div>
+</pre></div>
+
+           </div>
+           
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        
+        &copy; Copyright 2020, Knut-Frode Dagestad (knutfd@met.no) and Gaute Hope (gauteh@met.no).
+
+    </p>
+  </div>
+    
+    
+    
+    Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a
+    
+    <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a>
+    
+    provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

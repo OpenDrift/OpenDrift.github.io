@@ -24,12 +24,17 @@ Functions
    opendrift.readers.reader_netCDF_CF_generic.proj_from_CF_dict
 
 
+.. data:: logger
+   
+
+   
+
 .. function:: proj_from_CF_dict(c)
 
 
 .. py:class:: Reader(filename=None, name=None, proj4=None, standard_name_mapping={})
 
-   Bases: :class:`opendrift.readers.basereader.BaseReader`
+   Bases: :class:`opendrift.readers.basereader.BaseReader`, :class:`opendrift.readers.basereader.StructuredReader`
 
    A reader for `CF-compliant <https://cfconventions.org/>`_ netCDF files. It can take a single file, or a file pattern.
 
@@ -66,9 +71,13 @@ Functions
       r = Reader('https://thredds.met.no/thredds/dodsC/mepslatest/meps_lagged_6_h_latest_2_5km_latest.nc')
 
 
-   .. method:: get_variables(self, requested_variables, time=None, x=None, y=None, z=None, block=False, indrealization=None)
+   .. method:: get_variables(self, requested_variables, time=None, x=None, y=None, z=None, indrealization=None)
 
-      Method which must be invoked by any reader (subclass).
+      Method which must be implemented by all reader-subclasses.
+
+      > Warning: In the future this method is likely to be a requirement of
+      > each reader, and it will be up to the reader-type how values are
+      > retrieved.
 
       Obtain and return values of the requested variables at all positions
       (x, y, z) closest to given time.
@@ -80,7 +89,7 @@ Functions
               Can be None (default) if reader/variable has no time
               dimension (e.g. climatology or landmask).
           x, y: float or ndarrays; coordinates of requested points in the
-              Spatial Reference System (SRS) of the reader (NB!!)
+              Spatial Reference System (SRS) _of the reader (NB!!)_.
           z: float or ndarray; vertical position (in meters, positive up)
               of requested points.
               default: 0 m (unless otherwise documented by reader)
@@ -90,10 +99,10 @@ Functions
           data: Dictionary
               keywords: variables (string)
               values:
-                  - 1D ndarray of len(x) if block=False. Nearest values
-                      (neichbour) of requested position are returned.
+                  - 1D ndarray of len(x) if StructuredReader. Nearest values
+                      (neighbour) of requested position are returned.
                   - 3D ndarray encompassing all requested points in
-                      x,y,z domain if block=True. It is task of invoking
+                      x,y,z domain if UnstructuredReader. It is task of invoking
                       application (OpenDriftSimulation) to perform
                       interpolation in space and time.
 

@@ -190,12 +190,10 @@
 <span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
 <span class="kn">import</span> <span class="nn">pyproj</span>
 
-<span class="kn">from</span> <span class="nn">opendrift.readers.basereader</span> <span class="kn">import</span> <span class="n">BaseReader</span>
+<span class="kn">from</span> <span class="nn">opendrift.readers.basereader</span> <span class="kn">import</span> <span class="n">BaseReader</span><span class="p">,</span> <span class="n">StructuredReader</span>
 
 
-<div class="viewcode-block" id="Reader"><a class="viewcode-back" href="../../../autoapi/opendrift/readers/reader_current_from_drifter/index.html#opendrift.readers.reader_current_from_drifter.Reader">[docs]</a><span class="k">class</span> <span class="nc">Reader</span><span class="p">(</span><span class="n">BaseReader</span><span class="p">):</span>
-
-    <span class="n">return_block</span> <span class="o">=</span> <span class="kc">False</span>
+<div class="viewcode-block" id="Reader"><a class="viewcode-back" href="../../../autoapi/opendrift/readers/reader_current_from_drifter/index.html#opendrift.readers.reader_current_from_drifter.Reader">[docs]</a><span class="k">class</span> <span class="nc">Reader</span><span class="p">(</span><span class="n">BaseReader</span><span class="p">,</span> <span class="n">StructuredReader</span><span class="p">):</span>
     <span class="n">variables</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;x_sea_water_velocity&#39;</span><span class="p">,</span> <span class="s1">&#39;y_sea_water_velocity&#39;</span><span class="p">]</span>
 
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">lons</span><span class="p">,</span> <span class="n">lats</span><span class="p">,</span> <span class="n">times</span><span class="p">,</span> <span class="n">wind</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">waves</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">z</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span>
@@ -241,7 +239,7 @@
                               <span class="p">(</span><span class="n">times</span><span class="p">[</span><span class="n">i</span><span class="o">+</span><span class="mi">1</span><span class="p">]</span> <span class="o">-</span> <span class="n">times</span><span class="p">[</span><span class="n">i</span><span class="p">])</span><span class="o">.</span><span class="n">total_seconds</span><span class="p">())</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">speed</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">speed</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">x_sea_water_velocity</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">speed</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">radians</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">azimuth</span><span class="p">))</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">y_sea_water_velocity</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">speed</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">cos</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">radians</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">azimuth</span><span class="p">))</span> 
+        <span class="bp">self</span><span class="o">.</span><span class="n">y_sea_water_velocity</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">speed</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">cos</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">radians</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">azimuth</span><span class="p">))</span>
 
         <span class="c1"># Subtract wind/stokes contribution</span>
         <span class="k">if</span> <span class="n">waves</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
@@ -281,8 +279,8 @@
 
 
 <div class="viewcode-block" id="Reader.get_variables"><a class="viewcode-back" href="../../../autoapi/opendrift/readers/reader_current_from_drifter/index.html#opendrift.readers.reader_current_from_drifter.Reader.get_variables">[docs]</a>    <span class="k">def</span> <span class="nf">get_variables</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">requested_variables</span><span class="p">,</span> <span class="n">time</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
-                      <span class="n">x</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">y</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">z</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">block</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
-        
+                      <span class="n">x</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">y</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">z</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+
         <span class="n">requested_variables</span><span class="p">,</span> <span class="n">time</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">z</span><span class="p">,</span> <span class="n">outside</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">check_arguments</span><span class="p">(</span>
             <span class="n">requested_variables</span><span class="p">,</span> <span class="n">time</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">z</span><span class="p">)</span>
 

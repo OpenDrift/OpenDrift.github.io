@@ -1,0 +1,384 @@
+:mod:`opendrift.readers.basereader.variables`
+=============================================
+
+.. py:module:: opendrift.readers.basereader.variables
+
+
+Module Contents
+---------------
+
+Classes
+~~~~~~~
+
+.. autoapisummary::
+
+   opendrift.readers.basereader.variables.ReaderDomain
+   opendrift.readers.basereader.variables.Variables
+
+
+
+.. data:: logger
+   
+
+   
+
+.. py:class:: ReaderDomain
+
+   Bases: :class:`opendrift.timer.Timeable`
+
+   Projection, spatial and temporal domain of reader.
+
+   .. attribute:: simulation_SRS
+      :annotation: = False
+
+      
+
+   .. attribute:: projected
+      
+
+      
+
+   .. attribute:: proj4
+      
+
+      
+
+   .. attribute:: proj
+      
+
+      
+
+   .. attribute:: lon
+      
+
+      
+
+   .. attribute:: lat
+      
+
+      
+
+   .. attribute:: xmin
+      
+
+      
+
+   .. attribute:: xmax
+      
+
+      
+
+   .. attribute:: ymin
+      
+
+      
+
+   .. attribute:: ymax
+      
+
+      
+
+   .. attribute:: zmin
+      
+
+      
+
+   .. attribute:: zmax
+      
+
+      
+
+   .. attribute:: delta_x
+      
+
+      
+
+   .. attribute:: delta_y
+      
+
+      
+
+   .. attribute:: start_time
+      
+
+      
+
+   .. attribute:: end_time
+      
+
+      
+
+   .. attribute:: time_step
+      
+
+      
+
+   .. attribute:: times
+      
+
+      
+
+   .. method:: rotate_vectors(self, reader_x, reader_y, u_component, v_component, proj_from, proj_to)
+
+      Rotate vectors from one srs to another.
+
+
+   .. method:: xy2lonlat(self, x, y)
+
+      Calculate x,y in own projection from given lon,lat (scalars/arrays).
+              
+
+
+   .. method:: lonlat2xy(self, lon, lat)
+
+      Calculate lon,lat from given x,y (scalars/arrays) in own projection.
+              
+
+
+   .. method:: y_azimuth(self, lon, lat)
+
+      Calculate azimuth orientation of the y-axis of the reader SRS.
+
+
+   .. method:: pixel_size(self)
+
+
+   .. method:: covers_positions_xy(self, x, y, z=0)
+
+      Return indices of input points covered by reader.
+
+      Arguments in native projection of reader.
+
+
+   .. method:: covers_positions(self, lon, lat, z=0)
+
+      Return indices of input points covered by reader.
+
+
+   .. method:: global_coverage(self)
+
+      Return True if global coverage east-west
+
+
+   .. method:: domain_grid(self, npoints=1000)
+
+      Return arrays of lon,lat points spread evenly over reader domain.
+
+
+   .. method:: coverage_string(self)
+
+      Coverage of reader to be reported as string for debug output
+
+
+   .. method:: check_arguments(self, variables, time, x, y, z)
+
+      Check validity of arguments input to method get_variables.
+
+      Checks that requested positions and time are within coverage of
+      this reader, and that it can provide the requested variable(s).
+      Returns the input arguments, possibly modified/corrected (below)
+
+      Arguments:
+          See function get_variables for definition.
+
+      Returns:
+          variables: same as input, but converted to list if given as string.
+          time: same as input, or start_time of reader if given as None.
+          x, y, z: same as input, but converted to ndarrays
+              if given as scalars.
+          outside: boolean array which is True for any particles outside
+              the spatial domain covered by this reader.
+
+      Raises:
+          ValueError:
+              - if requested time is outside coverage of reader.
+              - if all requested positions are outside coverage of reader.
+
+
+   .. method:: covers_time(self, time)
+
+
+   .. method:: nearest_time(self, time)
+
+      Return nearest times before and after the requested time.
+
+      Returns:
+          nearest_time: datetime
+          time_before: datetime
+          time_after: datetime
+          indx_nearest: int
+          indx_before: int
+          indx_after: int
+
+
+
+.. py:class:: Variables
+
+   Bases: :class:`opendrift.readers.basereader.variables.ReaderDomain`
+
+   Handles reading and interpolation of variables.
+
+   .. attribute:: derived_variables
+      
+
+      
+
+   .. attribute:: name
+      
+
+      
+
+   .. attribute:: buffer
+      :annotation: = 0
+
+      
+
+   .. attribute:: convolve
+      
+
+      
+
+   .. attribute:: environment_mappers
+      :annotation: = []
+
+      
+
+   .. attribute:: environment_mappings
+      
+
+      
+
+   .. method:: set_convolution_kernel(self, convolve)
+
+      Set a convolution kernel or kernel size (of array of ones) used by `get_variables` on read variables.
+
+
+   .. method:: set_buffer_size(self, max_speed, max_vertical_speed=None)
+
+      Adjust buffer to minimise data block size needed to cover elements
+
+
+   .. method:: wind_from_speed_and_direction(self, env)
+
+
+   .. method:: calculate_derived_environment_variables(self, env)
+
+
+   .. method:: _get_variables_impl_(self, variables, profiles, profiles_depth, time, x, y, z)
+
+      Wrapper around reader-specific function get_variables()
+
+      Performs some common operations which should not be duplicated:
+
+          - monitor time spent by this reader
+          - convert any numpy arrays to masked arrays
+          - add points to x, y and z to get profiles if necessary
+          - convolve vectors if `self.convolve` is specified
+
+      This function calls :meth:`__get_variables_derived__` which eventually
+      calls :meth:`get_variables` on the implementing reader.
+
+
+   .. method:: __get_variables_derived__(self, variables, *args, **kwargs)
+
+      Wrapper around get_variables, adding derived
+
+
+   .. method:: get_variables(self, variables, time=None, x=None, y=None, z=None)
+      :abstractmethod:
+
+      Method which must be implemented by all reader-subclasses.
+
+      > Warning: In the future this method is likely to be a requirement of
+      > each reader, and it will be up to the reader-type how values are
+      > retrieved.
+
+      Obtain and return values of the requested variables at all positions
+      (x, y, z) closest to given time.
+
+      Arguments:
+          variables: string, or list of strings (standard_name) of
+              requested variables. These must be provided by reader.
+          time: datetime or None, time at which data are requested.
+              Can be None (default) if reader/variable has no time
+              dimension (e.g. climatology or landmask).
+          x, y: float or ndarrays; coordinates of requested points in the
+              Spatial Reference System (SRS) _of the reader (NB!!)_.
+          z: float or ndarray; vertical position (in meters, positive up)
+              of requested points.
+              default: 0 m (unless otherwise documented by reader)
+          block: bool, see return below
+
+        Returns:
+          data: Dictionary
+              keywords: variables (string)
+              values:
+                  - 1D ndarray of len(x) if StructuredReader. Nearest values
+                      (neighbour) of requested position are returned.
+                  - 3D ndarray encompassing all requested points in
+                      x,y,z domain if UnstructuredReader. It is task of invoking
+                      application (OpenDriftSimulation) to perform
+                      interpolation in space and time.
+
+
+   .. method:: _get_variables_interpolated_(self, variables, profiles, profiles_depth, time, reader_x, reader_y, z)
+      :abstractmethod:
+
+      Implemented by different reader types (e.g. :class:`structured.StructuredReader`).
+
+      Arguments are in native projection of reader.
+
+
+   .. method:: get_variables_interpolated_xy(self, variables, profiles=None, profiles_depth=None, time=None, x=None, y=None, z=None, rotate_to_proj=None)
+
+      Get variables in native projection of reader.
+
+
+   .. method:: get_variables_interpolated(self, variables, profiles=None, profiles_depth=None, time=None, lon=None, lat=None, z=None, rotate_to_proj=None)
+
+      `get_variables_interpolated` is the interface to
+      :class:`opendrift.basemodel.OpenDriftSimulation`, and is responsible
+      for returning variables at the correct positions. This is done by:
+
+          1. Calling :meth:`_get_variables_interpolated_` which,
+          2. calls :meth:`_get_variables_impl_`, which
+          3. calls :meth:`__get_variables_derived__`, which
+          4. calls :meth:`get_variables`.
+
+      :meth:`_get_variables_impl_`: Works on every variable. If profiles_depth, adds a point at start and end in order to get a full block. This seems specific to `StructuredReader`. Needs to work on both env and env_profiles, but also modifies the behavior to make env_profiles work in the first place.
+
+      :meth:`__get_variables_derived__`: Calculates derived variables from variables present in reader. Needs to work on both env and env_profiles.
+
+      Arguments:
+          variables: string, or list of strings (standard_name) of
+              requested variables. These must be provided by reader.
+
+          profiles: List of variable names that should be returned for the range in `profiles_depth`.
+
+          profiles_depth: A range [z-start, z-end] for which to return values for profile-variables. The exact z-depth are given by the reader and returned as `z` variable in `env_profiles`.
+
+          time: datetime or None, time at which data are requested.
+              Can be None (default) if reader/variable has no time
+              dimension (e.g. climatology or landmask).
+
+          lon: N/A
+
+          lat: N/A
+
+          z: float or ndarray; vertical position (in meters, positive up)
+              of requested points.
+              default: 0 m (unless otherwise documented by reader)
+
+          block: bool, see return below
+
+          rotate_to_proj: N/A
+
+        Returns:
+
+          (env, env_profiles)
+
+          Interpolated variables at x, y and z. `env` contains values at a fixed depth (`z`), while `env_profiles` contains depth-profiles in the range `profile_depth` for the variables listed in `profiles` for each element (in `x`, `y`). The exact depth is determined by the reader and specified in
+          `env_profiles['z']`. Thus variables in `env_profiles` are not interpolated in z-direction.
+
+
+

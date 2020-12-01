@@ -188,12 +188,12 @@
 <span class="kn">from</span> <span class="nn">datetime</span> <span class="kn">import</span> <span class="n">datetime</span>
 <span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
 
-<span class="kn">from</span> <span class="nn">opendrift.readers.basereader</span> <span class="kn">import</span> <span class="n">BaseReader</span>
+<span class="kn">from</span> <span class="nn">opendrift.readers.basereader</span> <span class="kn">import</span> <span class="n">BaseReader</span><span class="p">,</span> <span class="n">ContinuousReader</span>
 
 
-<div class="viewcode-block" id="Reader"><a class="viewcode-back" href="../../../autoapi/opendrift/readers/reader_oscillating/index.html#opendrift.readers.reader_oscillating.Reader">[docs]</a><span class="k">class</span> <span class="nc">Reader</span><span class="p">(</span><span class="n">BaseReader</span><span class="p">):</span>
+<div class="viewcode-block" id="Reader"><a class="viewcode-back" href="../../../autoapi/opendrift/readers/reader_oscillating/index.html#opendrift.readers.reader_oscillating.Reader">[docs]</a><span class="k">class</span> <span class="nc">Reader</span><span class="p">(</span><span class="n">BaseReader</span><span class="p">,</span> <span class="n">ContinuousReader</span><span class="p">):</span>
     <span class="sd">&#39;&#39;&#39;Returning values oscillating in time with given amplitude and period&#39;&#39;&#39;</span>
-    
+
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">variable</span><span class="p">,</span> <span class="n">amplitude</span><span class="p">,</span> <span class="n">period_seconds</span><span class="o">=</span><span class="mi">3600</span><span class="o">*</span><span class="mi">24</span><span class="p">,</span>
                  <span class="n">phase</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">zero_time</span><span class="o">=</span><span class="n">datetime</span><span class="p">(</span><span class="mi">2017</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">)):</span>
         <span class="sd">&#39;&#39;&#39;init with &#39;&#39;&#39;</span>
@@ -211,21 +211,20 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">end_time</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">time_step</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="s1">&#39;oscillating_reader&#39;</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">return_block</span> <span class="o">=</span> <span class="kc">False</span>
 
         <span class="c1"># Run constructor of parent Reader class</span>
         <span class="nb">super</span><span class="p">(</span><span class="n">Reader</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
-        
+
 <div class="viewcode-block" id="Reader.get_variables"><a class="viewcode-back" href="../../../autoapi/opendrift/readers/reader_oscillating/index.html#opendrift.readers.reader_oscillating.Reader.get_variables">[docs]</a>    <span class="k">def</span> <span class="nf">get_variables</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">requestedVariables</span><span class="p">,</span> <span class="n">time</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
-                      <span class="n">x</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">y</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">z</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">block</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
-        
+                      <span class="n">x</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">y</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">z</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+
         <span class="n">variables</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;time&#39;</span><span class="p">:</span> <span class="n">time</span><span class="p">,</span> <span class="s1">&#39;x&#39;</span><span class="p">:</span> <span class="n">x</span><span class="p">,</span> <span class="s1">&#39;y&#39;</span><span class="p">:</span> <span class="n">y</span><span class="p">,</span> <span class="s1">&#39;z&#39;</span><span class="p">:</span> <span class="n">z</span><span class="p">}</span>
 
         <span class="n">phase</span> <span class="o">=</span> <span class="p">((</span><span class="n">time</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">zero_time</span><span class="p">)</span><span class="o">.</span><span class="n">total_seconds</span><span class="p">()</span><span class="o">/</span>
                  <span class="bp">self</span><span class="o">.</span><span class="n">period_seconds</span><span class="p">)</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">pi</span>
         <span class="n">value</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">amplitude</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="n">phase</span><span class="p">)</span>
         <span class="n">variables</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">variables</span><span class="p">[</span><span class="mi">0</span><span class="p">]]</span> <span class="o">=</span> <span class="n">value</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">ones</span><span class="p">(</span><span class="n">x</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span>
-       
+
         <span class="k">return</span> <span class="n">variables</span></div></div>
 </pre></div>
 

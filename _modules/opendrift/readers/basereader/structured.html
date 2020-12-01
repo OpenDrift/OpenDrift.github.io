@@ -1,0 +1,420 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>opendrift.readers.basereader.structured &mdash; OpenDrift  documentation</title>
+  
+
+  
+  <link rel="stylesheet" href="../../../../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../../../../_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="../../../../_static/theme_overrides.css" type="text/css" />
+
+  
+  
+  
+  
+
+  
+  <!--[if lt IE 9]>
+    <script src="../../../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../../../../" src="../../../../_static/documentation_options.js"></script>
+        <script src="../../../../_static/jquery.js"></script>
+        <script src="../../../../_static/underscore.js"></script>
+        <script src="../../../../_static/doctools.js"></script>
+        <script src="../../../../_static/language_data.js"></script>
+    
+    <script type="text/javascript" src="../../../../_static/js/theme.js"></script>
+
+    
+    <link rel="index" title="Index" href="../../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="../../../../index.html" class="icon icon-home" alt="Documentation Home"> OpenDrift
+          
+
+          
+            
+            <img src="../../../../_static/opendrift_logo.png" class="logo" alt="Logo"/>
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../index.html">Introduction to OpenDrift</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../history_link.html">History</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../install.html">Installing OpenDrift</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../tutorial.html">Tutorial</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../theory/index.html">Theory</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../choosing_a_model.html">How to choose which model to use</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../writing_a_new_model.html">How to write a new module</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../gallery/index.html">Gallery</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../oil_types.html">Oil types</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../interaction_with_coastline.html">Interaction with coastline</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../docker.html">Using OpenDrift in a container</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../gui.html">Graphical User Interface</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../references.html">Publications</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../autoapi/index.html">API Reference</a></li>
+</ul>
+
+            
+          
+        </div>
+        
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../../index.html">OpenDrift</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../../../../index.html" class="icon icon-home"></a> &raquo;</li>
+        
+          <li><a href="../../../index.html">Module code</a> &raquo;</li>
+        
+          <li><a href="../../../opendrift.html">opendrift</a> &raquo;</li>
+        
+          <li><a href="../../readers.html">opendrift.readers</a> &raquo;</li>
+        
+          <li><a href="../basereader.html">opendrift.readers.basereader</a> &raquo;</li>
+        
+      <li>opendrift.readers.basereader.structured</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <h1>Source code for opendrift.readers.basereader.structured</h1><div class="highlight"><pre>
+<span></span><span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">from</span> <span class="nn">abc</span> <span class="kn">import</span> <span class="n">abstractmethod</span>
+
+<span class="kn">from</span> <span class="nn">opendrift.readers.interpolation.structured</span> <span class="kn">import</span> <span class="n">ReaderBlock</span>
+<span class="kn">from</span> <span class="nn">.variables</span> <span class="kn">import</span> <span class="n">Variables</span>
+<span class="kn">import</span> <span class="nn">logging</span>
+<span class="n">logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span>
+
+<div class="viewcode-block" id="StructuredReader"><a class="viewcode-back" href="../../../../autoapi/opendrift/readers/basereader/structured/index.html#opendrift.readers.basereader.StructuredReader">[docs]</a><span class="k">class</span> <span class="nc">StructuredReader</span><span class="p">(</span><span class="n">Variables</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    A structured reader. Data is gridded on a regular grid. Used by e.g.:</span>
+<span class="sd">    :class:`opendrift.readers.reader_netCDF_CF_generic.Reader`.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">var_block_before</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">var_block_after</span>  <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">interpolation</span> <span class="o">=</span> <span class="s1">&#39;linearNDFast&#39;</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
+
+        <span class="c1"># Dictionaries to store blocks of data for reuse (buffering)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">var_block_before</span> <span class="o">=</span> <span class="p">{}</span>  <span class="c1"># Data for last timestep before present</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">var_block_after</span> <span class="o">=</span> <span class="p">{}</span>   <span class="c1"># Data for first timestep after present</span>
+
+<div class="viewcode-block" id="StructuredReader._get_variables_interpolated_"><a class="viewcode-back" href="../../../../autoapi/opendrift/readers/basereader/structured/index.html#opendrift.readers.basereader.StructuredReader._get_variables_interpolated_">[docs]</a>    <span class="k">def</span> <span class="nf">_get_variables_interpolated_</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">variables</span><span class="p">,</span> <span class="n">profiles</span><span class="p">,</span>
+                                   <span class="n">profiles_depth</span><span class="p">,</span> <span class="n">time</span><span class="p">,</span>
+                                   <span class="n">reader_x</span><span class="p">,</span> <span class="n">reader_y</span><span class="p">,</span> <span class="n">z</span><span class="p">):</span>
+        <span class="c1"># Find reader time_before/time_after</span>
+        <span class="n">time_nearest</span><span class="p">,</span> <span class="n">time_before</span><span class="p">,</span> <span class="n">time_after</span><span class="p">,</span> <span class="n">i1</span><span class="p">,</span> <span class="n">i2</span><span class="p">,</span> <span class="n">i3</span> <span class="o">=</span> \
+            <span class="bp">self</span><span class="o">.</span><span class="n">nearest_time</span><span class="p">(</span><span class="n">time</span><span class="p">)</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;Reader time:</span><span class="se">\n\t\t</span><span class="si">%s</span><span class="s1"> (before)</span><span class="se">\n\t\t</span><span class="si">%s</span><span class="s1"> (after)&#39;</span> <span class="o">%</span>
+                      <span class="p">(</span><span class="n">time_before</span><span class="p">,</span> <span class="n">time_after</span><span class="p">))</span>
+
+        <span class="c1"># For variables which are not time dependent, we do not care about time</span>
+        <span class="n">static_variables</span> <span class="o">=</span> <span class="p">[</span>
+                <span class="s1">&#39;sea_floor_depth_below_sea_level&#39;</span><span class="p">,</span>
+                <span class="s1">&#39;land_binary_mask&#39;</span>
+                <span class="p">]</span>
+        <span class="k">if</span> <span class="n">time</span> <span class="o">==</span> <span class="n">time_before</span> <span class="ow">or</span> <span class="nb">all</span><span class="p">(</span><span class="n">v</span> <span class="ow">in</span> <span class="n">static_variables</span> <span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">variables</span><span class="p">):</span>
+            <span class="n">time_after</span> <span class="o">=</span> <span class="kc">None</span>
+
+        <span class="n">block_before</span> <span class="o">=</span> <span class="n">block_after</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="n">blockvariables_before</span> <span class="o">=</span> <span class="n">variables</span>
+        <span class="n">blockvars_before</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">variables</span><span class="p">)</span>
+        <span class="n">blockvariables_after</span> <span class="o">=</span> <span class="n">variables</span>
+        <span class="n">blockvars_after</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">variables</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">blockvars</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">var_block_before</span><span class="p">:</span>
+            <span class="k">if</span> <span class="nb">all</span><span class="p">(</span><span class="n">v</span> <span class="ow">in</span> <span class="n">blockvars</span> <span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">variables</span><span class="p">):</span>
+                <span class="n">block_before</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">var_block_before</span><span class="p">[</span><span class="n">blockvars</span><span class="p">]</span>
+                <span class="n">blockvariables_before</span> <span class="o">=</span> <span class="n">block_before</span><span class="o">.</span><span class="n">data_dict</span><span class="o">.</span><span class="n">keys</span><span class="p">()</span>
+                <span class="n">blockvars_before</span> <span class="o">=</span> <span class="n">blockvars</span>
+                <span class="k">break</span>
+            <span class="n">blockvariables_before</span> <span class="o">=</span> <span class="n">variables</span>
+            <span class="n">blockvars_before</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">variables</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">blockvars</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">var_block_after</span><span class="p">:</span>
+            <span class="k">if</span> <span class="nb">all</span><span class="p">(</span><span class="n">v</span> <span class="ow">in</span> <span class="n">blockvars</span> <span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">variables</span><span class="p">):</span>
+                <span class="n">block_after</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">var_block_after</span><span class="p">[</span><span class="n">blockvars</span><span class="p">]</span>
+                <span class="n">blockvariables_after</span> <span class="o">=</span> <span class="n">block_after</span><span class="o">.</span><span class="n">data_dict</span><span class="o">.</span><span class="n">keys</span><span class="p">()</span>
+                <span class="n">blockvars_after</span> <span class="o">=</span> <span class="n">blockvars</span>
+                <span class="k">break</span>
+
+        <span class="c1"># Swap before- and after-blocks if matching times</span>
+        <span class="k">if</span> <span class="n">block_before</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">block_after</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">block_before</span><span class="o">.</span><span class="n">time</span> <span class="o">!=</span> <span class="n">time_before</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">block_after</span><span class="o">.</span><span class="n">time</span> <span class="o">==</span> <span class="n">time_before</span><span class="p">:</span>
+                    <span class="n">block_before</span> <span class="o">=</span> <span class="n">block_after</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">var_block_before</span><span class="p">[</span><span class="n">blockvars_before</span><span class="p">]</span> <span class="o">=</span> <span class="n">block_before</span>
+            <span class="k">if</span> <span class="n">block_after</span><span class="o">.</span><span class="n">time</span> <span class="o">!=</span> <span class="n">time_after</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">block_before</span><span class="o">.</span><span class="n">time</span> <span class="o">==</span> <span class="n">time_before</span><span class="p">:</span>
+                    <span class="n">block_after</span> <span class="o">=</span> <span class="n">block_before</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">var_block_after</span><span class="p">[</span><span class="n">blockvars_after</span><span class="p">]</span> <span class="o">=</span> <span class="n">block_after</span>
+
+        <span class="c1"># Fetch data, if no buffer is available</span>
+        <span class="k">if</span> <span class="n">block_before</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> \
+                <span class="n">block_before</span><span class="o">.</span><span class="n">time</span> <span class="o">!=</span> <span class="n">time_before</span><span class="p">:</span>
+            <span class="n">reader_data_dict</span> <span class="o">=</span> \
+                <span class="bp">self</span><span class="o">.</span><span class="n">_get_variables_impl_</span><span class="p">(</span><span class="n">blockvariables_before</span><span class="p">,</span> <span class="n">profiles</span><span class="p">,</span>
+                                    <span class="n">profiles_depth</span><span class="p">,</span> <span class="n">time_before</span><span class="p">,</span>
+                                    <span class="n">reader_x</span><span class="p">,</span> <span class="n">reader_y</span><span class="p">,</span> <span class="n">z</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">var_block_before</span><span class="p">[</span><span class="n">blockvars_before</span><span class="p">]</span> <span class="o">=</span> \
+                <span class="n">ReaderBlock</span><span class="p">(</span><span class="n">reader_data_dict</span><span class="p">,</span>
+                            <span class="n">interpolation_horizontal</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">interpolation</span><span class="p">)</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="n">len_z</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">var_block_before</span><span class="p">[</span><span class="n">blockvars_before</span><span class="p">]</span><span class="o">.</span><span class="n">z</span><span class="p">)</span>
+            <span class="k">except</span><span class="p">:</span>
+                <span class="n">len_z</span> <span class="o">=</span> <span class="mi">1</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">((</span><span class="s1">&#39;Fetched env-block (size </span><span class="si">%i</span><span class="s1">x</span><span class="si">%i</span><span class="s1">x</span><span class="si">%i</span><span class="s1">) &#39;</span> <span class="o">+</span>
+                            <span class="s1">&#39;for time before (</span><span class="si">%s</span><span class="s1">)&#39;</span><span class="p">)</span> <span class="o">%</span>
+                            <span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">var_block_before</span><span class="p">[</span><span class="n">blockvars_before</span><span class="p">]</span><span class="o">.</span><span class="n">x</span><span class="p">),</span>
+                            <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">var_block_before</span><span class="p">[</span><span class="n">blockvars_before</span><span class="p">]</span><span class="o">.</span><span class="n">y</span><span class="p">),</span>
+                            <span class="n">len_z</span><span class="p">,</span> <span class="n">time_before</span><span class="p">))</span>
+            <span class="n">block_before</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">var_block_before</span><span class="p">[</span><span class="n">blockvars_before</span><span class="p">]</span>
+        <span class="k">if</span> <span class="n">block_after</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="n">block_after</span><span class="o">.</span><span class="n">time</span> <span class="o">!=</span> <span class="n">time_after</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">time_after</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">var_block_after</span><span class="p">[</span><span class="n">blockvars_after</span><span class="p">]</span> <span class="o">=</span> \
+                    <span class="n">block_before</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">reader_data_dict</span> <span class="o">=</span> \
+                    <span class="bp">self</span><span class="o">.</span><span class="n">_get_variables_impl_</span><span class="p">(</span><span class="n">blockvariables_after</span><span class="p">,</span> <span class="n">profiles</span><span class="p">,</span>
+                                        <span class="n">profiles_depth</span><span class="p">,</span> <span class="n">time_after</span><span class="p">,</span>
+                                        <span class="n">reader_x</span><span class="p">,</span> <span class="n">reader_y</span><span class="p">,</span> <span class="n">z</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">var_block_after</span><span class="p">[</span><span class="n">blockvars_after</span><span class="p">]</span> <span class="o">=</span> \
+                    <span class="n">ReaderBlock</span><span class="p">(</span>
+                        <span class="n">reader_data_dict</span><span class="p">,</span>
+                        <span class="n">interpolation_horizontal</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">interpolation</span><span class="p">)</span>
+                <span class="k">try</span><span class="p">:</span>
+                    <span class="n">len_z</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">var_block_after</span><span class="p">[</span><span class="n">blockvars_after</span><span class="p">]</span><span class="o">.</span><span class="n">z</span><span class="p">)</span>
+                <span class="k">except</span><span class="p">:</span>
+                    <span class="n">len_z</span> <span class="o">=</span> <span class="mi">1</span>
+
+                <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">((</span><span class="s1">&#39;Fetched env-block (size </span><span class="si">%i</span><span class="s1">x</span><span class="si">%i</span><span class="s1">x</span><span class="si">%i</span><span class="s1">) &#39;</span> <span class="o">+</span>
+                                <span class="s1">&#39;for time after (</span><span class="si">%s</span><span class="s1">)&#39;</span><span class="p">)</span> <span class="o">%</span>
+                                <span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">var_block_after</span><span class="p">[</span><span class="n">blockvars_after</span><span class="p">]</span><span class="o">.</span><span class="n">x</span><span class="p">),</span>
+                                <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">var_block_after</span><span class="p">[</span><span class="n">blockvars_after</span><span class="p">]</span><span class="o">.</span><span class="n">y</span><span class="p">),</span>
+                                <span class="n">len_z</span><span class="p">,</span> <span class="n">time_after</span><span class="p">))</span>
+                <span class="n">block_after</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">var_block_after</span><span class="p">[</span><span class="n">blockvars_after</span><span class="p">]</span>
+
+        <span class="k">if</span> <span class="p">(</span><span class="n">block_before</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">block_before</span><span class="o">.</span><span class="n">covers_positions</span><span class="p">(</span>
+            <span class="n">reader_x</span><span class="p">,</span> <span class="n">reader_y</span><span class="p">)</span> <span class="ow">is</span> <span class="kc">False</span><span class="p">)</span> <span class="ow">or</span> <span class="p">(</span>\
+            <span class="n">block_after</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">block_after</span><span class="o">.</span><span class="n">covers_positions</span><span class="p">(</span>
+                <span class="n">reader_x</span><span class="p">,</span> <span class="n">reader_y</span><span class="p">)</span> <span class="ow">is</span> <span class="kc">False</span><span class="p">):</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="s1">&#39;Data block from </span><span class="si">%s</span><span class="s1"> not large enough to &#39;</span>
+                            <span class="s1">&#39;cover element positions within timestep. &#39;</span>
+                            <span class="s1">&#39;Buffer size (</span><span class="si">%s</span><span class="s1">) must be increased.&#39;</span> <span class="o">%</span>
+                            <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">buffer</span><span class="p">)))</span>
+
+        <span class="c1">############################################################</span>
+        <span class="c1"># Interpolate before/after blocks onto particles in space</span>
+        <span class="c1">############################################################</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">timer_start</span><span class="p">(</span><span class="s1">&#39;interpolation&#39;</span><span class="p">)</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;Interpolating before (</span><span class="si">%s</span><span class="s1">) in space  (</span><span class="si">%s</span><span class="s1">)&#39;</span> <span class="o">%</span>
+                        <span class="p">(</span><span class="n">block_before</span><span class="o">.</span><span class="n">time</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">interpolation</span><span class="p">))</span>
+        <span class="n">env_before</span><span class="p">,</span> <span class="n">env_profiles_before</span> <span class="o">=</span> <span class="n">block_before</span><span class="o">.</span><span class="n">interpolate</span><span class="p">(</span>
+                <span class="n">reader_x</span><span class="p">,</span> <span class="n">reader_y</span><span class="p">,</span> <span class="n">z</span><span class="p">,</span> <span class="n">variables</span><span class="p">,</span>
+                <span class="n">profiles</span><span class="p">,</span> <span class="n">profiles_depth</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="p">(</span><span class="n">time_after</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">)</span> <span class="ow">and</span> <span class="p">(</span><span class="n">time_before</span> <span class="o">!=</span> <span class="n">time</span><span class="p">):</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;Interpolating after (</span><span class="si">%s</span><span class="s1">) in space  (</span><span class="si">%s</span><span class="s1">)&#39;</span> <span class="o">%</span>
+                            <span class="p">(</span><span class="n">block_after</span><span class="o">.</span><span class="n">time</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">interpolation</span><span class="p">))</span>
+            <span class="n">env_after</span><span class="p">,</span> <span class="n">env_profiles_after</span> <span class="o">=</span> <span class="n">block_after</span><span class="o">.</span><span class="n">interpolate</span><span class="p">(</span>
+                    <span class="n">reader_x</span><span class="p">,</span> <span class="n">reader_y</span><span class="p">,</span> <span class="n">z</span><span class="p">,</span> <span class="n">variables</span><span class="p">,</span>
+                    <span class="n">profiles</span><span class="p">,</span> <span class="n">profiles_depth</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">timer_end</span><span class="p">(</span><span class="s1">&#39;interpolation&#39;</span><span class="p">)</span>
+
+        <span class="c1">#######################</span>
+        <span class="c1"># Time interpolation</span>
+        <span class="c1">#######################</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">timer_start</span><span class="p">(</span><span class="s1">&#39;interpolation_time&#39;</span><span class="p">)</span>
+        <span class="n">env_profiles</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="k">if</span> <span class="p">(</span><span class="n">time_after</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">)</span> <span class="ow">and</span> <span class="p">(</span><span class="n">time_before</span> <span class="o">!=</span> <span class="n">time</span><span class="p">):</span>
+            <span class="n">weight_after</span> <span class="o">=</span> <span class="p">((</span><span class="n">time</span> <span class="o">-</span> <span class="n">time_before</span><span class="p">)</span><span class="o">.</span><span class="n">total_seconds</span><span class="p">()</span> <span class="o">/</span>
+                            <span class="p">(</span><span class="n">time_after</span> <span class="o">-</span> <span class="n">time_before</span><span class="p">)</span><span class="o">.</span><span class="n">total_seconds</span><span class="p">())</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">((</span><span class="s1">&#39;Interpolating before (</span><span class="si">%s</span><span class="s1">, weight </span><span class="si">%.2f</span><span class="s1">) and&#39;</span>
+                           <span class="s1">&#39;</span><span class="se">\n\t\t</span><span class="s1">      after (</span><span class="si">%s</span><span class="s1">, weight </span><span class="si">%.2f</span><span class="s1">) in time&#39;</span><span class="p">)</span> <span class="o">%</span>
+                          <span class="p">(</span><span class="n">block_before</span><span class="o">.</span><span class="n">time</span><span class="p">,</span> <span class="mi">1</span> <span class="o">-</span> <span class="n">weight_after</span><span class="p">,</span>
+                           <span class="n">block_after</span><span class="o">.</span><span class="n">time</span><span class="p">,</span> <span class="n">weight_after</span><span class="p">))</span>
+            <span class="n">env</span> <span class="o">=</span> <span class="p">{}</span>
+            <span class="k">for</span> <span class="n">var</span> <span class="ow">in</span> <span class="n">variables</span><span class="p">:</span>
+                <span class="c1"># Weighting together, and masking invalid entries</span>
+                <span class="n">env</span><span class="p">[</span><span class="n">var</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">ma</span><span class="o">.</span><span class="n">masked_invalid</span><span class="p">((</span><span class="n">env_before</span><span class="p">[</span><span class="n">var</span><span class="p">]</span> <span class="o">*</span>
+                                                <span class="p">(</span><span class="mi">1</span> <span class="o">-</span> <span class="n">weight_after</span><span class="p">)</span> <span class="o">+</span>
+                                                <span class="n">env_after</span><span class="p">[</span><span class="n">var</span><span class="p">]</span> <span class="o">*</span> <span class="n">weight_after</span><span class="p">))</span>
+            <span class="c1"># Interpolating vertical profiles in time</span>
+            <span class="k">if</span> <span class="n">profiles</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="n">env_profiles</span> <span class="o">=</span> <span class="p">{}</span>
+                <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;Interpolating profiles in time&#39;</span><span class="p">)</span>
+                <span class="c1"># Truncating layers not present both before and after</span>
+                <span class="n">numlayers</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">minimum</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">env_profiles_before</span><span class="p">[</span><span class="s1">&#39;z&#39;</span><span class="p">]),</span>
+                                       <span class="nb">len</span><span class="p">(</span><span class="n">env_profiles_after</span><span class="p">[</span><span class="s1">&#39;z&#39;</span><span class="p">]))</span>
+                <span class="n">env_profiles</span><span class="p">[</span><span class="s1">&#39;z&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">env_profiles_before</span><span class="p">[</span><span class="s1">&#39;z&#39;</span><span class="p">][</span><span class="mi">0</span><span class="p">:</span><span class="n">numlayers</span><span class="o">+</span><span class="mi">1</span><span class="p">]</span>
+                <span class="k">for</span> <span class="n">var</span> <span class="ow">in</span> <span class="n">env_profiles_before</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+                    <span class="k">if</span> <span class="n">var</span> <span class="o">==</span> <span class="s1">&#39;z&#39;</span><span class="p">:</span>
+                        <span class="k">continue</span>
+                    <span class="n">env_profiles_before</span><span class="p">[</span><span class="n">var</span><span class="p">]</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">atleast_2d</span><span class="p">(</span><span class="n">env_profiles_before</span><span class="p">[</span><span class="n">var</span><span class="p">])</span>
+                    <span class="n">env_profiles_after</span><span class="p">[</span><span class="n">var</span><span class="p">]</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">atleast_2d</span><span class="p">(</span><span class="n">env_profiles_after</span><span class="p">[</span><span class="n">var</span><span class="p">])</span>
+                    <span class="n">env_profiles</span><span class="p">[</span><span class="n">var</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
+                        <span class="n">env_profiles_before</span><span class="p">[</span><span class="n">var</span><span class="p">][</span><span class="mi">0</span><span class="p">:</span><span class="n">numlayers</span><span class="p">,</span> <span class="p">:]</span> <span class="o">*</span>
+                        <span class="p">(</span><span class="mi">1</span> <span class="o">-</span> <span class="n">weight_after</span><span class="p">)</span> <span class="o">+</span>
+                        <span class="n">env_profiles_after</span><span class="p">[</span><span class="n">var</span><span class="p">][</span><span class="mi">0</span><span class="p">:</span><span class="n">numlayers</span><span class="p">,</span> <span class="p">:]</span><span class="o">*</span><span class="n">weight_after</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">env_profiles</span> <span class="o">=</span> <span class="kc">None</span>
+
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;No time interpolation needed - right on time.&#39;</span><span class="p">)</span>
+            <span class="n">env</span> <span class="o">=</span> <span class="n">env_before</span>
+            <span class="k">if</span> <span class="n">profiles</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="k">if</span> <span class="s1">&#39;env_profiles_before&#39;</span> <span class="ow">in</span> <span class="nb">locals</span><span class="p">():</span>
+                    <span class="n">env_profiles</span> <span class="o">=</span> <span class="n">env_profiles_before</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="c1"># Copying data from environment to vertical profiles</span>
+                    <span class="n">env_profiles</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;z&#39;</span><span class="p">:</span> <span class="n">profiles_depth</span><span class="p">}</span>
+                    <span class="k">for</span> <span class="n">var</span> <span class="ow">in</span> <span class="n">profiles</span><span class="p">:</span>
+                        <span class="n">env_profiles</span><span class="p">[</span><span class="n">var</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">ma</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">env</span><span class="p">[</span><span class="n">var</span><span class="p">],</span> <span class="n">env</span><span class="p">[</span><span class="n">var</span><span class="p">]])</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">timer_end</span><span class="p">(</span><span class="s1">&#39;interpolation_time&#39;</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">env</span><span class="p">,</span> <span class="n">env_profiles</span></div></div>
+
+</pre></div>
+
+           </div>
+           
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        
+        &copy; Copyright 2020, Knut-Frode Dagestad (knutfd@met.no) and Gaute Hope (gauteh@met.no).
+
+    </p>
+  </div>
+    
+    
+    
+    Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a
+    
+    <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a>
+    
+    provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

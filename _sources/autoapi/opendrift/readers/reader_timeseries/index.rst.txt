@@ -18,13 +18,17 @@ Classes
 
 .. py:class:: Reader(parameter_value_map)
 
-   Bases: :class:`opendrift.readers.basereader.BaseReader`
+   Bases: :class:`opendrift.readers.basereader.BaseReader`, :class:`opendrift.readers.basereader.ContinuousReader`
 
-   Reader providing the neares value in time from a given time series.
+   Reader providing the nearest value in time from a given time series.
 
-   .. method:: get_variables(self, requestedVariables, time=None, x=None, y=None, z=None, block=False)
+   .. method:: get_variables(self, requestedVariables, time=None, x=None, y=None, z=None)
 
-      Method which must be invoked by any reader (subclass).
+      Method which must be implemented by all reader-subclasses.
+
+      > Warning: In the future this method is likely to be a requirement of
+      > each reader, and it will be up to the reader-type how values are
+      > retrieved.
 
       Obtain and return values of the requested variables at all positions
       (x, y, z) closest to given time.
@@ -36,7 +40,7 @@ Classes
               Can be None (default) if reader/variable has no time
               dimension (e.g. climatology or landmask).
           x, y: float or ndarrays; coordinates of requested points in the
-              Spatial Reference System (SRS) of the reader (NB!!)
+              Spatial Reference System (SRS) _of the reader (NB!!)_.
           z: float or ndarray; vertical position (in meters, positive up)
               of requested points.
               default: 0 m (unless otherwise documented by reader)
@@ -46,10 +50,10 @@ Classes
           data: Dictionary
               keywords: variables (string)
               values:
-                  - 1D ndarray of len(x) if block=False. Nearest values
-                      (neichbour) of requested position are returned.
+                  - 1D ndarray of len(x) if StructuredReader. Nearest values
+                      (neighbour) of requested position are returned.
                   - 3D ndarray encompassing all requested points in
-                      x,y,z domain if block=True. It is task of invoking
+                      x,y,z domain if UnstructuredReader. It is task of invoking
                       application (OpenDriftSimulation) to perform
                       interpolation in space and time.
 
