@@ -22,6 +22,18 @@ Classes
 
    An abstract reader. Implementors provide a method to read data and specify how it is interpolated.
 
+   This class inherits :class:`.variables.Variables` which inherits :class:`.variables.ReaderDomain`. `ReaderDomain` is responsible for the extent and domain of the reader, including checking for out-of-bounds and projection conversion. `Variables` is responsible for returning interpolated data at the requests positions or profiles. Apart from coercing the returned data into the right type for :py:mod:`opendrift.models.basemodel`, it defines the abstract interface to :meth:`.variables.Variables._get_variables_interpolated_` which reader-implementations must provide (_usually_ through one of the main reader-types, see: :py:mod:`opendrift.readers`).
+
+   .. seealso::
+
+       :py:mod:`opendrift.readers`.
+
+       :py:mod:`.variables`.
+
+   Reader which statistically extrapolate current forcing.
+   It uses the residual track obtained by subtracting the wind forcing component
+   from the past observed motion of a particle.
+
    .. attribute:: variables
       :annotation: = ['x_sea_water_velocity', 'y_sea_water_velocity']
 
@@ -31,36 +43,45 @@ Classes
 
       Method which must be implemented by all reader-subclasses.
 
-      > Warning: In the future this method is likely to be a requirement of
-      > each reader, and it will be up to the reader-type how values are
-      > retrieved.
+      .. warning::
+
+          Warning: In the future this method is likely to be a requirement of
+          each reader, and it will be up to the reader-type how values are
+          retrieved.
 
       Obtain and return values of the requested variables at all positions
       (x, y, z) closest to given time.
 
       Arguments:
           variables: string, or list of strings (standard_name) of
-              requested variables. These must be provided by reader.
+          requested variables. These must be provided by reader.
+
           time: datetime or None, time at which data are requested.
-              Can be None (default) if reader/variable has no time
-              dimension (e.g. climatology or landmask).
+          Can be None (default) if reader/variable has no time
+          dimension (e.g. climatology or landmask).
+
           x, y: float or ndarrays; coordinates of requested points in the
-              Spatial Reference System (SRS) _of the reader (NB!!)_.
+          Spatial Reference System (SRS) _of the reader (NB!!)_.
+
           z: float or ndarray; vertical position (in meters, positive up)
-              of requested points.
-              default: 0 m (unless otherwise documented by reader)
+          of requested points. default: 0 m (unless otherwise documented by reader)
+
           block: bool, see return below
 
         Returns:
           data: Dictionary
-              keywords: variables (string)
-              values:
-                  - 1D ndarray of len(x) if StructuredReader. Nearest values
-                      (neighbour) of requested position are returned.
-                  - 3D ndarray encompassing all requested points in
-                      x,y,z domain if UnstructuredReader. It is task of invoking
-                      application (OpenDriftSimulation) to perform
-                      interpolation in space and time.
+
+          keywords: variables (string)
+
+          values:
+
+          - 1D ndarray of len(x) if StructuredReader. Nearest values
+              (neighbour) of requested position are returned.
+
+          - 3D ndarray encompassing all requested points in
+              x,y,z domain if UnstructuredReader. It is task of invoking
+              application (OpenDriftSimulation) to perform
+              interpolation in space and time.
 
 
 

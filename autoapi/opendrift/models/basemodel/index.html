@@ -115,12 +115,12 @@
 <li class="toctree-l3"><a class="reference internal" href="../../index.html#package-contents">Package Contents</a></li>
 </ul>
 </li>
-<li class="toctree-l2"><a class="reference internal" href="../../../opendrift_gui/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">opendrift_gui</span></code></a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../../opendrift_animate_profile/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">opendrift_animate_profile</span></code></a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../../opendrift_plot/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">opendrift_plot</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../opendrift_gui/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">opendrift_gui</span></code></a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../../opendrift_animate/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">opendrift_animate</span></code></a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../../hodograph/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">hodograph</span></code></a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../../readerinfo/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">readerinfo</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../hodograph/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">hodograph</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../opendrift_plot/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">opendrift_plot</span></code></a></li>
 </ul>
 </li>
 </ul>
@@ -258,6 +258,30 @@ filename or URL)</p>
 <dt>priority_list: OrderedDict where names are variable names,</dt><dd><p>and values are lists of names (kewywords) of the reader, in the
 order of priority (user defined) of which the readers shall be
 called to retrieve environmental data.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+<p>Initialise OpenDriftSimulation</p>
+<dl class="simple">
+<dt>Args:</dt><dd><dl class="simple">
+<dt>proj4: proj4 string defining spatial reference system.</dt><dd><p>If not specified, SRS is taken from the first added reader.</p>
+</dd>
+<dt>seed: integer or None. A given integer will yield identical</dt><dd><p>random numbers drawn each simulation. Random numbers are
+e.g. used to distribute particles spatially when seeding,
+and may be used by modules (subclasses) for e.g. diffusion.
+Specifying a fixed value (default: 0) is useful for sensitivity
+tests. With seed = None, different random numbers will be drawn
+for subsequent runs, even with identical configuration/input.</p>
+</dd>
+<dt>iomodule: name of module used to export data</dt><dd><p>default: netcdf, see <code class="xref py py-mod docutils literal notranslate"><span class="pre">opendrift.io</span></code> for more alternatives.
+<cite>iomodule</cite> is module/filename without preceeding <cite>io_</cite></p>
+</dd>
+<dt>loglevel: set to 0 (default) to retrieve all debug information.</dt><dd><p>Provide a higher value (e.g. 20) to receive less output.
+Use the string ‘custom’ to configure logging from outside.</p>
+</dd>
+<dt>logtime: if True, a time stamp is given for each logging line.</dt><dd><p>logtime can also be given as a python time specifier
+(e.g. ‘%H:%M:%S’)</p>
 </dd>
 </dl>
 </dd>
@@ -458,12 +482,9 @@ update properties (including position) of its particles (self.elements)</p>
 <p>Method may be called subsequently to add more readers
 for other variables.</p>
 <dl>
-<dt>Args:</dt><dd><p>readers: one or more (list) Reader objects.
-variables: optional, list of strings of standard_name of</p>
-<blockquote>
-<div><p>variables to be provided by this/these reader(s).</p>
-</div></blockquote>
-<p>first: Set to True if this reader should be set as first option</p>
+<dt>Args:</dt><dd><p>readers: one or more (list) Reader objects.</p>
+<p>variables (optional): list of strings of standard_name of variables to be provided by this/these reader(s).
+first: Set to True if this reader should be set as first option</p>
 </dd>
 </dl>
 </dd></dl>
@@ -658,15 +679,12 @@ for which there are no default value must be specified.</p>
 <code class="sig-name descname">seed_cone</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">self</span></em>, <em class="sig-param"><span class="n">lon</span></em>, <em class="sig-param"><span class="n">lat</span></em>, <em class="sig-param"><span class="n">time</span></em>, <em class="sig-param"><span class="n">radius</span><span class="o">=</span><span class="default_value">0</span></em>, <em class="sig-param"><span class="n">number</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../../_modules/opendrift/models/basemodel.html#OpenDriftSimulation.seed_cone"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#opendrift.models.basemodel.OpenDriftSimulation.seed_cone" title="Permalink to this definition">¶</a></dt>
 <dd><p>Seed elements along a transect/cone between two points/times</p>
 <dl>
-<dt>Arguments:</dt><dd><p>lon: scalar or list with 2 elements [lon0, lon1]
-lat: scalar or list with 2 elements [lat0, lat]
-time: datetime or list with 2 elements [t0, t1]
-radius: scalar or list with 2 elements [r0, r1] Unit: meters
-number: int</p>
-<blockquote>
-<div><p>The number of elements. If this is None, the number of
+<dt>Arguments:</dt><dd><p>lon: scalar or list with 2 elements [lon0, lon1]</p>
+<p>lat: scalar or list with 2 elements [lat0, lat]</p>
+<p>time: datetime or list with 2 elements [t0, t1]</p>
+<p>radius: scalar or list with 2 elements [r0, r1] Unit: meters</p>
+<p>number (int): The number of elements. If this is None, the number of
 elements is taken from configuration.</p>
-</div></blockquote>
 </dd>
 <dt>Elements are seeded along a transect from</dt><dd><p>(lon0, lat0) with uncertainty radius r0 at time t0, towards
 (lon1, lat1) with uncertainty radius r1 at time t1.
@@ -686,15 +704,11 @@ the transect, thus outlining a “cone”.</p>
 <dt id="opendrift.models.basemodel.OpenDriftSimulation.seed_repeated_segment">
 <code class="sig-name descname">seed_repeated_segment</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">self</span></em>, <em class="sig-param"><span class="n">lons</span></em>, <em class="sig-param"><span class="n">lats</span></em>, <em class="sig-param"><span class="n">start_time</span></em>, <em class="sig-param"><span class="n">end_time</span></em>, <em class="sig-param"><span class="n">time_interval</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">number_per_segment</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">total_number</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../../_modules/opendrift/models/basemodel.html#OpenDriftSimulation.seed_repeated_segment"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#opendrift.models.basemodel.OpenDriftSimulation.seed_repeated_segment" title="Permalink to this definition">¶</a></dt>
 <dd><p>Seed elements repeatedly in time along a segment.</p>
-<p>The segment goes from lon[0],lat[0] to lon[1],lat[1].
-The number of elements should be proved as either:
-1) number_per_segment, in which case total number of elements</p>
-<blockquote>
-<div><p>is number_per_segment * len(times), or</p>
-</div></blockquote>
-<ol class="arabic simple" start="2">
-<li><p>total_number, in which case the number of elements
-per segment is: total_number / len(times).
+<p>The segment goes from lon[0],lat[0] to lon[1],lat[1].</p>
+<p>The number of elements should be proved as either:</p>
+<ol class="arabic simple">
+<li><p>number_per_segment, in which case total number of elements is number_per_segment * len(times), or</p></li>
+<li><p>total_number, in which case the number of elements per segment is: total_number / len(times).
 Any extra elements are duplicated along at the first segment.</p></li>
 </ol>
 </dd></dl>
@@ -890,7 +904,7 @@ Use two element list for vector fields, e.g. [‘x_wind’, ‘y_wind’]</p>
 <p>fast (bool): use some optimizations to speed up plotting at the cost of accuracy</p>
 <dl class="field-list simple">
 <dt class="field-odd">param hide_landmask</dt>
-<dd class="field-odd"><p>do not plot landmask (default False). See <span class="xref std std-ref">model_landmask_only_model</span> for example usage.</p>
+<dd class="field-odd"><p>do not plot landmask (default False).</p>
 </dd>
 <dt class="field-even">type hide_landmask</dt>
 <dd class="field-even"><p>bool</p>

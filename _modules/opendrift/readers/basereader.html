@@ -196,11 +196,11 @@
 <span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
 <span class="kn">import</span> <span class="nn">pyproj</span>
 
+<span class="kn">from</span> <span class="nn">.</span> <span class="kn">import</span> <span class="n">fakeproj</span>
 <span class="kn">from</span> <span class="nn">.structured</span> <span class="kn">import</span> <span class="n">StructuredReader</span>
 <span class="kn">from</span> <span class="nn">.unstructured</span> <span class="kn">import</span> <span class="n">UnstructuredReader</span>
 <span class="kn">from</span> <span class="nn">.continuous</span> <span class="kn">import</span> <span class="n">ContinuousReader</span>
 <span class="kn">from</span> <span class="nn">.variables</span> <span class="kn">import</span> <span class="n">Variables</span>
-<span class="kn">from</span> <span class="nn">.fakeproj</span> <span class="kn">import</span> <span class="n">fakeproj</span>
 <span class="kn">from</span> <span class="nn">.consts</span> <span class="kn">import</span> <span class="o">*</span>
 
 <span class="kn">from</span> <span class="nn">opendrift.readers.interpolation</span> <span class="kn">import</span> <span class="n">ReaderBlock</span>
@@ -208,6 +208,14 @@
 <div class="viewcode-block" id="BaseReader"><a class="viewcode-back" href="../../../autoapi/opendrift/readers/basereader/index.html#opendrift.readers.basereader.BaseReader">[docs]</a><span class="k">class</span> <span class="nc">BaseReader</span><span class="p">(</span><span class="n">Variables</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    An abstract reader. Implementors provide a method to read data and specify how it is interpolated.</span>
+
+<span class="sd">    This class inherits :class:`.variables.Variables` which inherits :class:`.variables.ReaderDomain`. `ReaderDomain` is responsible for the extent and domain of the reader, including checking for out-of-bounds and projection conversion. `Variables` is responsible for returning interpolated data at the requests positions or profiles. Apart from coercing the returned data into the right type for :py:mod:`opendrift.models.basemodel`, it defines the abstract interface to :meth:`.variables.Variables._get_variables_interpolated_` which reader-implementations must provide (_usually_ through one of the main reader-types, see: :py:mod:`opendrift.readers`).</span>
+
+<span class="sd">    .. seealso::</span>
+
+<span class="sd">        :py:mod:`opendrift.readers`.</span>
+
+<span class="sd">        :py:mod:`.variables`.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="n">__metaclass__</span> <span class="o">=</span> <span class="n">ABCMeta</span>
@@ -278,7 +286,7 @@
                     <span class="bp">self</span><span class="o">.</span><span class="n">proj</span> <span class="o">=</span> <span class="n">pyproj</span><span class="o">.</span><span class="n">Proj</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">proj4</span><span class="p">)</span>
             <span class="k">else</span><span class="p">:</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">proj4</span> <span class="o">=</span> <span class="s1">&#39;None&#39;</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">proj</span> <span class="o">=</span> <span class="n">fakeproj</span><span class="p">()</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">proj</span> <span class="o">=</span> <span class="n">fakeproj</span><span class="o">.</span><span class="n">fakeproj</span><span class="p">()</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">projected</span> <span class="o">=</span> <span class="kc">False</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s1">&#39;Making Splines for lon,lat to x,y conversion...&#39;</span><span class="p">)</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">xmin</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">ymin</span> <span class="o">=</span> <span class="mf">0.</span>

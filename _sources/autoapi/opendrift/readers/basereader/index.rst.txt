@@ -30,7 +30,6 @@ Classes
    opendrift.readers.basereader.UnstructuredReader
    opendrift.readers.basereader.ContinuousReader
    opendrift.readers.basereader.Variables
-   opendrift.readers.basereader.fakeproj
    opendrift.readers.basereader.ReaderBlock
    opendrift.readers.basereader.BaseReader
 
@@ -42,6 +41,12 @@ Classes
 
    A structured reader. Data is gridded on a regular grid. Used by e.g.:
    :class:`opendrift.readers.reader_netCDF_CF_generic.Reader`.
+
+   .. seealso::
+
+       :py:mod:`opendrift.readers`
+
+   Initialize self.  See help(type(self)) for accurate signature.
 
    .. attribute:: var_block_before
       
@@ -73,38 +78,37 @@ Classes
    An unstructured reader. Data is gridded irregularily.
 
    In order to support the heterogeneous types of unstructured grids, the
-   unstructured readers are built up slightly differently than the
+   unstructured readers are built up differently from the
    :class:`.structured.StructuredReader` readers. This class, which readers of
-   unstrctured grids subclass, provide several methods for aiding in
+   unstructured grids subclass, provide several methods for aiding in
    interpolation and caching.
 
    The initial type of grid that this class supports are `triangular prisms <https://en.wikipedia.org/wiki/Types_of_mesh#Triangular_prism>`_. Unstructured in xy-coordinates, x and y is constant in z. z might be non-cartesian (e.g. sigma-levels).
 
-   Caching using UnstructuredBlock
-   -------------------------------
+   .. seealso::
 
-   TODO:
+       :py:mod:`opendrift.readers`
 
-   The `StructuredReader`s return a 2D field for `meshgrid(x,y)`. This is not
-   so meaningful for `UnstructuredReader` since the variables are iregularily
-   placed. The `get_variables` method should therefore be a method required by
-   the `StructuredReader` and `ContinuousReader`, and maybe renamed to
-   `get_block` for `StructuredReader`.
+       :class:`.structured.StructuredReader`
 
-   For the `UnstructuredReader` we need the equivalent of `get_block`, maybe
-   `get_subset` which sets up an `UnstructuredBlock` for the given area or
-   volume. This probably requires :meth:`_get_variables_impl_`/ :meth:`__get_variables_derived__`
-   to be moved to the outside of :meth:`_get_variables_interpolated_`.
 
-   .. attribute:: var_block_before
-      
+   Caching using UnstructuredBlock:
 
-      
+   .. note::
 
-   .. attribute:: var_block_after
-      
+       The `StructuredReader`s return a 2D field for `meshgrid(x,y)`. This is not
+       so meaningful for `UnstructuredReader` since the variables are iregularily
+       placed. The `get_variables` method should therefore be a method required by
+       the `StructuredReader` and `ContinuousReader`, and maybe renamed to
+       `get_block` for `StructuredReader`.
 
-      
+       For the `UnstructuredReader` we need the equivalent of `get_block`, maybe
+       `get_subset` which sets up an `UnstructuredBlock` for the given area or
+       volume. This probably requires :meth:`_get_variables_impl_`/ :meth:`__get_variables_derived__`
+       to be moved to the outside of :meth:`_get_variables_interpolated_`.
+
+
+   Initialize self.  See help(type(self)) for accurate signature.
 
    .. attribute:: boundary
       
@@ -172,26 +176,30 @@ Classes
           The boundary of the mesh, ideally including holes in the mesh.
 
       Algorithms:
-      -----------
 
-      Try this alogrithm: https://stackoverflow.com/a/14109211/377927
+      .. note::
 
-      Boundary edges (line between two nodes) are only referenced by a single
-      triangle.
+          Try this alogrithm: https://stackoverflow.com/a/14109211/377927
 
-      1. Find a starting edge segment: [v_start, v_next] (v is vertex or node)
-      2. Find another _unvisited_ edge segment [v_i, v_j] that has
-      either v_i = v_next or v_j = v_next and add the one not equal to v_next to the polygon.
-      3. Reset v_next to the newly added point. Mark edge as visited.
-      4. Continue untill we reach v_start.
+          Boundary edges (line between two nodes) are only referenced by a single
+          triangle.
 
-      The polygon has a rotation, but this should not matter for our purpose
-      of checking the bounds.
+          1. Find a starting edge segment: [v_start, v_next] (v is vertex or node)
 
-      Note: In order to find holes in the polygon all points must be scanned.
+          2. Find another _unvisited_ edge segment [v_i, v_j] that has
+             either v_i = v_next or v_j = v_next and add the one not equal to v_next to the polygon.
+
+          3. Reset v_next to the newly added point. Mark edge as visited.
+
+          4. Continue untill we reach v_start.
+
+          The polygon has a rotation, but this should not matter for our purpose
+          of checking the bounds.
+
+          Note: In order to find holes in the polygon all points must be scanned.
 
       Approximate using the convex hull:
-      ----------------------
+
       An alternative simple approximation is to use the convex hull of the
       points, but this will miss points along the boundary which form a
       wedge in the boundary (as well as holes in the mesh).
@@ -245,6 +253,12 @@ Classes
    suitable for constant readers, analytical readers, or readers that are
    static and continuous within the valid domain (e.g. the landmask reader).
 
+   .. seealso::
+
+       :py:mod:`opendrift.readers`
+
+   Initialize self.  See help(type(self)) for accurate signature.
+
    .. method:: _get_variables_interpolated_(self, variables, profiles, profiles_depth, time, reader_x, reader_y, z)
 
       Implemented by different reader types (e.g. :class:`structured.StructuredReader`).
@@ -258,6 +272,8 @@ Classes
    Bases: :class:`opendrift.readers.basereader.variables.ReaderDomain`
 
    Handles reading and interpolation of variables.
+
+   Initialize self.  See help(type(self)) for accurate signature.
 
    .. attribute:: derived_variables
       
@@ -330,36 +346,45 @@ Classes
 
       Method which must be implemented by all reader-subclasses.
 
-      > Warning: In the future this method is likely to be a requirement of
-      > each reader, and it will be up to the reader-type how values are
-      > retrieved.
+      .. warning::
+
+          Warning: In the future this method is likely to be a requirement of
+          each reader, and it will be up to the reader-type how values are
+          retrieved.
 
       Obtain and return values of the requested variables at all positions
       (x, y, z) closest to given time.
 
       Arguments:
           variables: string, or list of strings (standard_name) of
-              requested variables. These must be provided by reader.
+          requested variables. These must be provided by reader.
+
           time: datetime or None, time at which data are requested.
-              Can be None (default) if reader/variable has no time
-              dimension (e.g. climatology or landmask).
+          Can be None (default) if reader/variable has no time
+          dimension (e.g. climatology or landmask).
+
           x, y: float or ndarrays; coordinates of requested points in the
-              Spatial Reference System (SRS) _of the reader (NB!!)_.
+          Spatial Reference System (SRS) _of the reader (NB!!)_.
+
           z: float or ndarray; vertical position (in meters, positive up)
-              of requested points.
-              default: 0 m (unless otherwise documented by reader)
+          of requested points. default: 0 m (unless otherwise documented by reader)
+
           block: bool, see return below
 
         Returns:
           data: Dictionary
-              keywords: variables (string)
-              values:
-                  - 1D ndarray of len(x) if StructuredReader. Nearest values
-                      (neighbour) of requested position are returned.
-                  - 3D ndarray encompassing all requested points in
-                      x,y,z domain if UnstructuredReader. It is task of invoking
-                      application (OpenDriftSimulation) to perform
-                      interpolation in space and time.
+
+          keywords: variables (string)
+
+          values:
+
+          - 1D ndarray of len(x) if StructuredReader. Nearest values
+              (neighbour) of requested position are returned.
+
+          - 3D ndarray encompassing all requested points in
+              x,y,z domain if UnstructuredReader. It is task of invoking
+              application (OpenDriftSimulation) to perform
+              interpolation in space and time.
 
 
    .. method:: _get_variables_interpolated_(self, variables, profiles, profiles_depth, time, reader_x, reader_y, z)
@@ -423,30 +448,6 @@ Classes
 
 
 
-.. py:class:: fakeproj
-
-   .. py:class:: _crs
-
-      .. attribute:: is_geographic
-         :annotation: = False
-
-         
-
-
-   .. attribute:: crs
-      
-
-      
-
-   .. attribute:: srs
-      :annotation: = None
-
-      
-
-   .. method:: __call__(self, x, y, inverse=False)
-
-
-
 .. data:: standard_names
    
 
@@ -460,6 +461,8 @@ Classes
 .. py:class:: ReaderBlock(data_dict, interpolation_horizontal='linearNDFast', interpolation_vertical='linear')
 
    Class to store and interpolate the output from a reader with data on a regular (structured) grid.
+
+   Initialize self.  See help(type(self)) for accurate signature.
 
    .. attribute:: logger
       
@@ -488,6 +491,16 @@ Classes
    Bases: :class:`opendrift.readers.basereader.variables.Variables`
 
    An abstract reader. Implementors provide a method to read data and specify how it is interpolated.
+
+   This class inherits :class:`.variables.Variables` which inherits :class:`.variables.ReaderDomain`. `ReaderDomain` is responsible for the extent and domain of the reader, including checking for out-of-bounds and projection conversion. `Variables` is responsible for returning interpolated data at the requests positions or profiles. Apart from coercing the returned data into the right type for :py:mod:`opendrift.models.basemodel`, it defines the abstract interface to :meth:`.variables.Variables._get_variables_interpolated_` which reader-implementations must provide (_usually_ through one of the main reader-types, see: :py:mod:`opendrift.readers`).
+
+   .. seealso::
+
+       :py:mod:`opendrift.readers`.
+
+       :py:mod:`.variables`.
+
+   Common constructor for all readers
 
    .. attribute:: __metaclass__
       
