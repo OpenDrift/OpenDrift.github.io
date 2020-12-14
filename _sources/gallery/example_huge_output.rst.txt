@@ -1,0 +1,161 @@
+.. only:: html
+
+    .. note::
+        :class: sphx-glr-download-link-note
+
+        Click :ref:`here <sphx_glr_download_gallery_example_huge_output.py>`     to download the full example code
+    .. rst-class:: sphx-glr-example-title
+
+    .. _sphx_glr_gallery_example_huge_output.py:
+
+
+Analysing huge output files
+===========================
+
+
+.. code-block:: default
+
+
+    from datetime import datetime, timedelta
+    import opendrift
+    from opendrift.models.oceandrift import OceanDrift
+    from opendrift.readers import reader_oscillating
+
+    #%
+    # First make a simulation with two seedings, marked by *origin_marker*
+    o = OceanDrift(loglevel=50)
+    t1 = datetime.now()
+    t2 = t1 + timedelta(hours=6)
+    number = 10000
+    outfile = 'simulation.nc'  # Raw simulation output
+    o.seed_elements(time=t1, lon=4, lat=60, number=number,
+                    origin_marker=0)
+    o.seed_elements(time=[t1, t2], lon=4.2, lat=60.4, number=number,
+                    origin_marker=1)
+
+    reader_x = reader_oscillating.Reader('x_sea_water_velocity',
+                    amplitude=1, zero_time=t1)
+    reader_y = reader_oscillating.Reader('y_sea_water_velocity',
+                    amplitude=1, zero_time=t2)
+    o.add_reader([reader_x, reader_y])
+    o.set_config('drift:horizontal_diffusivity', 10)
+    o.run(duration=timedelta(hours=24),
+          time_step=900, time_step_output=1800, outfile=outfile)
+
+    #%
+    # Opening the output file lazily with Xarray.
+    # This will work even if the file is too large to fit in memory, as it
+    # will read and process data chuck-by-chunk directly from file using Dask.
+    # Note that the analysis file will be re-used if existing. Thus this file should be deleted after making any changes to the simulation above.
+    o = opendrift.open_xarray(outfile, analysis_file='simulation_density.nc')
+
+    #%
+    # Making two animations, for each of the two seedings / origin_markere.
+    # The calculated density fields will be stored/cached in the analysis file
+    # for later re-use, as their calculation may be time consuming
+    # for huge output files.
+    # Note that other analysis/plotting methods are not yet adapted
+    # to datasets opened lazily with open_xarray
+    for om in [0, 1]:
+        o.animation(density=True, density_pixelsize_m=500, fast=False,
+                    origin_marker=om, show_elements=False, vmin=0, vmax=200)
+
+    #%
+    # First seeding
+
+
+
+
+
+.. rst-class:: sphx-glr-script-out
+
+ Out:
+
+ .. code-block:: none
+
+    19:22:06 DEBUG   opendrift: Adding 17 config items from basemodel
+    19:22:06 DEBUG   opendrift: Adding 4 config items from basemodel
+    19:22:06 DEBUG   opendrift: Adding 34 config items from basemodel
+    19:22:06 INFO    opendrift: OpenDriftSimulation initialised (version 1.4.2 / v1.4.2-150-gfcf08b8)
+    19:22:06 DEBUG   opendrift: Adding 13 config items from oceandrift
+    19:22:06 DEBUG   opendrift:   Overwriting config item seed:z
+    19:22:06 DEBUG   opendrift: Importing with Xarray from simulation.nc
+    19:22:06 INFO    opendrift: Calculating density array, this may take some time...
+    19:22:06 DEBUG   opendrift: Finding min and max of lon and lat...
+    19:22:06 INFO    opendrift:     calculating for origin_marker 0...
+    19:22:06 INFO    opendrift:     calculating for origin_marker 1...
+    19:22:06 INFO    opendrift: Writing density array to analysis file: simulation_density.nc
+    19:22:06 INFO    opendrift:     writing for origin_marker 0...
+    19:22:06 INFO    opendrift:     writing for origin_marker 1...
+    19:22:06 INFO    opendrift: Time to calculate density array: 0:00:00.333274
+    19:22:06 DEBUG   opendrift: Finding min longitude...
+    19:22:06 DEBUG   opendrift: Finding max longitude...
+    19:22:06 DEBUG   opendrift: Finding min latitude...
+    19:22:06 DEBUG   opendrift: Finding max latitude...
+    19:22:07 DEBUG   opendrift: Adding GSHHS shapes..
+    /root/project/opendrift/models/basemodel.py:3060: MatplotlibDeprecationWarning: You are modifying the state of a globally registered colormap. In future versions, you will not be able to modify a registered colormap in-place. To remove this warning, you can make a copy of the colormap first. cmap = copy.copy(mpl.cm.get_cmap("jet"))
+      cmap.set_under('w')
+    19:22:07 INFO    opendrift: Saving animation to /root/project/docs/source/gallery/animations/example_huge_output_0.gif...
+    19:22:07 INFO    opendrift: Making animated gif...
+    19:22:54 DEBUG   opendrift: Time to make animation: 0:00:47.615133
+    19:22:54 INFO    opendrift: Importing from saved analysis file
+    19:22:54 DEBUG   opendrift: Adding GSHHS shapes..
+    /root/project/opendrift/models/basemodel.py:3060: MatplotlibDeprecationWarning: You are modifying the state of a globally registered colormap. In future versions, you will not be able to modify a registered colormap in-place. To remove this warning, you can make a copy of the colormap first. cmap = copy.copy(mpl.cm.get_cmap("jet"))
+      cmap.set_under('w')
+    19:22:54 INFO    opendrift: Saving animation to /root/project/docs/source/gallery/animations/example_huge_output_1.gif...
+    19:22:54 INFO    opendrift: Making animated gif...
+    19:23:42 DEBUG   opendrift: Time to make animation: 0:00:48.627641
+
+
+
+
+.. image:: /gallery/animations/example_huge_output_0.gif
+
+
+.. code-block:: default
+
+
+    #%
+    # Second seeding
+
+
+
+
+
+
+
+
+.. image:: /gallery/animations/example_huge_output_1.gif
+
+
+.. rst-class:: sphx-glr-timing
+
+   **Total running time of the script:** ( 1 minutes  55.548 seconds)
+
+
+.. _sphx_glr_download_gallery_example_huge_output.py:
+
+
+.. only :: html
+
+ .. container:: sphx-glr-footer
+    :class: sphx-glr-footer-example
+
+
+
+  .. container:: sphx-glr-download sphx-glr-download-python
+
+     :download:`Download Python source code: example_huge_output.py <example_huge_output.py>`
+
+
+
+  .. container:: sphx-glr-download sphx-glr-download-jupyter
+
+     :download:`Download Jupyter notebook: example_huge_output.ipynb <example_huge_output.ipynb>`
+
+
+.. only:: html
+
+ .. rst-class:: sphx-glr-signature
+
+    `Gallery generated by Sphinx-Gallery <https://sphinx-gallery.github.io>`_
