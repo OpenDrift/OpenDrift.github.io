@@ -199,6 +199,30 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">var_block_before</span> <span class="o">=</span> <span class="p">{}</span>  <span class="c1"># Data for last timestep before present</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">var_block_after</span> <span class="o">=</span> <span class="p">{}</span>   <span class="c1"># Data for first timestep after present</span>
 
+<div class="viewcode-block" id="StructuredReader.get_variables"><a class="viewcode-back" href="../../../../autoapi/opendrift/readers/basereader/structured/index.html#opendrift.readers.basereader.StructuredReader.get_variables">[docs]</a>    <span class="nd">@abstractmethod</span>
+    <span class="k">def</span> <span class="nf">get_variables</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">variables</span><span class="p">,</span> <span class="n">time</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">x</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">y</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">z</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Obtain a _block_ of values of the requested variables at all positions</span>
+<span class="sd">        (x, y, z) closest to given time. These will be stored in</span>
+<span class="sd">        :class:`opendrift.readers.interpolation.structured.ReaderBlock` and</span>
+<span class="sd">        accessed from there.</span>
+
+<span class="sd">        Arguments:</span>
+<span class="sd">            variables: list of variables.</span>
+
+<span class="sd">            time: datetime or None, time at which data are requested.</span>
+
+<span class="sd">            x, y: float or ndarrays; coordinates of requested points.</span>
+
+<span class="sd">            z: float or ndarray; vertical position (in meters, positive up)</span>
+
+<span class="sd">          Returns:</span>
+<span class="sd">            Dictionary</span>
+
+<span class="sd">            keywords: variables (string)</span>
+<span class="sd">            values: 2D ndarray bounding x and y.</span>
+<span class="sd">        &quot;&quot;&quot;</span></div>
+
 <div class="viewcode-block" id="StructuredReader._get_variables_interpolated_"><a class="viewcode-back" href="../../../../autoapi/opendrift/readers/basereader/structured/index.html#opendrift.readers.basereader.StructuredReader._get_variables_interpolated_">[docs]</a>    <span class="k">def</span> <span class="nf">_get_variables_interpolated_</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">variables</span><span class="p">,</span> <span class="n">profiles</span><span class="p">,</span>
                                    <span class="n">profiles_depth</span><span class="p">,</span> <span class="n">time</span><span class="p">,</span>
                                    <span class="n">reader_x</span><span class="p">,</span> <span class="n">reader_y</span><span class="p">,</span> <span class="n">z</span><span class="p">):</span>
@@ -215,6 +239,19 @@
                 <span class="p">]</span>
         <span class="k">if</span> <span class="n">time</span> <span class="o">==</span> <span class="n">time_before</span> <span class="ow">or</span> <span class="nb">all</span><span class="p">(</span><span class="n">v</span> <span class="ow">in</span> <span class="n">static_variables</span> <span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">variables</span><span class="p">):</span>
             <span class="n">time_after</span> <span class="o">=</span> <span class="kc">None</span>
+
+
+        <span class="k">if</span> <span class="n">profiles</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="c1"># If profiles are requested for any parameters, we</span>
+            <span class="c1"># add two fake points at the end of array to make sure that the</span>
+            <span class="c1"># requested block has the depth range required for profiles</span>
+            <span class="n">mx</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">reader_x</span><span class="p">,</span> <span class="p">[</span><span class="n">reader_x</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">],</span> <span class="n">reader_x</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]])</span>
+            <span class="n">my</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">reader_y</span><span class="p">,</span> <span class="p">[</span><span class="n">reader_y</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">],</span> <span class="n">reader_y</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]])</span>
+            <span class="n">mz</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">z</span><span class="p">,</span> <span class="p">[</span><span class="n">profiles_depth</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">profiles_depth</span><span class="p">[</span><span class="mi">1</span><span class="p">]])</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">mx</span> <span class="o">=</span> <span class="n">reader_x</span>
+            <span class="n">my</span> <span class="o">=</span> <span class="n">reader_y</span>
+            <span class="n">mz</span> <span class="o">=</span> <span class="n">z</span>
 
         <span class="n">block_before</span> <span class="o">=</span> <span class="n">block_after</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="n">blockvariables_before</span> <span class="o">=</span> <span class="n">variables</span>
@@ -251,9 +288,8 @@
         <span class="k">if</span> <span class="n">block_before</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> \
                 <span class="n">block_before</span><span class="o">.</span><span class="n">time</span> <span class="o">!=</span> <span class="n">time_before</span><span class="p">:</span>
             <span class="n">reader_data_dict</span> <span class="o">=</span> \
-                <span class="bp">self</span><span class="o">.</span><span class="n">_get_variables_impl_</span><span class="p">(</span><span class="n">blockvariables_before</span><span class="p">,</span> <span class="n">profiles</span><span class="p">,</span>
-                                    <span class="n">profiles_depth</span><span class="p">,</span> <span class="n">time_before</span><span class="p">,</span>
-                                    <span class="n">reader_x</span><span class="p">,</span> <span class="n">reader_y</span><span class="p">,</span> <span class="n">z</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">get_variables</span><span class="p">(</span><span class="n">blockvariables_before</span><span class="p">,</span> <span class="n">time_before</span><span class="p">,</span>
+                                    <span class="n">mx</span><span class="p">,</span> <span class="n">my</span><span class="p">,</span> <span class="n">mz</span><span class="p">)</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">var_block_before</span><span class="p">[</span><span class="n">blockvars_before</span><span class="p">]</span> <span class="o">=</span> \
                 <span class="n">ReaderBlock</span><span class="p">(</span><span class="n">reader_data_dict</span><span class="p">,</span>
                             <span class="n">interpolation_horizontal</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">interpolation</span><span class="p">)</span>
@@ -273,9 +309,8 @@
                     <span class="n">block_before</span>
             <span class="k">else</span><span class="p">:</span>
                 <span class="n">reader_data_dict</span> <span class="o">=</span> \
-                    <span class="bp">self</span><span class="o">.</span><span class="n">_get_variables_impl_</span><span class="p">(</span><span class="n">blockvariables_after</span><span class="p">,</span> <span class="n">profiles</span><span class="p">,</span>
-                                        <span class="n">profiles_depth</span><span class="p">,</span> <span class="n">time_after</span><span class="p">,</span>
-                                        <span class="n">reader_x</span><span class="p">,</span> <span class="n">reader_y</span><span class="p">,</span> <span class="n">z</span><span class="p">)</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">get_variables</span><span class="p">(</span><span class="n">blockvariables_after</span><span class="p">,</span> <span class="n">time_after</span><span class="p">,</span>
+                                        <span class="n">mx</span><span class="p">,</span> <span class="n">my</span><span class="p">,</span> <span class="n">mz</span><span class="p">)</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">var_block_after</span><span class="p">[</span><span class="n">blockvars_after</span><span class="p">]</span> <span class="o">=</span> \
                     <span class="n">ReaderBlock</span><span class="p">(</span>
                         <span class="n">reader_data_dict</span><span class="p">,</span>
@@ -371,7 +406,19 @@
                         <span class="n">env_profiles</span><span class="p">[</span><span class="n">var</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">ma</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">env</span><span class="p">[</span><span class="n">var</span><span class="p">],</span> <span class="n">env</span><span class="p">[</span><span class="n">var</span><span class="p">]])</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">timer_end</span><span class="p">(</span><span class="s1">&#39;interpolation_time&#39;</span><span class="p">)</span>
 
-        <span class="k">return</span> <span class="n">env</span><span class="p">,</span> <span class="n">env_profiles</span></div></div>
+        <span class="k">return</span> <span class="n">env</span><span class="p">,</span> <span class="n">env_profiles</span></div>
+
+<div class="viewcode-block" id="StructuredReader.__check_env_arrays__"><a class="viewcode-back" href="../../../../autoapi/opendrift/readers/basereader/structured/index.html#opendrift.readers.basereader.StructuredReader.__check_env_arrays__">[docs]</a>    <span class="k">def</span> <span class="nf">__check_env_arrays__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">env</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        For the StructuredReader the variables are checked before entered into</span>
+<span class="sd">        the ReaderBlock interpolator. This methods makes the second check a</span>
+<span class="sd">        no-op.</span>
+
+<span class="sd">        .. seealso::</span>
+
+<span class="sd">            :meth:`.variables.Variables.__check_env_arrays__`.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="n">env</span></div></div>
 
 </pre></div>
 

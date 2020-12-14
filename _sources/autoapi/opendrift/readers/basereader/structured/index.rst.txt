@@ -49,11 +49,53 @@ Classes
 
       
 
+   .. method:: get_variables(self, variables, time=None, x=None, y=None, z=None)
+      :abstractmethod:
+
+      Obtain a _block_ of values of the requested variables at all positions
+      (x, y, z) closest to given time. These will be stored in
+      :class:`opendrift.readers.interpolation.structured.ReaderBlock` and
+      accessed from there.
+
+      Arguments:
+          variables: list of variables.
+
+          time: datetime or None, time at which data are requested.
+
+          x, y: float or ndarrays; coordinates of requested points.
+
+          z: float or ndarray; vertical position (in meters, positive up)
+
+        Returns:
+          Dictionary
+
+          keywords: variables (string)
+          values: 2D ndarray bounding x and y.
+
+
    .. method:: _get_variables_interpolated_(self, variables, profiles, profiles_depth, time, reader_x, reader_y, z)
 
-      Implemented by different reader types (e.g. :class:`structured.StructuredReader`).
+      This method _must_ be implemented by every reader. Usually by
+      subclassing one of the reader types (e.g.
+      :class:`structured.StructuredReader`).
 
-      Arguments are in native projection of reader.
+      Arguments are in _native projection_ of reader.
+
+      .. seealso:
+
+          * :meth:`get_variables_interpolated_xy`.
+          * :meth:`get_variables_interpolated`.
+
+
+   .. method:: __check_env_arrays__(self, env)
+
+      For the StructuredReader the variables are checked before entered into
+      the ReaderBlock interpolator. This methods makes the second check a
+      no-op.
+
+      .. seealso::
+
+          :meth:`.variables.Variables.__check_env_arrays__`.
 
 
 

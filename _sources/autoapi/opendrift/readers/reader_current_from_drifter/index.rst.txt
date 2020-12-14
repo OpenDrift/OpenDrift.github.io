@@ -39,47 +39,25 @@ Classes
 
    .. method:: get_variables(self, requested_variables, time=None, x=None, y=None, z=None)
 
-      Method which must be implemented by all reader-subclasses.
-
-      .. warning::
-
-          Warning: In the future this method is likely to be a requirement of
-          each reader, and it will be up to the reader-type how values are
-          retrieved.
-
-      Obtain and return values of the requested variables at all positions
-      (x, y, z) closest to given time.
+      Obtain a _block_ of values of the requested variables at all positions
+      (x, y, z) closest to given time. These will be stored in
+      :class:`opendrift.readers.interpolation.structured.ReaderBlock` and
+      accessed from there.
 
       Arguments:
-          variables: string, or list of strings (standard_name) of
-          requested variables. These must be provided by reader.
+          variables: list of variables.
 
           time: datetime or None, time at which data are requested.
-          Can be None (default) if reader/variable has no time
-          dimension (e.g. climatology or landmask).
 
-          x, y: float or ndarrays; coordinates of requested points in the
-          Spatial Reference System (SRS) _of the reader (NB!!)_.
+          x, y: float or ndarrays; coordinates of requested points.
 
           z: float or ndarray; vertical position (in meters, positive up)
-          of requested points. default: 0 m (unless otherwise documented by reader)
-
-          block: bool, see return below
 
         Returns:
-          data: Dictionary
+          Dictionary
 
           keywords: variables (string)
-
-          values:
-
-          - 1D ndarray of len(x) if StructuredReader. Nearest values
-              (neighbour) of requested position are returned.
-
-          - 3D ndarray encompassing all requested points in
-              x,y,z domain if UnstructuredReader. It is task of invoking
-              application (OpenDriftSimulation) to perform
-              interpolation in space and time.
+          values: 2D ndarray bounding x and y.
 
 
 

@@ -269,102 +269,70 @@ Classes
    .. method:: wind_from_speed_and_direction(self, env)
 
 
-   .. method:: calculate_derived_environment_variables(self, env)
+   .. method:: __calculate_derived_environment_variables__(self, env)
 
 
-   .. method:: _get_variables_impl_(self, variables, profiles, profiles_depth, time, x, y, z)
+   .. method:: __check_env_coordinates__(self, env)
 
-      Wrapper around reader-specific function get_variables()
-
-      Performs some common operations which should not be duplicated:
-
-          - monitor time spent by this reader
-          - convert any numpy arrays to masked arrays
-          - add points to x, y and z to get profiles if necessary
-          - convolve vectors if `self.convolve` is specified
-
-      This function calls :meth:`__get_variables_derived__` which eventually
-      calls :meth:`get_variables` on the implementing reader.
+      Make sure x and y are floats (and not e.g. int64)
 
 
-   .. method:: __get_variables_derived__(self, variables, *args, **kwargs)
+   .. method:: __check_variable_array__(name, variable)
+      :staticmethod:
 
-      Wrapper around get_variables, adding derived
+      Ensure arrays are not masked arrays and that values are within valid ranges.
 
 
-   .. method:: get_variables(self, variables, time=None, x=None, y=None, z=None)
-      :abstractmethod:
+   .. method:: __check_env_arrays__(self, env)
 
-      Method which must be implemented by all reader-subclasses.
+      Ensure arrays are not masked arrays and that values are within valid
+      ranges.
 
-      .. warning::
+      .. seealso::
 
-          Warning: In the future this method is likely to be a requirement of
-          each reader, and it will be up to the reader-type how values are
-          retrieved.
+          Disabled in `StructuredReader` because variables are valided before
+          entered into interpolator:
 
-      Obtain and return values of the requested variables at all positions
-      (x, y, z) closest to given time.
+          :meth:`.structured.StructuredReader.__check_env_arrays__`
 
-      Arguments:
-          variables: string, or list of strings (standard_name) of
-          requested variables. These must be provided by reader.
 
-          time: datetime or None, time at which data are requested.
-          Can be None (default) if reader/variable has no time
-          dimension (e.g. climatology or landmask).
+   .. method:: __convolve_env__(self, env)
 
-          x, y: float or ndarrays; coordinates of requested points in the
-          Spatial Reference System (SRS) _of the reader (NB!!)_.
-
-          z: float or ndarray; vertical position (in meters, positive up)
-          of requested points. default: 0 m (unless otherwise documented by reader)
-
-          block: bool, see return below
-
-        Returns:
-          data: Dictionary
-
-          keywords: variables (string)
-
-          values:
-
-          - 1D ndarray of len(x) if StructuredReader. Nearest values
-              (neighbour) of requested position are returned.
-
-          - 3D ndarray encompassing all requested points in
-              x,y,z domain if UnstructuredReader. It is task of invoking
-              application (OpenDriftSimulation) to perform
-              interpolation in space and time.
+      Convolve arrays with a kernel, if reader.convolve is set
 
 
    .. method:: _get_variables_interpolated_(self, variables, profiles, profiles_depth, time, reader_x, reader_y, z)
       :abstractmethod:
 
-      Implemented by different reader types (e.g. :class:`structured.StructuredReader`).
+      This method _must_ be implemented by every reader. Usually by
+      subclassing one of the reader types (e.g.
+      :class:`structured.StructuredReader`).
 
-      Arguments are in native projection of reader.
+      Arguments are in _native projection_ of reader.
+
+      .. seealso:
+
+          * :meth:`get_variables_interpolated_xy`.
+          * :meth:`get_variables_interpolated`.
 
 
    .. method:: get_variables_interpolated_xy(self, variables, profiles=None, profiles_depth=None, time=None, x=None, y=None, z=None, rotate_to_proj=None)
 
       Get variables in native projection of reader.
 
+      .. seealso::
+
+          * :meth:`get_variables_interpolated`.
+          * :meth:`_get_variables_interpolated_`.
+
 
    .. method:: get_variables_interpolated(self, variables, profiles=None, profiles_depth=None, time=None, lon=None, lat=None, z=None, rotate_to_proj=None)
 
-      `get_variables_interpolated` is the interface to
+      `get_variables_interpolated` is the main interface to
       :class:`opendrift.basemodel.OpenDriftSimulation`, and is responsible
-      for returning variables at the correct positions. This is done by:
+      for returning variables at the correct positions.
 
-          1. Calling :meth:`_get_variables_interpolated_` which,
-          2. calls :meth:`_get_variables_impl_`, which
-          3. calls :meth:`__get_variables_derived__`, which
-          4. calls :meth:`get_variables`.
-
-      :meth:`_get_variables_impl_`: Works on every variable. If profiles_depth, adds a point at start and end in order to get a full block. This seems specific to `StructuredReader`. Needs to work on both env and env_profiles, but also modifies the behavior to make env_profiles work in the first place.
-
-      :meth:`__get_variables_derived__`: Calculates derived variables from variables present in reader. Needs to work on both env and env_profiles.
+      Readers should implement :meth:`_get_variables_interpolated_`.
 
       Arguments:
           variables: string, or list of strings (standard_name) of
@@ -396,6 +364,10 @@ Classes
 
           Interpolated variables at x, y and z. `env` contains values at a fixed depth (`z`), while `env_profiles` contains depth-profiles in the range `profile_depth` for the variables listed in `profiles` for each element (in `x`, `y`). The exact depth is determined by the reader and specified in
           `env_profiles['z']`. Thus variables in `env_profiles` are not interpolated in z-direction.
+
+      .. seealso::
+
+          :meth:`get_variables_interpolated_xy`.
 
 
 
