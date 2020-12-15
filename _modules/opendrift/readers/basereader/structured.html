@@ -172,27 +172,84 @@
             
   <h1>Source code for opendrift.readers.basereader.structured</h1><div class="highlight"><pre>
 <span></span><span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">pyproj</span>
+<span class="kn">from</span> <span class="nn">scipy.ndimage</span> <span class="kn">import</span> <span class="n">map_coordinates</span>
 <span class="kn">from</span> <span class="nn">abc</span> <span class="kn">import</span> <span class="n">abstractmethod</span>
 
 <span class="kn">from</span> <span class="nn">opendrift.readers.interpolation.structured</span> <span class="kn">import</span> <span class="n">ReaderBlock</span>
 <span class="kn">from</span> <span class="nn">.variables</span> <span class="kn">import</span> <span class="n">Variables</span>
+
 <span class="kn">import</span> <span class="nn">logging</span>
 <span class="n">logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span>
+
 
 <div class="viewcode-block" id="StructuredReader"><a class="viewcode-back" href="../../../../autoapi/opendrift/readers/basereader/structured/index.html#opendrift.readers.basereader.StructuredReader">[docs]</a><span class="k">class</span> <span class="nc">StructuredReader</span><span class="p">(</span><span class="n">Variables</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    A structured reader. Data is gridded on a regular grid. Used by e.g.:</span>
 <span class="sd">    :class:`opendrift.readers.reader_netCDF_CF_generic.Reader`.</span>
 
+<span class="sd">    Attributes:</span>
+
+<span class="sd">        projected: is `True` if :class:`.fakeproj.fakeproj` is used because of missing projection information. The data points are assumed to be approximately equidistant on the surface (i.e. in meters).</span>
+
+<span class="sd">        clipped: pixels to to remove along boundary (e.g. in case of bad data).</span>
+
 <span class="sd">    .. seealso::</span>
 
 <span class="sd">        :py:mod:`opendrift.readers`</span>
 <span class="sd">    &quot;&quot;&quot;</span>
+    <span class="c1"># `projected` is set to True if `fakeproj` is used</span>
+    <span class="n">projected</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">shape</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">clipped</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="n">x</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">y</span> <span class="o">=</span> <span class="kc">None</span>
+
     <span class="n">var_block_before</span> <span class="o">=</span> <span class="kc">None</span>
-    <span class="n">var_block_after</span>  <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">var_block_after</span> <span class="o">=</span> <span class="kc">None</span>
     <span class="n">interpolation</span> <span class="o">=</span> <span class="s1">&#39;linearNDFast&#39;</span>
 
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">proj</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">and</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">proj4</span> <span class="ow">is</span> <span class="kc">None</span>
+                                  <span class="ow">or</span> <span class="bp">self</span><span class="o">.</span><span class="n">proj4</span> <span class="o">==</span> <span class="s1">&#39;fakeproj&#39;</span><span class="p">):</span>
+
+            <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span>
+                <span class="s2">&quot;No proj string or projection could be derived, using &#39;fakeproj&#39;. This assumes that the variables are structured and gridded approximately equidistantly on the surface (i.e. in meters). This must be guaranteed by the user. You can get rid of this warning by suppling a valid projection to the reader.&quot;</span>
+            <span class="p">)</span>
+
+            <span class="kn">from</span> <span class="nn">scipy.interpolate</span> <span class="kn">import</span> <span class="n">LinearNDInterpolator</span>
+            <span class="kn">import</span> <span class="nn">copy</span>
+            <span class="kn">from</span> <span class="nn">.</span> <span class="kn">import</span> <span class="n">fakeproj</span>
+
+            <span class="bp">self</span><span class="o">.</span><span class="n">proj4</span> <span class="o">=</span> <span class="s1">&#39;None&#39;</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">proj</span> <span class="o">=</span> <span class="n">fakeproj</span><span class="o">.</span><span class="n">fakeproj</span><span class="p">()</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">projected</span> <span class="o">=</span> <span class="kc">False</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s1">&#39;Making interpolator for lon,lat to x,y conversion...&#39;</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">xmin</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">ymin</span> <span class="o">=</span> <span class="mf">0.</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">delta_x</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">delta_y</span> <span class="o">=</span> <span class="mf">1.</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">xmax</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">lon</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">-</span> <span class="mi">1</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">ymax</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">lon</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">-</span> <span class="mi">1</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">numx</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">xmax</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">numy</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">ymax</span>
+
+            <span class="n">block_x</span><span class="p">,</span> <span class="n">block_y</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">mgrid</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">xmin</span><span class="p">:</span><span class="bp">self</span><span class="o">.</span><span class="n">xmax</span> <span class="o">+</span> <span class="mi">1</span><span class="p">,</span>
+                                        <span class="bp">self</span><span class="o">.</span><span class="n">ymin</span><span class="p">:</span><span class="bp">self</span><span class="o">.</span><span class="n">ymax</span> <span class="o">+</span> <span class="mi">1</span><span class="p">]</span>
+            <span class="n">block_x</span><span class="p">,</span> <span class="n">block_y</span> <span class="o">=</span> <span class="n">block_x</span><span class="o">.</span><span class="n">T</span><span class="p">,</span> <span class="n">block_y</span><span class="o">.</span><span class="n">T</span>
+
+            <span class="c1"># Making interpolator (lon, lat) -&gt; x</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">spl_x</span> <span class="o">=</span> <span class="n">LinearNDInterpolator</span><span class="p">(</span>
+                <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">lon</span><span class="o">.</span><span class="n">ravel</span><span class="p">(),</span> <span class="bp">self</span><span class="o">.</span><span class="n">lat</span><span class="o">.</span><span class="n">ravel</span><span class="p">()),</span>
+                <span class="n">block_x</span><span class="o">.</span><span class="n">ravel</span><span class="p">(),</span>
+                <span class="n">fill_value</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">nan</span><span class="p">)</span>
+            <span class="c1"># Reusing x-interpolator (deepcopy) with data for y</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">spl_y</span> <span class="o">=</span> <span class="n">copy</span><span class="o">.</span><span class="n">deepcopy</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">spl_x</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">spl_y</span><span class="o">.</span><span class="n">values</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="n">block_y</span><span class="o">.</span><span class="n">ravel</span><span class="p">()</span>
+            <span class="c1"># Call interpolator to avoid threading-problem:</span>
+            <span class="c1"># https://github.com/scipy/scipy/issues/8856</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">spl_x</span><span class="p">((</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">)),</span> <span class="bp">self</span><span class="o">.</span><span class="n">spl_y</span><span class="p">((</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">))</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">projected</span> <span class="o">=</span> <span class="kc">True</span>
+
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
 
         <span class="c1"># Dictionaries to store blocks of data for reuse (buffering)</span>
@@ -226,18 +283,19 @@
 <div class="viewcode-block" id="StructuredReader._get_variables_interpolated_"><a class="viewcode-back" href="../../../../autoapi/opendrift/readers/basereader/structured/index.html#opendrift.readers.basereader.StructuredReader._get_variables_interpolated_">[docs]</a>    <span class="k">def</span> <span class="nf">_get_variables_interpolated_</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">variables</span><span class="p">,</span> <span class="n">profiles</span><span class="p">,</span>
                                    <span class="n">profiles_depth</span><span class="p">,</span> <span class="n">time</span><span class="p">,</span>
                                    <span class="n">reader_x</span><span class="p">,</span> <span class="n">reader_y</span><span class="p">,</span> <span class="n">z</span><span class="p">):</span>
+
         <span class="c1"># Find reader time_before/time_after</span>
         <span class="n">time_nearest</span><span class="p">,</span> <span class="n">time_before</span><span class="p">,</span> <span class="n">time_after</span><span class="p">,</span> <span class="n">i1</span><span class="p">,</span> <span class="n">i2</span><span class="p">,</span> <span class="n">i3</span> <span class="o">=</span> \
             <span class="bp">self</span><span class="o">.</span><span class="n">nearest_time</span><span class="p">(</span><span class="n">time</span><span class="p">)</span>
         <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;Reader time:</span><span class="se">\n\t\t</span><span class="si">%s</span><span class="s1"> (before)</span><span class="se">\n\t\t</span><span class="si">%s</span><span class="s1"> (after)&#39;</span> <span class="o">%</span>
-                      <span class="p">(</span><span class="n">time_before</span><span class="p">,</span> <span class="n">time_after</span><span class="p">))</span>
+                     <span class="p">(</span><span class="n">time_before</span><span class="p">,</span> <span class="n">time_after</span><span class="p">))</span>
 
         <span class="c1"># For variables which are not time dependent, we do not care about time</span>
         <span class="n">static_variables</span> <span class="o">=</span> <span class="p">[</span>
-                <span class="s1">&#39;sea_floor_depth_below_sea_level&#39;</span><span class="p">,</span>
-                <span class="s1">&#39;land_binary_mask&#39;</span>
-                <span class="p">]</span>
-        <span class="k">if</span> <span class="n">time</span> <span class="o">==</span> <span class="n">time_before</span> <span class="ow">or</span> <span class="nb">all</span><span class="p">(</span><span class="n">v</span> <span class="ow">in</span> <span class="n">static_variables</span> <span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">variables</span><span class="p">):</span>
+            <span class="s1">&#39;sea_floor_depth_below_sea_level&#39;</span><span class="p">,</span> <span class="s1">&#39;land_binary_mask&#39;</span>
+        <span class="p">]</span>
+        <span class="k">if</span> <span class="n">time</span> <span class="o">==</span> <span class="n">time_before</span> <span class="ow">or</span> <span class="nb">all</span><span class="p">(</span><span class="n">v</span> <span class="ow">in</span> <span class="n">static_variables</span>
+                                      <span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">variables</span><span class="p">):</span>
             <span class="n">time_after</span> <span class="o">=</span> <span class="kc">None</span>
 
 
@@ -297,11 +355,11 @@
                 <span class="n">len_z</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">var_block_before</span><span class="p">[</span><span class="n">blockvars_before</span><span class="p">]</span><span class="o">.</span><span class="n">z</span><span class="p">)</span>
             <span class="k">except</span><span class="p">:</span>
                 <span class="n">len_z</span> <span class="o">=</span> <span class="mi">1</span>
-            <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">((</span><span class="s1">&#39;Fetched env-block (size </span><span class="si">%i</span><span class="s1">x</span><span class="si">%i</span><span class="s1">x</span><span class="si">%i</span><span class="s1">) &#39;</span> <span class="o">+</span>
-                            <span class="s1">&#39;for time before (</span><span class="si">%s</span><span class="s1">)&#39;</span><span class="p">)</span> <span class="o">%</span>
-                            <span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">var_block_before</span><span class="p">[</span><span class="n">blockvars_before</span><span class="p">]</span><span class="o">.</span><span class="n">x</span><span class="p">),</span>
-                            <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">var_block_before</span><span class="p">[</span><span class="n">blockvars_before</span><span class="p">]</span><span class="o">.</span><span class="n">y</span><span class="p">),</span>
-                            <span class="n">len_z</span><span class="p">,</span> <span class="n">time_before</span><span class="p">))</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span>
+                <span class="p">(</span><span class="s1">&#39;Fetched env-block (size </span><span class="si">%i</span><span class="s1">x</span><span class="si">%i</span><span class="s1">x</span><span class="si">%i</span><span class="s1">) &#39;</span> <span class="o">+</span> <span class="s1">&#39;for time before (</span><span class="si">%s</span><span class="s1">)&#39;</span><span class="p">)</span>
+                <span class="o">%</span> <span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">var_block_before</span><span class="p">[</span><span class="n">blockvars_before</span><span class="p">]</span><span class="o">.</span><span class="n">x</span><span class="p">),</span>
+                   <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">var_block_before</span><span class="p">[</span><span class="n">blockvars_before</span><span class="p">]</span><span class="o">.</span><span class="n">y</span><span class="p">),</span> <span class="n">len_z</span><span class="p">,</span>
+                   <span class="n">time_before</span><span class="p">))</span>
             <span class="n">block_before</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">var_block_before</span><span class="p">[</span><span class="n">blockvars_before</span><span class="p">]</span>
         <span class="k">if</span> <span class="n">block_after</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="n">block_after</span><span class="o">.</span><span class="n">time</span> <span class="o">!=</span> <span class="n">time_after</span><span class="p">:</span>
             <span class="k">if</span> <span class="n">time_after</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
@@ -321,10 +379,10 @@
                     <span class="n">len_z</span> <span class="o">=</span> <span class="mi">1</span>
 
                 <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">((</span><span class="s1">&#39;Fetched env-block (size </span><span class="si">%i</span><span class="s1">x</span><span class="si">%i</span><span class="s1">x</span><span class="si">%i</span><span class="s1">) &#39;</span> <span class="o">+</span>
-                                <span class="s1">&#39;for time after (</span><span class="si">%s</span><span class="s1">)&#39;</span><span class="p">)</span> <span class="o">%</span>
-                                <span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">var_block_after</span><span class="p">[</span><span class="n">blockvars_after</span><span class="p">]</span><span class="o">.</span><span class="n">x</span><span class="p">),</span>
-                                <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">var_block_after</span><span class="p">[</span><span class="n">blockvars_after</span><span class="p">]</span><span class="o">.</span><span class="n">y</span><span class="p">),</span>
-                                <span class="n">len_z</span><span class="p">,</span> <span class="n">time_after</span><span class="p">))</span>
+                              <span class="s1">&#39;for time after (</span><span class="si">%s</span><span class="s1">)&#39;</span><span class="p">)</span> <span class="o">%</span>
+                             <span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">var_block_after</span><span class="p">[</span><span class="n">blockvars_after</span><span class="p">]</span><span class="o">.</span><span class="n">x</span><span class="p">),</span>
+                              <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">var_block_after</span><span class="p">[</span><span class="n">blockvars_after</span><span class="p">]</span><span class="o">.</span><span class="n">y</span><span class="p">),</span>
+                              <span class="n">len_z</span><span class="p">,</span> <span class="n">time_after</span><span class="p">))</span>
                 <span class="n">block_after</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">var_block_after</span><span class="p">[</span><span class="n">blockvars_after</span><span class="p">]</span>
 
         <span class="k">if</span> <span class="p">(</span><span class="n">block_before</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">block_before</span><span class="o">.</span><span class="n">covers_positions</span><span class="p">(</span>
@@ -332,26 +390,24 @@
             <span class="n">block_after</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">block_after</span><span class="o">.</span><span class="n">covers_positions</span><span class="p">(</span>
                 <span class="n">reader_x</span><span class="p">,</span> <span class="n">reader_y</span><span class="p">)</span> <span class="ow">is</span> <span class="kc">False</span><span class="p">):</span>
             <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="s1">&#39;Data block from </span><span class="si">%s</span><span class="s1"> not large enough to &#39;</span>
-                            <span class="s1">&#39;cover element positions within timestep. &#39;</span>
-                            <span class="s1">&#39;Buffer size (</span><span class="si">%s</span><span class="s1">) must be increased.&#39;</span> <span class="o">%</span>
-                            <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">buffer</span><span class="p">)))</span>
+                           <span class="s1">&#39;cover element positions within timestep. &#39;</span>
+                           <span class="s1">&#39;Buffer size (</span><span class="si">%s</span><span class="s1">) must be increased.&#39;</span> <span class="o">%</span>
+                           <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">buffer</span><span class="p">)))</span>
 
         <span class="c1">############################################################</span>
         <span class="c1"># Interpolate before/after blocks onto particles in space</span>
         <span class="c1">############################################################</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">timer_start</span><span class="p">(</span><span class="s1">&#39;interpolation&#39;</span><span class="p">)</span>
         <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;Interpolating before (</span><span class="si">%s</span><span class="s1">) in space  (</span><span class="si">%s</span><span class="s1">)&#39;</span> <span class="o">%</span>
-                        <span class="p">(</span><span class="n">block_before</span><span class="o">.</span><span class="n">time</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">interpolation</span><span class="p">))</span>
+                     <span class="p">(</span><span class="n">block_before</span><span class="o">.</span><span class="n">time</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">interpolation</span><span class="p">))</span>
         <span class="n">env_before</span><span class="p">,</span> <span class="n">env_profiles_before</span> <span class="o">=</span> <span class="n">block_before</span><span class="o">.</span><span class="n">interpolate</span><span class="p">(</span>
-                <span class="n">reader_x</span><span class="p">,</span> <span class="n">reader_y</span><span class="p">,</span> <span class="n">z</span><span class="p">,</span> <span class="n">variables</span><span class="p">,</span>
-                <span class="n">profiles</span><span class="p">,</span> <span class="n">profiles_depth</span><span class="p">)</span>
+            <span class="n">reader_x</span><span class="p">,</span> <span class="n">reader_y</span><span class="p">,</span> <span class="n">z</span><span class="p">,</span> <span class="n">variables</span><span class="p">,</span> <span class="n">profiles</span><span class="p">,</span> <span class="n">profiles_depth</span><span class="p">)</span>
 
         <span class="k">if</span> <span class="p">(</span><span class="n">time_after</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">)</span> <span class="ow">and</span> <span class="p">(</span><span class="n">time_before</span> <span class="o">!=</span> <span class="n">time</span><span class="p">):</span>
             <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;Interpolating after (</span><span class="si">%s</span><span class="s1">) in space  (</span><span class="si">%s</span><span class="s1">)&#39;</span> <span class="o">%</span>
-                            <span class="p">(</span><span class="n">block_after</span><span class="o">.</span><span class="n">time</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">interpolation</span><span class="p">))</span>
+                         <span class="p">(</span><span class="n">block_after</span><span class="o">.</span><span class="n">time</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">interpolation</span><span class="p">))</span>
             <span class="n">env_after</span><span class="p">,</span> <span class="n">env_profiles_after</span> <span class="o">=</span> <span class="n">block_after</span><span class="o">.</span><span class="n">interpolate</span><span class="p">(</span>
-                    <span class="n">reader_x</span><span class="p">,</span> <span class="n">reader_y</span><span class="p">,</span> <span class="n">z</span><span class="p">,</span> <span class="n">variables</span><span class="p">,</span>
-                    <span class="n">profiles</span><span class="p">,</span> <span class="n">profiles_depth</span><span class="p">)</span>
+                <span class="n">reader_x</span><span class="p">,</span> <span class="n">reader_y</span><span class="p">,</span> <span class="n">z</span><span class="p">,</span> <span class="n">variables</span><span class="p">,</span> <span class="n">profiles</span><span class="p">,</span> <span class="n">profiles_depth</span><span class="p">)</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">timer_end</span><span class="p">(</span><span class="s1">&#39;interpolation&#39;</span><span class="p">)</span>
 
@@ -364,15 +420,15 @@
             <span class="n">weight_after</span> <span class="o">=</span> <span class="p">((</span><span class="n">time</span> <span class="o">-</span> <span class="n">time_before</span><span class="p">)</span><span class="o">.</span><span class="n">total_seconds</span><span class="p">()</span> <span class="o">/</span>
                             <span class="p">(</span><span class="n">time_after</span> <span class="o">-</span> <span class="n">time_before</span><span class="p">)</span><span class="o">.</span><span class="n">total_seconds</span><span class="p">())</span>
             <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">((</span><span class="s1">&#39;Interpolating before (</span><span class="si">%s</span><span class="s1">, weight </span><span class="si">%.2f</span><span class="s1">) and&#39;</span>
-                           <span class="s1">&#39;</span><span class="se">\n\t\t</span><span class="s1">      after (</span><span class="si">%s</span><span class="s1">, weight </span><span class="si">%.2f</span><span class="s1">) in time&#39;</span><span class="p">)</span> <span class="o">%</span>
-                          <span class="p">(</span><span class="n">block_before</span><span class="o">.</span><span class="n">time</span><span class="p">,</span> <span class="mi">1</span> <span class="o">-</span> <span class="n">weight_after</span><span class="p">,</span>
-                           <span class="n">block_after</span><span class="o">.</span><span class="n">time</span><span class="p">,</span> <span class="n">weight_after</span><span class="p">))</span>
+                          <span class="s1">&#39;</span><span class="se">\n\t\t</span><span class="s1">      after (</span><span class="si">%s</span><span class="s1">, weight </span><span class="si">%.2f</span><span class="s1">) in time&#39;</span><span class="p">)</span> <span class="o">%</span>
+                         <span class="p">(</span><span class="n">block_before</span><span class="o">.</span><span class="n">time</span><span class="p">,</span> <span class="mi">1</span> <span class="o">-</span> <span class="n">weight_after</span><span class="p">,</span>
+                          <span class="n">block_after</span><span class="o">.</span><span class="n">time</span><span class="p">,</span> <span class="n">weight_after</span><span class="p">))</span>
             <span class="n">env</span> <span class="o">=</span> <span class="p">{}</span>
             <span class="k">for</span> <span class="n">var</span> <span class="ow">in</span> <span class="n">variables</span><span class="p">:</span>
                 <span class="c1"># Weighting together, and masking invalid entries</span>
-                <span class="n">env</span><span class="p">[</span><span class="n">var</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">ma</span><span class="o">.</span><span class="n">masked_invalid</span><span class="p">((</span><span class="n">env_before</span><span class="p">[</span><span class="n">var</span><span class="p">]</span> <span class="o">*</span>
-                                                <span class="p">(</span><span class="mi">1</span> <span class="o">-</span> <span class="n">weight_after</span><span class="p">)</span> <span class="o">+</span>
-                                                <span class="n">env_after</span><span class="p">[</span><span class="n">var</span><span class="p">]</span> <span class="o">*</span> <span class="n">weight_after</span><span class="p">))</span>
+                <span class="n">env</span><span class="p">[</span><span class="n">var</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">ma</span><span class="o">.</span><span class="n">masked_invalid</span><span class="p">(</span>
+                    <span class="p">(</span><span class="n">env_before</span><span class="p">[</span><span class="n">var</span><span class="p">]</span> <span class="o">*</span> <span class="p">(</span><span class="mi">1</span> <span class="o">-</span> <span class="n">weight_after</span><span class="p">)</span> <span class="o">+</span>
+                     <span class="n">env_after</span><span class="p">[</span><span class="n">var</span><span class="p">]</span> <span class="o">*</span> <span class="n">weight_after</span><span class="p">))</span>
             <span class="c1"># Interpolating vertical profiles in time</span>
             <span class="k">if</span> <span class="n">profiles</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
                 <span class="n">env_profiles</span> <span class="o">=</span> <span class="p">{}</span>
@@ -380,16 +436,18 @@
                 <span class="c1"># Truncating layers not present both before and after</span>
                 <span class="n">numlayers</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">minimum</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">env_profiles_before</span><span class="p">[</span><span class="s1">&#39;z&#39;</span><span class="p">]),</span>
                                        <span class="nb">len</span><span class="p">(</span><span class="n">env_profiles_after</span><span class="p">[</span><span class="s1">&#39;z&#39;</span><span class="p">]))</span>
-                <span class="n">env_profiles</span><span class="p">[</span><span class="s1">&#39;z&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">env_profiles_before</span><span class="p">[</span><span class="s1">&#39;z&#39;</span><span class="p">][</span><span class="mi">0</span><span class="p">:</span><span class="n">numlayers</span><span class="o">+</span><span class="mi">1</span><span class="p">]</span>
+                <span class="n">env_profiles</span><span class="p">[</span><span class="s1">&#39;z&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">env_profiles_before</span><span class="p">[</span><span class="s1">&#39;z&#39;</span><span class="p">][</span><span class="mi">0</span><span class="p">:</span><span class="n">numlayers</span> <span class="o">+</span> <span class="mi">1</span><span class="p">]</span>
                 <span class="k">for</span> <span class="n">var</span> <span class="ow">in</span> <span class="n">env_profiles_before</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
                     <span class="k">if</span> <span class="n">var</span> <span class="o">==</span> <span class="s1">&#39;z&#39;</span><span class="p">:</span>
                         <span class="k">continue</span>
-                    <span class="n">env_profiles_before</span><span class="p">[</span><span class="n">var</span><span class="p">]</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">atleast_2d</span><span class="p">(</span><span class="n">env_profiles_before</span><span class="p">[</span><span class="n">var</span><span class="p">])</span>
-                    <span class="n">env_profiles_after</span><span class="p">[</span><span class="n">var</span><span class="p">]</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">atleast_2d</span><span class="p">(</span><span class="n">env_profiles_after</span><span class="p">[</span><span class="n">var</span><span class="p">])</span>
+                    <span class="n">env_profiles_before</span><span class="p">[</span><span class="n">var</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">atleast_2d</span><span class="p">(</span>
+                        <span class="n">env_profiles_before</span><span class="p">[</span><span class="n">var</span><span class="p">])</span>
+                    <span class="n">env_profiles_after</span><span class="p">[</span><span class="n">var</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">atleast_2d</span><span class="p">(</span>
+                        <span class="n">env_profiles_after</span><span class="p">[</span><span class="n">var</span><span class="p">])</span>
                     <span class="n">env_profiles</span><span class="p">[</span><span class="n">var</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
                         <span class="n">env_profiles_before</span><span class="p">[</span><span class="n">var</span><span class="p">][</span><span class="mi">0</span><span class="p">:</span><span class="n">numlayers</span><span class="p">,</span> <span class="p">:]</span> <span class="o">*</span>
                         <span class="p">(</span><span class="mi">1</span> <span class="o">-</span> <span class="n">weight_after</span><span class="p">)</span> <span class="o">+</span>
-                        <span class="n">env_profiles_after</span><span class="p">[</span><span class="n">var</span><span class="p">][</span><span class="mi">0</span><span class="p">:</span><span class="n">numlayers</span><span class="p">,</span> <span class="p">:]</span><span class="o">*</span><span class="n">weight_after</span><span class="p">)</span>
+                        <span class="n">env_profiles_after</span><span class="p">[</span><span class="n">var</span><span class="p">][</span><span class="mi">0</span><span class="p">:</span><span class="n">numlayers</span><span class="p">,</span> <span class="p">:]</span> <span class="o">*</span> <span class="n">weight_after</span><span class="p">)</span>
             <span class="k">else</span><span class="p">:</span>
                 <span class="n">env_profiles</span> <span class="o">=</span> <span class="kc">None</span>
 
@@ -418,8 +476,231 @@
 
 <span class="sd">            :meth:`.variables.Variables.__check_env_arrays__`.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">return</span> <span class="n">env</span></div></div>
+        <span class="k">return</span> <span class="n">env</span></div>
 
+<div class="viewcode-block" id="StructuredReader.xy2lonlat"><a class="viewcode-back" href="../../../../autoapi/opendrift/readers/basereader/structured/index.html#opendrift.readers.basereader.StructuredReader.xy2lonlat">[docs]</a>    <span class="k">def</span> <span class="nf">xy2lonlat</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">):</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">projected</span><span class="p">:</span>
+            <span class="k">return</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">xy2lonlat</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">np</span><span class="o">.</span><span class="n">seterr</span><span class="p">(</span><span class="n">invalid</span><span class="o">=</span><span class="s1">&#39;ignore&#39;</span><span class="p">)</span>  <span class="c1"># Disable warnings for nan-values</span>
+            <span class="n">y</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">atleast_1d</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">y</span><span class="p">))</span>
+            <span class="n">x</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">atleast_1d</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">x</span><span class="p">))</span>
+
+            <span class="c1"># NB: mask coordinates outside domain</span>
+            <span class="n">x</span><span class="p">[</span><span class="n">x</span> <span class="o">&lt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">xmin</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span>
+            <span class="n">x</span><span class="p">[</span><span class="n">x</span> <span class="o">&gt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">xmax</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span>
+            <span class="n">y</span><span class="p">[</span><span class="n">y</span> <span class="o">&lt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">ymin</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span>
+            <span class="n">y</span><span class="p">[</span><span class="n">y</span> <span class="o">&lt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">ymin</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span>
+
+            <span class="n">lon</span> <span class="o">=</span> <span class="n">map_coordinates</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">lon</span><span class="p">,</span> <span class="p">[</span><span class="n">y</span><span class="p">,</span> <span class="n">x</span><span class="p">],</span>
+                                  <span class="n">order</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
+                                  <span class="n">cval</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">nan</span><span class="p">,</span>
+                                  <span class="n">mode</span><span class="o">=</span><span class="s1">&#39;nearest&#39;</span><span class="p">)</span>
+            <span class="n">lat</span> <span class="o">=</span> <span class="n">map_coordinates</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">lat</span><span class="p">,</span> <span class="p">[</span><span class="n">y</span><span class="p">,</span> <span class="n">x</span><span class="p">],</span>
+                                  <span class="n">order</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
+                                  <span class="n">cval</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">nan</span><span class="p">,</span>
+                                  <span class="n">mode</span><span class="o">=</span><span class="s1">&#39;nearest&#39;</span><span class="p">)</span>
+            <span class="k">return</span> <span class="p">(</span><span class="n">lon</span><span class="p">,</span> <span class="n">lat</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="StructuredReader.lonlat2xy"><a class="viewcode-back" href="../../../../autoapi/opendrift/readers/basereader/structured/index.html#opendrift.readers.basereader.StructuredReader.lonlat2xy">[docs]</a>    <span class="k">def</span> <span class="nf">lonlat2xy</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">lon</span><span class="p">,</span> <span class="n">lat</span><span class="p">):</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">projected</span><span class="p">:</span>
+            <span class="k">return</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">lonlat2xy</span><span class="p">(</span><span class="n">lon</span><span class="p">,</span> <span class="n">lat</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="c1"># Two methods needed for parallelisation</span>
+            <span class="k">def</span> <span class="nf">get_x</span><span class="p">(</span><span class="n">lon_part</span><span class="p">,</span> <span class="n">lat_part</span><span class="p">,</span> <span class="n">num</span><span class="p">):</span>
+                <span class="n">out_x</span><span class="p">[</span><span class="n">num</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">spl_x</span><span class="p">(</span><span class="n">lon_part</span><span class="p">,</span> <span class="n">lat_part</span><span class="p">)</span>
+
+            <span class="k">def</span> <span class="nf">get_y</span><span class="p">(</span><span class="n">lon_part</span><span class="p">,</span> <span class="n">lat_part</span><span class="p">,</span> <span class="n">num</span><span class="p">):</span>
+                <span class="n">out_y</span><span class="p">[</span><span class="n">num</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">spl_y</span><span class="p">(</span><span class="n">lon_part</span><span class="p">,</span> <span class="n">lat_part</span><span class="p">)</span>
+
+            <span class="c1"># TODO: Use ThreadPool, maximum number of threads should not exceed</span>
+            <span class="c1"># available cpus.</span>
+
+            <span class="c1"># For larger arrays, we split and calculate in parallel</span>
+            <span class="c1"># The number of CPUs to use can be improved/optimised</span>
+            <span class="n">num_elements</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">atleast_1d</span><span class="p">(</span><span class="n">lon</span><span class="p">))</span>
+            <span class="k">if</span> <span class="n">num_elements</span> <span class="o">&gt;</span> <span class="mi">100</span> <span class="ow">and</span> <span class="ow">not</span> <span class="nb">hasattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span>
+                                                  <span class="s1">&#39;multiprocessing_fail&#39;</span><span class="p">):</span>
+                <span class="k">try</span><span class="p">:</span>
+                    <span class="n">nproc</span> <span class="o">=</span> <span class="mi">2</span>
+                    <span class="k">if</span> <span class="n">num_elements</span> <span class="o">&gt;</span> <span class="mi">1000</span><span class="p">:</span>
+                        <span class="n">nproc</span> <span class="o">=</span> <span class="mi">16</span>
+                    <span class="k">if</span> <span class="n">num_elements</span> <span class="o">&gt;</span> <span class="mi">100000</span><span class="p">:</span>
+                        <span class="n">nproc</span> <span class="o">=</span> <span class="mi">32</span>
+                    <span class="k">if</span> <span class="n">num_elements</span> <span class="o">&gt;</span> <span class="mi">1000000</span><span class="p">:</span>
+                        <span class="n">nproc</span> <span class="o">=</span> <span class="mi">64</span>
+                    <span class="n">cpus</span> <span class="o">=</span> <span class="n">cpu_count</span><span class="p">()</span>
+                    <span class="n">nproc</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">minimum</span><span class="p">(</span><span class="n">nproc</span><span class="p">,</span> <span class="n">cpus</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span>
+                    <span class="n">nproc</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">maximum</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="n">nproc</span><span class="p">)</span>
+                    <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span>
+                        <span class="s1">&#39;Running lonlat2xy in parallel, using </span><span class="si">%i</span><span class="s1"> of </span><span class="si">%i</span><span class="s1"> CPUs&#39;</span> <span class="o">%</span>
+                        <span class="p">(</span><span class="n">nproc</span><span class="p">,</span> <span class="n">cpus</span><span class="p">))</span>
+                    <span class="n">split_lon</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array_split</span><span class="p">(</span><span class="n">lon</span><span class="p">,</span> <span class="n">nproc</span><span class="p">)</span>
+                    <span class="n">split_lat</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array_split</span><span class="p">(</span><span class="n">lat</span><span class="p">,</span> <span class="n">nproc</span><span class="p">)</span>
+                    <span class="n">out_x</span> <span class="o">=</span> <span class="n">Manager</span><span class="p">()</span><span class="o">.</span><span class="n">dict</span><span class="p">()</span>
+                    <span class="n">out_y</span> <span class="o">=</span> <span class="n">Manager</span><span class="p">()</span><span class="o">.</span><span class="n">dict</span><span class="p">()</span>
+                    <span class="n">processes</span> <span class="o">=</span> <span class="p">[]</span>
+                    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">nproc</span><span class="p">):</span>
+                        <span class="n">processes</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+                            <span class="n">Process</span><span class="p">(</span><span class="n">target</span><span class="o">=</span><span class="n">get_x</span><span class="p">,</span>
+                                    <span class="n">args</span><span class="o">=</span><span class="p">(</span><span class="n">split_lon</span><span class="p">[</span><span class="n">i</span><span class="p">],</span> <span class="n">split_lat</span><span class="p">[</span><span class="n">i</span><span class="p">],</span> <span class="n">i</span><span class="p">)))</span>
+                        <span class="n">processes</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+                            <span class="n">Process</span><span class="p">(</span><span class="n">target</span><span class="o">=</span><span class="n">get_y</span><span class="p">,</span>
+                                    <span class="n">args</span><span class="o">=</span><span class="p">(</span><span class="n">split_lon</span><span class="p">[</span><span class="n">i</span><span class="p">],</span> <span class="n">split_lat</span><span class="p">[</span><span class="n">i</span><span class="p">],</span> <span class="n">i</span><span class="p">)))</span>
+                    <span class="p">[</span><span class="n">p</span><span class="o">.</span><span class="n">start</span><span class="p">()</span> <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">processes</span><span class="p">]</span>
+                    <span class="p">[</span><span class="n">p</span><span class="o">.</span><span class="n">join</span><span class="p">()</span> <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">processes</span><span class="p">]</span>
+                    <span class="n">x</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">concatenate</span><span class="p">(</span><span class="n">out_x</span><span class="p">)</span>
+                    <span class="n">y</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">concatenate</span><span class="p">(</span><span class="n">out_y</span><span class="p">)</span>
+                    <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;Completed lonlat2xy in parallel&#39;</span><span class="p">)</span>
+                    <span class="k">return</span> <span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">)</span>
+                <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+                    <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="s1">&#39;Parallelprocessing failed:&#39;</span><span class="p">)</span>
+                    <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="n">e</span><span class="p">)</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">multiprocessing_fail</span> <span class="o">=</span> <span class="kc">True</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s1">&#39;multiprocessing_fail&#39;</span><span class="p">):</span>
+                    <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span>
+                        <span class="s1">&#39;Multiprocessing has previously failed, reverting to using single processor for lonlat -&gt; xy&#39;</span>
+                    <span class="p">)</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="c1"># For smaller arrays, we run sequentially</span>
+                    <span class="k">pass</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;Calculating lonlat-&gt;xy sequentially&#39;</span><span class="p">)</span>
+            <span class="n">x</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">spl_x</span><span class="p">(</span><span class="n">lon</span><span class="p">,</span> <span class="n">lat</span><span class="p">)</span>
+            <span class="n">y</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">spl_y</span><span class="p">(</span><span class="n">lon</span><span class="p">,</span> <span class="n">lat</span><span class="p">)</span>
+            <span class="k">return</span> <span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="StructuredReader.pixel_size"><a class="viewcode-back" href="../../../../autoapi/opendrift/readers/basereader/structured/index.html#opendrift.readers.basereader.StructuredReader.pixel_size">[docs]</a>    <span class="k">def</span> <span class="nf">pixel_size</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">projected</span><span class="p">:</span>
+            <span class="k">return</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">pixel_size</span><span class="p">()</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">lons</span><span class="p">,</span> <span class="n">lats</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">xy2lonlat</span><span class="p">([</span><span class="bp">self</span><span class="o">.</span><span class="n">xmin</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">xmax</span><span class="p">],</span>
+                                        <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">ymin</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">ymin</span><span class="p">])</span>
+            <span class="n">geod</span> <span class="o">=</span> <span class="n">pyproj</span><span class="o">.</span><span class="n">Geod</span><span class="p">(</span><span class="n">ellps</span><span class="o">=</span><span class="s1">&#39;WGS84&#39;</span><span class="p">)</span>  <span class="c1"># Define an ellipsoid</span>
+            <span class="n">dist</span> <span class="o">=</span> <span class="n">geod</span><span class="o">.</span><span class="n">inv</span><span class="p">(</span><span class="n">lons</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">lats</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">lons</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">lats</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span>
+                            <span class="n">radians</span><span class="o">=</span><span class="kc">False</span><span class="p">)[</span><span class="mi">2</span><span class="p">]</span>
+            <span class="n">pixelsize</span> <span class="o">=</span> <span class="n">dist</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+            <span class="k">return</span> <span class="n">pixelsize</span></div>
+
+<div class="viewcode-block" id="StructuredReader._coverage_unit_"><a class="viewcode-back" href="../../../../autoapi/opendrift/readers/basereader/structured/index.html#opendrift.readers.basereader.StructuredReader._coverage_unit_">[docs]</a>    <span class="k">def</span> <span class="nf">_coverage_unit_</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">projected</span><span class="p">:</span>
+            <span class="k">return</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">_coverage_unit_</span><span class="p">()</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="s2">&quot;pixels&quot;</span></div>
+
+<div class="viewcode-block" id="StructuredReader._bbox_"><a class="viewcode-back" href="../../../../autoapi/opendrift/readers/basereader/structured/index.html#opendrift.readers.basereader.StructuredReader._bbox_">[docs]</a>    <span class="k">def</span> <span class="nf">_bbox_</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Find bounding box on grid containing points (x, y)</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">ix</span> <span class="o">=</span> <span class="p">(</span><span class="n">x</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">xmin</span><span class="p">)</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">delta_x</span>
+        <span class="n">ix0</span><span class="p">,</span> <span class="n">ix1</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">min</span><span class="p">(</span><span class="n">ix</span><span class="p">),</span> <span class="n">np</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="n">ix</span><span class="p">)</span>
+
+        <span class="n">iy</span> <span class="o">=</span> <span class="p">(</span><span class="n">y</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">ymin</span><span class="p">)</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">delta_y</span>
+        <span class="n">iy0</span><span class="p">,</span> <span class="n">iy1</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">min</span><span class="p">(</span><span class="n">iy</span><span class="p">),</span> <span class="n">np</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="n">iy</span><span class="p">)</span>
+
+        <span class="n">ix0</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">max</span><span class="p">((</span><span class="bp">self</span><span class="o">.</span><span class="n">clipped</span><span class="p">,</span> <span class="n">ix0</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">buffer</span><span class="p">))</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">int</span><span class="p">)</span>
+        <span class="n">iy0</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">max</span><span class="p">((</span><span class="bp">self</span><span class="o">.</span><span class="n">clipped</span><span class="p">,</span> <span class="n">iy0</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">buffer</span><span class="p">))</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">int</span><span class="p">)</span>
+
+        <span class="n">ix1</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">min</span><span class="p">((</span><span class="bp">self</span><span class="o">.</span><span class="n">numx</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">clipped</span><span class="p">,</span> <span class="n">ix1</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">buffer</span><span class="p">))</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">int</span><span class="p">)</span>
+        <span class="n">iy1</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">min</span><span class="p">((</span><span class="bp">self</span><span class="o">.</span><span class="n">numy</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">clipped</span><span class="p">,</span> <span class="n">iy1</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">buffer</span><span class="p">))</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">int</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="p">(</span><span class="n">ix0</span><span class="p">,</span> <span class="n">ix1</span><span class="p">,</span> <span class="n">iy0</span><span class="p">,</span> <span class="n">iy1</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="StructuredReader._make_projected_grid_"><a class="viewcode-back" href="../../../../autoapi/opendrift/readers/basereader/structured/index.html#opendrift.readers.basereader.StructuredReader._make_projected_grid_">[docs]</a>    <span class="k">def</span> <span class="nf">_make_projected_grid_</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">lon</span><span class="p">,</span> <span class="n">lat</span><span class="p">,</span> <span class="n">eq_eps</span><span class="o">=</span><span class="mf">1.e-1</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Make the projected grid in cases where `lon` and `lat` are present as</span>
+<span class="sd">        2D variables, but not `x` and `y` and assert that it is approximately</span>
+<span class="sd">        equidistant.</span>
+
+<span class="sd">        Args:</span>
+
+<span class="sd">            eq_eps: tolerance for equidistance checks.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">x</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">or</span> <span class="bp">self</span><span class="o">.</span><span class="n">y</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s2">&quot;x and y variables already exist!&quot;</span><span class="p">)</span>
+
+        <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;Finding bounds of reader&quot;</span><span class="p">)</span>
+        <span class="k">assert</span> <span class="nb">len</span><span class="p">(</span><span class="n">lon</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span> <span class="o">==</span> <span class="mi">2</span>
+        <span class="k">assert</span> <span class="nb">len</span><span class="p">(</span><span class="n">lat</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span> <span class="o">==</span> <span class="mi">2</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">X</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">Y</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">lonlat2xy</span><span class="p">(</span><span class="n">lon</span><span class="p">,</span> <span class="n">lat</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">xmin</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">xmax</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">min</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">X</span><span class="p">[:]),</span> <span class="n">np</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">X</span><span class="p">[:])</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">ymin</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">ymax</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">min</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">Y</span><span class="p">[:]),</span> <span class="n">np</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">Y</span><span class="p">[:])</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">delta_x</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">diff</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">X</span><span class="p">)</span><span class="o">.</span><span class="n">flat</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">delta_y</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">diff</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">Y</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span><span class="o">.</span><span class="n">flat</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">x</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">X</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="p">:]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">y</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">Y</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">numx</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">x</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">numy</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">y</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">__validate_projected_grid__</span><span class="p">(</span><span class="n">eq_eps</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="StructuredReader.__validate_projected_grid__"><a class="viewcode-back" href="../../../../autoapi/opendrift/readers/basereader/structured/index.html#opendrift.readers.basereader.StructuredReader.__validate_projected_grid__">[docs]</a>    <span class="k">def</span> <span class="nf">__validate_projected_grid__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">eq_eps</span><span class="o">=</span><span class="mf">1.e-1</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Validate that the projected grid is approximately equidistant.</span>
+
+<span class="sd">        Args:</span>
+
+<span class="sd">            eq_eps: tolerance for equidistance checks.</span>
+
+<span class="sd">        Raises:</span>
+
+<span class="sd">            AssertionError if not equidistant within `eq_eps`.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="k">assert</span> <span class="n">np</span><span class="o">.</span><span class="n">all</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">delta_x</span> <span class="o">-</span> <span class="n">np</span><span class="o">.</span><span class="n">diff</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">X</span><span class="p">))</span> <span class="o">&lt;</span> <span class="n">eq_eps</span>
+                      <span class="p">),</span> <span class="s2">&quot;Grid is not equidistant in X direction&quot;</span>
+        <span class="k">assert</span> <span class="n">np</span><span class="o">.</span><span class="n">all</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">delta_y</span> <span class="o">-</span> <span class="n">np</span><span class="o">.</span><span class="n">diff</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">Y</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">))</span> <span class="o">&lt;</span> <span class="n">eq_eps</span>
+                      <span class="p">),</span> <span class="s2">&quot;Grid is not equidistant in Y direction&quot;</span>
+
+        <span class="k">assert</span> <span class="n">np</span><span class="o">.</span><span class="n">all</span><span class="p">(</span>
+            <span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">tile</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">x</span><span class="p">,</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">X</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="mi">1</span><span class="p">))</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">X</span><span class="p">)</span> <span class="o">&lt;</span> <span class="n">eq_eps</span>
+        <span class="p">),</span> <span class="s2">&quot;X coordinates are not aligned along Y direction&quot;</span>
+        <span class="k">assert</span> <span class="n">np</span><span class="o">.</span><span class="n">all</span><span class="p">(</span>
+            <span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span>
+                <span class="n">np</span><span class="o">.</span><span class="n">tile</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">atleast_2d</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">y</span><span class="p">)</span><span class="o">.</span><span class="n">T</span><span class="p">,</span> <span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">Y</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]))</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">Y</span>
+            <span class="p">)</span> <span class="o">&lt;</span> <span class="n">eq_eps</span><span class="p">),</span> <span class="s2">&quot;Y coordinates are not aligned along X direction&quot;</span></div>
+
+<div class="viewcode-block" id="StructuredReader._slice_variable_"><a class="viewcode-back" href="../../../../autoapi/opendrift/readers/basereader/structured/index.html#opendrift.readers.basereader.StructuredReader._slice_variable_">[docs]</a>    <span class="k">def</span> <span class="nf">_slice_variable_</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span>
+                         <span class="n">var</span><span class="p">,</span>
+                         <span class="n">indxTime</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+                         <span class="n">indy</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+                         <span class="n">indx</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+                         <span class="n">indz</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+                         <span class="n">indrealization</span> <span class="o">=</span> <span class="kc">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Slice variable depending on number of dimensions available.</span>
+
+<span class="sd">        Args:</span>
+
+<span class="sd">            All arguments can be `slice` objects or index.</span>
+
+<span class="sd">        Returns:</span>
+
+<span class="sd">            `var` sliced using the slices or indexes necessary to use depending</span>
+<span class="sd">            on number of dimensions available.</span>
+
+<span class="sd">        Raises:</span>
+
+<span class="sd">            Unsupported number of dimensions (outside 2..5) raises an exception.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># NOTE: use match expressions when PEP-634 (Py 3.10) is (widely)</span>
+        <span class="c1">#       available.</span>
+        <span class="k">if</span> <span class="n">var</span><span class="o">.</span><span class="n">ndim</span> <span class="o">==</span> <span class="mi">2</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">var</span><span class="p">[</span><span class="n">indy</span><span class="p">,</span> <span class="n">indx</span><span class="p">]</span>
+        <span class="k">elif</span> <span class="n">var</span><span class="o">.</span><span class="n">ndim</span> <span class="o">==</span> <span class="mi">3</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">var</span><span class="p">[</span><span class="n">indxTime</span><span class="p">,</span> <span class="n">indy</span><span class="p">,</span> <span class="n">indx</span><span class="p">]</span>
+        <span class="k">elif</span> <span class="n">var</span><span class="o">.</span><span class="n">ndim</span> <span class="o">==</span> <span class="mi">4</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">var</span><span class="p">[</span><span class="n">indxTime</span><span class="p">,</span> <span class="n">indz</span><span class="p">,</span> <span class="n">indy</span><span class="p">,</span> <span class="n">indx</span><span class="p">]</span>
+        <span class="k">elif</span> <span class="n">var</span><span class="o">.</span><span class="n">ndim</span> <span class="o">==</span> <span class="mi">5</span><span class="p">:</span>  <span class="c1"># Ensemble data</span>
+            <span class="k">return</span> <span class="n">var</span><span class="p">[</span><span class="n">indxTime</span><span class="p">,</span> <span class="n">indz</span><span class="p">,</span> <span class="n">indrealization</span><span class="p">,</span> <span class="n">indy</span><span class="p">,</span> <span class="n">indx</span><span class="p">]</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s1">&#39;Wrong dimension of variable: </span><span class="si">%s</span><span class="s1">: </span><span class="si">%d</span><span class="s1">&#39;</span> <span class="o">%</span>
+                            <span class="p">(</span><span class="n">var</span><span class="p">,</span> <span class="n">var</span><span class="o">.</span><span class="n">ndim</span><span class="p">))</span></div></div>
 </pre></div>
 
            </div>

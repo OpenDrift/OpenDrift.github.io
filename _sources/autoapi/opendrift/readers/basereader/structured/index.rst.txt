@@ -28,11 +28,42 @@ Classes
    A structured reader. Data is gridded on a regular grid. Used by e.g.:
    :class:`opendrift.readers.reader_netCDF_CF_generic.Reader`.
 
+   Attributes:
+
+       projected: is `True` if :class:`.fakeproj.fakeproj` is used because of missing projection information. The data points are assumed to be approximately equidistant on the surface (i.e. in meters).
+
+       clipped: pixels to to remove along boundary (e.g. in case of bad data).
+
    .. seealso::
 
        :py:mod:`opendrift.readers`
 
    Initialize self.  See help(type(self)) for accurate signature.
+
+   .. attribute:: projected
+      
+
+      
+
+   .. attribute:: shape
+      
+
+      
+
+   .. attribute:: clipped
+      :annotation: = 0
+
+      
+
+   .. attribute:: x
+      
+
+      
+
+   .. attribute:: y
+      
+
+      
 
    .. attribute:: var_block_before
       
@@ -96,6 +127,70 @@ Classes
       .. seealso::
 
           :meth:`.variables.Variables.__check_env_arrays__`.
+
+
+   .. method:: xy2lonlat(self, x, y)
+
+      Calculate x,y in own projection from given lon,lat (scalars/arrays).
+              
+
+
+   .. method:: lonlat2xy(self, lon, lat)
+
+      Calculate lon,lat from given x,y (scalars/arrays) in own projection.
+
+
+   .. method:: pixel_size(self)
+
+
+   .. method:: _coverage_unit_(self)
+
+
+   .. method:: _bbox_(self, x, y)
+
+      Find bounding box on grid containing points (x, y)
+
+
+   .. method:: _make_projected_grid_(self, lon, lat, eq_eps=0.1)
+
+      Make the projected grid in cases where `lon` and `lat` are present as
+      2D variables, but not `x` and `y` and assert that it is approximately
+      equidistant.
+
+      Args:
+
+          eq_eps: tolerance for equidistance checks.
+
+
+   .. method:: __validate_projected_grid__(self, eq_eps=0.1)
+
+      Validate that the projected grid is approximately equidistant.
+
+      Args:
+
+          eq_eps: tolerance for equidistance checks.
+
+      Raises:
+
+          AssertionError if not equidistant within `eq_eps`.
+
+
+   .. method:: _slice_variable_(self, var, indxTime=None, indy=None, indx=None, indz=None, indrealization=None)
+
+      Slice variable depending on number of dimensions available.
+
+      Args:
+
+          All arguments can be `slice` objects or index.
+
+      Returns:
+
+          `var` sliced using the slices or indexes necessary to use depending
+          on number of dimensions available.
+
+      Raises:
+
+          Unsupported number of dimensions (outside 2..5) raises an exception.
 
 
 
