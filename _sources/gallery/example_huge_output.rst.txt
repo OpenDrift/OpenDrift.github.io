@@ -21,8 +21,18 @@ Analysing huge output files
     from opendrift.models.oceandrift import OceanDrift
     from opendrift.readers import reader_oscillating
 
-    #%
-    # First make a simulation with two seedings, marked by *origin_marker*
+
+
+
+
+
+
+
+First make a simulation with two seedings, marked by *origin_marker*
+
+
+.. code-block:: default
+
     o = OceanDrift(loglevel=50)
     t1 = datetime.now()
     t2 = t1 + timedelta(hours=6)
@@ -42,26 +52,22 @@ Analysing huge output files
     o.run(duration=timedelta(hours=24),
           time_step=900, time_step_output=1800, outfile=outfile)
 
-    #%
-    # Opening the output file lazily with Xarray.
-    # This will work even if the file is too large to fit in memory, as it
-    # will read and process data chuck-by-chunk directly from file using Dask.
-    # Note that the analysis file will be re-used if existing. Thus this file should be deleted after making any changes to the simulation above.
+
+
+
+
+
+
+
+Opening the output file lazily with Xarray.
+This will work even if the file is too large to fit in memory, as it
+will read and process data chuck-by-chunk directly from file using Dask.
+Note that the analysis file will be re-used if existing. Thus this file should be deleted after making any changes to the simulation above.
+
+
+.. code-block:: default
+
     o = opendrift.open_xarray(outfile, analysis_file='simulation_density.nc')
-
-    #%
-    # Making two animations, for each of the two seedings / origin_markere.
-    # The calculated density fields will be stored/cached in the analysis file
-    # for later re-use, as their calculation may be time consuming
-    # for huge output files.
-    # Note that other analysis/plotting methods are not yet adapted
-    # to datasets opened lazily with open_xarray
-    for om in [0, 1]:
-        o.animation(density=True, density_pixelsize_m=500, fast=False,
-                    origin_marker=om, show_elements=False, vmin=0, vmax=200)
-
-    #%
-    # First seeding
 
 
 
@@ -73,64 +79,82 @@ Analysing huge output files
 
  .. code-block:: none
 
-    19:22:06 DEBUG   opendrift: Adding 17 config items from basemodel
-    19:22:06 DEBUG   opendrift: Adding 4 config items from basemodel
-    19:22:06 DEBUG   opendrift: Adding 34 config items from basemodel
-    19:22:06 INFO    opendrift: OpenDriftSimulation initialised (version 1.4.2 / v1.4.2-150-gfcf08b8)
-    19:22:06 DEBUG   opendrift: Adding 13 config items from oceandrift
-    19:22:06 DEBUG   opendrift:   Overwriting config item seed:z
-    19:22:06 DEBUG   opendrift: Importing with Xarray from simulation.nc
-    19:22:06 INFO    opendrift: Calculating density array, this may take some time...
-    19:22:06 DEBUG   opendrift: Finding min and max of lon and lat...
-    19:22:06 INFO    opendrift:     calculating for origin_marker 0...
-    19:22:06 INFO    opendrift:     calculating for origin_marker 1...
-    19:22:06 INFO    opendrift: Writing density array to analysis file: simulation_density.nc
-    19:22:06 INFO    opendrift:     writing for origin_marker 0...
-    19:22:06 INFO    opendrift:     writing for origin_marker 1...
-    19:22:06 INFO    opendrift: Time to calculate density array: 0:00:00.333274
-    19:22:06 DEBUG   opendrift: Finding min longitude...
-    19:22:06 DEBUG   opendrift: Finding max longitude...
-    19:22:06 DEBUG   opendrift: Finding min latitude...
-    19:22:06 DEBUG   opendrift: Finding max latitude...
-    19:22:07 DEBUG   opendrift: Adding GSHHS shapes..
-    /root/project/opendrift/models/basemodel.py:3060: MatplotlibDeprecationWarning: You are modifying the state of a globally registered colormap. In future versions, you will not be able to modify a registered colormap in-place. To remove this warning, you can make a copy of the colormap first. cmap = copy.copy(mpl.cm.get_cmap("jet"))
-      cmap.set_under('w')
-    19:22:07 INFO    opendrift: Saving animation to /root/project/docs/source/gallery/animations/example_huge_output_0.gif...
-    19:22:07 INFO    opendrift: Making animated gif...
-    19:22:54 DEBUG   opendrift: Time to make animation: 0:00:47.615133
-    19:22:54 INFO    opendrift: Importing from saved analysis file
-    19:22:54 DEBUG   opendrift: Adding GSHHS shapes..
-    /root/project/opendrift/models/basemodel.py:3060: MatplotlibDeprecationWarning: You are modifying the state of a globally registered colormap. In future versions, you will not be able to modify a registered colormap in-place. To remove this warning, you can make a copy of the colormap first. cmap = copy.copy(mpl.cm.get_cmap("jet"))
-      cmap.set_under('w')
-    19:22:54 INFO    opendrift: Saving animation to /root/project/docs/source/gallery/animations/example_huge_output_1.gif...
-    19:22:54 INFO    opendrift: Making animated gif...
-    19:23:42 DEBUG   opendrift: Time to make animation: 0:00:48.627641
+    15:47:54 DEBUG   opendrift: Adding 17 config items from basemodel
+    15:47:54 DEBUG   opendrift: Adding 4 config items from basemodel
+    15:47:54 DEBUG   opendrift: Adding 34 config items from basemodel
+    15:47:54 INFO    opendrift: OpenDriftSimulation initialised (version 1.4.2 / v1.4.2-171-g996475a)
+    15:47:54 DEBUG   opendrift: Adding 13 config items from oceandrift
+    15:47:54 DEBUG   opendrift:   Overwriting config item seed:z
+    15:47:54 DEBUG   opendrift: Importing with Xarray from simulation.nc
 
 
 
 
-.. image:: /gallery/animations/example_huge_output_0.gif
+Making two animations, for each of the two seedings / origin_markere.
+The calculated density fields will be stored/cached in the analysis file
+for later re-use, as their calculation may be time consuming
+for huge output files.
+Note that other analysis/plotting methods are not yet adapted
+to datasets opened lazily with open_xarray
 
 
 .. code-block:: default
 
-
-    #%
-    # Second seeding
-
-
+    for om in [0, 1]:
+        o.animation(density=True, density_pixelsize_m=500, fast=False,
+                    origin_marker=om, show_elements=False, vmin=0, vmax=200)
 
 
 
 
 
+.. rst-class:: sphx-glr-script-out
+
+ Out:
+
+ .. code-block:: none
+
+    15:47:54 INFO    opendrift: Calculating density array, this may take some time...
+    15:47:54 DEBUG   opendrift: Finding min and max of lon and lat...
+    15:47:54 INFO    opendrift:     calculating for origin_marker 0...
+    15:47:54 INFO    opendrift:     calculating for origin_marker 1...
+    15:47:54 INFO    opendrift: Writing density array to analysis file: simulation_density.nc
+    15:47:54 INFO    opendrift:     writing for origin_marker 0...
+    15:47:54 INFO    opendrift:     writing for origin_marker 1...
+    15:47:54 INFO    opendrift: Time to calculate density array: 0:00:00.288627
+    15:47:54 DEBUG   opendrift: Finding min longitude...
+    15:47:54 DEBUG   opendrift: Finding max longitude...
+    15:47:54 DEBUG   opendrift: Finding min latitude...
+    15:47:54 DEBUG   opendrift: Finding max latitude...
+    15:47:54 DEBUG   opendrift: Adding GSHHS shapes..
+    /root/project/opendrift/models/basemodel.py:3060: MatplotlibDeprecationWarning: You are modifying the state of a globally registered colormap. In future versions, you will not be able to modify a registered colormap in-place. To remove this warning, you can make a copy of the colormap first. cmap = copy.copy(mpl.cm.get_cmap("jet"))
+      cmap.set_under('w')
+    15:47:55 INFO    opendrift: Saving animation to /root/project/docs/source/gallery/animations/example_huge_output_0.gif...
+    15:47:55 INFO    opendrift: Making animated gif...
+    15:48:42 DEBUG   opendrift: Time to make animation: 0:00:47.501351
+    15:48:42 INFO    opendrift: Importing from saved analysis file
+    15:48:42 DEBUG   opendrift: Adding GSHHS shapes..
+    /root/project/opendrift/models/basemodel.py:3060: MatplotlibDeprecationWarning: You are modifying the state of a globally registered colormap. In future versions, you will not be able to modify a registered colormap in-place. To remove this warning, you can make a copy of the colormap first. cmap = copy.copy(mpl.cm.get_cmap("jet"))
+      cmap.set_under('w')
+    15:48:42 INFO    opendrift: Saving animation to /root/project/docs/source/gallery/animations/example_huge_output_1.gif...
+    15:48:42 INFO    opendrift: Making animated gif...
+    15:49:29 DEBUG   opendrift: Time to make animation: 0:00:47.505342
+
+
+
+
+First seeding
+
+.. image:: /gallery/animations/example_huge_output_0.gif
+
+Second seeding
 
 .. image:: /gallery/animations/example_huge_output_1.gif
 
 
 .. rst-class:: sphx-glr-timing
 
-   **Total running time of the script:** ( 1 minutes  55.548 seconds)
+   **Total running time of the script:** ( 1 minutes  49.657 seconds)
 
 
 .. _sphx_glr_download_gallery_example_huge_output.py:
