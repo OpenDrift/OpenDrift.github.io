@@ -30,7 +30,6 @@
         <script src="../../../_static/jquery.js"></script>
         <script src="../../../_static/underscore.js"></script>
         <script src="../../../_static/doctools.js"></script>
-        <script src="../../../_static/language_data.js"></script>
     
     <script type="text/javascript" src="../../../_static/js/theme.js"></script>
 
@@ -425,7 +424,7 @@
 
 <div class="viewcode-block" id="PhysicsMethods.advect_ocean_current"><a class="viewcode-back" href="../../../autoapi/opendrift/models/physics_methods/index.html#opendrift.models.physics_methods.PhysicsMethods.advect_ocean_current">[docs]</a>    <span class="k">def</span> <span class="nf">advect_ocean_current</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">factor</span><span class="o">=</span><span class="mi">1</span><span class="p">):</span>
         <span class="c1"># Runge-Kutta scheme</span>
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_config</span><span class="p">(</span><span class="s1">&#39;drift:scheme&#39;</span><span class="p">)[</span><span class="mi">0</span><span class="p">:</span><span class="mi">11</span><span class="p">]</span> <span class="o">==</span> <span class="s1">&#39;runge-kutta&#39;</span><span class="p">:</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_config</span><span class="p">(</span><span class="s1">&#39;drift:advection_scheme&#39;</span><span class="p">)[</span><span class="mi">0</span><span class="p">:</span><span class="mi">11</span><span class="p">]</span> <span class="o">==</span> <span class="s1">&#39;runge-kutta&#39;</span><span class="p">:</span>
             <span class="n">x_vel</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">environment</span><span class="o">.</span><span class="n">x_sea_water_velocity</span>
             <span class="n">y_vel</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">environment</span><span class="o">.</span><span class="n">y_sea_water_velocity</span>
 
@@ -443,7 +442,7 @@
                 <span class="p">[</span><span class="s1">&#39;x_sea_water_velocity&#39;</span><span class="p">,</span> <span class="s1">&#39;y_sea_water_velocity&#39;</span><span class="p">],</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">time</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">time_step</span><span class="o">/</span><span class="mi">2</span><span class="p">,</span>
                 <span class="n">mid_lon</span><span class="p">,</span> <span class="n">mid_lat</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">elements</span><span class="o">.</span><span class="n">z</span><span class="p">,</span> <span class="n">profiles</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span>
-            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_config</span><span class="p">(</span><span class="s1">&#39;drift:scheme&#39;</span><span class="p">)</span> <span class="o">==</span> <span class="s1">&#39;runge-kutta4&#39;</span><span class="p">:</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_config</span><span class="p">(</span><span class="s1">&#39;drift:advection_scheme&#39;</span><span class="p">)</span> <span class="o">==</span> <span class="s1">&#39;runge-kutta4&#39;</span><span class="p">:</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;Runge-kutta 4th order...&#39;</span><span class="p">)</span>
                 <span class="n">x_vel2</span> <span class="o">=</span> <span class="n">mid_env</span><span class="p">[</span><span class="s1">&#39;x_sea_water_velocity&#39;</span><span class="p">]</span>
                 <span class="n">y_vel2</span> <span class="o">=</span> <span class="n">mid_env</span><span class="p">[</span><span class="s1">&#39;y_sea_water_velocity&#39;</span><span class="p">]</span>
@@ -485,14 +484,14 @@
                 <span class="bp">self</span><span class="o">.</span><span class="n">update_positions</span><span class="p">(</span>
                         <span class="n">factor</span><span class="o">*</span><span class="n">mid_env</span><span class="p">[</span><span class="s1">&#39;x_sea_water_velocity&#39;</span><span class="p">],</span>
                         <span class="n">factor</span><span class="o">*</span><span class="n">mid_env</span><span class="p">[</span><span class="s1">&#39;y_sea_water_velocity&#39;</span><span class="p">])</span>
-        <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_config</span><span class="p">(</span><span class="s1">&#39;drift:scheme&#39;</span><span class="p">)</span> <span class="o">==</span> <span class="s1">&#39;euler&#39;</span><span class="p">:</span>
+        <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_config</span><span class="p">(</span><span class="s1">&#39;drift:advection_scheme&#39;</span><span class="p">)</span> <span class="o">==</span> <span class="s1">&#39;euler&#39;</span><span class="p">:</span>
             <span class="c1"># Euler scheme</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">update_positions</span><span class="p">(</span>
                     <span class="n">factor</span><span class="o">*</span><span class="bp">self</span><span class="o">.</span><span class="n">environment</span><span class="o">.</span><span class="n">x_sea_water_velocity</span><span class="p">,</span>
                     <span class="n">factor</span><span class="o">*</span><span class="bp">self</span><span class="o">.</span><span class="n">environment</span><span class="o">.</span><span class="n">y_sea_water_velocity</span><span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;Drift scheme not recognised: &#39;</span> <span class="o">+</span>
-                             <span class="bp">self</span><span class="o">.</span><span class="n">get_config</span><span class="p">(</span><span class="s1">&#39;drift:scheme&#39;</span><span class="p">))</span></div>
+                             <span class="bp">self</span><span class="o">.</span><span class="n">get_config</span><span class="p">(</span><span class="s1">&#39;drift:advection_scheme&#39;</span><span class="p">))</span></div>
 
 <div class="viewcode-block" id="PhysicsMethods.advect_with_sea_ice"><a class="viewcode-back" href="../../../autoapi/opendrift/models/physics_methods/index.html#opendrift.models.physics_methods.PhysicsMethods.advect_with_sea_ice">[docs]</a>    <span class="k">def</span> <span class="nf">advect_with_sea_ice</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">factor</span><span class="o">=</span><span class="mi">1</span><span class="p">):</span>
         <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">environment</span><span class="p">,</span> <span class="s1">&#39;sea_ice_x_velocity&#39;</span><span class="p">):</span>
