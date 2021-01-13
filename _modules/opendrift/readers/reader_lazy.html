@@ -189,7 +189,7 @@
 <span class="c1">#</span>
 <span class="c1"># Copyright 2015, Knut-Frode Dagestad, MET Norway</span>
 
-<span class="kn">import</span> <span class="nn">logging</span>
+<span class="kn">import</span> <span class="nn">logging</span><span class="p">;</span> <span class="n">logging</span><span class="o">.</span><span class="n">captureWarnings</span><span class="p">(</span><span class="kc">True</span><span class="p">);</span> <span class="n">logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span>
 <span class="kn">from</span> <span class="nn">opendrift.readers.basereader</span> <span class="kn">import</span> <span class="n">BaseReader</span>
 <span class="kn">from</span> <span class="nn">opendrift.readers</span> <span class="kn">import</span> <span class="n">reader_from_url</span>
 
@@ -204,7 +204,7 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">_kwargs</span> <span class="o">=</span> <span class="n">kwargs</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">initialised</span> <span class="o">=</span> <span class="kc">False</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_lazyname</span> <span class="o">=</span> <span class="s1">&#39;LazyReader: &#39;</span> <span class="o">+</span> <span class="n">args</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;Delaying initialisation of &#39;</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">_lazyname</span><span class="p">)</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;Delaying initialisation of &#39;</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">_lazyname</span><span class="p">)</span>
 
 <div class="viewcode-block" id="Reader.__getattr__"><a class="viewcode-back" href="../../../autoapi/opendrift/readers/reader_lazy/index.html#opendrift.readers.reader_lazy.Reader.__getattr__">[docs]</a>    <span class="k">def</span> <span class="fm">__getattr__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">):</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">initialised</span> <span class="ow">is</span> <span class="kc">False</span><span class="p">:</span>
@@ -223,14 +223,14 @@
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">reader</span><span class="o">.</span><span class="n">get_variables</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="Reader.initialise"><a class="viewcode-back" href="../../../autoapi/opendrift/readers/reader_lazy/index.html#opendrift.readers.reader_lazy.Reader.initialise">[docs]</a>    <span class="k">def</span> <span class="nf">initialise</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;Initialising: &#39;</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">_lazyname</span><span class="p">)</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;Initialising: &#39;</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">_lazyname</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">reader</span> <span class="o">=</span> <span class="n">reader_from_url</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_args</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">reader</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;Reader could not be initialised&#39;</span><span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="k">if</span> <span class="s1">&#39;prepare_args&#39;</span> <span class="ow">in</span> <span class="nb">dir</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">reader</span><span class="o">.</span><span class="n">prepare</span><span class="p">(</span><span class="o">**</span><span class="bp">self</span><span class="o">.</span><span class="n">prepare_args</span><span class="p">)</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;Reader initialised: &#39;</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">reader</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;Reader initialised: &#39;</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">reader</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">initialised</span> <span class="o">=</span> <span class="kc">True</span></div>
 
 <div class="viewcode-block" id="Reader.prepare"><a class="viewcode-back" href="../../../autoapi/opendrift/readers/reader_lazy/index.html#opendrift.readers.reader_lazy.Reader.prepare">[docs]</a>    <span class="k">def</span> <span class="nf">prepare</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>

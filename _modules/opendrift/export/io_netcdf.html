@@ -174,6 +174,7 @@
 <span></span><span class="kn">import</span> <span class="nn">sys</span>
 <span class="kn">import</span> <span class="nn">os</span>
 <span class="kn">from</span> <span class="nn">datetime</span> <span class="kn">import</span> <span class="n">datetime</span><span class="p">,</span> <span class="n">timedelta</span>
+<span class="kn">import</span> <span class="nn">logging</span><span class="p">;</span> <span class="n">logging</span><span class="o">.</span><span class="n">captureWarnings</span><span class="p">(</span><span class="kc">True</span><span class="p">);</span> <span class="n">logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span>
 <span class="kn">import</span> <span class="nn">string</span>
 <span class="kn">from</span> <span class="nn">shutil</span> <span class="kn">import</span> <span class="n">move</span>
 
@@ -280,7 +281,7 @@
     <span class="bp">self</span><span class="o">.</span><span class="n">outfile</span><span class="o">.</span><span class="n">variables</span><span class="p">[</span><span class="s1">&#39;status&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">flag_meanings</span> <span class="o">=</span> \
         <span class="s2">&quot; &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">status_categories</span><span class="p">)</span>
 
-    <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s1">&#39;Wrote </span><span class="si">%s</span><span class="s1"> steps to file </span><span class="si">%s</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">num_steps_to_export</span><span class="p">,</span>
+    <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s1">&#39;Wrote </span><span class="si">%s</span><span class="s1"> steps to file </span><span class="si">%s</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">num_steps_to_export</span><span class="p">,</span>
                                                 <span class="bp">self</span><span class="o">.</span><span class="n">outfile_name</span><span class="p">))</span>
     <span class="bp">self</span><span class="o">.</span><span class="n">history</span><span class="o">.</span><span class="n">mask</span> <span class="o">=</span> <span class="kc">True</span>  <span class="c1"># Reset history array, for new data</span>
     <span class="bp">self</span><span class="o">.</span><span class="n">steps_exported</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">steps_exported</span> <span class="o">+</span> <span class="n">num_steps_to_export</span>
@@ -322,9 +323,9 @@
     <span class="c1"># Fortunately this is quite fast.</span>
     <span class="c1"># https://www.unidata.ucar.edu/software/thredds/current/netcdf-java/reference/FeatureDatasets/CFpointImplement.html</span>
     <span class="k">try</span><span class="p">:</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;Making netCDF file CDM compliant with fixed dimensions&#39;</span><span class="p">)</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;Making netCDF file CDM compliant with fixed dimensions&#39;</span><span class="p">)</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">num_elements_scheduled</span><span class="p">()</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s1">&#39;Removing </span><span class="si">%i</span><span class="s1"> unseeded elements already written to file&#39;</span> <span class="o">%</span> <span class="bp">self</span><span class="o">.</span><span class="n">num_elements_scheduled</span><span class="p">())</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s1">&#39;Removing </span><span class="si">%i</span><span class="s1"> unseeded elements already written to file&#39;</span> <span class="o">%</span> <span class="bp">self</span><span class="o">.</span><span class="n">num_elements_scheduled</span><span class="p">())</span>
             <span class="n">mask</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">ones</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">history</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">bool</span><span class="p">)</span>
             <span class="n">mask</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">elements_scheduled</span><span class="o">.</span><span class="n">ID</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="kc">False</span>
         <span class="k">with</span> <span class="n">Dataset</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">outfile_name</span><span class="p">)</span> <span class="k">as</span> <span class="n">src</span><span class="p">,</span> \
@@ -344,7 +345,7 @@
                 <span class="k">if</span> <span class="s1">&#39;trajectory&#39;</span> <span class="ow">in</span> <span class="n">variable</span><span class="o">.</span><span class="n">dimensions</span><span class="p">:</span>
                     <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">num_elements_scheduled</span><span class="p">()</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
                         <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">variable</span><span class="o">.</span><span class="n">dimensions</span><span class="p">)</span> <span class="o">==</span> <span class="mi">2</span><span class="p">:</span>
-                            <span class="n">dstVar</span><span class="p">[:]</span> <span class="o">=</span> <span class="n">srcVar</span><span class="p">[</span><span class="n">mask</span><span class="p">,</span> <span class="p">:]</span> 
+                            <span class="n">dstVar</span><span class="p">[:]</span> <span class="o">=</span> <span class="n">srcVar</span><span class="p">[</span><span class="n">mask</span><span class="p">,</span> <span class="p">:]</span>
                         <span class="k">else</span><span class="p">:</span>
                             <span class="n">dstVar</span><span class="p">[:]</span> <span class="o">=</span> <span class="n">srcVar</span><span class="p">[</span><span class="n">mask</span><span class="p">]</span>  <span class="c1"># Copy data</span>
                     <span class="k">else</span><span class="p">:</span>
@@ -362,11 +363,11 @@
     <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">me</span><span class="p">:</span>
         <span class="nb">print</span><span class="p">(</span><span class="n">me</span><span class="p">)</span>
         <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Could not convert netCDF file from unlimited to fixed dimension. Could be due to netCDF library incompatibility(?)&#39;</span><span class="p">)</span></div>
-    
+
 <div class="viewcode-block" id="import_file_xarray"><a class="viewcode-back" href="../../../autoapi/opendrift/export/io_netcdf/index.html#opendrift.export.io_netcdf.import_file_xarray">[docs]</a><span class="k">def</span> <span class="nf">import_file_xarray</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">filename</span><span class="p">,</span> <span class="n">chunks</span><span class="p">):</span>
 
     <span class="kn">import</span> <span class="nn">xarray</span> <span class="k">as</span> <span class="nn">xr</span>
-    <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;Importing with Xarray from &#39;</span> <span class="o">+</span> <span class="n">filename</span><span class="p">)</span>
+    <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;Importing with Xarray from &#39;</span> <span class="o">+</span> <span class="n">filename</span><span class="p">)</span>
     <span class="bp">self</span><span class="o">.</span><span class="n">ds</span> <span class="o">=</span> <span class="n">xr</span><span class="o">.</span><span class="n">open_dataset</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="n">chunks</span><span class="o">=</span><span class="n">chunks</span><span class="p">)</span>
 
     <span class="bp">self</span><span class="o">.</span><span class="n">steps_output</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">ds</span><span class="o">.</span><span class="n">time</span><span class="p">)</span>
@@ -416,7 +417,7 @@
 <span class="sd">     elements: indices of elements to be imported</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
-    <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;Importing from &#39;</span> <span class="o">+</span> <span class="n">filename</span><span class="p">)</span>
+    <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;Importing from &#39;</span> <span class="o">+</span> <span class="n">filename</span><span class="p">)</span>
     <span class="n">infile</span> <span class="o">=</span> <span class="n">Dataset</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="s1">&#39;r&#39;</span><span class="p">)</span>
     <span class="c1"># &#39;times&#39; can be used to import subset. Not yet implemented.</span>
     <span class="k">if</span> <span class="n">times</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">and</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">infile</span><span class="p">,</span> <span class="s1">&#39;steps_exported&#39;</span><span class="p">):</span>
@@ -425,7 +426,7 @@
     <span class="k">else</span><span class="p">:</span>
         <span class="c1">#self.steps_output = len(infile.dimensions[&#39;time&#39;])</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">steps_output</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">times</span><span class="p">)</span>
-    
+
     <span class="n">filetime</span> <span class="o">=</span> <span class="n">infile</span><span class="o">.</span><span class="n">variables</span><span class="p">[</span><span class="s1">&#39;time&#39;</span><span class="p">][</span><span class="n">times</span><span class="p">]</span>
     <span class="n">units</span> <span class="o">=</span> <span class="n">infile</span><span class="o">.</span><span class="n">variables</span><span class="p">[</span><span class="s1">&#39;time&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">units</span>
     <span class="bp">self</span><span class="o">.</span><span class="n">start_time</span> <span class="o">=</span> <span class="n">num2date</span><span class="p">(</span><span class="n">filetime</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">units</span><span class="p">)</span>
@@ -468,7 +469,7 @@
         <span class="k">try</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">history</span><span class="p">[</span><span class="n">var</span><span class="p">]</span> <span class="o">=</span> <span class="n">infile</span><span class="o">.</span><span class="n">variables</span><span class="p">[</span><span class="n">var</span><span class="p">][</span><span class="n">elements</span><span class="p">,</span> <span class="n">times</span><span class="p">]</span>
         <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="n">e</span><span class="p">)</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="n">e</span><span class="p">)</span>
             <span class="k">pass</span>
 
     <span class="c1"># Initialise elements from given (or last) state/time</span>
@@ -500,10 +501,10 @@
                 <span class="n">value</span> <span class="o">=</span> <span class="kc">None</span>
             <span class="k">try</span><span class="p">:</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">set_config</span><span class="p">(</span><span class="n">conf_key</span><span class="p">,</span> <span class="n">value</span><span class="p">)</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;Setting imported config: </span><span class="si">%s</span><span class="s1"> -&gt; </span><span class="si">%s</span><span class="s1">&#39;</span> <span class="o">%</span>
+                <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;Setting imported config: </span><span class="si">%s</span><span class="s1"> -&gt; </span><span class="si">%s</span><span class="s1">&#39;</span> <span class="o">%</span>
                              <span class="p">(</span><span class="n">conf_key</span><span class="p">,</span> <span class="n">value</span><span class="p">))</span>
             <span class="k">except</span><span class="p">:</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="s1">&#39;Could not set config: </span><span class="si">%s</span><span class="s1"> -&gt; </span><span class="si">%s</span><span class="s1">&#39;</span> <span class="o">%</span>
+                <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="s1">&#39;Could not set config: </span><span class="si">%s</span><span class="s1"> -&gt; </span><span class="si">%s</span><span class="s1">&#39;</span> <span class="o">%</span>
                                 <span class="p">(</span><span class="n">conf_key</span><span class="p">,</span> <span class="n">value</span><span class="p">))</span>
 
     <span class="c1"># Import time steps from metadata</span>
@@ -521,8 +522,8 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">time_step</span> <span class="o">=</span> <span class="n">timedelta_from_string</span><span class="p">(</span><span class="n">infile</span><span class="o">.</span><span class="n">time_step_calculation</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">time_step_output</span> <span class="o">=</span> <span class="n">timedelta_from_string</span><span class="p">(</span><span class="n">infile</span><span class="o">.</span><span class="n">time_step_output</span><span class="p">)</span>
     <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="n">e</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="s1">&#39;Could not parse time_steps from netCDF file&#39;</span><span class="p">)</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="n">e</span><span class="p">)</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="s1">&#39;Could not parse time_steps from netCDF file&#39;</span><span class="p">)</span>
 
     <span class="n">infile</span><span class="o">.</span><span class="n">close</span><span class="p">()</span></div>
 </pre></div>
