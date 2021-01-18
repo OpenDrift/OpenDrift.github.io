@@ -640,11 +640,12 @@
 
         <span class="c1"># Mask values outside valid_min, valid_max (self.standard_names)</span>
         <span class="k">if</span> <span class="n">name</span> <span class="ow">in</span> <span class="n">standard_names</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
-            <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;checking </span><span class="si">%s</span><span class="s2"> for invalid values&quot;</span> <span class="o">%</span> <span class="n">name</span><span class="p">)</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;Checking </span><span class="si">%s</span><span class="s2"> for invalid values&quot;</span> <span class="o">%</span> <span class="n">name</span><span class="p">)</span>
             <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">variable</span><span class="p">,</span> <span class="nb">list</span><span class="p">):</span>
                 <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span>
-                    <span class="s1">&#39;Skipping min-max checking for ensemble data&#39;</span><span class="p">)</span>
-                <span class="k">return</span> <span class="n">variable</span>
+                    <span class="s1">&#39;Min-max checking for ensemble data (</span><span class="si">%i</span><span class="s1"> members)&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">variable</span><span class="p">)))</span>
+                <span class="c1"># Recursive</span>
+                <span class="k">return</span> <span class="p">[</span><span class="n">Variables</span><span class="o">.</span><span class="n">__check_variable_array__</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">v</span><span class="p">)</span> <span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">variable</span><span class="p">]</span>
             <span class="c1"># with np.errstate(invalid=&#39;ignore&#39;):</span>
             <span class="n">invalid_indices</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">logical_and</span><span class="p">(</span>
                 <span class="n">np</span><span class="o">.</span><span class="n">isfinite</span><span class="p">(</span><span class="n">variable</span><span class="p">),</span>
@@ -656,7 +657,7 @@
                 <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span>
                     <span class="s1">&#39;Invalid values (</span><span class="si">%s</span><span class="s1"> to </span><span class="si">%s</span><span class="s1">) found for </span><span class="si">%s</span><span class="s1">, replacing with NaN&#39;</span>
                     <span class="o">%</span>
-                    <span class="p">(</span><span class="n">invalid_values</span><span class="o">.</span><span class="n">min</span><span class="p">(),</span> <span class="n">invalid_values</span><span class="o">.</span><span class="n">max</span><span class="p">(),</span> <span class="n">variable</span><span class="p">))</span>
+                    <span class="p">(</span><span class="n">invalid_values</span><span class="o">.</span><span class="n">min</span><span class="p">(),</span> <span class="n">invalid_values</span><span class="o">.</span><span class="n">max</span><span class="p">(),</span> <span class="n">name</span><span class="p">))</span>
                 <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="s1">&#39;(allowed range: [</span><span class="si">%s</span><span class="s1">, </span><span class="si">%s</span><span class="s1">])&#39;</span> <span class="o">%</span>
                                 <span class="p">(</span><span class="n">standard_names</span><span class="p">[</span><span class="n">name</span><span class="p">][</span><span class="s1">&#39;valid_min&#39;</span><span class="p">],</span>
                                 <span class="n">standard_names</span><span class="p">[</span><span class="n">name</span><span class="p">][</span><span class="s1">&#39;valid_max&#39;</span><span class="p">]))</span>
