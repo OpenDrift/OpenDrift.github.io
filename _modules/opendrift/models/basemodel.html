@@ -327,6 +327,9 @@
 
         <span class="bp">self</span><span class="o">.</span><span class="n">show_continuous_performance</span> <span class="o">=</span> <span class="kc">False</span>
 
+        <span class="c1"># List to store GeoJSON dicts of seeding commands</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">seed_geojson</span> <span class="o">=</span> <span class="p">[]</span>
+
         <span class="c1"># Dict to store readers</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">readers</span> <span class="o">=</span> <span class="n">OrderedDict</span><span class="p">()</span>  <span class="c1"># Dictionary, key=name, value=reader object</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">priority_list</span> <span class="o">=</span> <span class="n">OrderedDict</span><span class="p">()</span>
@@ -1783,6 +1786,8 @@
             <span class="n">lat</span> <span class="o">=</span> <span class="n">lat</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">ones</span><span class="p">(</span><span class="n">number</span><span class="p">)</span>
         <span class="k">elif</span> <span class="nb">len</span><span class="p">(</span><span class="n">lon</span><span class="p">)</span> <span class="o">==</span> <span class="mi">2</span><span class="p">:</span>  <span class="c1"># Segment from lon0,lat1 to lon1,lat2</span>
             <span class="n">geod</span> <span class="o">=</span> <span class="n">pyproj</span><span class="o">.</span><span class="n">Geod</span><span class="p">(</span><span class="n">ellps</span><span class="o">=</span><span class="s1">&#39;WGS84&#39;</span><span class="p">)</span>
+            <span class="n">lonin</span> <span class="o">=</span> <span class="n">lon</span>
+            <span class="n">latin</span> <span class="o">=</span> <span class="n">lat</span>
             <span class="c1"># Note that npts places points in-between start and end, and does not include these</span>
             <span class="n">conelonlats</span> <span class="o">=</span> <span class="n">geod</span><span class="o">.</span><span class="n">npts</span><span class="p">(</span><span class="n">lon</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">lat</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">lon</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">lat</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span>
                                     <span class="n">number</span><span class="p">,</span> <span class="n">radians</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
@@ -1795,6 +1800,32 @@
 
         <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">time</span><span class="p">,</span> <span class="nb">list</span><span class="p">)</span> <span class="ow">and</span> <span class="nb">len</span><span class="p">(</span><span class="n">time</span><span class="p">)</span><span class="o">==</span><span class="mi">1</span><span class="p">:</span>
             <span class="n">time</span> <span class="o">=</span> <span class="n">time</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+
+        <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">time</span><span class="p">,</span> <span class="s1">&#39;__len__&#39;</span><span class="p">):</span>
+            <span class="n">timespan</span> <span class="o">=</span> <span class="p">[</span><span class="n">time</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">time</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]]</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">timespan</span> <span class="o">=</span> <span class="p">[</span><span class="n">time</span><span class="p">,</span> <span class="n">time</span><span class="p">]</span>
+
+        <span class="n">radius</span> <span class="o">=</span> <span class="n">radius</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">float</span><span class="p">)</span>
+        <span class="n">lonin</span> <span class="o">=</span> <span class="n">lonin</span> <span class="k">if</span> <span class="s1">&#39;lonin&#39;</span> <span class="ow">in</span> <span class="nb">locals</span><span class="p">()</span> <span class="k">else</span> <span class="p">[</span><span class="n">lon</span><span class="o">.</span><span class="n">min</span><span class="p">(),</span> <span class="n">lon</span><span class="o">.</span><span class="n">max</span><span class="p">()]</span>
+        <span class="n">latin</span> <span class="o">=</span> <span class="n">latin</span> <span class="k">if</span> <span class="s1">&#39;latin&#39;</span> <span class="ow">in</span> <span class="nb">locals</span><span class="p">()</span> <span class="k">else</span> <span class="p">[</span><span class="n">lat</span><span class="o">.</span><span class="n">min</span><span class="p">(),</span> <span class="n">lat</span><span class="o">.</span><span class="n">max</span><span class="p">()]</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">seed_cone_arguments</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;lon&#39;</span><span class="p">:</span> <span class="n">lonin</span><span class="p">,</span> <span class="s1">&#39;lat&#39;</span><span class="p">:</span> <span class="n">latin</span><span class="p">,</span>
+                <span class="s1">&#39;radius&#39;</span><span class="p">:</span> <span class="p">[</span><span class="n">radius</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">radius</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]],</span> <span class="s1">&#39;time&#39;</span><span class="p">:</span> <span class="n">timespan</span><span class="p">,</span> <span class="s1">&#39;number&#39;</span><span class="p">:</span> <span class="n">number</span><span class="p">}</span>
+
+        <span class="c1"># Make GeoJson seeding dict to be saved in netCDF metadata</span>
+        <span class="kn">from</span> <span class="nn">geojson</span> <span class="kn">import</span> <span class="n">Feature</span><span class="p">,</span> <span class="n">LineString</span>
+        <span class="n">geo</span> <span class="o">=</span> <span class="n">LineString</span><span class="p">([(</span><span class="n">np</span><span class="o">.</span><span class="n">float</span><span class="p">(</span><span class="n">lonin</span><span class="p">[</span><span class="mi">0</span><span class="p">]),</span> <span class="n">np</span><span class="o">.</span><span class="n">float</span><span class="p">(</span><span class="n">latin</span><span class="p">[</span><span class="mi">0</span><span class="p">])),</span>
+                          <span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">float</span><span class="p">(</span><span class="n">lonin</span><span class="p">[</span><span class="mi">1</span><span class="p">]),</span> <span class="n">np</span><span class="o">.</span><span class="n">float</span><span class="p">(</span><span class="n">latin</span><span class="p">[</span><span class="mi">1</span><span class="p">]))])</span>
+        <span class="n">seed_defaults</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_configspec</span><span class="p">(</span><span class="s1">&#39;seed&#39;</span><span class="p">)</span>
+        <span class="n">default_seed</span> <span class="o">=</span> <span class="p">{</span><span class="n">k</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;:&#39;</span><span class="p">)[</span><span class="o">-</span><span class="mi">1</span><span class="p">]:</span><span class="n">seed_defaults</span><span class="p">[</span><span class="n">k</span><span class="p">][</span><span class="s1">&#39;default&#39;</span><span class="p">]</span> <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="n">seed_defaults</span><span class="p">}</span>
+        <span class="n">default_seed</span> <span class="o">=</span> <span class="p">{</span><span class="o">**</span><span class="n">default_seed</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">}</span>  <span class="c1"># Overwrite with explicitly provided values</span>
+        <span class="n">properties</span> <span class="o">=</span> <span class="p">{</span><span class="o">**</span><span class="n">default_seed</span><span class="p">,</span>
+                      <span class="s1">&#39;time&#39;</span><span class="p">:</span> <span class="p">[</span><span class="nb">str</span><span class="p">(</span><span class="n">timespan</span><span class="p">[</span><span class="mi">0</span><span class="p">]),</span> <span class="nb">str</span><span class="p">(</span><span class="n">timespan</span><span class="p">[</span><span class="mi">1</span><span class="p">])],</span>
+                      <span class="s1">&#39;radius&#39;</span><span class="p">:</span> <span class="p">[</span><span class="n">radius</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">radius</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]],</span>
+                      <span class="s1">&#39;number&#39;</span><span class="p">:</span> <span class="n">number</span><span class="p">}</span>
+        <span class="n">f</span> <span class="o">=</span> <span class="n">Feature</span><span class="p">(</span><span class="n">geometry</span><span class="o">=</span><span class="n">geo</span><span class="p">,</span> <span class="n">properties</span><span class="o">=</span><span class="n">properties</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">seed_geojson</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">f</span><span class="p">)</span>
 
         <span class="c1"># Forwarding calculated cone points/radii to seed_elements</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">seed_elements</span><span class="p">(</span><span class="n">lon</span><span class="o">=</span><span class="n">lon</span><span class="p">,</span> <span class="n">lat</span><span class="o">=</span><span class="n">lat</span><span class="p">,</span> <span class="n">time</span><span class="o">=</span><span class="n">time</span><span class="p">,</span> <span class="n">radius</span><span class="o">=</span><span class="n">radius</span><span class="p">,</span> <span class="n">number</span><span class="o">=</span><span class="n">number</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span></div>
@@ -2266,6 +2297,9 @@
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">num_elements_scheduled</span><span class="p">()</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;Please seed elements before starting a run.&#39;</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">elements</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">ElementType</span><span class="p">()</span>
+
+        <span class="c1"># Export seed_geojson to metadata_dict</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">add_metadata</span><span class="p">(</span><span class="s1">&#39;seed_geojson&#39;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">seed_geojson</span><span class="p">)</span>
 
         <span class="c1"># Collect fallback values from config into dict</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">set_fallback_values</span><span class="p">(</span><span class="n">refresh</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
@@ -3808,17 +3842,6 @@
         <span class="n">map_x</span><span class="p">,</span> <span class="n">map_y</span> <span class="o">=</span> <span class="p">(</span><span class="n">rlons</span><span class="p">,</span> <span class="n">rlats</span><span class="p">)</span>
 
         <span class="n">scalar</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">ma</span><span class="o">.</span><span class="n">masked_invalid</span><span class="p">(</span><span class="n">scalar</span><span class="p">)</span>
-        <span class="k">if</span> <span class="n">reader</span><span class="o">.</span><span class="n">convolve</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="kn">from</span> <span class="nn">scipy</span> <span class="kn">import</span> <span class="n">ndimage</span>
-            <span class="n">N</span> <span class="o">=</span> <span class="n">reader</span><span class="o">.</span><span class="n">convolve</span>
-            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">N</span><span class="p">,</span> <span class="p">(</span><span class="nb">int</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">integer</span><span class="p">)):</span>
-                <span class="n">kernel</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">ones</span><span class="p">((</span><span class="n">N</span><span class="p">,</span> <span class="n">N</span><span class="p">))</span>
-                <span class="n">kernel</span> <span class="o">=</span> <span class="n">kernel</span><span class="o">/</span><span class="n">kernel</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span>
-            <span class="k">else</span><span class="p">:</span>
-                <span class="n">kernel</span> <span class="o">=</span> <span class="n">N</span>
-            <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;Convolving variables with kernel: </span><span class="si">%s</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="n">kernel</span><span class="p">)</span>
-            <span class="n">scalar</span> <span class="o">=</span> <span class="n">ndimage</span><span class="o">.</span><span class="n">convolve</span><span class="p">(</span>
-                <span class="n">scalar</span><span class="p">,</span> <span class="n">kernel</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="s1">&#39;nearest&#39;</span><span class="p">)</span>
 
         <span class="k">return</span> <span class="n">map_x</span><span class="p">,</span> <span class="n">map_y</span><span class="p">,</span> <span class="n">scalar</span><span class="p">,</span> <span class="n">u_component</span><span class="p">,</span> <span class="n">v_component</span></div>
 

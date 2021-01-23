@@ -212,6 +212,7 @@
     <span class="n">var_block_before</span> <span class="o">=</span> <span class="kc">None</span>
     <span class="n">var_block_after</span> <span class="o">=</span> <span class="kc">None</span>
     <span class="n">interpolation</span> <span class="o">=</span> <span class="s1">&#39;linearNDFast&#39;</span>
+    <span class="n">convolve</span> <span class="o">=</span> <span class="kc">None</span>  <span class="c1"># Convolution kernel or kernel size</span>
 
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">proj</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">and</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">proj4</span> <span class="ow">is</span> <span class="kc">None</span>
@@ -258,7 +259,7 @@
 
         <span class="c1"># Dictionaries to store blocks of data for reuse (buffering)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">var_block_before</span> <span class="o">=</span> <span class="p">{}</span>  <span class="c1"># Data for last timestep before present</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">var_block_after</span> <span class="o">=</span> <span class="p">{}</span>   <span class="c1"># Data for first timestep after present</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">var_block_after</span> <span class="o">=</span> <span class="p">{}</span>  <span class="c1"># Data for first timestep after present</span>
 
 <div class="viewcode-block" id="StructuredReader.get_variables"><a class="viewcode-back" href="../../../../autoapi/opendrift/readers/basereader/structured/index.html#opendrift.readers.basereader.StructuredReader.get_variables">[docs]</a>    <span class="nd">@abstractmethod</span>
     <span class="k">def</span> <span class="nf">get_variables</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">variables</span><span class="p">,</span> <span class="n">time</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">x</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">y</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">z</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
@@ -284,9 +285,39 @@
 <span class="sd">            values: 2D ndarray bounding x and y.</span>
 <span class="sd">        &quot;&quot;&quot;</span></div>
 
-<div class="viewcode-block" id="StructuredReader._get_variables_interpolated_"><a class="viewcode-back" href="../../../../autoapi/opendrift/readers/basereader/structured/index.html#opendrift.readers.basereader.StructuredReader._get_variables_interpolated_">[docs]</a>    <span class="k">def</span> <span class="nf">_get_variables_interpolated_</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">variables</span><span class="p">,</span> <span class="n">profiles</span><span class="p">,</span>
-                                   <span class="n">profiles_depth</span><span class="p">,</span> <span class="n">time</span><span class="p">,</span>
-                                   <span class="n">reader_x</span><span class="p">,</span> <span class="n">reader_y</span><span class="p">,</span> <span class="n">z</span><span class="p">):</span>
+<div class="viewcode-block" id="StructuredReader.set_convolution_kernel"><a class="viewcode-back" href="../../../../autoapi/opendrift/readers/basereader/structured/index.html#opendrift.readers.basereader.StructuredReader.set_convolution_kernel">[docs]</a>    <span class="k">def</span> <span class="nf">set_convolution_kernel</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">convolve</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Set a convolution kernel or kernel size (of array of ones) used by `get_variables` on read variables.&quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">convolve</span> <span class="o">=</span> <span class="n">convolve</span></div>
+
+<div class="viewcode-block" id="StructuredReader.__convolve_block__"><a class="viewcode-back" href="../../../../autoapi/opendrift/readers/basereader/structured/index.html#opendrift.readers.basereader.StructuredReader.__convolve_block__">[docs]</a>    <span class="k">def</span> <span class="nf">__convolve_block__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">env</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Convolve arrays with a kernel, if reader.convolve is set</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">convolve</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="kn">from</span> <span class="nn">scipy</span> <span class="kn">import</span> <span class="n">ndimage</span>
+            <span class="n">N</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">convolve</span>
+            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">N</span><span class="p">,</span> <span class="p">(</span><span class="nb">int</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">integer</span><span class="p">)):</span>
+                <span class="n">kernel</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">ones</span><span class="p">((</span><span class="n">N</span><span class="p">,</span> <span class="n">N</span><span class="p">))</span>
+                <span class="n">kernel</span> <span class="o">=</span> <span class="n">kernel</span> <span class="o">/</span> <span class="n">kernel</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">kernel</span> <span class="o">=</span> <span class="n">N</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;Convolving variables with kernel: </span><span class="si">%s</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="n">kernel</span><span class="p">)</span>
+            <span class="k">for</span> <span class="n">variable</span> <span class="ow">in</span> <span class="n">env</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">variable</span> <span class="ow">in</span> <span class="p">[</span><span class="s1">&#39;x&#39;</span><span class="p">,</span> <span class="s1">&#39;y&#39;</span><span class="p">,</span> <span class="s1">&#39;z&#39;</span><span class="p">,</span> <span class="s1">&#39;time&#39;</span><span class="p">]:</span>
+                    <span class="k">pass</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="k">if</span> <span class="n">env</span><span class="p">[</span><span class="n">variable</span><span class="p">]</span><span class="o">.</span><span class="n">ndim</span> <span class="o">==</span> <span class="mi">2</span><span class="p">:</span>
+                        <span class="n">env</span><span class="p">[</span><span class="n">variable</span><span class="p">]</span> <span class="o">=</span> <span class="n">ndimage</span><span class="o">.</span><span class="n">convolve</span><span class="p">(</span><span class="n">env</span><span class="p">[</span><span class="n">variable</span><span class="p">],</span>
+                                                         <span class="n">kernel</span><span class="p">,</span>
+                                                         <span class="n">mode</span><span class="o">=</span><span class="s1">&#39;nearest&#39;</span><span class="p">)</span>
+                    <span class="k">elif</span> <span class="n">env</span><span class="p">[</span><span class="n">variable</span><span class="p">]</span><span class="o">.</span><span class="n">ndim</span> <span class="o">==</span> <span class="mi">3</span><span class="p">:</span>
+                        <span class="n">env</span><span class="p">[</span><span class="n">variable</span><span class="p">]</span> <span class="o">=</span> <span class="n">ndimage</span><span class="o">.</span><span class="n">convolve</span><span class="p">(</span><span class="n">env</span><span class="p">[</span><span class="n">variable</span><span class="p">],</span>
+                                                         <span class="n">kernel</span><span class="p">[:,</span> <span class="p">:,</span> <span class="kc">None</span><span class="p">],</span>
+                                                         <span class="n">mode</span><span class="o">=</span><span class="s1">&#39;nearest&#39;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">env</span></div>
+
+<div class="viewcode-block" id="StructuredReader._get_variables_interpolated_"><a class="viewcode-back" href="../../../../autoapi/opendrift/readers/basereader/structured/index.html#opendrift.readers.basereader.StructuredReader._get_variables_interpolated_">[docs]</a>    <span class="k">def</span> <span class="nf">_get_variables_interpolated_</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">variables</span><span class="p">,</span> <span class="n">profiles</span><span class="p">,</span> <span class="n">profiles_depth</span><span class="p">,</span>
+                                     <span class="n">time</span><span class="p">,</span> <span class="n">reader_x</span><span class="p">,</span> <span class="n">reader_y</span><span class="p">,</span> <span class="n">z</span><span class="p">):</span>
 
         <span class="c1"># Find reader time_before/time_after</span>
         <span class="n">time_nearest</span><span class="p">,</span> <span class="n">time_before</span><span class="p">,</span> <span class="n">time_after</span><span class="p">,</span> <span class="n">i1</span><span class="p">,</span> <span class="n">i2</span><span class="p">,</span> <span class="n">i3</span> <span class="o">=</span> \
@@ -301,7 +332,6 @@
         <span class="k">if</span> <span class="n">time</span> <span class="o">==</span> <span class="n">time_before</span> <span class="ow">or</span> <span class="nb">all</span><span class="p">(</span><span class="n">v</span> <span class="ow">in</span> <span class="n">static_variables</span>
                                       <span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">variables</span><span class="p">):</span>
             <span class="n">time_after</span> <span class="o">=</span> <span class="kc">None</span>
-
 
         <span class="k">if</span> <span class="n">profiles</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
             <span class="c1"># If profiles are requested for any parameters, we</span>
@@ -350,8 +380,10 @@
         <span class="k">if</span> <span class="n">block_before</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> \
                 <span class="n">block_before</span><span class="o">.</span><span class="n">time</span> <span class="o">!=</span> <span class="n">time_before</span><span class="p">:</span>
             <span class="n">reader_data_dict</span> <span class="o">=</span> \
+                    <span class="bp">self</span><span class="o">.</span><span class="n">__convolve_block__</span><span class="p">(</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">get_variables</span><span class="p">(</span><span class="n">blockvariables_before</span><span class="p">,</span> <span class="n">time_before</span><span class="p">,</span>
                                     <span class="n">mx</span><span class="p">,</span> <span class="n">my</span><span class="p">,</span> <span class="n">mz</span><span class="p">)</span>
+                <span class="p">)</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">var_block_before</span><span class="p">[</span><span class="n">blockvars_before</span><span class="p">]</span> <span class="o">=</span> \
                 <span class="n">ReaderBlock</span><span class="p">(</span><span class="n">reader_data_dict</span><span class="p">,</span>
                             <span class="n">interpolation_horizontal</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">interpolation</span><span class="p">)</span>
@@ -367,12 +399,11 @@
             <span class="n">block_before</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">var_block_before</span><span class="p">[</span><span class="n">blockvars_before</span><span class="p">]</span>
         <span class="k">if</span> <span class="n">block_after</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="n">block_after</span><span class="o">.</span><span class="n">time</span> <span class="o">!=</span> <span class="n">time_after</span><span class="p">:</span>
             <span class="k">if</span> <span class="n">time_after</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">var_block_after</span><span class="p">[</span><span class="n">blockvars_after</span><span class="p">]</span> <span class="o">=</span> \
-                    <span class="n">block_before</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">var_block_after</span><span class="p">[</span><span class="n">blockvars_after</span><span class="p">]</span> <span class="o">=</span> <span class="n">block_before</span>
             <span class="k">else</span><span class="p">:</span>
-                <span class="n">reader_data_dict</span> <span class="o">=</span> \
-                    <span class="bp">self</span><span class="o">.</span><span class="n">get_variables</span><span class="p">(</span><span class="n">blockvariables_after</span><span class="p">,</span> <span class="n">time_after</span><span class="p">,</span>
-                                        <span class="n">mx</span><span class="p">,</span> <span class="n">my</span><span class="p">,</span> <span class="n">mz</span><span class="p">)</span>
+                <span class="n">reader_data_dict</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">__convolve_block__</span><span class="p">(</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">get_variables</span><span class="p">(</span><span class="n">blockvariables_after</span><span class="p">,</span> <span class="n">time_after</span><span class="p">,</span> <span class="n">mx</span><span class="p">,</span>
+                                       <span class="n">my</span><span class="p">,</span> <span class="n">mz</span><span class="p">))</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">var_block_after</span><span class="p">[</span><span class="n">blockvars_after</span><span class="p">]</span> <span class="o">=</span> \
                     <span class="n">ReaderBlock</span><span class="p">(</span>
                         <span class="n">reader_data_dict</span><span class="p">,</span>
@@ -671,11 +702,11 @@
 
 <div class="viewcode-block" id="StructuredReader._slice_variable_"><a class="viewcode-back" href="../../../../autoapi/opendrift/readers/basereader/structured/index.html#opendrift.readers.basereader.StructuredReader._slice_variable_">[docs]</a>    <span class="k">def</span> <span class="nf">_slice_variable_</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span>
                          <span class="n">var</span><span class="p">,</span>
-                         <span class="n">indxTime</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-                         <span class="n">indy</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-                         <span class="n">indx</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-                         <span class="n">indz</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-                         <span class="n">indrealization</span> <span class="o">=</span> <span class="kc">None</span><span class="p">):</span>
+                         <span class="n">indxTime</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                         <span class="n">indy</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                         <span class="n">indx</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                         <span class="n">indz</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                         <span class="n">indrealization</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Slice variable depending on number of dimensions available.</span>
 

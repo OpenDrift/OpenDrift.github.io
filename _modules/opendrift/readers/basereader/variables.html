@@ -561,7 +561,6 @@
     <span class="n">name</span> <span class="o">=</span> <span class="kc">None</span>
 
     <span class="n">buffer</span> <span class="o">=</span> <span class="mi">0</span>
-    <span class="n">convolve</span> <span class="o">=</span> <span class="kc">None</span>  <span class="c1"># Convolution kernel or kernel size</span>
 
     <span class="n">environment_mappers</span> <span class="o">=</span> <span class="p">[]</span>
     <span class="n">environment_mappings</span> <span class="o">=</span> <span class="p">{</span>
@@ -582,10 +581,6 @@
             <span class="bp">self</span><span class="o">.</span><span class="n">derived_variables</span> <span class="o">=</span> <span class="p">{}</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">variables</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">variables</span> <span class="o">=</span> <span class="p">[]</span>
-
-<div class="viewcode-block" id="Variables.set_convolution_kernel"><a class="viewcode-back" href="../../../../autoapi/opendrift/readers/basereader/variables/index.html#opendrift.readers.basereader.Variables.set_convolution_kernel">[docs]</a>    <span class="k">def</span> <span class="nf">set_convolution_kernel</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">convolve</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Set a convolution kernel or kernel size (of array of ones) used by `get_variables` on read variables.&quot;&quot;&quot;</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">convolve</span> <span class="o">=</span> <span class="n">convolve</span></div>
 
 <div class="viewcode-block" id="Variables.set_buffer_size"><a class="viewcode-back" href="../../../../autoapi/opendrift/readers/basereader/variables/index.html#opendrift.readers.basereader.Variables.set_buffer_size">[docs]</a>    <span class="k">def</span> <span class="nf">set_buffer_size</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">max_speed</span><span class="p">,</span> <span class="n">max_vertical_speed</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
         <span class="sd">&#39;&#39;&#39;Adjust buffer to minimise data block size needed to cover elements&#39;&#39;&#39;</span>
@@ -684,33 +679,6 @@
 
         <span class="k">return</span> <span class="n">env</span></div>
 
-<div class="viewcode-block" id="Variables.__convolve_env__"><a class="viewcode-back" href="../../../../autoapi/opendrift/readers/basereader/variables/index.html#opendrift.readers.basereader.Variables.__convolve_env__">[docs]</a>    <span class="k">def</span> <span class="nf">__convolve_env__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">env</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Convolve arrays with a kernel, if reader.convolve is set</span>
-<span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">convolve</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="kn">from</span> <span class="nn">scipy</span> <span class="kn">import</span> <span class="n">ndimage</span>
-            <span class="n">N</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">convolve</span>
-            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">N</span><span class="p">,</span> <span class="p">(</span><span class="nb">int</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">integer</span><span class="p">)):</span>
-                <span class="n">kernel</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">ones</span><span class="p">((</span><span class="n">N</span><span class="p">,</span> <span class="n">N</span><span class="p">))</span>
-                <span class="n">kernel</span> <span class="o">=</span> <span class="n">kernel</span> <span class="o">/</span> <span class="n">kernel</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span>
-            <span class="k">else</span><span class="p">:</span>
-                <span class="n">kernel</span> <span class="o">=</span> <span class="n">N</span>
-            <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;Convolving variables with kernel: </span><span class="si">%s</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="n">kernel</span><span class="p">)</span>
-            <span class="k">for</span> <span class="n">variable</span> <span class="ow">in</span> <span class="n">env</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
-                <span class="k">if</span> <span class="n">variable</span> <span class="ow">in</span> <span class="p">[</span><span class="s1">&#39;x&#39;</span><span class="p">,</span> <span class="s1">&#39;y&#39;</span><span class="p">,</span> <span class="s1">&#39;z&#39;</span><span class="p">,</span> <span class="s1">&#39;time&#39;</span><span class="p">]:</span>
-                    <span class="k">pass</span>
-                <span class="k">else</span><span class="p">:</span>
-                    <span class="k">if</span> <span class="n">env</span><span class="p">[</span><span class="n">variable</span><span class="p">]</span><span class="o">.</span><span class="n">ndim</span> <span class="o">==</span> <span class="mi">2</span><span class="p">:</span>
-                        <span class="n">env</span><span class="p">[</span><span class="n">variable</span><span class="p">]</span> <span class="o">=</span> <span class="n">ndimage</span><span class="o">.</span><span class="n">convolve</span><span class="p">(</span><span class="n">env</span><span class="p">[</span><span class="n">variable</span><span class="p">],</span>
-                                                         <span class="n">kernel</span><span class="p">,</span>
-                                                         <span class="n">mode</span><span class="o">=</span><span class="s1">&#39;nearest&#39;</span><span class="p">)</span>
-                    <span class="k">elif</span> <span class="n">env</span><span class="p">[</span><span class="n">variable</span><span class="p">]</span><span class="o">.</span><span class="n">ndim</span> <span class="o">==</span> <span class="mi">3</span><span class="p">:</span>
-                        <span class="n">env</span><span class="p">[</span><span class="n">variable</span><span class="p">]</span> <span class="o">=</span> <span class="n">ndimage</span><span class="o">.</span><span class="n">convolve</span><span class="p">(</span><span class="n">env</span><span class="p">[</span><span class="n">variable</span><span class="p">],</span>
-                                                         <span class="n">kernel</span><span class="p">[:,</span> <span class="p">:,</span> <span class="kc">None</span><span class="p">],</span>
-                                                         <span class="n">mode</span><span class="o">=</span><span class="s1">&#39;nearest&#39;</span><span class="p">)</span></div>
-
-
 <div class="viewcode-block" id="Variables._get_variables_interpolated_"><a class="viewcode-back" href="../../../../autoapi/opendrift/readers/basereader/variables/index.html#opendrift.readers.basereader.Variables._get_variables_interpolated_">[docs]</a>    <span class="nd">@abstractmethod</span>
     <span class="k">def</span> <span class="nf">_get_variables_interpolated_</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">variables</span><span class="p">,</span> <span class="n">profiles</span><span class="p">,</span> <span class="n">profiles_depth</span><span class="p">,</span>
                                      <span class="n">time</span><span class="p">,</span> <span class="n">reader_x</span><span class="p">,</span> <span class="n">reader_y</span><span class="p">,</span> <span class="n">z</span><span class="p">):</span>
@@ -754,9 +722,13 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">timer_start</span><span class="p">(</span><span class="s1">&#39;preparing&#39;</span><span class="p">)</span>
 
         <span class="n">x</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">atleast_1d</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
-        <span class="n">y</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">atleast_1d</span><span class="p">(</span><span class="n">y</span><span class="p">)</span>
-
         <span class="n">numx</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>  <span class="c1"># To check later if all points were covered</span>
+
+        <span class="n">y</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">atleast_1d</span><span class="p">(</span><span class="n">y</span><span class="p">)</span>
+        <span class="n">z</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">atleast_1d</span><span class="p">(</span><span class="n">z</span><span class="p">)</span> <span class="k">if</span> <span class="n">z</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="mi">1</span><span class="p">,))</span>
+
+        <span class="k">assert</span> <span class="n">numx</span> <span class="o">==</span> <span class="nb">len</span><span class="p">(</span><span class="n">y</span><span class="p">),</span> <span class="s2">&quot;x, y, and z must have the same length&quot;</span>
+        <span class="k">assert</span> <span class="nb">len</span><span class="p">(</span><span class="n">z</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span> <span class="ow">or</span> <span class="n">numx</span> <span class="o">==</span> <span class="nb">len</span><span class="p">(</span><span class="n">z</span><span class="p">),</span> <span class="s2">&quot;x, y, and z must have the same length&quot;</span>
 
         <span class="n">ind_covered</span><span class="p">,</span> <span class="n">xx</span><span class="p">,</span> <span class="n">yy</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">covers_positions_xy</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">z</span><span class="p">)</span>
         <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">ind_covered</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
@@ -805,7 +777,6 @@
             <span class="k">if</span> <span class="n">e</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">__check_env_coordinates__</span><span class="p">(</span><span class="n">e</span><span class="p">)</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">__check_env_arrays__</span><span class="p">(</span><span class="n">e</span><span class="p">)</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">__convolve_env__</span><span class="p">(</span><span class="n">e</span><span class="p">)</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">timer_end</span><span class="p">(</span><span class="s1">&#39;reading&#39;</span><span class="p">)</span>
 
@@ -899,12 +870,12 @@
 <span class="sd">                Can be None (default) if reader/variable has no time</span>
 <span class="sd">                dimension (e.g. climatology or landmask).</span>
 
-<span class="sd">            lon: N/A</span>
+<span class="sd">            lon: longitude, 1d array.</span>
 
-<span class="sd">            lat: N/A</span>
+<span class="sd">            lat: latitude, 1d array, same length as lon.</span>
 
 <span class="sd">            z: float or ndarray; vertical position (in meters, positive up)</span>
-<span class="sd">                of requested points.</span>
+<span class="sd">                of requested points. either scalar or same length as lon, lat.</span>
 <span class="sd">                default: 0 m (unless otherwise documented by reader)</span>
 
 <span class="sd">            block: bool, see return below</span>

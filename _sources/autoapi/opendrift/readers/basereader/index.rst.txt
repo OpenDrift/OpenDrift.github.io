@@ -99,6 +99,11 @@ Classes
 
       
 
+   .. attribute:: convolve
+      
+
+      
+
    .. method:: get_variables(self, variables, time=None, x=None, y=None, z=None)
       :abstractmethod:
 
@@ -121,6 +126,16 @@ Classes
 
           keywords: variables (string)
           values: 2D ndarray bounding x and y.
+
+
+   .. method:: set_convolution_kernel(self, convolve)
+
+      Set a convolution kernel or kernel size (of array of ones) used by `get_variables` on read variables.
+
+
+   .. method:: __convolve_block__(self, env)
+
+      Convolve arrays with a kernel, if reader.convolve is set
 
 
    .. method:: _get_variables_interpolated_(self, variables, profiles, profiles_depth, time, reader_x, reader_y, z)
@@ -454,11 +469,6 @@ Classes
 
       
 
-   .. attribute:: convolve
-      
-
-      
-
    .. attribute:: environment_mappers
       :annotation: = []
 
@@ -468,11 +478,6 @@ Classes
       
 
       
-
-   .. method:: set_convolution_kernel(self, convolve)
-
-      Set a convolution kernel or kernel size (of array of ones) used by `get_variables` on read variables.
-
 
    .. method:: set_buffer_size(self, max_speed, max_vertical_speed=None)
 
@@ -507,11 +512,6 @@ Classes
           entered into interpolator:
 
           :meth:`.structured.StructuredReader.__check_env_arrays__`
-
-
-   .. method:: __convolve_env__(self, env)
-
-      Convolve arrays with a kernel, if reader.convolve is set
 
 
    .. method:: _get_variables_interpolated_(self, variables, profiles, profiles_depth, time, reader_x, reader_y, z)
@@ -559,12 +559,12 @@ Classes
               Can be None (default) if reader/variable has no time
               dimension (e.g. climatology or landmask).
 
-          lon: N/A
+          lon: longitude, 1d array.
 
-          lat: N/A
+          lat: latitude, 1d array, same length as lon.
 
           z: float or ndarray; vertical position (in meters, positive up)
-              of requested points.
+              of requested points. either scalar or same length as lon, lat.
               default: 0 m (unless otherwise documented by reader)
 
           block: bool, see return below
