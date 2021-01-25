@@ -186,70 +186,41 @@
 <span class="c1"># along with OpenDrift.  If not, see &lt;https://www.gnu.org/licenses/&gt;.</span>
 <span class="c1">#</span>
 <span class="c1"># Copyright 2021, Trond Kristiansen, Niva</span>
-<span class="c1"># Added 24 Jan 2021 by Knut-Frode Dagestad, MET Norway</span>
+<span class="c1"># Jan 2021 Simplified by Knut-Frode Dagestad, MET Norway, and adapted to to Kvile et al. (2018)</span>
 
 <span class="kn">import</span> <span class="nn">datetime</span>
 <span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
-<span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
-<span class="kn">import</span> <span class="nn">pvlib</span>
-<span class="kn">from</span> <span class="nn">opendrift.elements</span> <span class="kn">import</span> <span class="n">LagrangianArray</span>
-<span class="kn">from</span> <span class="nn">opendrift.models.oceandrift</span> <span class="kn">import</span> <span class="n">Lagrangian3DArray</span>
-<span class="kn">from</span> <span class="nn">opendrift.models.oceandrift</span> <span class="kn">import</span> <span class="n">OceanDrift</span>
-<span class="kn">import</span> <span class="nn">pytz</span>
-<span class="kn">from</span> <span class="nn">scipy.interpolate</span> <span class="kn">import</span> <span class="n">interp1d</span>
+<span class="kn">import</span> <span class="nn">logging</span><span class="p">;</span> <span class="n">logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span>
+<span class="kn">from</span> <span class="nn">opendrift.models.oceandrift</span> <span class="kn">import</span> <span class="n">Lagrangian3DArray</span><span class="p">,</span> <span class="n">OceanDrift</span>
 
 
-<div class="viewcode-block" id="LarvalFish"><a class="viewcode-back" href="../../../autoapi/opendrift/models/larvalfish/index.html#opendrift.models.larvalfish.LarvalFish">[docs]</a><span class="k">class</span> <span class="nc">LarvalFish</span><span class="p">(</span><span class="n">Lagrangian3DArray</span><span class="p">):</span>
+<div class="viewcode-block" id="LarvalFishElement"><a class="viewcode-back" href="../../../autoapi/opendrift/models/larvalfish/index.html#opendrift.models.larvalfish.LarvalFishElement">[docs]</a><span class="k">class</span> <span class="nc">LarvalFishElement</span><span class="p">(</span><span class="n">Lagrangian3DArray</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Extending Lagrangian3DArray with specific properties for larval and juvenile stages of fish</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
-    <span class="n">variables</span> <span class="o">=</span> <span class="n">LagrangianArray</span><span class="o">.</span><span class="n">add_variables</span><span class="p">([</span>
+    <span class="n">variables</span> <span class="o">=</span> <span class="n">Lagrangian3DArray</span><span class="o">.</span><span class="n">add_variables</span><span class="p">([</span>
         <span class="p">(</span><span class="s1">&#39;diameter&#39;</span><span class="p">,</span> <span class="p">{</span><span class="s1">&#39;dtype&#39;</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">float32</span><span class="p">,</span>
                       <span class="s1">&#39;units&#39;</span><span class="p">:</span> <span class="s1">&#39;m&#39;</span><span class="p">,</span>
                       <span class="s1">&#39;default&#39;</span><span class="p">:</span> <span class="mf">0.0014</span><span class="p">}),</span>  <span class="c1"># for NEA Cod</span>
         <span class="p">(</span><span class="s1">&#39;neutral_buoyancy_salinity&#39;</span><span class="p">,</span> <span class="p">{</span><span class="s1">&#39;dtype&#39;</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">float32</span><span class="p">,</span>
                                        <span class="s1">&#39;units&#39;</span><span class="p">:</span> <span class="s1">&#39;[]&#39;</span><span class="p">,</span>
                                        <span class="s1">&#39;default&#39;</span><span class="p">:</span> <span class="mf">31.25</span><span class="p">}),</span>  <span class="c1"># for NEA Cod</span>
-        <span class="p">(</span><span class="s1">&#39;density&#39;</span><span class="p">,</span> <span class="p">{</span><span class="s1">&#39;dtype&#39;</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">float32</span><span class="p">,</span>
-                     <span class="s1">&#39;units&#39;</span><span class="p">:</span> <span class="s1">&#39;kg/m^3&#39;</span><span class="p">,</span>
-                     <span class="s1">&#39;default&#39;</span><span class="p">:</span> <span class="mf">1028.</span><span class="p">}),</span>
-        <span class="p">(</span><span class="s1">&#39;survival&#39;</span><span class="p">,</span> <span class="p">{</span><span class="s1">&#39;dtype&#39;</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">float32</span><span class="p">,</span>
-                      <span class="s1">&#39;units&#39;</span><span class="p">:</span> <span class="s1">&#39;rate&#39;</span><span class="p">,</span>
-                      <span class="s1">&#39;default&#39;</span><span class="p">:</span> <span class="mf">1.0</span><span class="p">}),</span>
-        <span class="p">(</span><span class="s1">&#39;development&#39;</span><span class="p">,</span> <span class="p">{</span><span class="s1">&#39;dtype&#39;</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">float32</span><span class="p">,</span>
-                         <span class="s1">&#39;units&#39;</span><span class="p">:</span> <span class="s1">&#39;rate&#39;</span><span class="p">,</span>
-                         <span class="s1">&#39;default&#39;</span><span class="p">:</span> <span class="mf">0.0</span><span class="p">}),</span>
-        <span class="p">(</span><span class="s1">&#39;age_seconds&#39;</span><span class="p">,</span> <span class="p">{</span><span class="s1">&#39;dtype&#39;</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">float32</span><span class="p">,</span>
-                         <span class="s1">&#39;units&#39;</span><span class="p">:</span> <span class="s1">&#39;s&#39;</span><span class="p">,</span>
-                         <span class="s1">&#39;default&#39;</span><span class="p">:</span> <span class="mf">0.</span><span class="p">}),</span>
-        <span class="p">(</span><span class="s1">&#39;hatched&#39;</span><span class="p">,</span> <span class="p">{</span><span class="s1">&#39;dtype&#39;</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">int64</span><span class="p">,</span>
+        <span class="p">(</span><span class="s1">&#39;hatched&#39;</span><span class="p">,</span> <span class="p">{</span><span class="s1">&#39;dtype&#39;</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">int64</span><span class="p">,</span>  <span class="c1"># 0 for eggs, 1 for larvae</span>
                      <span class="s1">&#39;units&#39;</span><span class="p">:</span> <span class="s1">&#39;&#39;</span><span class="p">,</span>
                      <span class="s1">&#39;default&#39;</span><span class="p">:</span> <span class="mi">0</span><span class="p">}),</span>
-        <span class="p">(</span><span class="s1">&#39;age&#39;</span><span class="p">,</span> <span class="p">{</span><span class="s1">&#39;dtype&#39;</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">float32</span><span class="p">,</span>  <span class="c1"># Added to track percentage of competency time completed</span>
-                 <span class="s1">&#39;units&#39;</span><span class="p">:</span> <span class="s1">&#39;&#39;</span><span class="p">,</span>
-                 <span class="s1">&#39;default&#39;</span><span class="p">:</span> <span class="mf">0.</span><span class="p">}),</span>
         <span class="p">(</span><span class="s1">&#39;length&#39;</span><span class="p">,</span> <span class="p">{</span><span class="s1">&#39;dtype&#39;</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">float32</span><span class="p">,</span>
                     <span class="s1">&#39;units&#39;</span><span class="p">:</span> <span class="s1">&#39;mm&#39;</span><span class="p">,</span>
-                    <span class="s1">&#39;default&#39;</span><span class="p">:</span> <span class="mf">10.0</span><span class="p">}),</span>
+                    <span class="s1">&#39;default&#39;</span><span class="p">:</span> <span class="mi">0</span><span class="p">}),</span>
         <span class="p">(</span><span class="s1">&#39;weight&#39;</span><span class="p">,</span> <span class="p">{</span><span class="s1">&#39;dtype&#39;</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">float32</span><span class="p">,</span>
                     <span class="s1">&#39;units&#39;</span><span class="p">:</span> <span class="s1">&#39;mg&#39;</span><span class="p">,</span>
                     <span class="s1">&#39;default&#39;</span><span class="p">:</span> <span class="mf">0.08</span><span class="p">}),</span>
-        <span class="p">(</span><span class="s1">&#39;light&#39;</span><span class="p">,</span> <span class="p">{</span><span class="s1">&#39;dtype&#39;</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">float32</span><span class="p">,</span>
-                   <span class="s1">&#39;units&#39;</span><span class="p">:</span> <span class="s1">&#39;ugEm2&#39;</span><span class="p">,</span>
-                   <span class="s1">&#39;default&#39;</span><span class="p">:</span> <span class="mf">0.</span><span class="p">}),</span>
-        <span class="p">(</span><span class="s1">&#39;light_surface&#39;</span><span class="p">,</span> <span class="p">{</span><span class="s1">&#39;dtype&#39;</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">float32</span><span class="p">,</span>
-                           <span class="s1">&#39;units&#39;</span><span class="p">:</span> <span class="s1">&#39;ugEm2&#39;</span><span class="p">,</span>
-                           <span class="s1">&#39;default&#39;</span><span class="p">:</span> <span class="mf">0.</span><span class="p">}),</span>
-        <span class="p">(</span><span class="s1">&#39;growth_rate&#39;</span><span class="p">,</span> <span class="p">{</span><span class="s1">&#39;dtype&#39;</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">float32</span><span class="p">,</span>
-                         <span class="s1">&#39;units&#39;</span><span class="p">:</span> <span class="s1">&#39;%/dt&#39;</span><span class="p">,</span>
-                         <span class="s1">&#39;default&#39;</span><span class="p">:</span> <span class="mf">0.</span><span class="p">}),</span>
-        <span class="p">(</span><span class="s1">&#39;survival&#39;</span><span class="p">,</span> <span class="p">{</span><span class="s1">&#39;dtype&#39;</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">float32</span><span class="p">,</span>
+        <span class="p">(</span><span class="s1">&#39;survival&#39;</span><span class="p">,</span> <span class="p">{</span><span class="s1">&#39;dtype&#39;</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">float32</span><span class="p">,</span>  <span class="c1"># Not yet used</span>
                       <span class="s1">&#39;units&#39;</span><span class="p">:</span> <span class="s1">&#39;&#39;</span><span class="p">,</span>
                       <span class="s1">&#39;default&#39;</span><span class="p">:</span> <span class="mf">1.</span><span class="p">})])</span></div>
 
 
-<div class="viewcode-block" id="PelagicPlanktonDrift"><a class="viewcode-back" href="../../../autoapi/opendrift/models/larvalfish/index.html#opendrift.models.larvalfish.PelagicPlanktonDrift">[docs]</a><span class="k">class</span> <span class="nc">PelagicPlanktonDrift</span><span class="p">(</span><span class="n">OceanDrift</span><span class="p">):</span>
+<div class="viewcode-block" id="LarvalFish"><a class="viewcode-back" href="../../../autoapi/opendrift/models/larvalfish/index.html#opendrift.models.larvalfish.LarvalFish">[docs]</a><span class="k">class</span> <span class="nc">LarvalFish</span><span class="p">(</span><span class="n">OceanDrift</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Buoyant particle trajectory model based on the OpenDrift framework.</span>
 
 <span class="sd">        Developed at MET Norway</span>
@@ -261,128 +232,40 @@
 
 <span class="sd">    &quot;&quot;&quot;</span>
 
-    <span class="n">ElementType</span> <span class="o">=</span> <span class="n">LarvalFish</span>
+    <span class="n">ElementType</span> <span class="o">=</span> <span class="n">LarvalFishElement</span>
 
     <span class="n">required_variables</span> <span class="o">=</span> <span class="p">{</span>
         <span class="s1">&#39;x_sea_water_velocity&#39;</span><span class="p">:</span> <span class="p">{</span><span class="s1">&#39;fallback&#39;</span><span class="p">:</span> <span class="mi">0</span><span class="p">},</span>
         <span class="s1">&#39;y_sea_water_velocity&#39;</span><span class="p">:</span> <span class="p">{</span><span class="s1">&#39;fallback&#39;</span><span class="p">:</span> <span class="mi">0</span><span class="p">},</span>
         <span class="s1">&#39;sea_surface_wave_significant_height&#39;</span><span class="p">:</span> <span class="p">{</span><span class="s1">&#39;fallback&#39;</span><span class="p">:</span> <span class="mi">0</span><span class="p">},</span>
-        <span class="s1">&#39;sea_ice_area_fraction&#39;</span><span class="p">:</span> <span class="p">{</span><span class="s1">&#39;fallback&#39;</span><span class="p">:</span> <span class="mi">0</span><span class="p">},</span>
         <span class="s1">&#39;x_wind&#39;</span><span class="p">:</span> <span class="p">{</span><span class="s1">&#39;fallback&#39;</span><span class="p">:</span> <span class="mi">0</span><span class="p">},</span>
         <span class="s1">&#39;y_wind&#39;</span><span class="p">:</span> <span class="p">{</span><span class="s1">&#39;fallback&#39;</span><span class="p">:</span> <span class="mi">0</span><span class="p">},</span>
         <span class="s1">&#39;land_binary_mask&#39;</span><span class="p">:</span> <span class="p">{</span><span class="s1">&#39;fallback&#39;</span><span class="p">:</span> <span class="kc">None</span><span class="p">},</span>
         <span class="s1">&#39;sea_floor_depth_below_sea_level&#39;</span><span class="p">:</span> <span class="p">{</span><span class="s1">&#39;fallback&#39;</span><span class="p">:</span> <span class="mi">100</span><span class="p">},</span>
-        <span class="s1">&#39;ocean_vertical_diffusivity&#39;</span><span class="p">:</span> <span class="p">{</span><span class="s1">&#39;fallback&#39;</span><span class="p">:</span> <span class="mf">0.02</span><span class="p">,</span> <span class="s1">&#39;profiles&#39;</span><span class="p">:</span> <span class="kc">True</span><span class="p">},</span>
+        <span class="s1">&#39;ocean_vertical_diffusivity&#39;</span><span class="p">:</span> <span class="p">{</span><span class="s1">&#39;fallback&#39;</span><span class="p">:</span> <span class="mf">0.01</span><span class="p">,</span> <span class="s1">&#39;profiles&#39;</span><span class="p">:</span> <span class="kc">True</span><span class="p">},</span>
         <span class="s1">&#39;sea_water_temperature&#39;</span><span class="p">:</span> <span class="p">{</span><span class="s1">&#39;fallback&#39;</span><span class="p">:</span> <span class="mi">10</span><span class="p">,</span> <span class="s1">&#39;profiles&#39;</span><span class="p">:</span> <span class="kc">True</span><span class="p">},</span>
-        <span class="s1">&#39;sea_water_salinity&#39;</span><span class="p">:</span> <span class="p">{</span><span class="s1">&#39;fallback&#39;</span><span class="p">:</span> <span class="mi">34</span><span class="p">,</span> <span class="s1">&#39;profiles&#39;</span><span class="p">:</span> <span class="kc">True</span><span class="p">},</span>
-        <span class="s1">&#39;surface_downward_x_stress&#39;</span><span class="p">:</span> <span class="p">{</span><span class="s1">&#39;fallback&#39;</span><span class="p">:</span> <span class="mi">0</span><span class="p">},</span>
-        <span class="s1">&#39;surface_downward_y_stress&#39;</span><span class="p">:</span> <span class="p">{</span><span class="s1">&#39;fallback&#39;</span><span class="p">:</span> <span class="mi">0</span><span class="p">},</span>
-        <span class="s1">&#39;turbulent_kinetic_energy&#39;</span><span class="p">:</span> <span class="p">{</span><span class="s1">&#39;fallback&#39;</span><span class="p">:</span> <span class="mi">0</span><span class="p">},</span>
-        <span class="s1">&#39;turbulent_generic_length_scale&#39;</span><span class="p">:</span> <span class="p">{</span><span class="s1">&#39;fallback&#39;</span><span class="p">:</span> <span class="mi">0</span><span class="p">},</span>
-        <span class="s1">&#39;upward_sea_water_velocity&#39;</span><span class="p">:</span> <span class="p">{</span><span class="s1">&#39;fallback&#39;</span><span class="p">:</span> <span class="mi">0</span><span class="p">},</span>
+        <span class="s1">&#39;sea_water_salinity&#39;</span><span class="p">:</span> <span class="p">{</span><span class="s1">&#39;fallback&#39;</span><span class="p">:</span> <span class="mi">34</span><span class="p">,</span> <span class="s1">&#39;profiles&#39;</span><span class="p">:</span> <span class="kc">True</span><span class="p">}</span>
     <span class="p">}</span>
 
-    <span class="n">required_profiles_z_range</span> <span class="o">=</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="o">-</span><span class="mi">200</span><span class="p">]</span>  <span class="c1"># The depth range (in m) which profiles should cover</span>
-
-    <span class="c1"># Default colors for plotting</span>
-    <span class="n">status_colors</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;initial&#39;</span><span class="p">:</span> <span class="s1">&#39;green&#39;</span><span class="p">,</span> <span class="s1">&#39;active&#39;</span><span class="p">:</span> <span class="s1">&#39;blue&#39;</span><span class="p">,</span>
-                     <span class="s1">&#39;hatched&#39;</span><span class="p">:</span> <span class="s1">&#39;red&#39;</span><span class="p">,</span> <span class="s1">&#39;eaten&#39;</span><span class="p">:</span> <span class="s1">&#39;yellow&#39;</span><span class="p">,</span> <span class="s1">&#39;died&#39;</span><span class="p">:</span> <span class="s1">&#39;magenta&#39;</span><span class="p">}</span>
+    <span class="n">required_profiles_z_range</span> <span class="o">=</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="o">-</span><span class="mi">50</span><span class="p">]</span>  <span class="c1"># The depth range (in m) which profiles should cover</span>
 
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+
         <span class="c1"># Calling general constructor of parent class</span>
-        <span class="nb">super</span><span class="p">(</span><span class="n">PelagicPlanktonDrift</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+        <span class="nb">super</span><span class="p">(</span><span class="n">LarvalFish</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
 
         <span class="c1"># IBM configuration options</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_add_config</span><span class="p">({</span><span class="s1">&#39;IBM:attenuation_coefficient&#39;</span><span class="p">:</span> <span class="p">{</span><span class="s1">&#39;type&#39;</span><span class="p">:</span> <span class="s1">&#39;float&#39;</span><span class="p">,</span> <span class="s1">&#39;default&#39;</span><span class="p">:</span> <span class="mf">0.18</span><span class="p">,</span>
-                                                          <span class="s1">&#39;min&#39;</span><span class="p">:</span> <span class="mf">0.0</span><span class="p">,</span> <span class="s1">&#39;max&#39;</span><span class="p">:</span> <span class="mf">1.0</span><span class="p">,</span> <span class="s1">&#39;units&#39;</span><span class="p">:</span> <span class="s1">&#39;m-1&#39;</span><span class="p">,</span>
-                                                          <span class="s1">&#39;description&#39;</span><span class="p">:</span> <span class="s1">&#39;Attenuation&#39;</span><span class="p">,</span>
-                                                          <span class="s1">&#39;level&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">CONFIG_LEVEL_ADVANCED</span><span class="p">},</span>
-                          <span class="s1">&#39;IBM:fraction_of_timestep_swimming&#39;</span><span class="p">:</span> <span class="p">{</span><span class="s1">&#39;type&#39;</span><span class="p">:</span> <span class="s1">&#39;float&#39;</span><span class="p">,</span> <span class="s1">&#39;default&#39;</span><span class="p">:</span> <span class="mf">0.15</span><span class="p">,</span>
-                                                                <span class="s1">&#39;min&#39;</span><span class="p">:</span> <span class="mf">0.0</span><span class="p">,</span> <span class="s1">&#39;max&#39;</span><span class="p">:</span> <span class="mf">1.0</span><span class="p">,</span> <span class="s1">&#39;units&#39;</span><span class="p">:</span> <span class="s1">&#39;m-1&#39;</span><span class="p">,</span>
-                                                                <span class="s1">&#39;description&#39;</span><span class="p">:</span> <span class="s1">&#39;Fraction of timestep swimming&#39;</span><span class="p">,</span>
-                                                                <span class="s1">&#39;level&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">CONFIG_LEVEL_ADVANCED</span><span class="p">}</span>
-                          <span class="p">})</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_add_config</span><span class="p">({</span>
+            <span class="s1">&#39;IBM:fraction_of_timestep_swimming&#39;</span><span class="p">:</span>
+                <span class="p">{</span><span class="s1">&#39;type&#39;</span><span class="p">:</span> <span class="s1">&#39;float&#39;</span><span class="p">,</span> <span class="s1">&#39;default&#39;</span><span class="p">:</span> <span class="mf">0.15</span><span class="p">,</span>
+                 <span class="s1">&#39;min&#39;</span><span class="p">:</span> <span class="mf">0.0</span><span class="p">,</span> <span class="s1">&#39;max&#39;</span><span class="p">:</span> <span class="mf">1.0</span><span class="p">,</span> <span class="s1">&#39;units&#39;</span><span class="p">:</span> <span class="s1">&#39;fraction&#39;</span><span class="p">,</span>
+                 <span class="s1">&#39;description&#39;</span><span class="p">:</span> <span class="s1">&#39;Fraction of timestep swimming&#39;</span><span class="p">,</span>
+                 <span class="s1">&#39;level&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">CONFIG_LEVEL_ADVANCED</span><span class="p">},</span>
+            <span class="p">})</span>
 
-<div class="viewcode-block" id="PelagicPlanktonDrift.update_surface_light"><a class="viewcode-back" href="../../../autoapi/opendrift/models/larvalfish/index.html#opendrift.models.larvalfish.PelagicPlanktonDrift.update_surface_light">[docs]</a>    <span class="k">def</span> <span class="nf">update_surface_light</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="c1"># Calculate light according to the Inchein clear-sky model using pvlib for the given</span>
-        <span class="c1"># altitude, latitude, and time of day:</span>
-        <span class="c1"># https://pvlib-python.readthedocs.io/en/stable/clearsky.html</span>
-        <span class="n">dd</span> <span class="o">=</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">start_time</span> <span class="o">+</span> <span class="n">datetime</span><span class="o">.</span><span class="n">timedelta</span><span class="p">(</span><span class="n">seconds</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">elements</span><span class="o">.</span><span class="n">age_seconds</span><span class="p">[</span><span class="mi">0</span><span class="p">]))</span>
-        <span class="n">current_date</span> <span class="o">=</span> <span class="n">datetime</span><span class="o">.</span><span class="n">datetime</span><span class="p">(</span><span class="n">year</span><span class="o">=</span><span class="n">dd</span><span class="o">.</span><span class="n">year</span><span class="p">,</span>
-                                         <span class="n">month</span><span class="o">=</span><span class="n">dd</span><span class="o">.</span><span class="n">month</span><span class="p">,</span>
-                                         <span class="n">day</span><span class="o">=</span><span class="n">dd</span><span class="o">.</span><span class="n">day</span><span class="p">,</span>
-                                         <span class="n">hour</span><span class="o">=</span><span class="n">dd</span><span class="o">.</span><span class="n">hour</span><span class="p">,</span>
-                                         <span class="n">second</span><span class="o">=</span><span class="n">dd</span><span class="o">.</span><span class="n">second</span><span class="p">,</span>
-                                         <span class="n">tzinfo</span><span class="o">=</span><span class="n">pytz</span><span class="o">.</span><span class="n">timezone</span><span class="p">(</span><span class="s1">&#39;UTC&#39;</span><span class="p">))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_set_config_default</span><span class="p">(</span><span class="s1">&#39;drift:vertical_mixing&#39;</span><span class="p">,</span> <span class="kc">True</span><span class="p">)</span>
 
-        <span class="c1"># Convert datetime objec to to pandas Timestamp for use in pvlib</span>
-        <span class="n">current_date</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DatetimeIndex</span><span class="p">([</span><span class="n">pd</span><span class="o">.</span><span class="n">Timestamp</span><span class="p">(</span><span class="n">current_date</span><span class="p">)])</span>
-        <span class="n">att_coeff</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_config</span><span class="p">(</span><span class="s1">&#39;IBM:attenuation_coefficient&#39;</span><span class="p">)</span>
-
-        <span class="k">for</span> <span class="n">ind</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">elements</span><span class="o">.</span><span class="n">lat</span><span class="p">)):</span>
-
-            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">elements</span><span class="o">.</span><span class="n">lat</span><span class="p">[</span><span class="n">ind</span><span class="p">]</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="p">:</span>
-                <span class="n">lat</span> <span class="o">=</span> <span class="mi">360</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">elements</span><span class="o">.</span><span class="n">lat</span><span class="p">[</span><span class="n">ind</span><span class="p">]</span>
-            <span class="k">else</span><span class="p">:</span>
-                <span class="n">lat</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">elements</span><span class="o">.</span><span class="n">lat</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
-
-            <span class="n">solpos</span> <span class="o">=</span> <span class="n">pvlib</span><span class="o">.</span><span class="n">solarposition</span><span class="o">.</span><span class="n">get_solarposition</span><span class="p">(</span><span class="n">current_date</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">elements</span><span class="o">.</span><span class="n">lat</span><span class="p">[</span><span class="n">ind</span><span class="p">],</span> <span class="bp">self</span><span class="o">.</span><span class="n">elements</span><span class="o">.</span><span class="n">lon</span><span class="p">[</span><span class="n">ind</span><span class="p">])</span>
-            <span class="n">apparent_zenith</span> <span class="o">=</span> <span class="n">solpos</span><span class="p">[</span><span class="s1">&#39;apparent_zenith&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">to_numpy</span><span class="p">()</span>
-            <span class="n">airmass_rel</span> <span class="o">=</span> <span class="n">pvlib</span><span class="o">.</span><span class="n">atmosphere</span><span class="o">.</span><span class="n">get_relative_airmass</span><span class="p">(</span><span class="n">apparent_zenith</span><span class="p">,</span> <span class="n">model</span><span class="o">=</span><span class="s1">&#39;kastenyoung1989&#39;</span><span class="p">)</span>
-            <span class="n">altitude</span> <span class="o">=</span> <span class="mi">0</span>
-            <span class="n">pressure</span> <span class="o">=</span> <span class="n">pvlib</span><span class="o">.</span><span class="n">atmosphere</span><span class="o">.</span><span class="n">alt2pres</span><span class="p">(</span><span class="n">altitude</span><span class="o">=</span><span class="n">altitude</span><span class="p">)</span>
-            <span class="n">airmass</span> <span class="o">=</span> <span class="n">pvlib</span><span class="o">.</span><span class="n">atmosphere</span><span class="o">.</span><span class="n">get_absolute_airmass</span><span class="p">(</span><span class="n">airmass_rel</span><span class="p">,</span> <span class="n">pressure</span><span class="p">)</span>
-            <span class="n">linke_turbidity</span> <span class="o">=</span> <span class="n">pvlib</span><span class="o">.</span><span class="n">clearsky</span><span class="o">.</span><span class="n">lookup_linke_turbidity</span><span class="p">(</span><span class="n">current_date</span><span class="p">,</span>
-                                                                    <span class="bp">self</span><span class="o">.</span><span class="n">elements</span><span class="o">.</span><span class="n">lat</span><span class="p">[</span><span class="n">ind</span><span class="p">],</span>
-                                                                    <span class="bp">self</span><span class="o">.</span><span class="n">elements</span><span class="o">.</span><span class="n">lon</span><span class="p">[</span><span class="n">ind</span><span class="p">])</span>
-            <span class="n">dni_extra</span> <span class="o">=</span> <span class="n">pvlib</span><span class="o">.</span><span class="n">irradiance</span><span class="o">.</span><span class="n">get_extra_radiation</span><span class="p">(</span><span class="n">current_date</span><span class="p">)</span>
-
-            <span class="n">ineichen</span> <span class="o">=</span> <span class="n">pvlib</span><span class="o">.</span><span class="n">clearsky</span><span class="o">.</span><span class="n">ineichen</span><span class="p">(</span><span class="n">apparent_zenith</span><span class="p">,</span> <span class="n">airmass</span><span class="p">,</span> <span class="n">linke_turbidity</span><span class="p">,</span> <span class="n">altitude</span><span class="p">,</span> <span class="n">dni_extra</span><span class="p">)</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">elements</span><span class="o">.</span><span class="n">light_surface</span><span class="p">[</span><span class="n">ind</span><span class="p">]</span> <span class="o">=</span> <span class="n">ineichen</span><span class="p">[</span><span class="s2">&quot;ghi&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">to_numpy</span><span class="p">()</span>
-
-        <span class="c1"># Light at depth of larvae assuming constant attenuation (can be changed to dependent on chlorophyll)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">elements</span><span class="o">.</span><span class="n">light</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">elements</span><span class="o">.</span><span class="n">light_surface</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="n">att_coeff</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">elements</span><span class="o">.</span><span class="n">z</span><span class="p">)</span></div>
-
-<div class="viewcode-block" id="PelagicPlanktonDrift.calculate_fish_growth_rate"><a class="viewcode-back" href="../../../autoapi/opendrift/models/larvalfish/index.html#opendrift.models.larvalfish.PelagicPlanktonDrift.calculate_fish_growth_rate">[docs]</a>    <span class="k">def</span> <span class="nf">calculate_fish_growth_rate</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">wgt</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">temp</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
-        <span class="c1"># Calculate daily growth rate (SGR in percent %)</span>
-        <span class="c1"># wgt has to be in milligram. This follows Arild Folkvord 2005</span>
-        <span class="c1"># Folkvord, A. 2005. “Comparison of Size - at - Age of Larval Atlantic Cod(Gadus Morhua )</span>
-        <span class="c1"># from Different Populations Based on Size - and Temperature - Dependent Growth</span>
-        <span class="c1"># Models.” Canadian Journal of Fisheries and Aquatic Sciences.Journal Canadien Des Sciences Halieutiques</span>
-        <span class="c1"># et Aquatiques 62(5): 1037–52.</span>
-        <span class="n">GR</span> <span class="o">=</span> <span class="mf">1.08</span> <span class="o">+</span> <span class="mf">1.79</span> <span class="o">*</span> <span class="n">temp</span> <span class="o">-</span> <span class="mf">0.074</span> <span class="o">*</span> <span class="n">temp</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="n">wgt</span><span class="p">)</span> \
-             <span class="o">-</span> <span class="mf">0.0965</span> <span class="o">*</span> <span class="n">temp</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="n">wgt</span><span class="p">)</span> <span class="o">**</span> <span class="mi">2</span> \
-             <span class="o">+</span> <span class="mf">0.0112</span> <span class="o">*</span> <span class="n">temp</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="n">wgt</span><span class="p">)</span> <span class="o">**</span> <span class="mi">3</span>
-
-        <span class="c1"># Growth rate(g) converted to milligram weight (gr_mg) per timestep:</span>
-        <span class="n">sec2day</span> <span class="o">=</span> <span class="mi">1</span> <span class="o">/</span> <span class="mf">86400.0</span>
-        <span class="n">g</span> <span class="o">=</span> <span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">alog</span><span class="p">(</span><span class="n">GR</span> <span class="o">/</span> <span class="mf">100.</span> <span class="o">+</span> <span class="mi">1</span><span class="p">))</span> <span class="o">*</span> <span class="n">sec2day</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">time_step</span><span class="o">.</span><span class="n">total_seconds</span><span class="p">()</span>
-        <span class="k">return</span> <span class="n">wgt</span> <span class="o">*</span> <span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="n">g</span><span class="p">)</span> <span class="o">-</span> <span class="mf">1.</span><span class="p">)</span></div>
-
-    <span class="c1"># Add constant mortality</span>
-<div class="viewcode-block" id="PelagicPlanktonDrift.add_daily_constant_mortality"><a class="viewcode-back" href="../../../autoapi/opendrift/models/larvalfish/index.html#opendrift.models.larvalfish.PelagicPlanktonDrift.add_daily_constant_mortality">[docs]</a>    <span class="k">def</span> <span class="nf">add_daily_constant_mortality</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="n">mort</span> <span class="o">=</span> <span class="mf">0.17</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">elements</span><span class="o">.</span><span class="n">survival</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">elements</span><span class="o">.</span><span class="n">survival</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="o">-</span><span class="n">mort</span><span class="p">)</span></div>
-
-<div class="viewcode-block" id="PelagicPlanktonDrift.update_vertial_position_dynamic_range"><a class="viewcode-back" href="../../../autoapi/opendrift/models/larvalfish/index.html#opendrift.models.larvalfish.PelagicPlanktonDrift.update_vertial_position_dynamic_range">[docs]</a>    <span class="k">def</span> <span class="nf">update_vertial_position_dynamic_range</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">length</span><span class="p">,</span>
-                                              <span class="n">old_light</span><span class="p">,</span>
-                                              <span class="n">current_light</span><span class="p">,</span>
-                                              <span class="n">current_depth</span><span class="p">):</span>
-
-        <span class="c1"># Update the vertical position of the current larva using length (in mm) to calculate</span>
-        <span class="c1"># ma hourly move in meters</span>
-        <span class="n">mm2m</span> <span class="o">=</span> <span class="mf">1.</span> <span class="o">/</span> <span class="mf">1000.</span>
-        <span class="c1"># Swim function from Peck et al. 2006</span>
-        <span class="n">swim_speed</span> <span class="o">=</span> <span class="mf">0.5</span> <span class="o">*</span> <span class="n">length</span> <span class="o">*</span> <span class="n">mm2m</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">time_step</span><span class="o">.</span><span class="n">total_seconds</span><span class="p">()</span>
-        <span class="n">max_hourly_move</span> <span class="o">=</span> <span class="n">swim_speed</span> <span class="o">*</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">time_step</span><span class="o">.</span><span class="n">total_seconds</span><span class="p">()</span> <span class="o">/</span> <span class="mf">3600.</span><span class="p">)</span>
-
-        <span class="k">if</span> <span class="n">old_light</span> <span class="o">&lt;=</span> <span class="n">current_light</span><span class="p">:</span>  <span class="c1"># If light increases and stomach is sufficiently full, go down</span>
-            <span class="n">depth</span> <span class="o">=</span> <span class="nb">min</span><span class="p">(</span><span class="mf">0.0</span><span class="p">,</span> <span class="n">current_depth</span> <span class="o">-</span> <span class="n">max_hourly_move</span><span class="p">)</span>
-        <span class="k">else</span><span class="p">:</span>  <span class="c1"># If light decreases or stomach is not sufficiently full, go up</span>
-            <span class="n">depth</span> <span class="o">=</span> <span class="nb">min</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">current_depth</span> <span class="o">+</span> <span class="n">max_hourly_move</span><span class="p">)</span>
-        <span class="k">return</span> <span class="n">depth</span></div>
-
-<div class="viewcode-block" id="PelagicPlanktonDrift.update_terminal_velocity"><a class="viewcode-back" href="../../../autoapi/opendrift/models/larvalfish/index.html#opendrift.models.larvalfish.PelagicPlanktonDrift.update_terminal_velocity">[docs]</a>    <span class="k">def</span> <span class="nf">update_terminal_velocity</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">Tprofiles</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+<div class="viewcode-block" id="LarvalFish.update_terminal_velocity"><a class="viewcode-back" href="../../../autoapi/opendrift/models/larvalfish/index.html#opendrift.models.larvalfish.LarvalFish.update_terminal_velocity">[docs]</a>    <span class="k">def</span> <span class="nf">update_terminal_velocity</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">Tprofiles</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
                                  <span class="n">Sprofiles</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">z_index</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Calculate terminal velocity for Pelagic Egg</span>
 
@@ -463,74 +346,95 @@
         <span class="n">W</span><span class="p">[</span><span class="n">highRe</span><span class="p">]</span> <span class="o">=</span> <span class="n">W2</span><span class="p">[</span><span class="n">highRe</span><span class="p">]</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">elements</span><span class="o">.</span><span class="n">terminal_velocity</span> <span class="o">=</span> <span class="n">W</span></div>
 
-<div class="viewcode-block" id="PelagicPlanktonDrift.calculate_length"><a class="viewcode-back" href="../../../autoapi/opendrift/models/larvalfish/index.html#opendrift.models.larvalfish.PelagicPlanktonDrift.calculate_length">[docs]</a>    <span class="k">def</span> <span class="nf">calculate_length</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">wgt</span><span class="p">,</span> <span class="n">Larval_m</span><span class="p">):</span>
-        <span class="c1"># Calculate length based on weight (mg)</span>
-        <span class="n">oldLarval_m</span> <span class="o">=</span> <span class="n">Larval_m</span>
-        <span class="n">Larval_m</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="mf">2.296</span> <span class="o">+</span> <span class="mf">0.277</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="n">wgt</span><span class="p">)</span> <span class="o">-</span> <span class="mf">0.005128</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="n">wgt</span><span class="p">)</span> <span class="o">**</span> <span class="mi">2</span><span class="p">)</span>
-        <span class="k">if</span> <span class="n">Larval_m</span> <span class="o">&lt;</span> <span class="n">oldLarval_m</span><span class="p">:</span>
-            <span class="n">Larval_m</span> <span class="o">=</span> <span class="n">oldLarval_m</span>
-            <span class="c1"># print &#39;Kept the old length&#39;, oldLarval_m, Larval_m</span>
 
-        <span class="k">return</span> <span class="n">Larval_m</span></div>
+<div class="viewcode-block" id="LarvalFish.fish_growth"><a class="viewcode-back" href="../../../autoapi/opendrift/models/larvalfish/index.html#opendrift.models.larvalfish.LarvalFish.fish_growth">[docs]</a>    <span class="k">def</span> <span class="nf">fish_growth</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">weight</span><span class="p">,</span> <span class="n">temperature</span><span class="p">):</span>
+        <span class="c1"># Weight in milligrams, temperature in celcius</span>
+        <span class="c1"># Daily growth rate in percent according to</span>
+        <span class="c1"># Folkvord, A. 2005. &quot;Comparison of Size - at - Age of Larval Atlantic Cod(Gadus Morhua )</span>
+        <span class="c1"># from Different Populations Based on Size - and Temperature - Dependent Growth</span>
+        <span class="c1"># Models.&quot; Canadian Journal of Fisheries and Aquatic Sciences.</span>
+        <span class="c1"># Journal Canadien Des Sciences Halieutiques # et Aquatiques 62(5): 1037-52.</span>
+        <span class="n">GR</span> <span class="o">=</span> <span class="mf">1.08</span> <span class="o">+</span> <span class="mf">1.79</span> <span class="o">*</span> <span class="n">temperature</span> <span class="o">-</span> <span class="mf">0.074</span> <span class="o">*</span> <span class="n">temperature</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="n">weight</span><span class="p">)</span> \
+             <span class="o">-</span> <span class="mf">0.0965</span> <span class="o">*</span> <span class="n">temperature</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="n">weight</span><span class="p">)</span> <span class="o">**</span> <span class="mi">2</span> \
+             <span class="o">+</span> <span class="mf">0.0112</span> <span class="o">*</span> <span class="n">temperature</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="n">weight</span><span class="p">)</span> <span class="o">**</span> <span class="mi">3</span>
 
-<div class="viewcode-block" id="PelagicPlanktonDrift.update_fish_larvae"><a class="viewcode-back" href="../../../autoapi/opendrift/models/larvalfish/index.html#opendrift.models.larvalfish.PelagicPlanktonDrift.update_fish_larvae">[docs]</a>    <span class="k">def</span> <span class="nf">update_fish_larvae</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="c1"># Growth rate(g) converted to milligram weight (gr_mg) per timestep:</span>
+        <span class="n">g</span> <span class="o">=</span> <span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="n">GR</span> <span class="o">/</span> <span class="mf">100.</span> <span class="o">+</span> <span class="mi">1</span><span class="p">))</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">time_step</span><span class="o">.</span><span class="n">total_seconds</span><span class="p">()</span><span class="o">/</span><span class="mi">86400</span>  
+        <span class="k">return</span> <span class="n">weight</span> <span class="o">*</span> <span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="n">g</span><span class="p">)</span> <span class="o">-</span> <span class="mf">1.</span><span class="p">)</span></div>
 
-        <span class="c1"># LIGHT UPDATE</span>
-        <span class="c1"># Save the light from previous time-step to use for vertical behavior</span>
-        <span class="n">last_light</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">elements</span><span class="o">.</span><span class="n">light_surface</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">update_surface_light</span><span class="p">()</span>
+<div class="viewcode-block" id="LarvalFish.update_vertial_position_dynamic_range"><a class="viewcode-back" href="../../../autoapi/opendrift/models/larvalfish/index.html#opendrift.models.larvalfish.LarvalFish.update_vertial_position_dynamic_range">[docs]</a>    <span class="k">def</span> <span class="nf">update_vertial_position_dynamic_range</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">length</span><span class="p">,</span>
+                                              <span class="n">old_light</span><span class="p">,</span>
+                                              <span class="n">current_light</span><span class="p">,</span>
+                                              <span class="n">current_depth</span><span class="p">):</span>
+        <span class="c1"># Update the vertical position of the current larva using length (in mm) to calculate</span>
+        <span class="c1"># ma hourly move in meters</span>
+        <span class="n">mm2m</span> <span class="o">=</span> <span class="mf">1.</span> <span class="o">/</span> <span class="mf">1000.</span>
+        <span class="c1"># Swim function from Peck et al. 2006</span>
+        <span class="n">swim_speed</span> <span class="o">=</span> <span class="mf">0.5</span> <span class="o">*</span> <span class="n">length</span> <span class="o">*</span> <span class="n">mm2m</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">time_step</span><span class="o">.</span><span class="n">total_seconds</span><span class="p">()</span>
+        <span class="n">max_hourly_move</span> <span class="o">=</span> <span class="n">swim_speed</span> <span class="o">*</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">time_step</span><span class="o">.</span><span class="n">total_seconds</span><span class="p">()</span> <span class="o">/</span> <span class="mf">3600.</span><span class="p">)</span>
 
-        <span class="n">dt</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">time_step</span><span class="o">.</span><span class="n">total_seconds</span><span class="p">()</span>
-        <span class="n">temp</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">environment</span><span class="o">.</span><span class="n">sea_water_temperature</span>
+        <span class="k">if</span> <span class="n">old_light</span> <span class="o">&lt;=</span> <span class="n">current_light</span><span class="p">:</span>  <span class="c1"># If light increases and stomach is sufficiently full, go down</span>
+            <span class="n">depth</span> <span class="o">=</span> <span class="nb">min</span><span class="p">(</span><span class="mf">0.0</span><span class="p">,</span> <span class="n">current_depth</span> <span class="o">-</span> <span class="n">max_hourly_move</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>  <span class="c1"># If light decreases or stomach is not sufficiently full, go up</span>
+            <span class="n">depth</span> <span class="o">=</span> <span class="nb">min</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">current_depth</span> <span class="o">+</span> <span class="n">max_hourly_move</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">depth</span></div>
 
-        <span class="c1"># FISH UPDATE</span>
-        <span class="n">length</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">elements</span><span class="o">.</span><span class="n">length</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">elements</span><span class="o">.</span><span class="n">weight</span> <span class="o">+=</span> <span class="bp">self</span><span class="o">.</span><span class="n">calculate_fish_growth_rate</span><span class="p">(</span><span class="n">dt</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">elements</span><span class="o">.</span><span class="n">weight</span><span class="p">,</span> <span class="n">temp</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">elements</span><span class="o">.</span><span class="n">length</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">calculate_length</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">elements</span><span class="o">.</span><span class="n">weight</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">elements</span><span class="o">.</span><span class="n">length</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">add_daily_constant_mortality</span><span class="p">()</span>
-        <span class="c1"># Update status  according to survival probability</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">elements</span><span class="o">.</span><span class="n">status</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">elements</span><span class="o">.</span><span class="n">survival</span> <span class="o">==</span> <span class="mi">0</span><span class="p">)]</span> <span class="o">=</span> <span class="mi">0</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">elements</span><span class="o">.</span><span class="n">age</span> <span class="o">+=</span> <span class="n">dt</span>
+<div class="viewcode-block" id="LarvalFish.update_fish_larvae"><a class="viewcode-back" href="../../../autoapi/opendrift/models/larvalfish/index.html#opendrift.models.larvalfish.LarvalFish.update_fish_larvae">[docs]</a>    <span class="k">def</span> <span class="nf">update_fish_larvae</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 
-        <span class="c1"># VERTICAL POSITION UPDATE</span>
-        <span class="k">for</span> <span class="n">ind</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">elements</span><span class="o">.</span><span class="n">lat</span><span class="p">)):</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">elements</span><span class="o">.</span><span class="n">z</span><span class="p">[</span><span class="n">ind</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">update_vertial_position_dynamic_range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">elements</span><span class="o">.</span><span class="n">length</span><span class="p">[</span><span class="n">ind</span><span class="p">],</span>
-                                                                              <span class="n">last_light</span><span class="p">[</span><span class="n">ind</span><span class="p">],</span>
-                                                                              <span class="bp">self</span><span class="o">.</span><span class="n">elements</span><span class="o">.</span><span class="n">light</span><span class="p">[</span><span class="n">ind</span><span class="p">],</span>
-                                                                              <span class="bp">self</span><span class="o">.</span><span class="n">elements</span><span class="o">.</span><span class="n">z</span><span class="p">[</span><span class="n">ind</span><span class="p">])</span></div>
+        <span class="c1"># Hatching after given number of days - to be improved</span>
+        <span class="n">days_to_hatching</span> <span class="o">=</span> <span class="mi">20</span>
+        <span class="n">hatching</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">((</span><span class="bp">self</span><span class="o">.</span><span class="n">elements</span><span class="o">.</span><span class="n">hatched</span><span class="o">==</span><span class="mi">0</span><span class="p">)</span> <span class="o">&amp;</span>
+                            <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">elements</span><span class="o">.</span><span class="n">age_seconds</span><span class="o">&gt;</span><span class="mi">3600</span><span class="o">*</span><span class="mi">24</span><span class="o">*</span><span class="n">days_to_hatching</span><span class="p">))[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">hatching</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;Hatching </span><span class="si">%s</span><span class="s1"> eggs&#39;</span> <span class="o">%</span> <span class="nb">len</span><span class="p">(</span><span class="n">hatching</span><span class="p">))</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">elements</span><span class="o">.</span><span class="n">hatched</span><span class="p">[</span><span class="n">hatching</span><span class="p">]</span> <span class="o">=</span> <span class="mi">1</span>
 
-<div class="viewcode-block" id="PelagicPlanktonDrift.update"><a class="viewcode-back" href="../../../autoapi/opendrift/models/larvalfish/index.html#opendrift.models.larvalfish.PelagicPlanktonDrift.update">[docs]</a>    <span class="k">def</span> <span class="nf">update</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">larvae</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">elements</span><span class="o">.</span><span class="n">hatched</span><span class="o">==</span><span class="mi">1</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">larvae</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="k">return</span>
 
-        <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        MAIN:</span>
+        <span class="c1"># Increasing weight of larvae</span>
+        <span class="n">avg_weight_before</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">elements</span><span class="o">.</span><span class="n">weight</span><span class="p">[</span><span class="n">larvae</span><span class="p">]</span><span class="o">.</span><span class="n">mean</span><span class="p">()</span>
+        <span class="n">growth</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">fish_growth</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">elements</span><span class="o">.</span><span class="n">weight</span><span class="p">[</span><span class="n">larvae</span><span class="p">],</span>
+                                  <span class="bp">self</span><span class="o">.</span><span class="n">environment</span><span class="o">.</span><span class="n">sea_water_temperature</span><span class="p">[</span><span class="n">larvae</span><span class="p">])</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">elements</span><span class="o">.</span><span class="n">weight</span><span class="p">[</span><span class="n">larvae</span><span class="p">]</span> <span class="o">+=</span> <span class="n">growth</span>
+        <span class="n">avg_weight_after</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">elements</span><span class="o">.</span><span class="n">weight</span><span class="p">[</span><span class="n">larvae</span><span class="p">]</span><span class="o">.</span><span class="n">mean</span><span class="p">()</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;Growing </span><span class="si">%s</span><span class="s1"> larve from average size </span><span class="si">%s</span><span class="s1"> to </span><span class="si">%s</span><span class="s1">&#39;</span> <span class="o">%</span>
+              <span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">larvae</span><span class="p">),</span> <span class="n">avg_weight_before</span><span class="p">,</span> <span class="n">avg_weight_after</span><span class="p">))</span>
+    
+        <span class="c1"># Increasing length of larvae</span>
+        <span class="n">w</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">elements</span><span class="o">.</span><span class="n">weight</span><span class="p">[</span><span class="n">larvae</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">elements</span><span class="o">.</span><span class="n">length</span><span class="p">[</span><span class="n">larvae</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="mf">2.296</span> <span class="o">+</span> <span class="mf">0.277</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="n">w</span><span class="p">)</span> <span class="o">-</span> <span class="mf">0.005128</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="n">w</span><span class="p">)</span> <span class="o">**</span> <span class="mi">2</span><span class="p">)</span>  <span class="c1"># TODO: Check last ** 2</span></div>
 
-<span class="sd">        Update positions and properties of buoyant particles.</span>
-<span class="sd">        Here you can turn on or off which physical properties you want to include:</span>
-<span class="sd">        vertical advection</span>
-<span class="sd">        horizontal advection</span>
-<span class="sd">        vertical mixingpelagicegg</span>
-<span class="sd">        terminal velocity (sinking / buoyancy of eggs/larvae)</span>
-<span class="sd">        vertical behavior (in update_larval_fish)</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<div class="viewcode-block" id="LarvalFish.larvae_vertical_migration"><a class="viewcode-back" href="../../../autoapi/opendrift/models/larvalfish/index.html#opendrift.models.larvalfish.LarvalFish.larvae_vertical_migration">[docs]</a>    <span class="k">def</span> <span class="nf">larvae_vertical_migration</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 
-        <span class="c1"># Update element age</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">elements</span><span class="o">.</span><span class="n">age_seconds</span> <span class="o">+=</span> <span class="bp">self</span><span class="o">.</span><span class="n">time_step</span><span class="o">.</span><span class="n">total_seconds</span><span class="p">()</span>
+        <span class="n">larvae</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">elements</span><span class="o">.</span><span class="n">hatched</span><span class="o">==</span><span class="mi">1</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">larvae</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="k">return</span>
 
-        <span class="c1"># Turn off terminal velocity (sinking) before calculating vertical mixing</span>
-        <span class="c1"># Turn on mixing through &#39;processes:turbulentmixing&#39; in run_ibm.py</span>
+        <span class="c1"># Vertical migration of Larvae</span>
+        <span class="c1"># Swim function from Peck et al. 2006</span>
+        <span class="n">L</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">elements</span><span class="o">.</span><span class="n">length</span><span class="p">[</span><span class="n">larvae</span><span class="p">]</span>
+        <span class="n">swim_speed</span> <span class="o">=</span> <span class="p">(</span><span class="mf">0.261</span><span class="o">*</span><span class="p">(</span><span class="n">L</span><span class="o">**</span><span class="p">(</span><span class="mf">1.552</span><span class="o">*</span><span class="n">L</span><span class="o">**</span><span class="p">(</span><span class="o">-</span><span class="mf">0.08</span><span class="p">)))</span> <span class="o">-</span> <span class="mf">5.289</span><span class="o">/</span><span class="n">L</span><span class="p">)</span> <span class="o">/</span> <span class="mi">1000</span>
+        <span class="n">f</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_config</span><span class="p">(</span><span class="s1">&#39;IBM:fraction_of_timestep_swimming&#39;</span><span class="p">)</span>
+        <span class="n">max_migration_per_timestep</span> <span class="o">=</span> <span class="n">f</span><span class="o">*</span><span class="n">swim_speed</span><span class="o">*</span><span class="bp">self</span><span class="o">.</span><span class="n">time_step</span><span class="o">.</span><span class="n">total_seconds</span><span class="p">()</span>
 
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">stage</span><span class="o">==</span><span class="s2">&quot;egg&quot;</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">update_terminal_velocity</span><span class="p">()</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">vertical_mixing</span><span class="p">()</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">advect_ocean_current</span><span class="p">()</span>
+        <span class="c1"># Using here UTC hours. Should be changed to local solar time,</span>
+        <span class="c1"># although a phase shift of some hours should not make much difference</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">time</span><span class="o">.</span><span class="n">hour</span> <span class="o">&lt;</span> <span class="mi">12</span><span class="p">:</span>
+            <span class="n">direction</span> <span class="o">=</span> <span class="o">-</span><span class="mi">1</span>  <span class="c1"># Swimming down when light is increasing</span>
         <span class="k">else</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">elements</span><span class="o">.</span><span class="n">terminal_velocity</span> <span class="o">=</span> <span class="mf">0.0</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">vertical_mixing</span><span class="p">()</span>
+            <span class="n">direction</span> <span class="o">=</span> <span class="mi">1</span>  <span class="c1"># Swimming up when light is decreasing</span>
 
-            <span class="c1"># Update the growth and vertical position of each individual</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">update_fish_larvae</span><span class="p">()</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">advect_ocean_current</span><span class="p">()</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">vertical_advection</span><span class="p">()</span></div></div>
+        <span class="bp">self</span><span class="o">.</span><span class="n">elements</span><span class="o">.</span><span class="n">z</span><span class="p">[</span><span class="n">larvae</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">minimum</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">elements</span><span class="o">.</span><span class="n">z</span><span class="p">[</span><span class="n">larvae</span><span class="p">]</span> <span class="o">+</span> <span class="n">direction</span><span class="o">*</span><span class="n">max_migration_per_timestep</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="LarvalFish.update"><a class="viewcode-back" href="../../../autoapi/opendrift/models/larvalfish/index.html#opendrift.models.larvalfish.LarvalFish.update">[docs]</a>    <span class="k">def</span> <span class="nf">update</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">update_fish_larvae</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">advect_ocean_current</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">update_terminal_velocity</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">vertical_mixing</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">larvae_vertical_migration</span><span class="p">()</span></div></div>
 </pre></div>
 
            </div>
