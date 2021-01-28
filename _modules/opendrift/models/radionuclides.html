@@ -254,10 +254,10 @@
         <span class="s1">&#39;ocean_vertical_diffusivity&#39;</span><span class="p">:</span> <span class="p">{</span><span class="s1">&#39;fallback&#39;</span><span class="p">:</span> <span class="mf">0.0001</span><span class="p">,</span> <span class="s1">&#39;profiles&#39;</span><span class="p">:</span> <span class="kc">True</span><span class="p">},</span>
         <span class="s1">&#39;sea_water_temperature&#39;</span><span class="p">:</span> <span class="p">{</span><span class="s1">&#39;fallback&#39;</span><span class="p">:</span> <span class="mi">10</span><span class="p">,</span> <span class="s1">&#39;profiles&#39;</span><span class="p">:</span> <span class="kc">True</span><span class="p">},</span>
         <span class="s1">&#39;sea_water_salinity&#39;</span><span class="p">:</span> <span class="p">{</span><span class="s1">&#39;fallback&#39;</span><span class="p">:</span> <span class="mi">34</span><span class="p">,</span> <span class="s1">&#39;profiles&#39;</span><span class="p">:</span> <span class="kc">True</span><span class="p">},</span>
-        <span class="s1">&#39;surface_downward_x_stress&#39;</span><span class="p">:</span> <span class="p">{</span><span class="s1">&#39;fallback&#39;</span><span class="p">:</span> <span class="mi">0</span><span class="p">},</span>
-        <span class="s1">&#39;surface_downward_y_stress&#39;</span><span class="p">:</span> <span class="p">{</span><span class="s1">&#39;fallback&#39;</span><span class="p">:</span> <span class="mi">0</span><span class="p">},</span>
-        <span class="s1">&#39;turbulent_kinetic_energy&#39;</span><span class="p">:</span> <span class="p">{</span><span class="s1">&#39;fallback&#39;</span><span class="p">:</span> <span class="mi">0</span><span class="p">},</span>
-        <span class="s1">&#39;turbulent_generic_length_scale&#39;</span><span class="p">:</span> <span class="p">{</span><span class="s1">&#39;fallback&#39;</span><span class="p">:</span> <span class="mi">0</span><span class="p">},</span>
+<span class="c1">#        &#39;surface_downward_x_stress&#39;: {&#39;fallback&#39;: 0},</span>
+<span class="c1">#        &#39;surface_downward_y_stress&#39;: {&#39;fallback&#39;: 0},</span>
+<span class="c1">#        &#39;turbulent_kinetic_energy&#39;: {&#39;fallback&#39;: 0},</span>
+<span class="c1">#        &#39;turbulent_generic_length_scale&#39;: {&#39;fallback&#39;: 0},</span>
         <span class="s1">&#39;upward_sea_water_velocity&#39;</span><span class="p">:</span> <span class="p">{</span><span class="s1">&#39;fallback&#39;</span><span class="p">:</span> <span class="mi">0</span><span class="p">},</span>
         <span class="s1">&#39;conc3&#39;</span><span class="p">:</span> <span class="p">{</span><span class="s1">&#39;fallback&#39;</span><span class="p">:</span> <span class="mf">1.e-3</span><span class="p">},</span>
         <span class="p">}</span>
@@ -376,7 +376,6 @@
                 <span class="s1">&#39;level&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">CONFIG_LEVEL_ADVANCED</span><span class="p">,</span> <span class="s1">&#39;description&#39;</span><span class="p">:</span> <span class="s1">&#39;&#39;</span><span class="p">},</span>
             <span class="p">})</span>
 
-        <span class="bp">self</span><span class="o">.</span><span class="n">_set_config_default</span><span class="p">(</span><span class="s1">&#39;drift:vertical_mixing&#39;</span><span class="p">,</span> <span class="kc">True</span><span class="p">)</span>
 
 
 
@@ -458,16 +457,13 @@
             <span class="bp">self</span><span class="o">.</span><span class="n">set_config</span><span class="p">(</span><span class="s1">&#39;radionuclide:irreversible_fraction&#39;</span><span class="p">,</span> <span class="kc">True</span><span class="p">)</span>
 
 
-        <span class="bp">self</span><span class="o">.</span><span class="n">nspecies</span>      <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">name_species</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">nspecies</span>      <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">name_species</span><span class="p">)</span></div>
 <span class="c1">#         logger.info( &#39;Number of species: {}&#39;.format(self.nspecies) )</span>
 <span class="c1">#         for i,sp in enumerate(self.name_species):</span>
 <span class="c1">#             logger.info( &#39;{:&gt;3} {}&#39;.format( i, sp ) )</span>
 
 
 
-        <span class="c1"># Make sure vertical mixing is active when particles are simulated</span>
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_config</span><span class="p">(</span><span class="s1">&#39;radionuclide:species:Particle_reversible&#39;</span><span class="p">):</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">set_config</span><span class="p">(</span><span class="s1">&#39;drift:vertical_mixing&#39;</span><span class="p">,</span> <span class="kc">True</span><span class="p">)</span></div>
 
 
 
@@ -1077,8 +1073,12 @@
 
         <span class="c1"># Turbulent Mixing</span>
         <span class="n">z_before</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">elements</span><span class="o">.</span><span class="n">z</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">update_terminal_velocity</span><span class="p">()</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">vertical_mixing</span><span class="p">()</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_config</span><span class="p">(</span><span class="s1">&#39;drift:vertical_mixing&#39;</span><span class="p">)</span> <span class="ow">is</span> <span class="kc">True</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">update_terminal_velocity</span><span class="p">()</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">vertical_mixing</span><span class="p">()</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">update_terminal_velocity</span><span class="p">()</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">vertical_buoyancy</span><span class="p">()</span>
 
 
         <span class="c1"># Resuspension</span>
