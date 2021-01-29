@@ -214,6 +214,10 @@
     <span class="n">interpolation</span> <span class="o">=</span> <span class="s1">&#39;linearNDFast&#39;</span>
     <span class="n">convolve</span> <span class="o">=</span> <span class="kc">None</span>  <span class="c1"># Convolution kernel or kernel size</span>
 
+    <span class="c1"># Used to enable and track status of parallel coordinate transformations.</span>
+    <span class="n">__lonlat2xy_parallel__</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">__disable_parallel__</span> <span class="o">=</span> <span class="kc">False</span>
+
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">proj</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">and</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">proj4</span> <span class="ow">is</span> <span class="kc">None</span>
                                   <span class="ow">or</span> <span class="bp">self</span><span class="o">.</span><span class="n">proj4</span> <span class="o">==</span> <span class="s1">&#39;fakeproj&#39;</span><span class="p">):</span>
@@ -539,72 +543,39 @@
 
 <div class="viewcode-block" id="StructuredReader.lonlat2xy"><a class="viewcode-back" href="../../../../autoapi/opendrift/readers/basereader/structured/index.html#opendrift.readers.basereader.StructuredReader.lonlat2xy">[docs]</a>    <span class="k">def</span> <span class="nf">lonlat2xy</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">lon</span><span class="p">,</span> <span class="n">lat</span><span class="p">):</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">projected</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">__lonlat2xy_parallel__</span> <span class="o">=</span> <span class="kc">False</span>
             <span class="k">return</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">lonlat2xy</span><span class="p">(</span><span class="n">lon</span><span class="p">,</span> <span class="n">lat</span><span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
-            <span class="c1"># Two methods needed for parallelisation</span>
-            <span class="k">def</span> <span class="nf">get_x</span><span class="p">(</span><span class="n">lon_part</span><span class="p">,</span> <span class="n">lat_part</span><span class="p">,</span> <span class="n">num</span><span class="p">):</span>
-                <span class="n">out_x</span><span class="p">[</span><span class="n">num</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">spl_x</span><span class="p">(</span><span class="n">lon_part</span><span class="p">,</span> <span class="n">lat_part</span><span class="p">)</span>
-
-            <span class="k">def</span> <span class="nf">get_y</span><span class="p">(</span><span class="n">lon_part</span><span class="p">,</span> <span class="n">lat_part</span><span class="p">,</span> <span class="n">num</span><span class="p">):</span>
-                <span class="n">out_y</span><span class="p">[</span><span class="n">num</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">spl_y</span><span class="p">(</span><span class="n">lon_part</span><span class="p">,</span> <span class="n">lat_part</span><span class="p">)</span>
-
-            <span class="c1"># TODO: Use ThreadPool, maximum number of threads should not exceed</span>
-            <span class="c1"># available cpus.</span>
-
             <span class="c1"># For larger arrays, we split and calculate in parallel</span>
-            <span class="c1"># The number of CPUs to use can be improved/optimised</span>
             <span class="n">num_elements</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">atleast_1d</span><span class="p">(</span><span class="n">lon</span><span class="p">))</span>
-            <span class="k">if</span> <span class="n">num_elements</span> <span class="o">&gt;</span> <span class="mi">100</span> <span class="ow">and</span> <span class="ow">not</span> <span class="nb">hasattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span>
-                                                  <span class="s1">&#39;multiprocessing_fail&#39;</span><span class="p">):</span>
-                <span class="k">try</span><span class="p">:</span>
-                    <span class="n">nproc</span> <span class="o">=</span> <span class="mi">2</span>
-                    <span class="k">if</span> <span class="n">num_elements</span> <span class="o">&gt;</span> <span class="mi">1000</span><span class="p">:</span>
-                        <span class="n">nproc</span> <span class="o">=</span> <span class="mi">16</span>
-                    <span class="k">if</span> <span class="n">num_elements</span> <span class="o">&gt;</span> <span class="mi">100000</span><span class="p">:</span>
-                        <span class="n">nproc</span> <span class="o">=</span> <span class="mi">32</span>
-                    <span class="k">if</span> <span class="n">num_elements</span> <span class="o">&gt;</span> <span class="mi">1000000</span><span class="p">:</span>
-                        <span class="n">nproc</span> <span class="o">=</span> <span class="mi">64</span>
-                    <span class="kn">from</span> <span class="nn">multiprocessing</span> <span class="kn">import</span> <span class="n">cpu_count</span><span class="p">,</span> <span class="n">Manager</span><span class="p">,</span> <span class="n">Process</span>
-                    <span class="n">cpus</span> <span class="o">=</span> <span class="n">cpu_count</span><span class="p">()</span>
-                    <span class="n">nproc</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">minimum</span><span class="p">(</span><span class="n">nproc</span><span class="p">,</span> <span class="n">cpus</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span>
-                    <span class="n">nproc</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">maximum</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="n">nproc</span><span class="p">)</span>
-                    <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span>
-                        <span class="s1">&#39;Running lonlat2xy in parallel, using </span><span class="si">%i</span><span class="s1"> of </span><span class="si">%i</span><span class="s1"> CPUs&#39;</span> <span class="o">%</span>
-                        <span class="p">(</span><span class="n">nproc</span><span class="p">,</span> <span class="n">cpus</span><span class="p">))</span>
-                    <span class="n">split_lon</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array_split</span><span class="p">(</span><span class="n">lon</span><span class="p">,</span> <span class="n">nproc</span><span class="p">)</span>
-                    <span class="n">split_lat</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array_split</span><span class="p">(</span><span class="n">lat</span><span class="p">,</span> <span class="n">nproc</span><span class="p">)</span>
-                    <span class="n">out_x</span> <span class="o">=</span> <span class="n">Manager</span><span class="p">()</span><span class="o">.</span><span class="n">dict</span><span class="p">()</span>
-                    <span class="n">out_y</span> <span class="o">=</span> <span class="n">Manager</span><span class="p">()</span><span class="o">.</span><span class="n">dict</span><span class="p">()</span>
-                    <span class="n">processes</span> <span class="o">=</span> <span class="p">[]</span>
-                    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">nproc</span><span class="p">):</span>
-                        <span class="n">processes</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
-                            <span class="n">Process</span><span class="p">(</span><span class="n">target</span><span class="o">=</span><span class="n">get_x</span><span class="p">,</span>
-                                    <span class="n">args</span><span class="o">=</span><span class="p">(</span><span class="n">split_lon</span><span class="p">[</span><span class="n">i</span><span class="p">],</span> <span class="n">split_lat</span><span class="p">[</span><span class="n">i</span><span class="p">],</span> <span class="n">i</span><span class="p">)))</span>
-                        <span class="n">processes</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
-                            <span class="n">Process</span><span class="p">(</span><span class="n">target</span><span class="o">=</span><span class="n">get_y</span><span class="p">,</span>
-                                    <span class="n">args</span><span class="o">=</span><span class="p">(</span><span class="n">split_lon</span><span class="p">[</span><span class="n">i</span><span class="p">],</span> <span class="n">split_lat</span><span class="p">[</span><span class="n">i</span><span class="p">],</span> <span class="n">i</span><span class="p">)))</span>
-                    <span class="p">[</span><span class="n">p</span><span class="o">.</span><span class="n">start</span><span class="p">()</span> <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">processes</span><span class="p">]</span>
-                    <span class="p">[</span><span class="n">p</span><span class="o">.</span><span class="n">join</span><span class="p">()</span> <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">processes</span><span class="p">]</span>
-                    <span class="n">x</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">concatenate</span><span class="p">(</span><span class="n">out_x</span><span class="p">)</span>
-                    <span class="n">y</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">concatenate</span><span class="p">(</span><span class="n">out_y</span><span class="p">)</span>
-                    <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;Completed lonlat2xy in parallel&#39;</span><span class="p">)</span>
-                    <span class="k">return</span> <span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">)</span>
-                <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
-                    <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="s1">&#39;Parallelprocessing failed:&#39;</span><span class="p">)</span>
-                    <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="n">e</span><span class="p">)</span>
-                    <span class="bp">self</span><span class="o">.</span><span class="n">multiprocessing_fail</span> <span class="o">=</span> <span class="kc">True</span>
+            <span class="k">if</span> <span class="n">num_elements</span> <span class="o">&gt;</span> <span class="mi">10000</span> <span class="ow">and</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">__disable_parallel__</span><span class="p">:</span>
+                <span class="kn">from</span> <span class="nn">multiprocessing</span> <span class="kn">import</span> <span class="n">cpu_count</span>
+                <span class="kn">from</span> <span class="nn">concurrent.futures</span> <span class="kn">import</span> <span class="n">ThreadPoolExecutor</span>
+
+                <span class="bp">self</span><span class="o">.</span><span class="n">__lonlat2xy_parallel__</span> <span class="o">=</span> <span class="kc">True</span>
+
+                <span class="n">nproc</span> <span class="o">=</span> <span class="n">cpu_count</span><span class="p">()</span>
+                <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;Running lonlat2xy in parallel using </span><span class="si">%d</span><span class="s1"> threads&#39;</span> <span class="o">%</span>
+                             <span class="n">nproc</span><span class="p">)</span>
+
+                <span class="c1"># Chunk arrays</span>
+                <span class="n">split_lon</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array_split</span><span class="p">(</span><span class="n">lon</span><span class="p">,</span> <span class="n">nproc</span><span class="p">)</span>
+                <span class="n">split_lat</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array_split</span><span class="p">(</span><span class="n">lat</span><span class="p">,</span> <span class="n">nproc</span><span class="p">)</span>
+
+                <span class="k">with</span> <span class="n">ThreadPoolExecutor</span><span class="p">()</span> <span class="k">as</span> <span class="n">x</span><span class="p">:</span>
+                    <span class="n">out_x</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">concatenate</span><span class="p">(</span>
+                        <span class="nb">list</span><span class="p">(</span><span class="n">x</span><span class="o">.</span><span class="n">map</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">spl_x</span><span class="p">,</span> <span class="nb">zip</span><span class="p">(</span><span class="n">split_lon</span><span class="p">,</span> <span class="n">split_lat</span><span class="p">))))</span>
+                    <span class="n">out_y</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">concatenate</span><span class="p">(</span>
+                        <span class="nb">list</span><span class="p">(</span><span class="n">x</span><span class="o">.</span><span class="n">map</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">spl_y</span><span class="p">,</span> <span class="nb">zip</span><span class="p">(</span><span class="n">split_lon</span><span class="p">,</span> <span class="n">split_lat</span><span class="p">))))</span>
+
+                <span class="k">return</span> <span class="p">(</span><span class="n">out_x</span><span class="p">,</span> <span class="n">out_y</span><span class="p">)</span>
+
             <span class="k">else</span><span class="p">:</span>
-                <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s1">&#39;multiprocessing_fail&#39;</span><span class="p">):</span>
-                    <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span>
-                        <span class="s1">&#39;Multiprocessing has previously failed, reverting to using single processor for lonlat -&gt; xy&#39;</span>
-                    <span class="p">)</span>
-                <span class="k">else</span><span class="p">:</span>
-                    <span class="c1"># For smaller arrays, we run sequentially</span>
-                    <span class="k">pass</span>
-            <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;Calculating lonlat-&gt;xy sequentially&#39;</span><span class="p">)</span>
-            <span class="n">x</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">spl_x</span><span class="p">(</span><span class="n">lon</span><span class="p">,</span> <span class="n">lat</span><span class="p">)</span>
-            <span class="n">y</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">spl_y</span><span class="p">(</span><span class="n">lon</span><span class="p">,</span> <span class="n">lat</span><span class="p">)</span>
-            <span class="k">return</span> <span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">)</span></div>
+                <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;Calculating lonlat2xy sequentially&#39;</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">__lonlat2xy_parallel__</span> <span class="o">=</span> <span class="kc">False</span>
+                <span class="n">x</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">spl_x</span><span class="p">(</span><span class="n">lon</span><span class="p">,</span> <span class="n">lat</span><span class="p">)</span>
+                <span class="n">y</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">spl_y</span><span class="p">(</span><span class="n">lon</span><span class="p">,</span> <span class="n">lat</span><span class="p">)</span>
+                <span class="k">return</span> <span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="StructuredReader.pixel_size"><a class="viewcode-back" href="../../../../autoapi/opendrift/readers/basereader/structured/index.html#opendrift.readers.basereader.StructuredReader.pixel_size">[docs]</a>    <span class="k">def</span> <span class="nf">pixel_size</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">projected</span><span class="p">:</span>

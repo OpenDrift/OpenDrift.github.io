@@ -215,6 +215,11 @@
     <span class="n">time_step</span> <span class="o">=</span> <span class="kc">None</span>
     <span class="n">times</span> <span class="o">=</span> <span class="kc">None</span>
 
+    <span class="sd">&quot;&quot;&quot;Setting this to `True` overrides temporal and spatial bounds checks.</span>
+<span class="sd">    Also useful for readers that are constant and do not have a temporal</span>
+<span class="sd">    dimension.&quot;&quot;&quot;</span>
+    <span class="n">always_valid</span> <span class="o">=</span> <span class="kc">False</span>
+
 <div class="viewcode-block" id="ReaderDomain.rotate_vectors"><a class="viewcode-back" href="../../../../autoapi/opendrift/readers/basereader/variables/index.html#opendrift.readers.basereader.ReaderDomain.rotate_vectors">[docs]</a>    <span class="k">def</span> <span class="nf">rotate_vectors</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">reader_x</span><span class="p">,</span> <span class="n">reader_y</span><span class="p">,</span> <span class="n">u_component</span><span class="p">,</span> <span class="n">v_component</span><span class="p">,</span>
                        <span class="n">proj_from</span><span class="p">,</span> <span class="n">proj_to</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Rotate vectors from one srs to another.&quot;&quot;&quot;</span>
@@ -258,7 +263,7 @@
         <span class="sd">&quot;&quot;&quot;Calculate x,y in own projection from given lon,lat (scalars/arrays).</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">proj</span><span class="o">.</span><span class="n">crs</span><span class="o">.</span><span class="n">is_geographic</span><span class="p">:</span>
-            <span class="k">if</span> <span class="s1">&#39;ob_tran&#39;</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">proj4</span><span class="p">:</span>
+            <span class="k">if</span> <span class="s1">&#39;ob_tran&#39;</span> <span class="ow">in</span> <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">proj4</span><span class="p">):</span>
                 <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;NB: Converting degrees to radians &#39;</span> <span class="o">+</span>
                              <span class="s1">&#39;due to ob_tran srs&#39;</span><span class="p">)</span>
                 <span class="n">x</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">radians</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">x</span><span class="p">))</span>
@@ -273,7 +278,7 @@
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Calculate lon,lat from given x,y (scalars/arrays) in own projection.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">if</span> <span class="s1">&#39;ob_tran&#39;</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">proj4</span><span class="p">:</span>
+        <span class="k">if</span> <span class="s1">&#39;ob_tran&#39;</span> <span class="ow">in</span> <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">proj4</span><span class="p">):</span>
             <span class="n">x</span><span class="p">,</span> <span class="n">y</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">proj</span><span class="p">(</span><span class="n">lon</span><span class="p">,</span> <span class="n">lat</span><span class="p">,</span> <span class="n">inverse</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
             <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">degrees</span><span class="p">(</span><span class="n">x</span><span class="p">),</span> <span class="n">np</span><span class="o">.</span><span class="n">degrees</span><span class="p">(</span><span class="n">y</span><span class="p">)</span>
         <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">proj</span><span class="o">.</span><span class="n">crs</span><span class="o">.</span><span class="n">is_geographic</span><span class="p">:</span>
@@ -348,9 +353,10 @@
                   <span class="s1">&#39;   step: &#39;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">time_step</span><span class="p">)</span> <span class="o">+</span> <span class="s1">&#39;</span><span class="se">\n</span><span class="s1">&#39;</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">start_time</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">time_step</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
             <span class="n">outStr</span> <span class="o">+=</span> <span class="s1">&#39;    </span><span class="si">%i</span><span class="s1"> times (</span><span class="si">%i</span><span class="s1"> missing)</span><span class="se">\n</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="p">(</span>
-                      <span class="bp">self</span><span class="o">.</span><span class="n">expected_time_steps</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">missing_time_steps</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">expected_time_steps</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">missing_time_steps</span><span class="p">)</span>
         <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s1">&#39;realizations&#39;</span><span class="p">):</span>
-            <span class="n">outStr</span> <span class="o">+=</span> <span class="s1">&#39;Variables (</span><span class="si">%i</span><span class="s1"> ensemble members):</span><span class="se">\n</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">realizations</span><span class="p">)</span>
+            <span class="n">outStr</span> <span class="o">+=</span> <span class="s1">&#39;Variables (</span><span class="si">%i</span><span class="s1"> ensemble members):</span><span class="se">\n</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="nb">len</span><span class="p">(</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">realizations</span><span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="n">outStr</span> <span class="o">+=</span> <span class="s1">&#39;Variables:</span><span class="se">\n</span><span class="s1">&#39;</span>
         <span class="k">for</span> <span class="n">variable</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">variables</span><span class="p">:</span>
@@ -582,6 +588,8 @@
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">variables</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">variables</span> <span class="o">=</span> <span class="p">[]</span>
 
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
+
 <div class="viewcode-block" id="Variables.set_buffer_size"><a class="viewcode-back" href="../../../../autoapi/opendrift/readers/basereader/variables/index.html#opendrift.readers.basereader.Variables.set_buffer_size">[docs]</a>    <span class="k">def</span> <span class="nf">set_buffer_size</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">max_speed</span><span class="p">,</span> <span class="n">max_vertical_speed</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
         <span class="sd">&#39;&#39;&#39;Adjust buffer to minimise data block size needed to cover elements&#39;&#39;&#39;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">buffer</span> <span class="o">=</span> <span class="mi">0</span>
@@ -638,23 +646,25 @@
             <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;Checking </span><span class="si">%s</span><span class="s2"> for invalid values&quot;</span> <span class="o">%</span> <span class="n">name</span><span class="p">)</span>
             <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">variable</span><span class="p">,</span> <span class="nb">list</span><span class="p">):</span>
                 <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span>
-                    <span class="s1">&#39;Min-max checking for ensemble data (</span><span class="si">%i</span><span class="s1"> members)&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">variable</span><span class="p">)))</span>
+                    <span class="s1">&#39;Min-max checking for ensemble data (</span><span class="si">%i</span><span class="s1"> members)&#39;</span> <span class="o">%</span>
+                    <span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">variable</span><span class="p">)))</span>
                 <span class="c1"># Recursive</span>
-                <span class="k">return</span> <span class="p">[</span><span class="n">Variables</span><span class="o">.</span><span class="n">__check_variable_array__</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">v</span><span class="p">)</span> <span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">variable</span><span class="p">]</span>
+                <span class="k">return</span> <span class="p">[</span>
+                    <span class="n">Variables</span><span class="o">.</span><span class="n">__check_variable_array__</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">v</span><span class="p">)</span>
+                    <span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">variable</span>
+                <span class="p">]</span>
             <span class="c1"># with np.errstate(invalid=&#39;ignore&#39;):</span>
             <span class="n">invalid_indices</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">logical_and</span><span class="p">(</span>
                 <span class="n">np</span><span class="o">.</span><span class="n">isfinite</span><span class="p">(</span><span class="n">variable</span><span class="p">),</span>
-                <span class="n">np</span><span class="o">.</span><span class="n">logical_or</span><span class="p">(</span>
-                    <span class="n">variable</span> <span class="o">&lt;</span> <span class="n">standard_names</span><span class="p">[</span><span class="n">name</span><span class="p">][</span><span class="s1">&#39;valid_min&#39;</span><span class="p">],</span>
-                    <span class="n">variable</span> <span class="o">&gt;</span> <span class="n">standard_names</span><span class="p">[</span><span class="n">name</span><span class="p">][</span><span class="s1">&#39;valid_max&#39;</span><span class="p">]))</span>
+                <span class="n">np</span><span class="o">.</span><span class="n">logical_or</span><span class="p">(</span><span class="n">variable</span> <span class="o">&lt;</span> <span class="n">standard_names</span><span class="p">[</span><span class="n">name</span><span class="p">][</span><span class="s1">&#39;valid_min&#39;</span><span class="p">],</span>
+                              <span class="n">variable</span> <span class="o">&gt;</span> <span class="n">standard_names</span><span class="p">[</span><span class="n">name</span><span class="p">][</span><span class="s1">&#39;valid_max&#39;</span><span class="p">]))</span>
             <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">invalid_indices</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
                 <span class="n">invalid_values</span> <span class="o">=</span> <span class="n">variable</span><span class="p">[</span><span class="n">invalid_indices</span><span class="p">]</span>
                 <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span>
                     <span class="s1">&#39;Invalid values (</span><span class="si">%s</span><span class="s1"> to </span><span class="si">%s</span><span class="s1">) found for </span><span class="si">%s</span><span class="s1">, replacing with NaN&#39;</span>
-                    <span class="o">%</span>
-                    <span class="p">(</span><span class="n">invalid_values</span><span class="o">.</span><span class="n">min</span><span class="p">(),</span> <span class="n">invalid_values</span><span class="o">.</span><span class="n">max</span><span class="p">(),</span> <span class="n">name</span><span class="p">))</span>
+                    <span class="o">%</span> <span class="p">(</span><span class="n">invalid_values</span><span class="o">.</span><span class="n">min</span><span class="p">(),</span> <span class="n">invalid_values</span><span class="o">.</span><span class="n">max</span><span class="p">(),</span> <span class="n">name</span><span class="p">))</span>
                 <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="s1">&#39;(allowed range: [</span><span class="si">%s</span><span class="s1">, </span><span class="si">%s</span><span class="s1">])&#39;</span> <span class="o">%</span>
-                                <span class="p">(</span><span class="n">standard_names</span><span class="p">[</span><span class="n">name</span><span class="p">][</span><span class="s1">&#39;valid_min&#39;</span><span class="p">],</span>
+                               <span class="p">(</span><span class="n">standard_names</span><span class="p">[</span><span class="n">name</span><span class="p">][</span><span class="s1">&#39;valid_min&#39;</span><span class="p">],</span>
                                 <span class="n">standard_names</span><span class="p">[</span><span class="n">name</span><span class="p">][</span><span class="s1">&#39;valid_max&#39;</span><span class="p">]))</span>
                 <span class="n">variable</span><span class="p">[</span><span class="n">invalid_indices</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span>
 
@@ -672,10 +682,13 @@
 
 <span class="sd">            :meth:`.structured.StructuredReader.__check_env_arrays__`</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="n">variables</span> <span class="o">=</span> <span class="p">[</span><span class="n">var</span> <span class="k">for</span> <span class="n">var</span> <span class="ow">in</span> <span class="n">env</span><span class="o">.</span><span class="n">keys</span><span class="p">()</span> <span class="k">if</span> <span class="n">var</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">[</span><span class="s1">&#39;x&#39;</span><span class="p">,</span> <span class="s1">&#39;y&#39;</span><span class="p">,</span> <span class="s1">&#39;time&#39;</span><span class="p">]]</span>
+        <span class="n">variables</span> <span class="o">=</span> <span class="p">[</span>
+            <span class="n">var</span> <span class="k">for</span> <span class="n">var</span> <span class="ow">in</span> <span class="n">env</span><span class="o">.</span><span class="n">keys</span><span class="p">()</span> <span class="k">if</span> <span class="n">var</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">[</span><span class="s1">&#39;x&#39;</span><span class="p">,</span> <span class="s1">&#39;y&#39;</span><span class="p">,</span> <span class="s1">&#39;time&#39;</span><span class="p">]</span>
+        <span class="p">]</span>
 
         <span class="k">for</span> <span class="n">variable</span> <span class="ow">in</span> <span class="n">variables</span><span class="p">:</span>
-            <span class="n">env</span><span class="p">[</span><span class="n">variable</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">__check_variable_array__</span><span class="p">(</span><span class="n">variable</span><span class="p">,</span> <span class="n">env</span><span class="p">[</span><span class="n">variable</span><span class="p">])</span>
+            <span class="n">env</span><span class="p">[</span><span class="n">variable</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">__check_variable_array__</span><span class="p">(</span>
+                <span class="n">variable</span><span class="p">,</span> <span class="n">env</span><span class="p">[</span><span class="n">variable</span><span class="p">])</span>
 
         <span class="k">return</span> <span class="n">env</span></div>
 
@@ -725,10 +738,11 @@
         <span class="n">numx</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>  <span class="c1"># To check later if all points were covered</span>
 
         <span class="n">y</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">atleast_1d</span><span class="p">(</span><span class="n">y</span><span class="p">)</span>
-        <span class="n">z</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">atleast_1d</span><span class="p">(</span><span class="n">z</span><span class="p">)</span> <span class="k">if</span> <span class="n">z</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="mi">1</span><span class="p">,))</span>
+        <span class="n">z</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">atleast_1d</span><span class="p">(</span><span class="n">z</span><span class="p">)</span> <span class="k">if</span> <span class="n">z</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="mi">1</span><span class="p">,</span> <span class="p">))</span>
 
         <span class="k">assert</span> <span class="n">numx</span> <span class="o">==</span> <span class="nb">len</span><span class="p">(</span><span class="n">y</span><span class="p">),</span> <span class="s2">&quot;x, y, and z must have the same length&quot;</span>
-        <span class="k">assert</span> <span class="nb">len</span><span class="p">(</span><span class="n">z</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span> <span class="ow">or</span> <span class="n">numx</span> <span class="o">==</span> <span class="nb">len</span><span class="p">(</span><span class="n">z</span><span class="p">),</span> <span class="s2">&quot;x, y, and z must have the same length&quot;</span>
+        <span class="k">assert</span> <span class="nb">len</span><span class="p">(</span><span class="n">z</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span> <span class="ow">or</span> <span class="n">numx</span> <span class="o">==</span> <span class="nb">len</span><span class="p">(</span>
+            <span class="n">z</span><span class="p">),</span> <span class="s2">&quot;x, y, and z must have the same length&quot;</span>
 
         <span class="n">ind_covered</span><span class="p">,</span> <span class="n">xx</span><span class="p">,</span> <span class="n">yy</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">covers_positions_xy</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">z</span><span class="p">)</span>
         <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">ind_covered</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
@@ -736,8 +750,8 @@
             <span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s2">&quot;All particles outside domain!&quot;</span><span class="p">)</span>
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">((</span><span class="s1">&#39;All </span><span class="si">%s</span><span class="s1"> particles (</span><span class="si">%.2f</span><span class="s1">-</span><span class="si">%.2f</span><span class="s1">E, </span><span class="si">%.2f</span><span class="s1">-</span><span class="si">%.2f</span><span class="s1">N) &#39;</span> <span class="o">+</span>
                               <span class="s1">&#39;are outside domain of </span><span class="si">%s</span><span class="s1"> (</span><span class="si">%s</span><span class="s1">)&#39;</span><span class="p">)</span> <span class="o">%</span>
-                             <span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">x</span><span class="p">),</span> <span class="n">lon</span><span class="o">.</span><span class="n">min</span><span class="p">(),</span> <span class="n">lon</span><span class="o">.</span><span class="n">max</span><span class="p">(),</span> <span class="n">lat</span><span class="o">.</span><span class="n">min</span><span class="p">(),</span> <span class="n">lat</span><span class="o">.</span><span class="n">max</span><span class="p">(),</span>
-                              <span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">coverage_string</span><span class="p">()))</span>
+                             <span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">x</span><span class="p">),</span> <span class="n">lon</span><span class="o">.</span><span class="n">min</span><span class="p">(),</span> <span class="n">lon</span><span class="o">.</span><span class="n">max</span><span class="p">(),</span> <span class="n">lat</span><span class="o">.</span><span class="n">min</span><span class="p">(),</span>
+                              <span class="n">lat</span><span class="o">.</span><span class="n">max</span><span class="p">(),</span> <span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">coverage_string</span><span class="p">()))</span>
         <span class="n">x</span> <span class="o">=</span> <span class="n">xx</span>
         <span class="n">y</span> <span class="o">=</span> <span class="n">yy</span>
 
@@ -757,7 +771,8 @@
 
         <span class="k">for</span> <span class="n">var</span> <span class="ow">in</span> <span class="n">variables</span><span class="p">:</span>
             <span class="k">if</span> <span class="n">var</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">derived_variables</span><span class="p">:</span>
-                <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;Scheduling </span><span class="si">%s</span><span class="s2"> to be derived from </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">var</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">derived_variables</span><span class="p">[</span><span class="n">var</span><span class="p">]))</span>
+                <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;Scheduling </span><span class="si">%s</span><span class="s2"> to be derived from </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span>
+                             <span class="p">(</span><span class="n">var</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">derived_variables</span><span class="p">[</span><span class="n">var</span><span class="p">]))</span>
                 <span class="n">derived_input</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">derived_variables</span><span class="p">[</span><span class="n">var</span><span class="p">])</span>
                 <span class="n">derived</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">var</span><span class="p">)</span>
 
@@ -773,7 +788,7 @@
             <span class="bp">self</span><span class="o">.</span><span class="n">__calculate_derived_environment_variables__</span><span class="p">(</span><span class="n">env</span><span class="p">)</span>
             <span class="n">variables</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">derived</span><span class="p">)</span>
 
-        <span class="k">for</span> <span class="n">e</span> <span class="ow">in</span> <span class="p">[</span> <span class="n">env</span><span class="p">,</span> <span class="n">env_profiles</span> <span class="p">]:</span>
+        <span class="k">for</span> <span class="n">e</span> <span class="ow">in</span> <span class="p">[</span><span class="n">env</span><span class="p">,</span> <span class="n">env_profiles</span><span class="p">]:</span>
             <span class="k">if</span> <span class="n">e</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">__check_env_coordinates__</span><span class="p">(</span><span class="n">e</span><span class="p">)</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">__check_env_arrays__</span><span class="p">(</span><span class="n">e</span><span class="p">)</span>
