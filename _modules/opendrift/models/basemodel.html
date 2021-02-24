@@ -301,13 +301,13 @@
     <span class="n">required_profiles_z_range</span> <span class="o">=</span> <span class="kc">None</span>  <span class="c1"># [min_depth, max_depth]</span>
     <span class="n">plot_comparison_colors</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;k&#39;</span><span class="p">,</span> <span class="s1">&#39;r&#39;</span><span class="p">,</span> <span class="s1">&#39;g&#39;</span><span class="p">,</span> <span class="s1">&#39;b&#39;</span><span class="p">,</span> <span class="s1">&#39;m&#39;</span><span class="p">,</span> <span class="s1">&#39;c&#39;</span><span class="p">,</span> <span class="s1">&#39;y&#39;</span><span class="p">]</span>
 
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">proj4</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">seed</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">iomodule</span><span class="o">=</span><span class="s1">&#39;netcdf&#39;</span><span class="p">,</span>
+    <span class="n">proj_latlon</span> <span class="o">=</span> <span class="n">pyproj</span><span class="o">.</span><span class="n">Proj</span><span class="p">(</span><span class="s1">&#39;+proj=latlong&#39;</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">seed</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">iomodule</span><span class="o">=</span><span class="s1">&#39;netcdf&#39;</span><span class="p">,</span>
                  <span class="n">loglevel</span><span class="o">=</span><span class="n">logging</span><span class="o">.</span><span class="n">DEBUG</span><span class="p">,</span> <span class="n">logtime</span><span class="o">=</span><span class="s1">&#39;%H:%M:%S&#39;</span><span class="p">,</span> <span class="n">logfile</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Initialise OpenDriftSimulation</span>
 
 <span class="sd">        Args:</span>
-<span class="sd">            proj4: proj4 string defining spatial reference system.</span>
-<span class="sd">                If not specified, SRS is taken from the first added reader.</span>
 <span class="sd">            seed: integer or None. A given integer will yield identical</span>
 <span class="sd">                random numbers drawn each simulation. Random numbers are</span>
 <span class="sd">                e.g. used to distribute particles spatially when seeding,</span>
@@ -345,9 +345,6 @@
             <span class="bp">self</span><span class="o">.</span><span class="n">status_colors</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">status_colors_default</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">status_colors</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">status_colors_default</span>
-
-        <span class="c1"># Set projection, if given</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">set_projection</span><span class="p">(</span><span class="n">proj4</span><span class="p">)</span>
 
         <span class="c1"># Using a fixed seed will generate the same random numbers</span>
         <span class="c1"># each run, useful for sensitivity tests</span>
@@ -803,42 +800,6 @@
             <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="n">opendrift</span><span class="o">.</span><span class="vm">__file__</span><span class="p">),</span>
                          <span class="s1">&#39;..&#39;</span><span class="p">,</span> <span class="s1">&#39;tests&#39;</span><span class="p">,</span> <span class="s1">&#39;test_data&#39;</span><span class="p">))</span> <span class="o">+</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">sep</span></div>
 
-<div class="viewcode-block" id="OpenDriftSimulation.set_projection"><a class="viewcode-back" href="../../../autoapi/opendrift/models/basemodel/index.html#opendrift.models.basemodel.OpenDriftSimulation.set_projection">[docs]</a>    <span class="k">def</span> <span class="nf">set_projection</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">proj4</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Set the projection onto which data from readers is reprojected.&quot;&quot;&quot;</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">proj4</span> <span class="o">=</span> <span class="n">proj4</span>
-        <span class="k">if</span> <span class="n">proj4</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">proj</span> <span class="o">=</span> <span class="n">pyproj</span><span class="o">.</span><span class="n">Proj</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">proj4</span> <span class="o">+</span> <span class="s1">&#39; +ellps=WGS84&#39;</span><span class="p">)</span>
-            <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;Calculation SRS set to: &#39;</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">proj</span><span class="o">.</span><span class="n">srs</span><span class="p">)</span>
-        <span class="k">else</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">proj</span> <span class="o">=</span> <span class="kc">None</span>
-            <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;Calculation SRS set to: &#39;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">proj</span><span class="p">))</span></div>
-
-<div class="viewcode-block" id="OpenDriftSimulation.lonlat2xy"><a class="viewcode-back" href="../../../autoapi/opendrift/models/basemodel/index.html#opendrift.models.basemodel.OpenDriftSimulation.lonlat2xy">[docs]</a>    <span class="k">def</span> <span class="nf">lonlat2xy</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">lon</span><span class="p">,</span> <span class="n">lat</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Calculate x,y in own projection from given lon,lat (scalars/arrays).</span>
-<span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">if</span> <span class="s1">&#39;ob_tran&#39;</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">proj4</span><span class="p">:</span>
-            <span class="n">x</span><span class="p">,</span> <span class="n">y</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">proj</span><span class="p">(</span><span class="n">lon</span><span class="p">,</span> <span class="n">lat</span><span class="p">,</span> <span class="n">inverse</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
-            <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">degrees</span><span class="p">(</span><span class="n">x</span><span class="p">),</span> <span class="n">np</span><span class="o">.</span><span class="n">degrees</span><span class="p">(</span><span class="n">y</span><span class="p">)</span>
-        <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">proj</span><span class="o">.</span><span class="n">crs</span><span class="o">.</span><span class="n">is_geographic</span><span class="p">:</span>
-            <span class="k">return</span> <span class="n">lon</span><span class="p">,</span> <span class="n">lat</span>
-        <span class="k">else</span><span class="p">:</span>
-            <span class="n">x</span><span class="p">,</span> <span class="n">y</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">proj</span><span class="p">(</span><span class="n">lon</span><span class="p">,</span> <span class="n">lat</span><span class="p">,</span> <span class="n">inverse</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
-            <span class="k">return</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span></div>
-
-<div class="viewcode-block" id="OpenDriftSimulation.xy2lonlat"><a class="viewcode-back" href="../../../autoapi/opendrift/models/basemodel/index.html#opendrift.models.basemodel.OpenDriftSimulation.xy2lonlat">[docs]</a>    <span class="k">def</span> <span class="nf">xy2lonlat</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Calculate lon,lat from given x,y (scalars/arrays) in own projection.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">proj</span><span class="o">.</span><span class="n">crs</span><span class="o">.</span><span class="n">is_geographic</span><span class="p">:</span>
-            <span class="k">if</span> <span class="s1">&#39;ob_tran&#39;</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">proj4</span><span class="p">:</span>
-                <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s1">&#39;NB: Converting deg to rad due to ob_tran srs&#39;</span><span class="p">)</span>
-                <span class="n">x</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">radians</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">x</span><span class="p">))</span>
-                <span class="n">y</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">radians</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">y</span><span class="p">))</span>
-                <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">proj</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">inverse</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
-            <span class="k">else</span><span class="p">:</span>
-                <span class="k">return</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span>
-        <span class="k">else</span><span class="p">:</span>
-            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">proj</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">inverse</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span></div>
-
 <div class="viewcode-block" id="OpenDriftSimulation.performance"><a class="viewcode-back" href="../../../autoapi/opendrift/models/basemodel/index.html#opendrift.models.basemodel.OpenDriftSimulation.performance">[docs]</a>    <span class="k">def</span> <span class="nf">performance</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&#39;&#39;&#39;Report the time spent on various tasks&#39;&#39;&#39;</span>
 
@@ -918,14 +879,6 @@
                 <span class="n">reader</span><span class="o">.</span><span class="n">set_buffer_size</span><span class="p">(</span><span class="n">max_speed</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">max_speed</span><span class="p">)</span>
 
             <span class="bp">self</span><span class="o">.</span><span class="n">readers</span><span class="p">[</span><span class="n">reader</span><span class="o">.</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="n">reader</span>
-            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">proj</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">reader</span><span class="o">.</span><span class="n">is_lazy</span><span class="p">:</span>
-                <span class="k">if</span> <span class="n">reader</span><span class="o">.</span><span class="n">proj4</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">reader</span><span class="o">.</span><span class="n">proj4</span> <span class="o">!=</span> <span class="s1">&#39;None&#39;</span><span class="p">:</span>
-                    <span class="bp">self</span><span class="o">.</span><span class="n">set_projection</span><span class="p">(</span><span class="n">reader</span><span class="o">.</span><span class="n">proj4</span><span class="p">)</span>
-                    <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;Using srs for common grid: </span><span class="si">%s</span><span class="s1">&#39;</span> <span class="o">%</span>
-                                  <span class="bp">self</span><span class="o">.</span><span class="n">proj4</span><span class="p">)</span>
-                <span class="k">else</span><span class="p">:</span>
-                    <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;</span><span class="si">%s</span><span class="s1"> is unprojected, cannot use &#39;</span>
-                                  <span class="s1">&#39;for common grid&#39;</span> <span class="o">%</span> <span class="n">reader</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
             <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;Added reader &#39;</span> <span class="o">+</span> <span class="n">reader</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
 
             <span class="c1"># Add this reader for each of the given variables</span>
@@ -943,12 +896,7 @@
         <span class="c1"># Remove/hide variables not needed by the current trajectory model</span>
         <span class="k">for</span> <span class="n">variable</span> <span class="ow">in</span> <span class="nb">list</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">priority_list</span><span class="p">):</span>
             <span class="k">if</span> <span class="n">variable</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">required_variables</span><span class="p">:</span>
-                <span class="k">del</span> <span class="bp">self</span><span class="o">.</span><span class="n">priority_list</span><span class="p">[</span><span class="n">variable</span><span class="p">]</span>
-
-        <span class="c1"># Set projection to latlong if not taken from any of the readers</span>
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">proj</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s1">&#39;Setting SRS to latlong, since not defined before.&#39;</span><span class="p">)</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">set_projection</span><span class="p">(</span><span class="s1">&#39;+proj=latlong&#39;</span><span class="p">)</span></div>
+                <span class="k">del</span> <span class="bp">self</span><span class="o">.</span><span class="n">priority_list</span><span class="p">[</span><span class="n">variable</span><span class="p">]</span></div>
 
 <div class="viewcode-block" id="OpenDriftSimulation.add_readers_from_list"><a class="viewcode-back" href="../../../autoapi/opendrift/models/basemodel/index.html#opendrift.models.basemodel.OpenDriftSimulation.add_readers_from_list">[docs]</a>    <span class="k">def</span> <span class="nf">add_readers_from_list</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">urls</span><span class="p">,</span> <span class="n">timeout</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span> <span class="n">lazy</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
         <span class="sd">&#39;&#39;&#39;Make readers from a list of URLs or paths to netCDF datasets&#39;&#39;&#39;</span>
@@ -1220,7 +1168,7 @@
                             <span class="n">variable_group</span><span class="p">,</span> <span class="n">profiles_from_reader</span><span class="p">,</span>
                             <span class="bp">self</span><span class="o">.</span><span class="n">required_profiles_z_range</span><span class="p">,</span> <span class="n">time</span><span class="p">,</span>
                             <span class="n">lon</span><span class="p">[</span><span class="n">missing_indices</span><span class="p">],</span> <span class="n">lat</span><span class="p">[</span><span class="n">missing_indices</span><span class="p">],</span>
-                            <span class="n">z</span><span class="p">[</span><span class="n">missing_indices</span><span class="p">],</span> <span class="bp">self</span><span class="o">.</span><span class="n">proj</span><span class="p">)</span>
+                            <span class="n">z</span><span class="p">[</span><span class="n">missing_indices</span><span class="p">],</span> <span class="bp">self</span><span class="o">.</span><span class="n">proj_latlon</span><span class="p">)</span>
 
                 <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
                     <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s1">&#39;========================&#39;</span><span class="p">)</span>
@@ -2312,32 +2260,6 @@
             <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;No output file is specified, &#39;</span>
                           <span class="s1">&#39;neglecting export_buffer_length&#39;</span><span class="p">)</span>
             <span class="n">export_buffer_length</span> <span class="o">=</span> <span class="kc">None</span>
-
-        <span class="c1"># Set projection to latlong if not taken from any of the readers</span>
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">proj</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="ow">not</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">proj</span><span class="o">.</span><span class="n">crs</span><span class="o">.</span><span class="n">is_geographic</span> <span class="ow">or</span>
-            <span class="s1">&#39;proj=merc&#39;</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">proj</span><span class="o">.</span><span class="n">srs</span><span class="p">):</span>
-            <span class="k">for</span> <span class="n">vector_component</span> <span class="ow">in</span> <span class="n">vector_pairs_xy</span><span class="p">:</span>
-                <span class="k">for</span> <span class="n">component</span> <span class="ow">in</span> <span class="n">vector_component</span><span class="p">:</span>
-                    <span class="k">if</span> <span class="n">component</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">fallback_values</span> <span class="ow">and</span> \
-                            <span class="bp">self</span><span class="o">.</span><span class="n">fallback_values</span><span class="p">[</span><span class="n">component</span><span class="p">]</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">:</span>
-                        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s1">&#39;Setting SRS to latlong, since non-zero &#39;</span>
-                                     <span class="s1">&#39;value used for fallback vectors (</span><span class="si">%s</span><span class="s1">)&#39;</span> <span class="o">%</span>
-                                     <span class="n">component</span><span class="p">)</span>
-                        <span class="bp">self</span><span class="o">.</span><span class="n">set_projection</span><span class="p">(</span><span class="s1">&#39;+proj=latlong&#39;</span><span class="p">)</span>
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">proj</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s1">&#39;Setting SRS to latlong, since not defined before.&#39;</span><span class="p">)</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">set_projection</span><span class="p">(</span><span class="s1">&#39;+proj=latlong&#39;</span><span class="p">)</span>
-
-        <span class="c1"># Check if any readers have same SRS as simulation</span>
-        <span class="k">for</span> <span class="n">reader</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">readers</span><span class="o">.</span><span class="n">values</span><span class="p">():</span>
-            <span class="k">if</span> <span class="n">reader</span><span class="o">.</span><span class="n">is_lazy</span><span class="p">:</span>
-                <span class="k">continue</span>
-            <span class="n">readerSRS</span> <span class="o">=</span> <span class="n">reader</span><span class="o">.</span><span class="n">proj</span><span class="o">.</span><span class="n">srs</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s1">&#39; +ellps=WGS84&#39;</span><span class="p">,</span> <span class="s1">&#39;&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
-            <span class="n">simulationSRS</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">proj</span><span class="o">.</span><span class="n">srs</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s1">&#39; +ellps=WGS84&#39;</span><span class="p">,</span> <span class="s1">&#39;&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
-            <span class="k">if</span> <span class="n">readerSRS</span> <span class="o">==</span> <span class="n">simulationSRS</span><span class="p">:</span>
-                <span class="n">reader</span><span class="o">.</span><span class="n">simulation_SRS</span> <span class="o">=</span> <span class="kc">True</span>
-            <span class="k">else</span><span class="p">:</span>
-                <span class="n">reader</span><span class="o">.</span><span class="n">simulation_SRS</span> <span class="o">=</span> <span class="kc">False</span>
 
         <span class="c1"># Make constant readers if config environment:constant:&lt;var&gt; is</span>
         <span class="n">c</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_configspec</span><span class="p">(</span><span class="s1">&#39;environment:constant:&#39;</span><span class="p">)</span>
@@ -4453,18 +4375,6 @@
         <span class="n">velocity</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">x_vel</span><span class="o">**</span><span class="mi">2</span> <span class="o">+</span> <span class="n">y_vel</span><span class="o">**</span><span class="mi">2</span><span class="p">)</span>  <span class="c1"># Velocity in m/s</span>
         <span class="n">velocity</span> <span class="o">=</span> <span class="n">velocity</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">elements</span><span class="o">.</span><span class="n">moving</span>  <span class="c1"># Do not move frosen elements</span>
 
-        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">proj</span><span class="o">.</span><span class="n">crs</span><span class="o">.</span><span class="n">is_geographic</span><span class="p">:</span>  <span class="c1"># Need to rotate SRS</span>
-            <span class="c1"># Calculate x,y from lon,lat</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">elements</span><span class="o">.</span><span class="n">x</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">elements</span><span class="o">.</span><span class="n">y</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">lonlat2xy</span><span class="p">(</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">elements</span><span class="o">.</span><span class="n">lon</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">elements</span><span class="o">.</span><span class="n">lat</span><span class="p">)</span>
-            <span class="c1"># Calculate azimuth orientation of y-axis at particle locations</span>
-            <span class="n">delta_y</span> <span class="o">=</span> <span class="mi">1000</span>  <span class="c1"># Using delta of 1000 m to calculate azimuth</span>
-            <span class="n">lon2</span><span class="p">,</span> <span class="n">lat2</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">xy2lonlat</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">elements</span><span class="o">.</span><span class="n">x</span><span class="p">,</span>
-                                        <span class="bp">self</span><span class="o">.</span><span class="n">elements</span><span class="o">.</span><span class="n">y</span> <span class="o">+</span> <span class="n">delta_y</span><span class="p">)</span>
-            <span class="n">azimuth_srs</span> <span class="o">=</span> <span class="n">geod</span><span class="o">.</span><span class="n">inv</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">elements</span><span class="o">.</span><span class="n">lon</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">elements</span><span class="o">.</span><span class="n">lat</span><span class="p">,</span>
-                                   <span class="n">lon2</span><span class="p">,</span> <span class="n">lat2</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
-            <span class="n">azimuth</span> <span class="o">=</span> <span class="n">azimuth</span> <span class="o">+</span> <span class="n">azimuth_srs</span>
-
         <span class="c1"># Calculate new positions</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">elements</span><span class="o">.</span><span class="n">lon</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">elements</span><span class="o">.</span><span class="n">lat</span><span class="p">,</span> <span class="n">back_az</span> <span class="o">=</span> <span class="n">geod</span><span class="o">.</span><span class="n">fwd</span><span class="p">(</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">elements</span><span class="o">.</span><span class="n">lon</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">elements</span><span class="o">.</span><span class="n">lat</span><span class="p">,</span>
@@ -4490,7 +4400,6 @@
         <span class="n">outStr</span> <span class="o">+=</span> <span class="s1">&#39;</span><span class="se">\t</span><span class="si">%s</span><span class="s1"> active </span><span class="si">%s</span><span class="s1"> particles  (</span><span class="si">%s</span><span class="s1"> deactivated, </span><span class="si">%s</span><span class="s1"> scheduled)</span><span class="se">\n</span><span class="s1">&#39;</span>\
             <span class="o">%</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">num_elements_active</span><span class="p">(),</span> <span class="bp">self</span><span class="o">.</span><span class="n">ElementType</span><span class="o">.</span><span class="vm">__name__</span><span class="p">,</span>
                <span class="bp">self</span><span class="o">.</span><span class="n">num_elements_deactivated</span><span class="p">(),</span> <span class="bp">self</span><span class="o">.</span><span class="n">num_elements_scheduled</span><span class="p">())</span>
-        <span class="n">outStr</span> <span class="o">+=</span> <span class="s1">&#39;Projection: </span><span class="si">%s</span><span class="se">\n</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="bp">self</span><span class="o">.</span><span class="n">proj4</span>
         <span class="n">variable_groups</span><span class="p">,</span> <span class="n">reader_groups</span><span class="p">,</span> <span class="n">missing</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_reader_groups</span><span class="p">()</span>
         <span class="n">outStr</span> <span class="o">+=</span> <span class="s1">&#39;-------------------</span><span class="se">\n</span><span class="s1">&#39;</span>
         <span class="n">outStr</span> <span class="o">+=</span> <span class="s1">&#39;Environment variables:</span><span class="se">\n</span><span class="s1">&#39;</span>
@@ -4694,7 +4603,7 @@
 <span class="sd">        function of time&quot;&quot;&quot;</span>
         <span class="c1">#lon,lat = self.get_property(&#39;lon&#39;)[0], self.get_property(&#39;lat&#39;)[0]</span>
         <span class="n">lon</span><span class="p">,</span><span class="n">lat</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">history</span><span class="p">[</span><span class="s1">&#39;lon&#39;</span><span class="p">],</span> <span class="bp">self</span><span class="o">.</span><span class="n">history</span><span class="p">[</span><span class="s1">&#39;lat&#39;</span><span class="p">]</span>
-        <span class="n">x</span><span class="p">,</span><span class="n">y</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">proj</span><span class="p">(</span><span class="n">lon</span><span class="p">,</span> <span class="n">lat</span><span class="p">)</span>
+        <span class="n">x</span><span class="p">,</span><span class="n">y</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">proj_latlon</span><span class="p">(</span><span class="n">lon</span><span class="p">,</span> <span class="n">lat</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">onlysurface</span><span class="o">==</span><span class="kc">True</span><span class="p">:</span>
             <span class="n">z</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">history</span><span class="p">[</span><span class="s1">&#39;z&#39;</span><span class="p">]</span>
             <span class="n">submerged</span> <span class="o">=</span> <span class="n">z</span> <span class="o">&lt;</span> <span class="mi">0</span>
@@ -4702,13 +4611,12 @@
             <span class="n">y</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">ma</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">y</span><span class="p">,</span> <span class="n">mask</span><span class="o">=</span><span class="n">submerged</span><span class="p">)</span>
         <span class="c1"># center of gravity:</span>
         <span class="n">x_m</span><span class="p">,</span> <span class="n">y_m</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">ma</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">),</span> <span class="n">np</span><span class="o">.</span><span class="n">ma</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">y</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
-        <span class="n">center</span> <span class="o">=</span>  <span class="bp">self</span><span class="o">.</span><span class="n">proj</span><span class="p">(</span><span class="n">x_m</span><span class="p">,</span> <span class="n">y_m</span><span class="p">,</span> <span class="n">inverse</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="n">center</span> <span class="o">=</span>  <span class="bp">self</span><span class="o">.</span><span class="n">proj_latlon</span><span class="p">(</span><span class="n">x_m</span><span class="p">,</span> <span class="n">y_m</span><span class="p">,</span> <span class="n">inverse</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
         <span class="n">one</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">ones_like</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
         <span class="c1"># variance:</span>
         <span class="n">variance</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">ma</span><span class="o">.</span><span class="n">mean</span><span class="p">((</span><span class="n">x</span><span class="o">-</span><span class="n">x_m</span><span class="o">*</span><span class="n">one</span><span class="p">)</span><span class="o">**</span><span class="mi">2</span> <span class="o">+</span> <span class="p">(</span><span class="n">y</span><span class="o">-</span><span class="n">y_m</span><span class="o">*</span><span class="n">one</span><span class="p">)</span><span class="o">**</span><span class="mi">2</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
 
         <span class="k">return</span> <span class="n">center</span><span class="p">,</span><span class="n">variance</span></div>
-
 
 <div class="viewcode-block" id="OpenDriftSimulation.reset"><a class="viewcode-back" href="../../../autoapi/opendrift/models/basemodel/index.html#opendrift.models.basemodel.OpenDriftSimulation.reset">[docs]</a>    <span class="k">def</span> <span class="nf">reset</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Preparing OpenDrift object for new run&quot;&quot;&quot;</span>
