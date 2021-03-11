@@ -207,11 +207,11 @@
         <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;grid_mapping not given in dictionary&#39;</span><span class="p">)</span>
     <span class="n">gm</span> <span class="o">=</span> <span class="n">c</span><span class="p">[</span><span class="s1">&#39;grid_mapping_name&#39;</span><span class="p">]</span>
 
+    <span class="k">if</span> <span class="s1">&#39;earth_radius&#39;</span> <span class="ow">in</span> <span class="n">c</span><span class="p">:</span>
+        <span class="n">earth_radius</span> <span class="o">=</span> <span class="n">c</span><span class="p">[</span><span class="s1">&#39;earth_radius&#39;</span><span class="p">]</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">earth_radius</span> <span class="o">=</span> <span class="mf">6371000.</span>
     <span class="k">if</span> <span class="n">gm</span> <span class="o">==</span> <span class="s1">&#39;polar_stereographic&#39;</span><span class="p">:</span>
-        <span class="k">if</span> <span class="s1">&#39;earth_radius&#39;</span> <span class="ow">in</span> <span class="n">c</span><span class="p">:</span>
-            <span class="n">earth_radius</span> <span class="o">=</span> <span class="n">c</span><span class="p">[</span><span class="s1">&#39;earth_radius&#39;</span><span class="p">]</span>
-        <span class="k">else</span><span class="p">:</span>
-            <span class="n">earth_radius</span> <span class="o">=</span> <span class="mf">6371000.</span>
         <span class="n">lon_0</span> <span class="o">=</span> <span class="mi">0</span>  <span class="c1"># default, but dangerous</span>
         <span class="k">for</span> <span class="n">l0</span> <span class="ow">in</span> <span class="p">[</span><span class="s1">&#39;longitude_of_projection_origin&#39;</span><span class="p">,</span>
                    <span class="s1">&#39;longitude_of_central_meridian&#39;</span><span class="p">,</span>
@@ -240,6 +240,10 @@
                                    <span class="n">c</span><span class="p">[</span><span class="s1">&#39;latitude_of_projection_origin&#39;</span><span class="p">],</span>
                                    <span class="n">lon_0</span><span class="p">,</span> <span class="n">lat_ts</span><span class="p">,</span> <span class="n">k0</span><span class="p">,</span> <span class="n">x0</span><span class="p">,</span> <span class="n">y0</span><span class="p">,</span> <span class="n">earth_radius</span><span class="p">)</span>
                  <span class="p">)</span>
+
+    <span class="k">elif</span> <span class="n">gm</span> <span class="o">==</span> <span class="s1">&#39;rotated_latitude_longitude&#39;</span><span class="p">:</span>
+        <span class="n">proj4</span> <span class="o">=</span> <span class="s1">&#39;+proj=ob_tran +o_proj=longlat +lon_0=</span><span class="si">%s</span><span class="s1"> +o_lat_p=</span><span class="si">%s</span><span class="s1"> +R=</span><span class="si">%s</span><span class="s1"> +no_defs&#39;</span> <span class="o">%</span> <span class="p">(</span>
+                <span class="n">c</span><span class="p">[</span><span class="s1">&#39;grid_north_pole_longitude&#39;</span><span class="p">]</span><span class="o">-</span><span class="mi">180</span><span class="p">,</span> <span class="n">c</span><span class="p">[</span><span class="s1">&#39;grid_north_pole_latitude&#39;</span><span class="p">],</span> <span class="n">earth_radius</span><span class="p">)</span>
 
     <span class="n">proj</span> <span class="o">=</span> <span class="n">pyproj</span><span class="o">.</span><span class="n">Proj</span><span class="p">(</span><span class="n">proj4</span><span class="p">)</span>
 
