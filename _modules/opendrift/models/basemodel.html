@@ -1554,9 +1554,7 @@
                         <span class="n">np</span><span class="o">.</span><span class="n">minimum</span><span class="p">(</span><span class="mi">720</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">elements_scheduled</span><span class="o">.</span><span class="n">lon</span><span class="o">.</span><span class="n">max</span><span class="p">()</span> <span class="o">+</span> <span class="n">deltalon</span><span class="p">),</span>
                         <span class="n">np</span><span class="o">.</span><span class="n">minimum</span><span class="p">(</span><span class="mi">89</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">elements_scheduled</span><span class="o">.</span><span class="n">lat</span><span class="o">.</span><span class="n">max</span><span class="p">()</span> <span class="o">+</span> <span class="n">deltalat</span><span class="p">)</span>
                         <span class="p">])</span>
-            <span class="n">reader_landmask</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="s1">&#39;tempreader&#39;</span>
-            <span class="n">o</span> <span class="o">=</span> <span class="n">OceanDrift</span><span class="p">(</span>
-                <span class="n">loglevel</span><span class="o">=</span><span class="s1">&#39;custom&#39;</span><span class="p">)</span>
+            <span class="n">o</span> <span class="o">=</span> <span class="n">OceanDrift</span><span class="p">(</span><span class="n">loglevel</span><span class="o">=</span><span class="s1">&#39;custom&#39;</span><span class="p">)</span>
             <span class="n">o</span><span class="o">.</span><span class="n">add_reader</span><span class="p">(</span><span class="n">reader_landmask</span><span class="p">)</span>
             <span class="n">land_reader</span> <span class="o">=</span> <span class="n">reader_landmask</span>
 
@@ -1573,9 +1571,9 @@
             <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s1">&#39;All points are in ocean&#39;</span><span class="p">)</span>
             <span class="k">return</span> <span class="n">lon</span><span class="p">,</span> <span class="n">lat</span>
         <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s1">&#39;Moving </span><span class="si">%i</span><span class="s1"> out of </span><span class="si">%i</span><span class="s1"> points from land to water&#39;</span> <span class="o">%</span>
-                     <span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">land</span><span class="o">==</span><span class="mi">1</span><span class="p">),</span> <span class="nb">len</span><span class="p">(</span><span class="n">lon</span><span class="p">)))</span>
-        <span class="n">landlons</span> <span class="o">=</span> <span class="n">lon</span><span class="p">[</span><span class="n">land</span><span class="o">==</span><span class="mi">1</span><span class="p">]</span>
-        <span class="n">landlats</span> <span class="o">=</span> <span class="n">lat</span><span class="p">[</span><span class="n">land</span><span class="o">==</span><span class="mi">1</span><span class="p">]</span>
+                     <span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">land</span><span class="o">!=</span><span class="mi">0</span><span class="p">),</span> <span class="nb">len</span><span class="p">(</span><span class="n">lon</span><span class="p">)))</span>
+        <span class="n">landlons</span> <span class="o">=</span> <span class="n">lon</span><span class="p">[</span><span class="n">land</span><span class="o">!=</span><span class="mi">0</span><span class="p">]</span>
+        <span class="n">landlats</span> <span class="o">=</span> <span class="n">lat</span><span class="p">[</span><span class="n">land</span><span class="o">!=</span><span class="mi">0</span><span class="p">]</span>
         <span class="n">longrid</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="n">lonmin</span><span class="p">,</span> <span class="n">lonmax</span><span class="p">,</span> <span class="n">deltalon</span><span class="p">)</span>
         <span class="n">latgrid</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="n">latmin</span><span class="p">,</span> <span class="n">latmax</span><span class="p">,</span> <span class="n">deltalat</span><span class="p">)</span>
         <span class="n">longrid</span><span class="p">,</span> <span class="n">latgrid</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">meshgrid</span><span class="p">(</span><span class="n">longrid</span><span class="p">,</span> <span class="n">latgrid</span><span class="p">)</span>
@@ -1601,8 +1599,8 @@
         <span class="n">landpoints</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">dstack</span><span class="p">([</span><span class="n">landlons</span><span class="p">,</span> <span class="n">landlats</span><span class="p">])</span>
         <span class="n">dist</span><span class="p">,</span> <span class="n">indices</span> <span class="o">=</span> <span class="n">tree</span><span class="o">.</span><span class="n">query</span><span class="p">(</span><span class="n">landpoints</span><span class="p">)</span>
         <span class="n">indices</span> <span class="o">=</span> <span class="n">indices</span><span class="o">.</span><span class="n">ravel</span><span class="p">()</span>
-        <span class="n">lon</span><span class="p">[</span><span class="n">land</span><span class="o">==</span><span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="n">oceangridlons</span><span class="p">[</span><span class="n">indices</span><span class="p">]</span>
-        <span class="n">lat</span><span class="p">[</span><span class="n">land</span><span class="o">==</span><span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="n">oceangridlats</span><span class="p">[</span><span class="n">indices</span><span class="p">]</span>
+        <span class="n">lon</span><span class="p">[</span><span class="n">land</span><span class="o">!=</span><span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="n">oceangridlons</span><span class="p">[</span><span class="n">indices</span><span class="p">]</span>
+        <span class="n">lat</span><span class="p">[</span><span class="n">land</span><span class="o">!=</span><span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="n">oceangridlats</span><span class="p">[</span><span class="n">indices</span><span class="p">]</span>
 
         <span class="k">return</span> <span class="n">lon</span><span class="p">,</span> <span class="n">lat</span></div>
 
@@ -2458,10 +2456,10 @@
 
             <span class="bp">self</span><span class="o">.</span><span class="n">timer_end</span><span class="p">(</span><span class="s1">&#39;preparing main loop:making dynamical landmask&#39;</span><span class="p">)</span>
 
-        <span class="c1"># Move point seed on land to ocean</span>
+        <span class="c1"># Move point seeded on land to ocean</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_config</span><span class="p">(</span><span class="s1">&#39;seed:ocean_only&#39;</span><span class="p">)</span> <span class="ow">is</span> <span class="kc">True</span> <span class="ow">and</span> \
-            <span class="p">(</span><span class="s1">&#39;land_binary_mask&#39;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">fallback_values</span><span class="p">)</span> <span class="ow">and</span> \
             <span class="p">(</span><span class="s1">&#39;land_binary_mask&#39;</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">required_variables</span><span class="p">):</span>
+            <span class="c1">#(&#39;land_binary_mask&#39; not in self.fallback_values) and \</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">timer_start</span><span class="p">(</span><span class="s1">&#39;preparing main loop:moving elements to ocean&#39;</span><span class="p">)</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">elements_scheduled</span><span class="o">.</span><span class="n">lon</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">elements_scheduled</span><span class="o">.</span><span class="n">lat</span> <span class="o">=</span> \
                 <span class="bp">self</span><span class="o">.</span><span class="n">closest_ocean_points</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">elements_scheduled</span><span class="o">.</span><span class="n">lon</span><span class="p">,</span>
@@ -3514,7 +3512,7 @@
                 <span class="k">else</span><span class="p">:</span>
                     <span class="n">ax</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="n">linecolor</span><span class="p">,</span> <span class="n">alpha</span><span class="o">=</span><span class="n">alpha</span><span class="p">,</span> <span class="n">linewidth</span><span class="o">=</span><span class="n">linewidth</span><span class="p">,</span> <span class="n">transform</span> <span class="o">=</span> <span class="n">gcrs</span><span class="p">)</span>
             <span class="k">else</span><span class="p">:</span>
-                <span class="n">colorbar</span> <span class="o">=</span> <span class="kc">True</span>
+                <span class="c1">#colorbar = True</span>
                 <span class="c1"># Color lines according to given parameter</span>
                 <span class="k">try</span><span class="p">:</span>
                     <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">linecolor</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
@@ -3674,7 +3672,7 @@
                                          <span class="n">colors</span><span class="o">=</span><span class="s1">&#39;gray&#39;</span><span class="p">,</span> <span class="n">transform</span> <span class="o">=</span> <span class="n">gcrs</span><span class="p">)</span>
                     <span class="n">plt</span><span class="o">.</span><span class="n">clabel</span><span class="p">(</span><span class="n">CS</span><span class="p">,</span> <span class="n">fmt</span><span class="o">=</span><span class="s1">&#39;</span><span class="si">%g</span><span class="s1">&#39;</span><span class="p">)</span>
 
-        <span class="k">if</span> <span class="n">mappable</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">mappable</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">colorbar</span> <span class="ow">is</span> <span class="kc">True</span><span class="p">:</span>
             <span class="n">cb</span> <span class="o">=</span> <span class="n">fig</span><span class="o">.</span><span class="n">colorbar</span><span class="p">(</span><span class="n">mappable</span><span class="p">,</span> <span class="n">orientation</span><span class="o">=</span><span class="s1">&#39;horizontal&#39;</span><span class="p">,</span> <span class="n">pad</span><span class="o">=.</span><span class="mi">05</span><span class="p">,</span> <span class="n">aspect</span><span class="o">=</span><span class="mi">30</span><span class="p">,</span> <span class="n">shrink</span><span class="o">=.</span><span class="mi">8</span><span class="p">)</span>
             <span class="c1"># TODO: need better control of colorbar content</span>
             <span class="k">if</span> <span class="n">background</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
