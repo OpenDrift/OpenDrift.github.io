@@ -188,14 +188,16 @@
 <span class="c1"># Copyright 2020, Knut-Frode Dagestad, MET Norway</span>
 
 <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">ChemicalDrift is an OpenDrift module for drift and settling of chemicals.</span>
-<span class="sd">Based on work by Simon Weppe, MetOcean Solutions Ltd.</span>
+<span class="sd">ChemicalDrift is an OpenDrift module for drift and fate of chemicals.</span>
+<span class="sd">The module is under development within the scope of the Horizon2020 project EMERGE</span>
+<span class="sd">Manuel Aghito. Norwegian Meteorological Institute. 2020.</span>
 <span class="sd">&quot;&quot;&quot;</span>
 
 <span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
 <span class="kn">import</span> <span class="nn">logging</span><span class="p">;</span> <span class="n">logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span>
 <span class="kn">from</span> <span class="nn">opendrift.models.oceandrift</span> <span class="kn">import</span> <span class="n">OceanDrift</span>
 <span class="kn">from</span> <span class="nn">opendrift.models.oceandrift</span> <span class="kn">import</span> <span class="n">Lagrangian3DArray</span>
+<span class="kn">from</span> <span class="nn">datetime</span> <span class="kn">import</span> <span class="n">datetime</span>
 
 <div class="viewcode-block" id="ChemicalElement"><a class="viewcode-back" href="../../../autoapi/opendrift/models/chemicaldrift/index.html#opendrift.models.chemicaldrift.ChemicalElement">[docs]</a><span class="k">class</span> <span class="nc">ChemicalElement</span><span class="p">(</span><span class="n">Lagrangian3DArray</span><span class="p">):</span>
     <span class="n">variables</span> <span class="o">=</span> <span class="n">Lagrangian3DArray</span><span class="o">.</span><span class="n">add_variables</span><span class="p">([</span>
@@ -225,7 +227,9 @@
         <span class="s1">&#39;sea_surface_wave_period_at_variance_spectral_density_maximum&#39;</span><span class="p">:</span> <span class="p">{</span><span class="s1">&#39;fallback&#39;</span><span class="p">:</span> <span class="mi">0</span><span class="p">},</span>
         <span class="s1">&#39;sea_surface_wave_mean_period_from_variance_spectral_density_second_frequency_moment&#39;</span><span class="p">:</span> <span class="p">{</span><span class="s1">&#39;fallback&#39;</span><span class="p">:</span> <span class="mi">0</span><span class="p">},</span>
         <span class="s1">&#39;land_binary_mask&#39;</span><span class="p">:</span> <span class="p">{</span><span class="s1">&#39;fallback&#39;</span><span class="p">:</span> <span class="kc">None</span><span class="p">},</span>
-        <span class="s1">&#39;ocean_vertical_diffusivity&#39;</span><span class="p">:</span> <span class="p">{</span><span class="s1">&#39;fallback&#39;</span><span class="p">:</span> <span class="mf">0.02</span><span class="p">},</span>
+        <span class="s1">&#39;ocean_vertical_diffusivity&#39;</span><span class="p">:</span> <span class="p">{</span><span class="s1">&#39;fallback&#39;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>
+             <span class="s1">&#39;profiles&#39;</span><span class="p">:</span> <span class="kc">True</span><span class="p">},</span>
+
         <span class="s1">&#39;sea_floor_depth_below_sea_level&#39;</span><span class="p">:</span> <span class="p">{</span><span class="s1">&#39;fallback&#39;</span><span class="p">:</span> <span class="mi">10000</span><span class="p">},</span>
         <span class="p">}</span>
 
@@ -279,7 +283,30 @@
             <span class="c1"># Allow moving again</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">elements</span><span class="o">.</span><span class="n">moving</span><span class="p">[</span><span class="n">resuspending</span><span class="p">]</span> <span class="o">=</span> <span class="mi">1</span>
             <span class="c1"># Suspend 1 cm above seafloor</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">elements</span><span class="o">.</span><span class="n">z</span><span class="p">[</span><span class="n">resuspending</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">elements</span><span class="o">.</span><span class="n">z</span><span class="p">[</span><span class="n">resuspending</span><span class="p">]</span> <span class="o">+</span> <span class="o">.</span><span class="mi">01</span></div></div>
+            <span class="bp">self</span><span class="o">.</span><span class="n">elements</span><span class="o">.</span><span class="n">z</span><span class="p">[</span><span class="n">resuspending</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">elements</span><span class="o">.</span><span class="n">z</span><span class="p">[</span><span class="n">resuspending</span><span class="p">]</span> <span class="o">+</span> <span class="o">.</span><span class="mi">01</span></div>
+
+<div class="viewcode-block" id="ChemicalDrift.seed_from_STEAM"><a class="viewcode-back" href="../../../autoapi/opendrift/models/chemicaldrift/index.html#opendrift.models.chemicaldrift.ChemicalDrift.seed_from_STEAM">[docs]</a>    <span class="k">def</span> <span class="nf">seed_from_STEAM</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">steam</span><span class="p">,</span> <span class="n">lowerbound</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">radius</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Seed elements based on a dataarray with STEAM emission data</span>
+
+<span class="sd">        Arguments:</span>
+<span class="sd">            steam: dataarray with steam emission data, with coordinates</span>
+<span class="sd">                * latitude   (latitude) float32</span>
+<span class="sd">                * longitude  (longitude) float32</span>
+<span class="sd">                * time       (time) datetime64[ns]</span>
+<span class="sd">            </span>
+<span class="sd">            </span>
+<span class="sd">            radius:      scalar, unit: meters</span>
+<span class="sd">            lowerbound:  scalar, elements with lower values are discarded</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="n">sel</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">steam</span> <span class="o">&gt;</span> <span class="n">lowerbound</span><span class="p">)</span>
+        <span class="n">t</span><span class="o">=</span><span class="n">steam</span><span class="o">.</span><span class="n">time</span><span class="p">[</span><span class="n">sel</span><span class="p">[</span><span class="mi">0</span><span class="p">]]</span><span class="o">.</span><span class="n">data</span>
+        <span class="n">la</span><span class="o">=</span><span class="n">steam</span><span class="o">.</span><span class="n">latitude</span><span class="p">[</span><span class="n">sel</span><span class="p">[</span><span class="mi">1</span><span class="p">]]</span><span class="o">.</span><span class="n">data</span>
+        <span class="n">lo</span><span class="o">=</span><span class="n">steam</span><span class="o">.</span><span class="n">longitude</span><span class="p">[</span><span class="n">sel</span><span class="p">[</span><span class="mi">2</span><span class="p">]]</span><span class="o">.</span><span class="n">data</span>
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="n">t</span><span class="o">.</span><span class="n">size</span><span class="p">):</span>
+            <span class="n">number</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">steam</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="n">sel</span><span class="p">][</span><span class="n">i</span><span class="p">]</span><span class="o">/</span><span class="n">lowerbound</span><span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="s1">&#39;int&#39;</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">seed_elements</span><span class="p">(</span><span class="n">lon</span><span class="o">=</span><span class="n">lo</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">ones</span><span class="p">(</span><span class="n">number</span><span class="p">),</span> <span class="n">lat</span><span class="o">=</span><span class="n">la</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">ones</span><span class="p">(</span><span class="n">number</span><span class="p">),</span>
+                            <span class="n">radius</span><span class="o">=</span><span class="n">radius</span><span class="p">,</span> <span class="n">number</span><span class="o">=</span><span class="n">number</span><span class="p">,</span> <span class="n">time</span><span class="o">=</span><span class="n">datetime</span><span class="o">.</span><span class="n">utcfromtimestamp</span><span class="p">(</span><span class="n">t</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">int</span><span class="p">)</span> <span class="o">*</span> <span class="mf">1e-9</span><span class="p">))</span></div></div>
 </pre></div>
 
            </div>
