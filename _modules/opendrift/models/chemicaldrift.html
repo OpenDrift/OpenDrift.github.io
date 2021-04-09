@@ -1089,6 +1089,23 @@
 <div class="viewcode-block" id="ChemicalDrift.biodegradation"><a class="viewcode-back" href="../../../autoapi/opendrift/models/chemicaldrift/index.html#opendrift.models.chemicaldrift.ChemicalDrift.biodegradation">[docs]</a>    <span class="k">def</span> <span class="nf">biodegradation</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&#39;&#39;&#39;Biodegradation. Test implementations&#39;&#39;&#39;</span>
 
+        <span class="k">def</span> <span class="nf">biodegradation_factors</span><span class="p">():</span>
+            <span class="sd">&#39;&#39;&#39;Factors for specie dependent biodegradation&#39;&#39;&#39;</span>    
+
+            <span class="c1"># self.num_lmm    = self.specie_name2num(&#39;LMM&#39;)</span>
+            <span class="c1"># self.num_prev   = self.specie_name2num(&#39;Particle reversible&#39;)</span>
+            <span class="c1"># self.num_srev   = self.specie_name2num(&#39;Sediment reversible&#39;)</span>
+            <span class="c1"># self.num_psrev  = self.specie_name2num(&#39;Particle slowly reversible&#39;)</span>
+            <span class="c1"># self.num_ssrev  = self.specie_name2num(&#39;Sediment slowly reversible&#39;)</span>
+
+            <span class="n">factors</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">elements</span><span class="o">.</span><span class="n">specie</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span>    
+            <span class="n">factors</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">elements</span><span class="o">.</span><span class="n">specie</span><span class="o">==</span><span class="bp">self</span><span class="o">.</span><span class="n">num_lmm</span><span class="p">]</span><span class="o">=</span><span class="mi">3</span>
+            <span class="n">factors</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">elements</span><span class="o">.</span><span class="n">specie</span><span class="o">==</span><span class="bp">self</span><span class="o">.</span><span class="n">num_prev</span><span class="p">]</span><span class="o">=</span><span class="mi">1</span>
+            <span class="n">factors</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">elements</span><span class="o">.</span><span class="n">specie</span><span class="o">==</span><span class="bp">self</span><span class="o">.</span><span class="n">num_srev</span><span class="p">]</span><span class="o">=.</span><span class="mi">25</span>
+            <span class="n">factors</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">elements</span><span class="o">.</span><span class="n">specie</span><span class="o">==</span><span class="bp">self</span><span class="o">.</span><span class="n">num_psrev</span><span class="p">]</span><span class="o">=.</span><span class="mi">5</span>
+            <span class="n">factors</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">elements</span><span class="o">.</span><span class="n">specie</span><span class="o">==</span><span class="bp">self</span><span class="o">.</span><span class="n">num_ssrev</span><span class="p">]</span><span class="o">=.</span><span class="mi">125</span>
+            <span class="k">return</span> <span class="n">factors</span>
+        
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_config</span><span class="p">(</span><span class="s1">&#39;chemical:transformations:biodegradation&#39;</span><span class="p">)</span> <span class="ow">is</span> <span class="kc">True</span><span class="p">:</span>
             <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_config</span><span class="p">(</span><span class="s1">&#39;chemical:transformations:biodegradation_mode&#39;</span><span class="p">)</span><span class="o">==</span><span class="s1">&#39;Test1&#39;</span><span class="p">:</span>
                 <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;Calculating: biodegradation - mode Test1&#39;</span><span class="p">)</span>
@@ -1104,8 +1121,8 @@
                 <span class="bp">self</span><span class="o">.</span><span class="n">deactivate_elements</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">elements</span><span class="o">.</span><span class="n">mass</span> <span class="o">&lt;</span> <span class="o">.</span><span class="mi">1</span><span class="o">*</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">elements</span><span class="o">.</span><span class="n">mass</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">elements</span><span class="o">.</span><span class="n">mass_biodegraded</span><span class="p">),</span> <span class="n">reason</span><span class="o">=</span><span class="s1">&#39;biodegraded&#39;</span><span class="p">)</span>
             <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_config</span><span class="p">(</span><span class="s1">&#39;chemical:transformations:biodegradation_mode&#39;</span><span class="p">)</span><span class="o">==</span><span class="s1">&#39;Test2&#39;</span><span class="p">:</span>
                 <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;Calculating: biodegradation - Mode Test2&#39;</span><span class="p">)</span>
-                
-                <span class="n">fraction_biodegraded</span> <span class="o">=</span> <span class="o">.</span><span class="mi">2</span>
+
+                <span class="n">fraction_biodegraded</span> <span class="o">=</span> <span class="o">.</span><span class="mi">1</span><span class="o">*</span><span class="n">biodegradation_factors</span><span class="p">()</span>
                 <span class="n">biodegraded_now</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">elements</span><span class="o">.</span><span class="n">mass</span><span class="o">*</span><span class="n">fraction_biodegraded</span>
     
                 <span class="bp">self</span><span class="o">.</span><span class="n">elements</span><span class="o">.</span><span class="n">mass_biodegraded</span> <span class="o">=</span> \
