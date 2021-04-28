@@ -1,0 +1,737 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" />
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  
+  <title>opendrift.readers.reader_ROMS_native &mdash; OpenDrift  documentation</title>
+  
+
+  
+  <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="../../../_static/theme_overrides.css" type="text/css" />
+
+  
+  
+
+  
+  
+
+  
+
+  
+  <!--[if lt IE 9]>
+    <script src="../../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
+        <script src="../../../_static/jquery.js"></script>
+        <script src="../../../_static/underscore.js"></script>
+        <script src="../../../_static/doctools.js"></script>
+    
+    <script type="text/javascript" src="../../../_static/js/theme.js"></script>
+
+    
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="../../../index.html" class="icon icon-home"> OpenDrift
+          
+
+          
+            
+            <img src="../../../_static/opendrift_logo.png" class="logo" alt="Logo"/>
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../index.html">Introduction to OpenDrift</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../history_link.html">History</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../install.html">Installing OpenDrift</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../tutorial.html">Tutorial</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../theory/index.html">Theory</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../choosing_a_model.html">How to choose which model to use</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../writing_a_new_model.html">How to write a new module</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../gallery/index.html">Gallery</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../oil_types.html">Oil types</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../interaction_with_coastline.html">Interaction with coastline</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../docker.html">Using OpenDrift in a container</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../gui.html">Graphical User Interface</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../references.html">Publications</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../autoapi/index.html">API Reference</a></li>
+</ul>
+
+            
+          
+        </div>
+        
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">OpenDrift</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../../../index.html" class="icon icon-home"></a> &raquo;</li>
+        
+          <li><a href="../../index.html">Module code</a> &raquo;</li>
+        
+          <li><a href="../../opendrift.html">opendrift</a> &raquo;</li>
+        
+          <li><a href="../readers.html">opendrift.readers</a> &raquo;</li>
+        
+      <li>opendrift.readers.reader_ROMS_native</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <h1>Source code for opendrift.readers.reader_ROMS_native</h1><div class="highlight"><pre>
+<span></span><span class="c1"># This file is part of OpenDrift.</span>
+<span class="c1">#</span>
+<span class="c1"># OpenDrift is free software: you can redistribute it and/or modify</span>
+<span class="c1"># it under the terms of the GNU General Public License as published by</span>
+<span class="c1"># the Free Software Foundation, version 2</span>
+<span class="c1">#</span>
+<span class="c1"># OpenDrift is distributed in the hope that it will be useful,</span>
+<span class="c1"># but WITHOUT ANY WARRANTY; without even the implied warranty of</span>
+<span class="c1"># MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the</span>
+<span class="c1"># GNU General Public License for more details.</span>
+<span class="c1">#</span>
+<span class="c1"># You should have received a copy of the GNU General Public License</span>
+<span class="c1"># along with OpenDrift.  If not, see &lt;https://www.gnu.org/licenses/&gt;.</span>
+<span class="c1">#</span>
+<span class="c1"># Copyright 2015, Knut-Frode Dagestad, MET Norway</span>
+
+<span class="kn">from</span> <span class="nn">bisect</span> <span class="kn">import</span> <span class="n">bisect_left</span><span class="p">,</span> <span class="n">bisect_right</span>
+<span class="kn">from</span> <span class="nn">datetime</span> <span class="kn">import</span> <span class="n">datetime</span>
+<span class="kn">import</span> <span class="nn">logging</span>
+<span class="n">logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span>
+
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">from</span> <span class="nn">netCDF4</span> <span class="kn">import</span> <span class="n">num2date</span>
+<span class="kn">import</span> <span class="nn">xarray</span> <span class="k">as</span> <span class="nn">xr</span>
+
+<span class="kn">from</span> <span class="nn">opendrift.readers.basereader</span> <span class="kn">import</span> <span class="n">BaseReader</span><span class="p">,</span> <span class="n">vector_pairs_xy</span><span class="p">,</span> <span class="n">StructuredReader</span>
+<span class="kn">from</span> <span class="nn">opendrift.readers.roppy</span> <span class="kn">import</span> <span class="n">depth</span>
+
+
+<div class="viewcode-block" id="Reader"><a class="viewcode-back" href="../../../autoapi/opendrift/readers/reader_ROMS_native/index.html#opendrift.readers.reader_ROMS_native.Reader">[docs]</a><span class="k">class</span> <span class="nc">Reader</span><span class="p">(</span><span class="n">BaseReader</span><span class="p">,</span> <span class="n">StructuredReader</span><span class="p">):</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">filename</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">gridfile</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+
+        <span class="k">if</span> <span class="n">filename</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;Need filename as argument to constructor&#39;</span><span class="p">)</span>
+
+        <span class="c1"># Map ROMS variable names to CF standard_name</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">ROMS_variable_mapping</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="c1"># Removing (temoprarily) land_binary_mask from ROMS-variables,</span>
+            <span class="c1"># as this leads to trouble with linearNDFast interpolation</span>
+            <span class="s1">&#39;mask_rho&#39;</span><span class="p">:</span> <span class="s1">&#39;land_binary_mask&#39;</span><span class="p">,</span>
+            <span class="s1">&#39;mask_psi&#39;</span><span class="p">:</span> <span class="s1">&#39;land_binary_mask&#39;</span><span class="p">,</span>
+            <span class="s1">&#39;h&#39;</span><span class="p">:</span> <span class="s1">&#39;sea_floor_depth_below_sea_level&#39;</span><span class="p">,</span>
+            <span class="s1">&#39;zeta&#39;</span><span class="p">:</span> <span class="s1">&#39;sea_surface_height&#39;</span><span class="p">,</span>
+            <span class="s1">&#39;u&#39;</span><span class="p">:</span> <span class="s1">&#39;x_sea_water_velocity&#39;</span><span class="p">,</span>
+            <span class="s1">&#39;v&#39;</span><span class="p">:</span> <span class="s1">&#39;y_sea_water_velocity&#39;</span><span class="p">,</span>
+            <span class="s1">&#39;u_eastward&#39;</span><span class="p">:</span> <span class="s1">&#39;x_sea_water_velocity&#39;</span><span class="p">,</span>
+            <span class="s1">&#39;v_northward&#39;</span><span class="p">:</span> <span class="s1">&#39;y_sea_water_velocity&#39;</span><span class="p">,</span>
+            <span class="s1">&#39;w&#39;</span><span class="p">:</span> <span class="s1">&#39;upward_sea_water_velocity&#39;</span><span class="p">,</span>
+            <span class="s1">&#39;temp&#39;</span><span class="p">:</span> <span class="s1">&#39;sea_water_temperature&#39;</span><span class="p">,</span>
+            <span class="s1">&#39;salt&#39;</span><span class="p">:</span> <span class="s1">&#39;sea_water_salinity&#39;</span><span class="p">,</span>
+            <span class="s1">&#39;uice&#39;</span><span class="p">:</span> <span class="s1">&#39;sea_ice_x_velocity&#39;</span><span class="p">,</span>
+            <span class="s1">&#39;vice&#39;</span><span class="p">:</span> <span class="s1">&#39;sea_ice_y_velocity&#39;</span><span class="p">,</span>
+            <span class="s1">&#39;aice&#39;</span><span class="p">:</span> <span class="s1">&#39;sea_ice_area_fraction&#39;</span><span class="p">,</span>
+            <span class="s1">&#39;hice&#39;</span><span class="p">:</span> <span class="s1">&#39;sea_ice_thickness&#39;</span><span class="p">,</span>
+            <span class="s1">&#39;gls&#39;</span><span class="p">:</span> <span class="s1">&#39;turbulent_generic_length_scale&#39;</span><span class="p">,</span>
+            <span class="s1">&#39;tke&#39;</span><span class="p">:</span> <span class="s1">&#39;turbulent_kinetic_energy&#39;</span><span class="p">,</span>
+            <span class="s1">&#39;AKs&#39;</span><span class="p">:</span> <span class="s1">&#39;ocean_vertical_diffusivity&#39;</span><span class="p">,</span>
+            <span class="s1">&#39;sustr&#39;</span><span class="p">:</span> <span class="s1">&#39;surface_downward_x_stress&#39;</span><span class="p">,</span>
+            <span class="s1">&#39;svstr&#39;</span><span class="p">:</span> <span class="s1">&#39;surface_downward_y_stress&#39;</span><span class="p">,</span>
+            <span class="s1">&#39;Uwind&#39;</span><span class="p">:</span> <span class="s1">&#39;x_wind&#39;</span><span class="p">,</span>
+            <span class="s1">&#39;Vwind&#39;</span><span class="p">:</span> <span class="s1">&#39;y_wind&#39;</span><span class="p">}</span>
+
+        <span class="c1"># z-levels to which sigma-layers may be interpolated</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">zlevels</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span>
+            <span class="mi">0</span><span class="p">,</span> <span class="o">-.</span><span class="mi">5</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="o">-</span><span class="mi">3</span><span class="p">,</span> <span class="o">-</span><span class="mi">5</span><span class="p">,</span> <span class="o">-</span><span class="mi">10</span><span class="p">,</span> <span class="o">-</span><span class="mi">25</span><span class="p">,</span> <span class="o">-</span><span class="mi">50</span><span class="p">,</span> <span class="o">-</span><span class="mi">75</span><span class="p">,</span> <span class="o">-</span><span class="mi">100</span><span class="p">,</span> <span class="o">-</span><span class="mi">150</span><span class="p">,</span> <span class="o">-</span><span class="mi">200</span><span class="p">,</span>
+            <span class="o">-</span><span class="mi">250</span><span class="p">,</span> <span class="o">-</span><span class="mi">300</span><span class="p">,</span> <span class="o">-</span><span class="mi">400</span><span class="p">,</span> <span class="o">-</span><span class="mi">500</span><span class="p">,</span> <span class="o">-</span><span class="mi">600</span><span class="p">,</span> <span class="o">-</span><span class="mi">700</span><span class="p">,</span> <span class="o">-</span><span class="mi">800</span><span class="p">,</span> <span class="o">-</span><span class="mi">900</span><span class="p">,</span> <span class="o">-</span><span class="mi">1000</span><span class="p">,</span> <span class="o">-</span><span class="mi">1500</span><span class="p">,</span>
+            <span class="o">-</span><span class="mi">2000</span><span class="p">,</span> <span class="o">-</span><span class="mi">2500</span><span class="p">,</span> <span class="o">-</span><span class="mi">3000</span><span class="p">,</span> <span class="o">-</span><span class="mi">3500</span><span class="p">,</span> <span class="o">-</span><span class="mi">4000</span><span class="p">,</span> <span class="o">-</span><span class="mi">4500</span><span class="p">,</span> <span class="o">-</span><span class="mi">5000</span><span class="p">,</span> <span class="o">-</span><span class="mi">5500</span><span class="p">,</span> <span class="o">-</span><span class="mi">6000</span><span class="p">,</span>
+            <span class="o">-</span><span class="mi">6500</span><span class="p">,</span> <span class="o">-</span><span class="mi">7000</span><span class="p">,</span> <span class="o">-</span><span class="mi">7500</span><span class="p">,</span> <span class="o">-</span><span class="mi">8000</span><span class="p">])</span>
+
+        <span class="n">gls_param</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;gls_cmu0&#39;</span><span class="p">,</span> <span class="s1">&#39;gls_p&#39;</span><span class="p">,</span> <span class="s1">&#39;gls_m&#39;</span><span class="p">,</span> <span class="s1">&#39;gls_n&#39;</span><span class="p">]</span>
+
+        <span class="n">filestr</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">filename</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">name</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="n">filestr</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="n">name</span>
+
+        <span class="k">try</span><span class="p">:</span>
+            <span class="c1"># Open file, check that everything is ok</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s1">&#39;Opening dataset: &#39;</span> <span class="o">+</span> <span class="n">filestr</span><span class="p">)</span>
+            <span class="k">if</span> <span class="p">(</span><span class="s1">&#39;*&#39;</span> <span class="ow">in</span> <span class="n">filestr</span><span class="p">)</span> <span class="ow">or</span> <span class="p">(</span><span class="s1">&#39;?&#39;</span> <span class="ow">in</span> <span class="n">filestr</span><span class="p">)</span> <span class="ow">or</span> <span class="p">(</span><span class="s1">&#39;[&#39;</span> <span class="ow">in</span> <span class="n">filestr</span><span class="p">):</span>
+                <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s1">&#39;Opening files with MFDataset&#39;</span><span class="p">)</span>
+                <span class="k">def</span> <span class="nf">drop_non_essential_vars_pop</span><span class="p">(</span><span class="n">ds</span><span class="p">):</span>
+                    <span class="n">dropvars</span> <span class="o">=</span> <span class="p">[</span><span class="n">v</span> <span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">ds</span><span class="o">.</span><span class="n">variables</span> <span class="k">if</span> <span class="n">v</span> <span class="ow">not</span> <span class="ow">in</span>
+                                <span class="nb">list</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">ROMS_variable_mapping</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span> <span class="o">+</span> <span class="n">gls_param</span> <span class="o">+</span>
+                                <span class="p">[</span><span class="s1">&#39;ocean_time&#39;</span><span class="p">,</span> <span class="s1">&#39;s_rho&#39;</span><span class="p">,</span> <span class="s1">&#39;Cs_r&#39;</span><span class="p">,</span> <span class="s1">&#39;hc&#39;</span><span class="p">,</span> <span class="s1">&#39;angle&#39;</span><span class="p">]</span>
+                                <span class="ow">and</span> <span class="n">v</span><span class="p">[</span><span class="mi">0</span><span class="p">:</span><span class="mi">3</span><span class="p">]</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">[</span><span class="s1">&#39;lon&#39;</span><span class="p">,</span> <span class="s1">&#39;lat&#39;</span><span class="p">,</span> <span class="s1">&#39;mas&#39;</span><span class="p">]]</span>
+                    <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;Dropping variables: </span><span class="si">%s</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="n">dropvars</span><span class="p">)</span>
+                    <span class="n">ds</span> <span class="o">=</span> <span class="n">ds</span><span class="o">.</span><span class="n">drop</span><span class="p">(</span><span class="n">dropvars</span><span class="p">)</span>
+                    <span class="k">return</span> <span class="n">ds</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">Dataset</span> <span class="o">=</span> <span class="n">xr</span><span class="o">.</span><span class="n">open_mfdataset</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span>
+                    <span class="n">chunks</span><span class="o">=</span><span class="p">{</span><span class="s1">&#39;ocean_time&#39;</span><span class="p">:</span> <span class="mi">1</span><span class="p">},</span> <span class="n">concat_dim</span><span class="o">=</span><span class="s1">&#39;ocean_time&#39;</span><span class="p">,</span>
+                    <span class="n">combine</span><span class="o">=</span><span class="s1">&#39;by_coords&#39;</span><span class="p">,</span>
+                    <span class="n">compat</span><span class="o">=</span><span class="s1">&#39;override&#39;</span><span class="p">,</span>
+                    <span class="n">decode_times</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+                    <span class="n">preprocess</span><span class="o">=</span><span class="n">drop_non_essential_vars_pop</span><span class="p">,</span>
+                    <span class="n">data_vars</span><span class="o">=</span><span class="s1">&#39;minimal&#39;</span><span class="p">,</span> <span class="n">coords</span><span class="o">=</span><span class="s1">&#39;minimal&#39;</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s1">&#39;Opening file with Dataset&#39;</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">Dataset</span> <span class="o">=</span> <span class="n">xr</span><span class="o">.</span><span class="n">open_dataset</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="n">decode_times</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+        <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="n">e</span><span class="p">)</span>
+
+
+        <span class="k">if</span> <span class="s1">&#39;Vtransform&#39;</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">Dataset</span><span class="o">.</span><span class="n">variables</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">Vtransform</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">Dataset</span><span class="o">.</span><span class="n">variables</span><span class="p">[</span><span class="s1">&#39;Vtransform&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">data</span>  <span class="c1"># scalar</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="s1">&#39;Vtransform not found, using 1&#39;</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">Vtransform</span> <span class="o">=</span> <span class="mi">1</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">Vtransform</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">Vtransform</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="s1">&#39;s_rho&#39;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">Dataset</span><span class="o">.</span><span class="n">variables</span><span class="p">:</span>
+            <span class="n">dimensions</span> <span class="o">=</span> <span class="mi">2</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">dimensions</span> <span class="o">=</span> <span class="mi">3</span>
+
+        <span class="k">if</span> <span class="n">dimensions</span> <span class="o">==</span> <span class="mi">3</span><span class="p">:</span>
+            <span class="c1"># Read sigma-coordinate values</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">sigma</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">Dataset</span><span class="o">.</span><span class="n">variables</span><span class="p">[</span><span class="s1">&#39;s_rho&#39;</span><span class="p">][:]</span>
+            <span class="k">except</span><span class="p">:</span>
+                <span class="n">num_sigma</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">Dataset</span><span class="o">.</span><span class="n">dimensions</span><span class="p">[</span><span class="s1">&#39;s_rho&#39;</span><span class="p">])</span>
+                <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span>
+                    <span class="s1">&#39;s_rho not available in dataset, constructing from&#39;</span>
+                    <span class="s1">&#39; number of layers (</span><span class="si">%s</span><span class="s1">).&#39;</span> <span class="o">%</span> <span class="n">num_sigma</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">sigma</span> <span class="o">=</span> <span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="n">num_sigma</span><span class="p">)</span><span class="o">+.</span><span class="mi">5</span><span class="o">-</span><span class="n">num_sigma</span><span class="p">)</span><span class="o">/</span><span class="n">num_sigma</span>
+
+            <span class="c1"># Read sigma-coordinate transform parameters</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">Dataset</span><span class="o">.</span><span class="n">variables</span><span class="p">[</span><span class="s1">&#39;Cs_r&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">set_auto_mask</span><span class="p">(</span><span class="kc">False</span><span class="p">)</span>
+            <span class="k">except</span><span class="p">:</span>
+                <span class="k">pass</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">Cs_r</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">Dataset</span><span class="o">.</span><span class="n">variables</span><span class="p">[</span><span class="s1">&#39;Cs_r&#39;</span><span class="p">][:]</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">hc</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">Dataset</span><span class="o">.</span><span class="n">variables</span><span class="p">[</span><span class="s1">&#39;hc&#39;</span><span class="p">][:]</span>
+            <span class="k">except</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">hc</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">Dataset</span><span class="o">.</span><span class="n">variables</span><span class="p">[</span><span class="s1">&#39;hc&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">data</span>  <span class="c1"># scalar</span>
+
+            <span class="bp">self</span><span class="o">.</span><span class="n">num_layers</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">sigma</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">num_layers</span> <span class="o">=</span> <span class="mi">1</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">ROMS_variable_mapping</span><span class="p">[</span><span class="s1">&#39;ubar&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;x_sea_water_velocity&#39;</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">ROMS_variable_mapping</span><span class="p">[</span><span class="s1">&#39;vbar&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;y_sea_water_velocity&#39;</span>
+            <span class="k">del</span> <span class="bp">self</span><span class="o">.</span><span class="n">ROMS_variable_mapping</span><span class="p">[</span><span class="s1">&#39;u&#39;</span><span class="p">]</span>
+            <span class="k">del</span> <span class="bp">self</span><span class="o">.</span><span class="n">ROMS_variable_mapping</span><span class="p">[</span><span class="s1">&#39;v&#39;</span><span class="p">]</span>
+
+        <span class="k">if</span> <span class="s1">&#39;u_eastward&#39;</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">Dataset</span><span class="o">.</span><span class="n">variables</span><span class="p">:</span>
+            <span class="k">del</span> <span class="bp">self</span><span class="o">.</span><span class="n">ROMS_variable_mapping</span><span class="p">[</span><span class="s1">&#39;u&#39;</span><span class="p">]</span>
+            <span class="k">del</span> <span class="bp">self</span><span class="o">.</span><span class="n">ROMS_variable_mapping</span><span class="p">[</span><span class="s1">&#39;v&#39;</span><span class="p">]</span>
+
+        <span class="k">if</span> <span class="s1">&#39;lat_rho&#39;</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">Dataset</span><span class="o">.</span><span class="n">variables</span><span class="p">:</span>
+            <span class="c1"># Horizontal oordinates and directions</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">lat</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">Dataset</span><span class="o">.</span><span class="n">variables</span><span class="p">[</span><span class="s1">&#39;lat_rho&#39;</span><span class="p">][:]</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">lon</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">Dataset</span><span class="o">.</span><span class="n">variables</span><span class="p">[</span><span class="s1">&#39;lon_rho&#39;</span><span class="p">][:]</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">gridfile</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="n">filename</span> <span class="o">+</span> <span class="s1">&#39; does not contain lon/lat &#39;</span>
+                                 <span class="s1">&#39;arrays, please supply a grid-file &#39;</span>
+                                 <span class="s1">&#39;&quot;gridfile=&lt;grid_file&gt;&quot;&#39;</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">gf</span> <span class="o">=</span> <span class="n">Dataset</span><span class="p">(</span><span class="n">gridfile</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">lat</span> <span class="o">=</span> <span class="n">gf</span><span class="o">.</span><span class="n">variables</span><span class="p">[</span><span class="s1">&#39;lat_rho&#39;</span><span class="p">][:]</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">lon</span> <span class="o">=</span> <span class="n">gf</span><span class="o">.</span><span class="n">variables</span><span class="p">[</span><span class="s1">&#39;lon_rho&#39;</span><span class="p">][:]</span>
+
+        <span class="k">try</span><span class="p">:</span>  <span class="c1"># Check for GLS parameters (diffusivity)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">gls_parameters</span> <span class="o">=</span> <span class="p">{}</span>
+            <span class="k">for</span> <span class="n">gls_par</span> <span class="ow">in</span> <span class="n">gls_param</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">gls_parameters</span><span class="p">[</span><span class="n">gls_par</span><span class="p">]</span> <span class="o">=</span> \
+                    <span class="bp">self</span><span class="o">.</span><span class="n">Dataset</span><span class="o">.</span><span class="n">variables</span><span class="p">[</span><span class="n">gls_par</span><span class="p">][()]</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s1">&#39;Read GLS parameters from file.&#39;</span><span class="p">)</span>
+        <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="n">e</span><span class="p">)</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s1">&#39;Did not find complete set of GLS parameters&#39;</span><span class="p">)</span>
+
+        <span class="c1"># Get time coverage</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">ocean_time</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">Dataset</span><span class="o">.</span><span class="n">variables</span><span class="p">[</span><span class="s1">&#39;ocean_time&#39;</span><span class="p">]</span>
+        <span class="k">except</span><span class="p">:</span>
+            <span class="n">ocean_time</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">Dataset</span><span class="o">.</span><span class="n">variables</span><span class="p">[</span><span class="s1">&#39;time&#39;</span><span class="p">]</span>
+        <span class="n">time_units</span> <span class="o">=</span> <span class="n">ocean_time</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s1">&#39;units&#39;</span><span class="p">]</span>
+        <span class="k">if</span> <span class="n">time_units</span> <span class="o">==</span> <span class="s1">&#39;second&#39;</span><span class="p">:</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s1">&#39;Ocean time given as seconds relative to start &#39;</span>
+                         <span class="s1">&#39;Setting artifical start time of 1 Jan 2000.&#39;</span><span class="p">)</span>
+            <span class="n">time_units</span> <span class="o">=</span> <span class="s1">&#39;seconds since 2000-01-01 00:00:00&#39;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">times</span> <span class="o">=</span> <span class="n">num2date</span><span class="p">(</span><span class="n">ocean_time</span><span class="p">[:],</span> <span class="n">time_units</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">start_time</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">times</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">end_time</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">times</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">times</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">time_step</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">times</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">times</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">time_step</span> <span class="o">=</span> <span class="kc">None</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">lon</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">lon</span><span class="o">.</span><span class="n">data</span>  <span class="c1"># Extract, could be avoided downstream</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">lat</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">lat</span><span class="o">.</span><span class="n">data</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">sigma</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">sigma</span><span class="o">.</span><span class="n">data</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="s1">&#39;roms native&#39;</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">precalculate_s2z_coefficients</span> <span class="o">=</span> <span class="kc">True</span>
+
+        <span class="c1"># Find all variables having standard_name</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">variables</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">var_name</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">Dataset</span><span class="o">.</span><span class="n">variables</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">var_name</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">ROMS_variable_mapping</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+                <span class="n">var</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">Dataset</span><span class="o">.</span><span class="n">variables</span><span class="p">[</span><span class="n">var_name</span><span class="p">]</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">variables</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">ROMS_variable_mapping</span><span class="p">[</span><span class="n">var_name</span><span class="p">])</span>
+
+        <span class="c1"># Run constructor of parent Reader class</span>
+        <span class="nb">super</span><span class="p">(</span><span class="n">Reader</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
+
+<div class="viewcode-block" id="Reader.get_variables"><a class="viewcode-back" href="../../../autoapi/opendrift/readers/reader_ROMS_native/index.html#opendrift.readers.reader_ROMS_native.Reader.get_variables">[docs]</a>    <span class="k">def</span> <span class="nf">get_variables</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">requested_variables</span><span class="p">,</span> <span class="n">time</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                      <span class="n">x</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">y</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">z</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="n">start_time</span> <span class="o">=</span> <span class="n">datetime</span><span class="o">.</span><span class="n">now</span><span class="p">()</span>
+        <span class="n">requested_variables</span><span class="p">,</span> <span class="n">time</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">z</span><span class="p">,</span> <span class="n">outside</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">check_arguments</span><span class="p">(</span>
+            <span class="n">requested_variables</span><span class="p">,</span> <span class="n">time</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">z</span><span class="p">)</span>
+
+        <span class="c1"># If one vector component is requested, but not the other</span>
+        <span class="c1"># we must add the other for correct rotation</span>
+        <span class="k">for</span> <span class="n">vector_pair</span> <span class="ow">in</span> <span class="n">vector_pairs_xy</span><span class="p">:</span>
+            <span class="k">if</span> <span class="p">(</span><span class="n">vector_pair</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="ow">in</span> <span class="n">requested_variables</span> <span class="ow">and</span>
+                <span class="n">vector_pair</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">requested_variables</span><span class="p">):</span>
+                <span class="n">requested_variables</span><span class="o">.</span><span class="n">extend</span><span class="p">([</span><span class="n">vector_pair</span><span class="p">[</span><span class="mi">1</span><span class="p">]])</span>
+            <span class="k">if</span> <span class="p">(</span><span class="n">vector_pair</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="ow">in</span> <span class="n">requested_variables</span> <span class="ow">and</span>
+                <span class="n">vector_pair</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">requested_variables</span><span class="p">):</span>
+                <span class="n">requested_variables</span><span class="o">.</span><span class="n">extend</span><span class="p">([</span><span class="n">vector_pair</span><span class="p">[</span><span class="mi">0</span><span class="p">]])</span>
+
+        <span class="n">nearestTime</span><span class="p">,</span> <span class="n">dummy1</span><span class="p">,</span> <span class="n">dummy2</span><span class="p">,</span> <span class="n">indxTime</span><span class="p">,</span> <span class="n">dummy3</span><span class="p">,</span> <span class="n">dummy4</span> <span class="o">=</span> \
+            <span class="bp">self</span><span class="o">.</span><span class="n">nearest_time</span><span class="p">(</span><span class="n">time</span><span class="p">)</span>
+
+        <span class="n">variables</span> <span class="o">=</span> <span class="p">{}</span>
+
+        <span class="k">if</span> <span class="n">z</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">z</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">atleast_1d</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+
+        <span class="c1"># Find horizontal indices corresponding to requested x and y</span>
+        <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s1">&#39;clipped&#39;</span><span class="p">):</span>
+            <span class="n">clipped</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">clipped</span>
+        <span class="k">else</span><span class="p">:</span> <span class="n">clipped</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="n">indx</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">floor</span><span class="p">((</span><span class="n">x</span><span class="o">-</span><span class="bp">self</span><span class="o">.</span><span class="n">xmin</span><span class="p">)</span><span class="o">/</span><span class="bp">self</span><span class="o">.</span><span class="n">delta_x</span><span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">int</span><span class="p">)</span> <span class="o">+</span> <span class="n">clipped</span>
+        <span class="n">indy</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">floor</span><span class="p">((</span><span class="n">y</span><span class="o">-</span><span class="bp">self</span><span class="o">.</span><span class="n">ymin</span><span class="p">)</span><span class="o">/</span><span class="bp">self</span><span class="o">.</span><span class="n">delta_y</span><span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">int</span><span class="p">)</span> <span class="o">+</span> <span class="n">clipped</span>
+        <span class="n">indx</span><span class="p">[</span><span class="n">outside</span><span class="p">]</span> <span class="o">=</span> <span class="mi">0</span>  <span class="c1"># To be masked later</span>
+        <span class="n">indy</span><span class="p">[</span><span class="n">outside</span><span class="p">]</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="n">indx_el</span> <span class="o">=</span> <span class="n">indx</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+        <span class="n">indy_el</span> <span class="o">=</span> <span class="n">indy</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+        <span class="c1"># Adding buffer, to cover also future positions of elements</span>
+        <span class="n">buffer</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">buffer</span>
+        <span class="c1"># Avoiding the last pixel in each dimension, since there are</span>
+        <span class="c1"># several grids which are shifted (rho, u, v, psi)</span>
+        <span class="n">indx</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">max</span><span class="p">([</span><span class="mi">0</span><span class="p">,</span> <span class="n">indx</span><span class="o">.</span><span class="n">min</span><span class="p">()</span><span class="o">-</span><span class="n">buffer</span><span class="p">]),</span>
+                            <span class="n">np</span><span class="o">.</span><span class="n">min</span><span class="p">([</span><span class="n">indx</span><span class="o">.</span><span class="n">max</span><span class="p">()</span><span class="o">+</span><span class="n">buffer</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">lon</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">-</span><span class="mi">1</span><span class="p">]))</span>
+        <span class="n">indy</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">max</span><span class="p">([</span><span class="mi">0</span><span class="p">,</span> <span class="n">indy</span><span class="o">.</span><span class="n">min</span><span class="p">()</span><span class="o">-</span><span class="n">buffer</span><span class="p">]),</span>
+                            <span class="n">np</span><span class="o">.</span><span class="n">min</span><span class="p">([</span><span class="n">indy</span><span class="o">.</span><span class="n">max</span><span class="p">()</span><span class="o">+</span><span class="n">buffer</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">lon</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">-</span><span class="mi">1</span><span class="p">]))</span>
+
+        <span class="c1"># Find depth levels covering all elements</span>
+        <span class="k">if</span> <span class="n">z</span><span class="o">.</span><span class="n">min</span><span class="p">()</span> <span class="o">==</span> <span class="mi">0</span> <span class="ow">or</span> <span class="ow">not</span> <span class="nb">hasattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s1">&#39;hc&#39;</span><span class="p">):</span>
+            <span class="n">indz</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">num_layers</span> <span class="o">-</span> <span class="mi">1</span>  <span class="c1"># surface layer</span>
+            <span class="n">variables</span><span class="p">[</span><span class="s1">&#39;z&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="mi">0</span>
+
+        <span class="k">else</span><span class="p">:</span>
+            <span class="c1"># Find the range of indices covering given z-values</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="nb">hasattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s1">&#39;sea_floor_depth_below_sea_level&#39;</span><span class="p">):</span>
+                <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;Reading sea floor depth...&#39;</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">sea_floor_depth_below_sea_level</span> <span class="o">=</span> \
+                    <span class="bp">self</span><span class="o">.</span><span class="n">Dataset</span><span class="o">.</span><span class="n">variables</span><span class="p">[</span><span class="s1">&#39;h&#39;</span><span class="p">][:]</span>
+
+                <span class="n">Htot</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">sea_floor_depth_below_sea_level</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">z_rho_tot</span> <span class="o">=</span> <span class="n">depth</span><span class="o">.</span><span class="n">sdepth</span><span class="p">(</span><span class="n">Htot</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">hc</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">Cs_r</span><span class="p">,</span>
+                                              <span class="n">Vtransform</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">Vtransform</span><span class="p">)</span>
+
+            <span class="n">H</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">sea_floor_depth_below_sea_level</span><span class="p">[</span><span class="n">indy</span><span class="p">,</span> <span class="n">indx</span><span class="p">]</span>
+            <span class="n">z_rho</span> <span class="o">=</span> <span class="n">depth</span><span class="o">.</span><span class="n">sdepth</span><span class="p">(</span><span class="n">H</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">hc</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">Cs_r</span><span class="p">,</span>
+                                 <span class="n">Vtransform</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">Vtransform</span><span class="p">)</span>
+            <span class="c1"># Element indices must be relative to extracted subset</span>
+            <span class="n">indx_el</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">clip</span><span class="p">(</span><span class="n">indx_el</span> <span class="o">-</span> <span class="n">indx</span><span class="o">.</span><span class="n">min</span><span class="p">(),</span> <span class="mi">0</span><span class="p">,</span> <span class="n">z_rho</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span>
+            <span class="n">indy_el</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">clip</span><span class="p">(</span><span class="n">indy_el</span> <span class="o">-</span> <span class="n">indy</span><span class="o">.</span><span class="n">min</span><span class="p">(),</span> <span class="mi">0</span><span class="p">,</span> <span class="n">z_rho</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span>
+
+            <span class="c1"># Loop to find the layers covering the requested z-values</span>
+            <span class="n">indz_min</span> <span class="o">=</span> <span class="mi">0</span>
+            <span class="n">indz_max</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">num_layers</span>
+            <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">num_layers</span><span class="p">):</span>
+                <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">min</span><span class="p">(</span><span class="n">z</span><span class="o">-</span><span class="n">z_rho</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="n">indy_el</span><span class="p">,</span> <span class="n">indx_el</span><span class="p">])</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+                    <span class="n">indz_min</span> <span class="o">=</span> <span class="n">i</span>
+                <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="n">z</span><span class="o">-</span><span class="n">z_rho</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="n">indy_el</span><span class="p">,</span> <span class="n">indx_el</span><span class="p">])</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+                    <span class="n">indz_max</span> <span class="o">=</span> <span class="n">i</span>
+            <span class="n">indz</span> <span class="o">=</span> <span class="nb">range</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">maximum</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">indz_min</span><span class="o">-</span><span class="bp">self</span><span class="o">.</span><span class="n">verticalbuffer</span><span class="p">),</span>
+                         <span class="n">np</span><span class="o">.</span><span class="n">minimum</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">num_layers</span><span class="p">,</span>
+                                    <span class="n">indz_max</span> <span class="o">+</span> <span class="mi">1</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">verticalbuffer</span><span class="p">))</span>
+            <span class="n">z_rho</span> <span class="o">=</span> <span class="n">z_rho</span><span class="p">[</span><span class="n">indz</span><span class="p">,</span> <span class="p">:,</span> <span class="p">:]</span>
+            <span class="c1"># Determine the z-levels to which to interpolate</span>
+            <span class="n">zi1</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">maximum</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">bisect_left</span><span class="p">(</span><span class="o">-</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">zlevels</span><span class="p">),</span>
+                                            <span class="o">-</span><span class="n">z</span><span class="o">.</span><span class="n">max</span><span class="p">())</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">verticalbuffer</span><span class="p">)</span>
+            <span class="n">zi2</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">minimum</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">zlevels</span><span class="p">),</span>
+                             <span class="n">bisect_right</span><span class="p">(</span><span class="o">-</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">zlevels</span><span class="p">),</span>
+                                          <span class="o">-</span><span class="n">z</span><span class="o">.</span><span class="n">min</span><span class="p">())</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">verticalbuffer</span><span class="p">)</span>
+            <span class="n">variables</span><span class="p">[</span><span class="s1">&#39;z&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">zlevels</span><span class="p">[</span><span class="n">zi1</span><span class="p">:</span><span class="n">zi2</span><span class="p">])</span>
+
+        <span class="c1">#read_masks = {}  # To store maskes for various grids</span>
+        <span class="n">mask_values</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="k">for</span> <span class="n">par</span> <span class="ow">in</span> <span class="n">requested_variables</span><span class="p">:</span>
+            <span class="n">varname</span> <span class="o">=</span> <span class="p">[</span><span class="n">name</span> <span class="k">for</span> <span class="n">name</span><span class="p">,</span> <span class="n">cf</span> <span class="ow">in</span>
+                       <span class="bp">self</span><span class="o">.</span><span class="n">ROMS_variable_mapping</span><span class="o">.</span><span class="n">items</span><span class="p">()</span> <span class="k">if</span> <span class="n">cf</span> <span class="o">==</span> <span class="n">par</span><span class="p">]</span>
+            <span class="n">var</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">Dataset</span><span class="o">.</span><span class="n">variables</span><span class="p">[</span><span class="n">varname</span><span class="p">[</span><span class="mi">0</span><span class="p">]]</span>
+
+            <span class="k">if</span> <span class="n">par</span> <span class="o">==</span> <span class="s1">&#39;land_binary_mask&#39;</span><span class="p">:</span>
+                <span class="k">if</span> <span class="ow">not</span> <span class="nb">hasattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s1">&#39;land_binary_mask&#39;</span><span class="p">):</span>
+                    <span class="c1"># Read landmask for whole domain, for later re-use</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">land_binary_mask</span> <span class="o">=</span> \
+                        <span class="mi">1</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">Dataset</span><span class="o">.</span><span class="n">variables</span><span class="p">[</span><span class="s1">&#39;mask_rho&#39;</span><span class="p">][:]</span>
+                <span class="n">variables</span><span class="p">[</span><span class="n">par</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">land_binary_mask</span><span class="p">[</span><span class="n">indy</span><span class="p">,</span> <span class="n">indx</span><span class="p">]</span>
+            <span class="k">elif</span> <span class="n">var</span><span class="o">.</span><span class="n">ndim</span> <span class="o">==</span> <span class="mi">2</span><span class="p">:</span>
+                <span class="n">variables</span><span class="p">[</span><span class="n">par</span><span class="p">]</span> <span class="o">=</span> <span class="n">var</span><span class="p">[</span><span class="n">indy</span><span class="p">,</span> <span class="n">indx</span><span class="p">]</span>
+            <span class="k">elif</span> <span class="n">var</span><span class="o">.</span><span class="n">ndim</span> <span class="o">==</span> <span class="mi">3</span><span class="p">:</span>
+                <span class="n">variables</span><span class="p">[</span><span class="n">par</span><span class="p">]</span> <span class="o">=</span> <span class="n">var</span><span class="p">[</span><span class="n">indxTime</span><span class="p">,</span> <span class="n">indy</span><span class="p">,</span> <span class="n">indx</span><span class="p">]</span>
+            <span class="k">elif</span> <span class="n">var</span><span class="o">.</span><span class="n">ndim</span> <span class="o">==</span> <span class="mi">4</span><span class="p">:</span>
+                <span class="n">variables</span><span class="p">[</span><span class="n">par</span><span class="p">]</span> <span class="o">=</span> <span class="n">var</span><span class="p">[</span><span class="n">indxTime</span><span class="p">,</span> <span class="n">indz</span><span class="p">,</span> <span class="n">indy</span><span class="p">,</span> <span class="n">indx</span><span class="p">]</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s1">&#39;Wrong dimension of variable: &#39;</span> <span class="o">+</span>
+                                <span class="bp">self</span><span class="o">.</span><span class="n">variable_mapping</span><span class="p">[</span><span class="n">par</span><span class="p">])</span>
+
+            <span class="n">variables</span><span class="p">[</span><span class="n">par</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">variables</span><span class="p">[</span><span class="n">par</span><span class="p">])</span>  <span class="c1"># If Xarray</span>
+            <span class="n">start</span> <span class="o">=</span> <span class="n">datetime</span><span class="o">.</span><span class="n">now</span><span class="p">()</span>
+
+            <span class="k">if</span> <span class="n">par</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">mask_values</span><span class="p">:</span>
+                <span class="n">indxgrid</span> <span class="o">=</span> <span class="n">indx</span>
+                <span class="n">indygrid</span> <span class="o">=</span> <span class="n">indy</span>
+                <span class="k">if</span> <span class="n">par</span> <span class="o">==</span> <span class="s1">&#39;x_sea_water_velocity&#39;</span><span class="p">:</span>
+                    <span class="k">if</span> <span class="ow">not</span> <span class="nb">hasattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s1">&#39;mask_u&#39;</span><span class="p">):</span>
+                        <span class="k">if</span> <span class="s1">&#39;mask_u&#39;</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">Dataset</span><span class="o">.</span><span class="n">variables</span><span class="p">:</span>
+                            <span class="bp">self</span><span class="o">.</span><span class="n">mask_u</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">Dataset</span><span class="o">.</span><span class="n">variables</span><span class="p">[</span><span class="s1">&#39;mask_u&#39;</span><span class="p">][:]</span>
+                        <span class="k">else</span><span class="p">:</span>
+                            <span class="bp">self</span><span class="o">.</span><span class="n">mask_u</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">Dataset</span><span class="o">.</span><span class="n">variables</span><span class="p">[</span><span class="s1">&#39;mask_rho&#39;</span><span class="p">][:]</span>
+                    <span class="n">mask</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">mask_u</span><span class="p">[</span><span class="n">indygrid</span><span class="p">,</span> <span class="n">indxgrid</span><span class="p">]</span>
+                <span class="k">elif</span> <span class="n">par</span> <span class="o">==</span> <span class="s1">&#39;y_sea_water_velocity&#39;</span><span class="p">:</span>
+                    <span class="k">if</span> <span class="ow">not</span> <span class="nb">hasattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s1">&#39;mask_v&#39;</span><span class="p">):</span>
+                        <span class="k">if</span> <span class="s1">&#39;mask_v&#39;</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">Dataset</span><span class="o">.</span><span class="n">variables</span><span class="p">:</span>
+                            <span class="bp">self</span><span class="o">.</span><span class="n">mask_v</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">Dataset</span><span class="o">.</span><span class="n">variables</span><span class="p">[</span><span class="s1">&#39;mask_v&#39;</span><span class="p">][:]</span>
+                        <span class="k">else</span><span class="p">:</span>
+                            <span class="bp">self</span><span class="o">.</span><span class="n">mask_v</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">Dataset</span><span class="o">.</span><span class="n">variables</span><span class="p">[</span><span class="s1">&#39;mask_rho&#39;</span><span class="p">][:]</span>
+                    <span class="n">mask</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">mask_v</span><span class="p">[</span><span class="n">indygrid</span><span class="p">,</span> <span class="n">indxgrid</span><span class="p">]</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="k">if</span> <span class="ow">not</span> <span class="nb">hasattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s1">&#39;mask_rho&#39;</span><span class="p">):</span>
+                        <span class="c1"># For ROMS-Agrif this must perhaps be mask_psi?</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">mask_rho</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">Dataset</span><span class="o">.</span><span class="n">variables</span><span class="p">[</span><span class="s1">&#39;mask_rho&#39;</span><span class="p">][:]</span>
+                    <span class="n">mask</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">mask_rho</span><span class="p">[</span><span class="n">indygrid</span><span class="p">,</span> <span class="n">indxgrid</span><span class="p">]</span>
+                <span class="n">mask</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">mask</span><span class="p">)</span>
+                <span class="k">if</span> <span class="n">mask</span><span class="o">.</span><span class="n">min</span><span class="p">()</span> <span class="o">==</span> <span class="mi">0</span> <span class="ow">and</span> <span class="n">par</span> <span class="o">!=</span> <span class="s1">&#39;land_binary_mask&#39;</span><span class="p">:</span>
+                    <span class="n">first_mask_point</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">mask</span><span class="o">.</span><span class="n">ravel</span><span class="p">()</span><span class="o">==</span><span class="mi">0</span><span class="p">)[</span><span class="mi">0</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span>
+                    <span class="k">if</span> <span class="n">variables</span><span class="p">[</span><span class="n">par</span><span class="p">]</span><span class="o">.</span><span class="n">ndim</span> <span class="o">==</span> <span class="mi">3</span><span class="p">:</span>
+                        <span class="n">upper</span> <span class="o">=</span> <span class="n">variables</span><span class="p">[</span><span class="n">par</span><span class="p">][</span><span class="mi">0</span><span class="p">,:,:]</span>
+                    <span class="k">else</span><span class="p">:</span>
+                        <span class="n">upper</span> <span class="o">=</span> <span class="n">variables</span><span class="p">[</span><span class="n">par</span><span class="p">]</span>
+                    <span class="n">mask_values</span><span class="p">[</span><span class="n">par</span><span class="p">]</span> <span class="o">=</span> <span class="n">upper</span><span class="o">.</span><span class="n">ravel</span><span class="p">()[</span><span class="n">first_mask_point</span><span class="p">]</span>
+                    <span class="n">variables</span><span class="p">[</span><span class="n">par</span><span class="p">][</span><span class="n">variables</span><span class="p">[</span><span class="n">par</span><span class="p">]</span><span class="o">==</span><span class="n">mask_values</span><span class="p">[</span><span class="n">par</span><span class="p">]]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span>
+
+            <span class="k">if</span> <span class="n">var</span><span class="o">.</span><span class="n">ndim</span> <span class="o">==</span> <span class="mi">4</span><span class="p">:</span>
+                <span class="c1"># Regrid from sigma to z levels</span>
+                <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">atleast_1d</span><span class="p">(</span><span class="n">indz</span><span class="p">))</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
+                    <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;sigma to z for &#39;</span> <span class="o">+</span> <span class="n">varname</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+                    <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">precalculate_s2z_coefficients</span> <span class="ow">is</span> <span class="kc">True</span><span class="p">:</span>
+                        <span class="n">M</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">sea_floor_depth_below_sea_level</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+                        <span class="n">N</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">sea_floor_depth_below_sea_level</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+                        <span class="n">O</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">z_rho_tot</span><span class="p">)</span>
+                        <span class="k">if</span> <span class="ow">not</span> <span class="nb">hasattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s1">&#39;s2z_A&#39;</span><span class="p">):</span>
+                            <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;Calculating sigma2z-coefficients for whole domain&#39;</span><span class="p">)</span>
+                            <span class="n">starttime</span> <span class="o">=</span> <span class="n">datetime</span><span class="o">.</span><span class="n">now</span><span class="p">()</span>
+                            <span class="n">dummyvar</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">ones</span><span class="p">((</span><span class="n">O</span><span class="p">,</span> <span class="n">M</span><span class="p">,</span> <span class="n">N</span><span class="p">))</span>
+                            <span class="n">dummy</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">s2z_total</span> <span class="o">=</span> <span class="n">depth</span><span class="o">.</span><span class="n">multi_zslice</span><span class="p">(</span><span class="n">dummyvar</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">z_rho_tot</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">zlevels</span><span class="p">)</span>
+                            <span class="c1"># Store arrays/coefficients</span>
+                            <span class="bp">self</span><span class="o">.</span><span class="n">s2z_A</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">s2z_total</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">zlevels</span><span class="p">),</span> <span class="n">M</span><span class="p">,</span> <span class="n">N</span><span class="p">)</span>
+                            <span class="bp">self</span><span class="o">.</span><span class="n">s2z_C</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">s2z_total</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">zlevels</span><span class="p">),</span> <span class="n">M</span><span class="p">,</span> <span class="n">N</span><span class="p">)</span>
+                            <span class="c1">#self.s2z_I = self.s2z_total[2].reshape(M, N)</span>
+                            <span class="bp">self</span><span class="o">.</span><span class="n">s2z_kmax</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">s2z_total</span><span class="p">[</span><span class="mi">3</span><span class="p">]</span>
+                            <span class="k">del</span> <span class="bp">self</span><span class="o">.</span><span class="n">s2z_total</span>  <span class="c1"># Free memory</span>
+                            <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s1">&#39;Time: &#39;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">datetime</span><span class="o">.</span><span class="n">now</span><span class="p">()</span> <span class="o">-</span> <span class="n">starttime</span><span class="p">))</span>
+                        <span class="k">if</span> <span class="s1">&#39;A&#39;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="nb">locals</span><span class="p">():</span>
+                            <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;Re-using sigma2z-coefficients&#39;</span><span class="p">)</span>
+                            <span class="c1"># Select relevant subset of full arrays</span>
+                            <span class="n">zle</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="n">zi1</span><span class="p">,</span> <span class="n">zi2</span><span class="p">)</span>  <span class="c1"># The relevant depth levels</span>
+                            <span class="n">A</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">s2z_A</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>  <span class="c1"># Awkward subsetting to prevent losing one dimension</span>
+                            <span class="n">A</span> <span class="o">=</span> <span class="n">A</span><span class="p">[:,:,</span><span class="n">indx</span><span class="p">]</span>
+                            <span class="n">A</span> <span class="o">=</span> <span class="n">A</span><span class="p">[:,</span><span class="n">indy</span><span class="p">,:]</span>
+                            <span class="n">A</span> <span class="o">=</span> <span class="n">A</span><span class="p">[</span><span class="n">zle</span><span class="p">,:,:]</span>
+                            <span class="n">C</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">s2z_C</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+                            <span class="n">C</span> <span class="o">=</span> <span class="n">C</span><span class="p">[:,:,</span><span class="n">indx</span><span class="p">]</span>
+                            <span class="n">C</span> <span class="o">=</span> <span class="n">C</span><span class="p">[:,</span><span class="n">indy</span><span class="p">,:]</span>
+                            <span class="n">C</span> <span class="o">=</span> <span class="n">C</span><span class="p">[</span><span class="n">zle</span><span class="p">,:,:]</span>
+                            <span class="n">C</span> <span class="o">=</span> <span class="n">C</span> <span class="o">-</span> <span class="n">C</span><span class="o">.</span><span class="n">max</span><span class="p">()</span> <span class="o">+</span> <span class="n">variables</span><span class="p">[</span><span class="n">par</span><span class="p">]</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">-</span> <span class="mi">1</span>
+                            <span class="n">C</span><span class="p">[</span><span class="n">C</span><span class="o">&lt;</span><span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="mi">1</span>
+                            <span class="n">A</span> <span class="o">=</span> <span class="n">A</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">zle</span><span class="p">),</span> <span class="nb">len</span><span class="p">(</span><span class="n">indx</span><span class="p">)</span><span class="o">*</span><span class="nb">len</span><span class="p">(</span><span class="n">indy</span><span class="p">))</span>
+                            <span class="n">C</span> <span class="o">=</span> <span class="n">C</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">zle</span><span class="p">),</span> <span class="nb">len</span><span class="p">(</span><span class="n">indx</span><span class="p">)</span><span class="o">*</span><span class="nb">len</span><span class="p">(</span><span class="n">indy</span><span class="p">))</span>
+                            <span class="n">I</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">indx</span><span class="p">)</span><span class="o">*</span><span class="nb">len</span><span class="p">(</span><span class="n">indy</span><span class="p">))</span>
+                            <span class="c1">## Check</span>
+                            <span class="c1">#dummyvar2, s2z = depth.multi_zslice(</span>
+                            <span class="c1">#    variables[par].copy(), z_rho.copy(), variables[&#39;z&#39;])</span>
+                            <span class="c1">#print len(zle), variables[par].shape, &#39;zle, varshape&#39;</span>
+                            <span class="c1">#Ac,Cc,Ic,kmaxc = s2z</span>
+                            <span class="c1">#print C, &#39;C&#39;</span>
+                            <span class="c1">#print Cc, &#39;Cc&#39;</span>
+                            <span class="c1">#print C.shape, Cc.shape</span>
+                            <span class="c1">#if C.max() != Cc.max():</span>
+                            <span class="c1">#    print &#39;WARNING!!&#39;</span>
+                            <span class="c1">#    import sys; sys.exit(&#39;stop&#39;)</span>
+                            <span class="n">kmax</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">zle</span><span class="p">)</span>  <span class="c1"># Must be checked. Or number of sigma-layers?</span>
+                    <span class="k">if</span> <span class="s1">&#39;A&#39;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="nb">locals</span><span class="p">():</span>
+                        <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;Calculating new sigma2z-coefficients&#39;</span><span class="p">)</span>
+                        <span class="n">variables</span><span class="p">[</span><span class="n">par</span><span class="p">],</span> <span class="n">s2z</span> <span class="o">=</span> <span class="n">depth</span><span class="o">.</span><span class="n">multi_zslice</span><span class="p">(</span>
+                            <span class="n">variables</span><span class="p">[</span><span class="n">par</span><span class="p">],</span> <span class="n">z_rho</span><span class="p">,</span> <span class="n">variables</span><span class="p">[</span><span class="s1">&#39;z&#39;</span><span class="p">])</span>
+                        <span class="n">A</span><span class="p">,</span><span class="n">C</span><span class="p">,</span><span class="n">I</span><span class="p">,</span><span class="n">kmax</span> <span class="o">=</span> <span class="n">s2z</span>
+                        <span class="c1"># Reshaping to compare with subset of full array</span>
+                        <span class="c1">#zle = np.arange(zi1, zi2)</span>
+                        <span class="c1">#A = A.reshape(len(zle), len(indx), len(indy))</span>
+                        <span class="c1">#C = C.reshape(len(zle), len(indx), len(indy))</span>
+                        <span class="c1">#I = I.reshape(len(indx), len(indy))</span>
+                    <span class="k">else</span><span class="p">:</span>
+                        <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;Applying sigma2z-coefficients&#39;</span><span class="p">)</span>
+                        <span class="c1"># Re-using sigma2z koefficients:</span>
+                        <span class="n">F</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">variables</span><span class="p">[</span><span class="n">par</span><span class="p">])</span>
+                        <span class="n">Fshape</span> <span class="o">=</span> <span class="n">F</span><span class="o">.</span><span class="n">shape</span>
+                        <span class="n">N</span> <span class="o">=</span> <span class="n">F</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+                        <span class="n">M</span> <span class="o">=</span> <span class="n">F</span><span class="o">.</span><span class="n">size</span> <span class="o">//</span> <span class="n">N</span>
+                        <span class="n">F</span> <span class="o">=</span> <span class="n">F</span><span class="o">.</span><span class="n">reshape</span><span class="p">((</span><span class="n">N</span><span class="p">,</span> <span class="n">M</span><span class="p">))</span>
+                        <span class="n">R</span> <span class="o">=</span> <span class="p">(</span><span class="mi">1</span><span class="o">-</span><span class="n">A</span><span class="p">)</span><span class="o">*</span><span class="n">F</span><span class="p">[(</span><span class="n">C</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="n">I</span><span class="p">)]</span><span class="o">+</span><span class="n">A</span><span class="o">*</span><span class="n">F</span><span class="p">[(</span><span class="n">C</span><span class="p">,</span> <span class="n">I</span><span class="p">)]</span>
+                        <span class="n">variables</span><span class="p">[</span><span class="n">par</span><span class="p">]</span> <span class="o">=</span> <span class="n">R</span><span class="o">.</span><span class="n">reshape</span><span class="p">((</span><span class="n">kmax</span><span class="p">,)</span> <span class="o">+</span> <span class="n">Fshape</span><span class="p">[</span><span class="mi">1</span><span class="p">:])</span>
+
+                    <span class="c1"># Nan in input to multi_zslice gives extreme values in output</span>
+                    <span class="n">variables</span><span class="p">[</span><span class="n">par</span><span class="p">][</span><span class="n">variables</span><span class="p">[</span><span class="n">par</span><span class="p">]</span><span class="o">&gt;</span><span class="mf">1e+9</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span>
+
+            <span class="c1"># Mask values outside domain</span>
+            <span class="n">variables</span><span class="p">[</span><span class="n">par</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">ma</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">variables</span><span class="p">[</span><span class="n">par</span><span class="p">],</span> <span class="n">ndmin</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">mask</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+
+            <span class="c1"># Skipping de-staggering, as it leads to invalid values at later interpolation</span>
+            <span class="c1">#if block is True:</span>
+            <span class="c1">#    # Unstagger grid for vectors</span>
+            <span class="c1">#    logger.debug(&#39;Unstaggering &#39; + par)</span>
+            <span class="c1">#    if &#39;eta_v&#39; in var.dimensions:</span>
+            <span class="c1">#        variables[par] = np.ma.array(variables[par],</span>
+            <span class="c1">#                            mask=variables[par].mask)</span>
+            <span class="c1">#        variables[par][variables[par].mask] = 0</span>
+            <span class="c1">#        if variables[par].ndim == 2:</span>
+            <span class="c1">#            variables[par] = \</span>
+            <span class="c1">#                (variables[par][0:-1,0:-1] +</span>
+            <span class="c1">#                variables[par][0:-1,1::])/2</span>
+            <span class="c1">#        elif variables[par].ndim == 3:</span>
+            <span class="c1">#            variables[par] = \</span>
+            <span class="c1">#                (variables[par][:,0:-1,0:-1] +</span>
+            <span class="c1">#                variables[par][:,0:-1,1::])/2</span>
+            <span class="c1">#        variables[par] = np.ma.masked_where(variables[par]==0,</span>
+            <span class="c1">#                                            variables[par])</span>
+            <span class="c1">#    elif &#39;eta_u&#39; in var.dimensions:</span>
+            <span class="c1">#        variables[par] = np.ma.array(variables[par],</span>
+            <span class="c1">#                            mask=variables[par].mask)</span>
+            <span class="c1">#        variables[par][variables[par].mask] = 0</span>
+            <span class="c1">#        if variables[par].ndim == 2:</span>
+            <span class="c1">#            variables[par] = \</span>
+            <span class="c1">#                (variables[par][0:-1,0:-1] +</span>
+            <span class="c1">#                 variables[par][1::,0:-1])/2</span>
+            <span class="c1">#        elif variables[par].ndim == 3:</span>
+            <span class="c1">#            variables[par] = \</span>
+            <span class="c1">#                (variables[par][:,0:-1,0:-1] +</span>
+            <span class="c1">#                 variables[par][:,1::,0:-1])/2</span>
+            <span class="c1">#        variables[par] = np.ma.masked_where(variables[par]==0,</span>
+            <span class="c1">#                                            variables[par])</span>
+            <span class="c1">#    else:</span>
+            <span class="c1">#        if variables[par].ndim == 2:</span>
+            <span class="c1">#            variables[par] = variables[par][1::, 1::]</span>
+            <span class="c1">#        elif variables[par].ndim == 3:</span>
+            <span class="c1">#            variables[par] = variables[par][:,1::, 1::]</span>
+
+        <span class="c1"># TODO: should be midpoints, but angle array below needs integer</span>
+        <span class="c1">#indx = indx[0:-1]  # Only if de-staggering has been performed</span>
+        <span class="c1">#indy = indy[1::]</span>
+        <span class="n">variables</span><span class="p">[</span><span class="s1">&#39;x&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">indx</span>
+        <span class="n">variables</span><span class="p">[</span><span class="s1">&#39;y&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">indy</span>
+
+        <span class="n">variables</span><span class="p">[</span><span class="s1">&#39;x&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">variables</span><span class="p">[</span><span class="s1">&#39;x&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">float32</span><span class="p">)</span>
+        <span class="n">variables</span><span class="p">[</span><span class="s1">&#39;y&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">variables</span><span class="p">[</span><span class="s1">&#39;y&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">float32</span><span class="p">)</span>
+        <span class="n">variables</span><span class="p">[</span><span class="s1">&#39;time&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">nearestTime</span>
+
+        <span class="k">if</span> <span class="s1">&#39;x_sea_water_velocity&#39;</span> <span class="ow">or</span> <span class="s1">&#39;sea_ice_x_velocity&#39;</span> \
+                <span class="ow">or</span> <span class="s1">&#39;x_wind&#39;</span> <span class="ow">in</span> <span class="n">variables</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+            <span class="c1"># We must rotate current vectors</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="nb">hasattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s1">&#39;angle_xi_east&#39;</span><span class="p">):</span>
+                <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;Reading angle between xi and east...&#39;</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">angle_xi_east</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">Dataset</span><span class="o">.</span><span class="n">variables</span><span class="p">[</span><span class="s1">&#39;angle&#39;</span><span class="p">][:]</span>
+            <span class="n">rad</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">angle_xi_east</span><span class="p">[</span><span class="n">indy</span><span class="p">,</span> <span class="n">indx</span><span class="p">]</span>
+            <span class="n">rad</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">ma</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">rad</span><span class="p">)</span>
+            <span class="k">if</span> <span class="s1">&#39;x_sea_water_velocity&#39;</span> <span class="ow">in</span> <span class="n">variables</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+                <span class="n">variables</span><span class="p">[</span><span class="s1">&#39;x_sea_water_velocity&#39;</span><span class="p">],</span> \
+                    <span class="n">variables</span><span class="p">[</span><span class="s1">&#39;y_sea_water_velocity&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">rotate_vectors_angle</span><span class="p">(</span>
+                        <span class="n">variables</span><span class="p">[</span><span class="s1">&#39;x_sea_water_velocity&#39;</span><span class="p">],</span>
+                        <span class="n">variables</span><span class="p">[</span><span class="s1">&#39;y_sea_water_velocity&#39;</span><span class="p">],</span> <span class="n">rad</span><span class="p">)</span>
+            <span class="k">if</span> <span class="s1">&#39;sea_ice_x_velocity&#39;</span> <span class="ow">in</span> <span class="n">variables</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+                <span class="n">variables</span><span class="p">[</span><span class="s1">&#39;sea_ice_x_velocity&#39;</span><span class="p">],</span> \
+                    <span class="n">variables</span><span class="p">[</span><span class="s1">&#39;sea_ice_y_velocity&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">rotate_vectors_angle</span><span class="p">(</span>
+                        <span class="n">variables</span><span class="p">[</span><span class="s1">&#39;sea_ice_x_velocity&#39;</span><span class="p">],</span>
+                        <span class="n">variables</span><span class="p">[</span><span class="s1">&#39;sea_ice_y_velocity&#39;</span><span class="p">],</span> <span class="n">rad</span><span class="p">)</span>
+            <span class="k">if</span> <span class="s1">&#39;x_wind&#39;</span> <span class="ow">in</span> <span class="n">variables</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+                <span class="n">variables</span><span class="p">[</span><span class="s1">&#39;x_wind&#39;</span><span class="p">],</span> \
+                    <span class="n">variables</span><span class="p">[</span><span class="s1">&#39;y_wind&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">rotate_vectors_angle</span><span class="p">(</span>
+                        <span class="n">variables</span><span class="p">[</span><span class="s1">&#39;x_wind&#39;</span><span class="p">],</span>
+                        <span class="n">variables</span><span class="p">[</span><span class="s1">&#39;y_wind&#39;</span><span class="p">],</span> <span class="n">rad</span><span class="p">)</span>
+
+        <span class="c1"># Masking NaN</span>
+        <span class="k">for</span> <span class="n">var</span> <span class="ow">in</span> <span class="n">requested_variables</span><span class="p">:</span>
+            <span class="n">variables</span><span class="p">[</span><span class="n">var</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">ma</span><span class="o">.</span><span class="n">masked_invalid</span><span class="p">(</span><span class="n">variables</span><span class="p">[</span><span class="n">var</span><span class="p">])</span>
+
+        <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;Time for ROMS native reader: &#39;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">datetime</span><span class="o">.</span><span class="n">now</span><span class="p">()</span><span class="o">-</span><span class="n">start_time</span><span class="p">))</span>
+
+        <span class="k">return</span> <span class="n">variables</span></div></div>
+
+
+<div class="viewcode-block" id="rotate_vectors_angle"><a class="viewcode-back" href="../../../autoapi/opendrift/readers/reader_ROMS_native/index.html#opendrift.readers.reader_ROMS_native.rotate_vectors_angle">[docs]</a><span class="k">def</span> <span class="nf">rotate_vectors_angle</span><span class="p">(</span><span class="n">u</span><span class="p">,</span> <span class="n">v</span><span class="p">,</span> <span class="n">radians</span><span class="p">):</span>
+    <span class="n">u2</span> <span class="o">=</span> <span class="n">u</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">cos</span><span class="p">(</span><span class="n">radians</span><span class="p">)</span> <span class="o">-</span> <span class="n">v</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="n">radians</span><span class="p">)</span>
+    <span class="n">v2</span> <span class="o">=</span> <span class="n">u</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="n">radians</span><span class="p">)</span> <span class="o">+</span> <span class="n">v</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">cos</span><span class="p">(</span><span class="n">radians</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">u2</span><span class="p">,</span> <span class="n">v2</span></div>
+</pre></div>
+
+           </div>
+           
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &#169; Copyright 2020, Knut-Frode Dagestad (knutfd@met.no) and Gaute Hope (gauteh@met.no)..
+
+    </p>
+  </div>
+    
+    
+    
+    Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    
+    provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

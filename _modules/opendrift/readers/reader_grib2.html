@@ -1,0 +1,371 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" />
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  
+  <title>opendrift.readers.reader_grib2 &mdash; OpenDrift  documentation</title>
+  
+
+  
+  <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="../../../_static/theme_overrides.css" type="text/css" />
+
+  
+  
+
+  
+  
+
+  
+
+  
+  <!--[if lt IE 9]>
+    <script src="../../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
+        <script src="../../../_static/jquery.js"></script>
+        <script src="../../../_static/underscore.js"></script>
+        <script src="../../../_static/doctools.js"></script>
+    
+    <script type="text/javascript" src="../../../_static/js/theme.js"></script>
+
+    
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="../../../index.html" class="icon icon-home"> OpenDrift
+          
+
+          
+            
+            <img src="../../../_static/opendrift_logo.png" class="logo" alt="Logo"/>
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../index.html">Introduction to OpenDrift</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../history_link.html">History</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../install.html">Installing OpenDrift</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../tutorial.html">Tutorial</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../theory/index.html">Theory</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../choosing_a_model.html">How to choose which model to use</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../writing_a_new_model.html">How to write a new module</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../gallery/index.html">Gallery</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../oil_types.html">Oil types</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../interaction_with_coastline.html">Interaction with coastline</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../docker.html">Using OpenDrift in a container</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../gui.html">Graphical User Interface</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../references.html">Publications</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../autoapi/index.html">API Reference</a></li>
+</ul>
+
+            
+          
+        </div>
+        
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">OpenDrift</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../../../index.html" class="icon icon-home"></a> &raquo;</li>
+        
+          <li><a href="../../index.html">Module code</a> &raquo;</li>
+        
+          <li><a href="../../opendrift.html">opendrift</a> &raquo;</li>
+        
+          <li><a href="../readers.html">opendrift.readers</a> &raquo;</li>
+        
+      <li>opendrift.readers.reader_grib2</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <h1>Source code for opendrift.readers.reader_grib2</h1><div class="highlight"><pre>
+<span></span><span class="c1"># This file is part of OpenDrift.</span>
+<span class="c1">#</span>
+<span class="c1"># OpenDrift is free software: you can redistribute it and/or modify</span>
+<span class="c1"># it under the terms of the GNU General Public License as published by</span>
+<span class="c1"># the Free Software Foundation, version 2</span>
+<span class="c1">#</span>
+<span class="c1"># OpenDrift is distributed in the hope that it will be useful,</span>
+<span class="c1"># but WITHOUT ANY WARRANTY; without even the implied warranty of</span>
+<span class="c1"># MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the</span>
+<span class="c1"># GNU General Public License for more details.</span>
+<span class="c1">#</span>
+<span class="c1"># You should have received a copy of the GNU General Public License</span>
+<span class="c1"># along with OpenDrift.  If not, see &lt;https://www.gnu.org/licenses/&gt;.</span>
+<span class="c1">#</span>
+<span class="c1"># Copyright 2020, Gaute Hope, MET Norway</span>
+
+<span class="kn">import</span> <span class="nn">logging</span>
+<span class="n">logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span>
+
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">xarray</span> <span class="k">as</span> <span class="nn">xr</span>
+<span class="kn">from</span> <span class="nn">datetime</span> <span class="kn">import</span> <span class="n">datetime</span>
+
+<span class="kn">from</span> <span class="nn">.basereader</span> <span class="kn">import</span> <span class="n">BaseReader</span>
+<span class="kn">from</span> <span class="nn">.basereader.structured</span> <span class="kn">import</span> <span class="n">StructuredReader</span>
+
+
+<div class="viewcode-block" id="Reader"><a class="viewcode-back" href="../../../autoapi/opendrift/readers/reader_grib2/index.html#opendrift.readers.reader_grib2.Reader">[docs]</a><span class="k">class</span> <span class="nc">Reader</span><span class="p">(</span><span class="n">BaseReader</span><span class="p">,</span> <span class="n">StructuredReader</span><span class="p">):</span>
+    <span class="n">dataset</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">variables</span> <span class="o">=</span> <span class="kc">None</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">filename</span><span class="p">,</span> <span class="n">proj4</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">engine</span><span class="o">=</span><span class="s1">&#39;cfgrib&#39;</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Grib file reader</span>
+
+<span class="sd">        Args:</span>
+
+<span class="sd">            filename: path to grib or grib2 file.</span>
+
+<span class="sd">            proj4: Optional projection override.</span>
+
+<span class="sd">            engine: grib engine used by xarray, default is `cfgrib`.</span>
+
+<span class="sd">        Returns: Grib-file reader.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="s2">&quot;This reader is experimental and may change in breaking ways without a major version change&quot;</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">dataset</span> <span class="o">=</span> <span class="n">xr</span><span class="o">.</span><span class="n">open_dataset</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="n">engine</span><span class="o">=</span><span class="n">engine</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="n">filename</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">times</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">atleast_1d</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">dataset</span><span class="o">.</span><span class="n">time</span><span class="o">.</span><span class="n">values</span><span class="p">)</span>
+
+        <span class="c1"># convert to python datetime</span>
+        <span class="k">assert</span> <span class="s1">&#39;[ns]&#39;</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">times</span><span class="o">.</span><span class="n">dtype</span><span class="o">.</span><span class="n">str</span><span class="p">,</span> <span class="s2">&quot;datetime is not in nanoseconds&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">times</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span>
+            <span class="n">datetime</span><span class="o">.</span><span class="n">utcfromtimestamp</span><span class="p">(</span><span class="n">d</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="s1">&#39;int&#39;</span><span class="p">)</span> <span class="o">/</span> <span class="mf">1e9</span><span class="p">)</span>
+            <span class="k">for</span> <span class="n">d</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">times</span>
+        <span class="p">])</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">start_time</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">times</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">end_time</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">times</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">times</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">time_step</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">times</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">times</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+            <span class="k">assert</span> <span class="n">np</span><span class="o">.</span><span class="n">all</span><span class="p">(</span>
+                <span class="n">np</span><span class="o">.</span><span class="n">diff</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">times</span><span class="p">)</span> <span class="o">==</span> <span class="bp">self</span><span class="o">.</span><span class="n">time_step</span><span class="p">),</span> <span class="s2">&quot;time step not constant&quot;</span>
+
+        <span class="c1"># scan for projection</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">proj4</span> <span class="o">=</span> <span class="n">proj4</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">proj4</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">dataset</span><span class="o">.</span><span class="n">variables</span><span class="p">:</span>
+                <span class="n">v</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">dataset</span><span class="p">[</span><span class="n">v</span><span class="p">]</span>
+                <span class="k">if</span> <span class="s1">&#39;GRIB_gridType&#39;</span> <span class="ow">in</span> <span class="n">v</span><span class="o">.</span><span class="n">attrs</span><span class="p">:</span>
+                    <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">proj4</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">proj4</span> <span class="o">=</span> <span class="n">v</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s1">&#39;GRIB_gridType&#39;</span><span class="p">]</span>
+                        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;projection: </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="bp">self</span><span class="o">.</span><span class="n">proj4</span><span class="p">)</span>
+                    <span class="k">else</span><span class="p">:</span>
+                        <span class="k">assert</span> <span class="bp">self</span><span class="o">.</span><span class="n">proj4</span> <span class="o">==</span> <span class="n">v</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span>
+                            <span class="s1">&#39;GRIB_gridType&#39;</span><span class="p">],</span> <span class="s2">&quot;all variables must have the same projection&quot;</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Using supplied projection: </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="bp">self</span><span class="o">.</span><span class="n">proj4</span><span class="p">)</span>
+
+        <span class="c1"># parsing variables</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">variable_mapping</span> <span class="o">=</span> <span class="p">{}</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">lon</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">dataset</span><span class="o">.</span><span class="n">longitude</span><span class="o">.</span><span class="n">values</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">lat</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">dataset</span><span class="o">.</span><span class="n">latitude</span><span class="o">.</span><span class="n">values</span>
+
+        <span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">dataset</span><span class="o">.</span><span class="n">variables</span><span class="p">:</span>
+            <span class="n">var</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">dataset</span><span class="p">[</span><span class="n">v</span><span class="p">]</span>
+            <span class="n">std_name</span> <span class="o">=</span> <span class="n">var</span><span class="o">.</span><span class="n">standard_name</span>
+
+            <span class="k">if</span> <span class="n">std_name</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="n">std_name</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">variable_aliases</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">std_name</span><span class="p">,</span> <span class="n">std_name</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">variable_mapping</span><span class="p">[</span><span class="n">std_name</span><span class="p">]</span> <span class="o">=</span> <span class="n">v</span>
+                <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;Found standard variable: </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">v</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">variables</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">variable_mapping</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span>
+
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_make_projected_grid_</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">lon</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">lat</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">set_buffer_size</span><span class="p">(</span><span class="mf">5.</span><span class="p">)</span>
+
+<div class="viewcode-block" id="Reader.get_variables"><a class="viewcode-back" href="../../../autoapi/opendrift/readers/reader_grib2/index.html#opendrift.readers.reader_grib2.Reader.get_variables">[docs]</a>    <span class="k">def</span> <span class="nf">get_variables</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span>
+                      <span class="n">requested_variables</span><span class="p">,</span>
+                      <span class="n">time</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                      <span class="n">x</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                      <span class="n">y</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                      <span class="n">z</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+
+        <span class="n">requested_variables</span><span class="p">,</span> <span class="n">time</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">z</span><span class="p">,</span> <span class="n">_outside</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">check_arguments</span><span class="p">(</span>
+            <span class="n">requested_variables</span><span class="p">,</span> <span class="n">time</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">z</span><span class="p">)</span>
+
+        <span class="n">nearestTime</span><span class="p">,</span> <span class="n">dummy1</span><span class="p">,</span> <span class="n">dummy2</span><span class="p">,</span> <span class="n">indxTime</span><span class="p">,</span> <span class="n">dummy3</span><span class="p">,</span> <span class="n">dummy4</span> <span class="o">=</span> \
+            <span class="bp">self</span><span class="o">.</span><span class="n">nearest_time</span><span class="p">(</span><span class="n">time</span><span class="p">)</span>
+
+        <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;Request variables: </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">requested_variables</span><span class="p">)</span>
+
+        <span class="n">ix0</span><span class="p">,</span> <span class="n">ix1</span><span class="p">,</span> <span class="n">iy0</span><span class="p">,</span> <span class="n">iy1</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_bbox_</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">)</span>
+
+        <span class="n">variables</span> <span class="o">=</span> <span class="p">{}</span>
+
+        <span class="c1"># This works because we have already asserted that delta_x and delta_y</span>
+        <span class="c1"># are approx. constant.</span>
+        <span class="n">variables</span><span class="p">[</span><span class="s1">&#39;y&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">x</span><span class="p">[</span><span class="n">ix0</span><span class="p">:</span><span class="n">ix1</span><span class="p">]</span>
+        <span class="n">variables</span><span class="p">[</span><span class="s1">&#39;x&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">y</span><span class="p">[</span><span class="n">iy0</span><span class="p">:</span><span class="n">iy1</span><span class="p">]</span>
+
+        <span class="n">variables</span><span class="p">[</span><span class="s1">&#39;time&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">nearestTime</span>
+        <span class="n">variables</span><span class="p">[</span><span class="s1">&#39;z&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">z</span>
+
+        <span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">requested_variables</span><span class="p">:</span>
+            <span class="n">par</span> <span class="o">=</span> <span class="n">v</span>
+            <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s1">&#39;rotate_mapping&#39;</span><span class="p">)</span> <span class="ow">and</span> <span class="n">par</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">rotate_mapping</span><span class="p">:</span>
+                <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;Using </span><span class="si">%s</span><span class="s1"> to retrieve </span><span class="si">%s</span><span class="s1">&#39;</span> <span class="o">%</span>
+                    <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">rotate_mapping</span><span class="p">[</span><span class="n">par</span><span class="p">],</span> <span class="n">par</span><span class="p">))</span>
+                <span class="k">if</span> <span class="n">par</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">variable_mapping</span><span class="p">:</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">variable_mapping</span><span class="p">[</span><span class="n">par</span><span class="p">]</span> <span class="o">=</span> \
+                        <span class="bp">self</span><span class="o">.</span><span class="n">variable_mapping</span><span class="p">[</span>
+                            <span class="bp">self</span><span class="o">.</span><span class="n">rotate_mapping</span><span class="p">[</span><span class="n">par</span><span class="p">]]</span>
+
+            <span class="n">var</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">variable_mapping</span><span class="p">[</span><span class="n">v</span><span class="p">]</span>
+            <span class="n">var</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">dataset</span><span class="p">[</span><span class="n">var</span><span class="p">]</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;Fetching </span><span class="si">%s</span><span class="s2"> [</span><span class="si">%d</span><span class="s2">:</span><span class="si">%d</span><span class="s2">, </span><span class="si">%d</span><span class="s2">:</span><span class="si">%d</span><span class="s2">]&quot;</span> <span class="o">%</span>
+                         <span class="p">(</span><span class="n">v</span><span class="p">,</span> <span class="n">ix0</span><span class="p">,</span> <span class="n">ix1</span><span class="p">,</span> <span class="n">iy0</span><span class="p">,</span> <span class="n">iy1</span><span class="p">))</span>
+            <span class="n">variables</span><span class="p">[</span><span class="n">v</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_slice_variable_</span><span class="p">(</span><span class="n">var</span><span class="p">,</span> <span class="n">indxTime</span><span class="p">,</span> <span class="nb">slice</span><span class="p">(</span><span class="n">iy0</span><span class="p">,</span> <span class="n">iy1</span><span class="p">),</span> <span class="nb">slice</span><span class="p">(</span><span class="n">ix0</span><span class="p">,</span> <span class="n">ix1</span><span class="p">),</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span><span class="o">.</span><span class="n">values</span>
+
+        <span class="k">return</span> <span class="n">variables</span></div></div>
+
+</pre></div>
+
+           </div>
+           
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &#169; Copyright 2020, Knut-Frode Dagestad (knutfd@met.no) and Gaute Hope (gauteh@met.no)..
+
+    </p>
+  </div>
+    
+    
+    
+    Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    
+    provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

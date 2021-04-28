@@ -1,0 +1,160 @@
+:mod:`opendrift.readers.roppy.depth`
+====================================
+
+.. py:module:: opendrift.readers.roppy.depth
+
+.. autoapi-nested-parse::
+
+   Vertical structure functions for ROMS
+
+   :func:`sdepth`
+     Depth of s-levels
+   :func:`zslice`
+     Slice a 3D field in s-coordinates to fixed depth
+   :func:`multi_zslice`
+     Slice a 3D field to several depth levels
+   :func:`z_average`
+     Vertical average of a 3D field
+   :func:`s_stretch`
+     Compute vertical stretching arrays Cs_r or Cs_w
+
+
+
+Module Contents
+---------------
+
+
+Functions
+~~~~~~~~~
+
+.. autoapisummary::
+
+   opendrift.readers.roppy.depth.sdepth
+   opendrift.readers.roppy.depth.sdepth_w
+   opendrift.readers.roppy.depth.zslice
+   opendrift.readers.roppy.depth.multi_zslice
+   opendrift.readers.roppy.depth.z_average
+   opendrift.readers.roppy.depth.s_stretch
+   opendrift.readers.roppy.depth.s_stretch_w
+
+
+.. function:: sdepth(H, Hc, C, stagger='rho', Vtransform=1)
+
+   Depth of s-levels
+
+   *H* : arraylike
+     Bottom depths [meter, positive]
+
+   *Hc* : scalar
+      Critical depth
+
+   *cs_r* : 1D array
+      s-level stretching curve
+
+   *stagger* : [ 'rho' | 'w' ]
+
+   *Vtransform* : [ 1 | 2 ]
+      defines the transform used, defaults 1 = Song-Haidvogel
+
+   Returns an array with ndim = H.ndim + 1 and
+   shape = cs_r.shape + H.shape with the depths of the
+   mid-points in the s-levels.
+
+   Typical usage::
+
+   >>> fid = Dataset(roms_file)
+   >>> H = fid.variables['h'][:, :]
+   >>> C = fid.variables['Cs_r'][:]
+   >>> Hc = fid.variables['hc'].getValue()
+   >>> z_rho = sdepth(H, Hc, C)
+
+
+.. function:: sdepth_w(H, Hc, cs_w)
+
+   Return depth of w-points in s-levels
+
+   Kept for backwards compatibility
+   use *sdepth(H, Hc, cs_w, stagger='w')* instead
+
+
+.. function:: zslice(F, S, z)
+
+   Vertical slice of a 3D ROMS field
+
+   Vertical interpolation of a field in s-coordinates to
+   (possibly varying) depth level
+
+   *F* : array with vertical profiles, first dimension is vertical
+
+   *S* : array with depths of the F-values,
+
+   *z* : Depth level(s) for output, scalar or ``shape = F.shape[1:]``
+         The z values should be negative
+
+   Return value : array, `shape = F.shape[1:]`, the vertical slice
+
+   Example:
+   H is an array of depths (positive values)
+   Hc is the critical depth
+   C is 1D containing the s-coordinate stretching at rho-points
+   returns F50, interpolated values at 50 meter with F50.shape = H.shape
+
+   >>> z_rho = sdepth(H, Hc, C)
+   >>> F50 = zslice(F, z_rho, -50.0)
+
+
+.. function:: multi_zslice(F, S, Z)
+
+   Slice a 3D ROMS field to fixed depth
+
+   Vertical interpolation of a field in s-coordinates to
+   fixed vertical level
+
+   *F* : array of with vertical profiles, first dimension is vertical
+
+   *S* : array with depth of s-levels (at rho-points)
+       1D (constant depth) or  S.shape = F.shape
+
+   *Z* : single depth value, negative
+
+   Returns : array, ``shape = F.shape[1:]`` the vertical slice
+
+
+.. function:: z_average(F, z_r, z0, z1)
+
+   Slice a 3D ROMS field to fixed depth
+
+   Vertical interpolation of a field in s-coordinates to
+   fixed vertical level
+
+   *F* : array
+     Vertical profiles, first dimension is vertical
+   *z_r* : array
+     Depth of s-levels (at rho-points), requires `z_r.shape = F.shape`
+   *z0*, *z1* : floats
+     Single depth values with z0 <= z1 <= 0
+
+   return value : array
+     `shape = F.shape[1:]`, the vertical average
+
+
+.. function:: s_stretch(N, theta_s, theta_b, stagger='rho', Vstretching=1)
+
+   Compute a s-level stretching array
+
+   *N* : Number of vertical levels
+
+   *theta_s* : Surface stretching factor
+
+   *theta_b* : Bottom stretching factor
+
+   *stagger* : "rho"|"w"
+
+   *Vstretching* : 1|2|4
+
+
+.. function:: s_stretch_w(N, theta_s, theta_b, Vstretching=1)
+
+   Obsolete use *s_stretch* instead
+
+

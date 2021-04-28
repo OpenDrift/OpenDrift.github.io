@@ -1,0 +1,393 @@
+:mod:`opendrift.readers.basereader.variables`
+=============================================
+
+.. py:module:: opendrift.readers.basereader.variables
+
+
+Module Contents
+---------------
+
+Classes
+~~~~~~~
+
+.. autoapisummary::
+
+   opendrift.readers.basereader.variables.ReaderDomain
+   opendrift.readers.basereader.variables.Variables
+
+
+
+Functions
+~~~~~~~~~
+
+.. autoapisummary::
+
+   opendrift.readers.basereader.variables.land_binary_mask_from_ocean_depth
+   opendrift.readers.basereader.variables.wind_from_speed_and_direction
+
+
+.. data:: logger
+   
+
+   
+
+.. py:class:: ReaderDomain
+
+   Bases: :class:`opendrift.timer.Timeable`
+
+   Projection, spatial and temporal domain of reader.
+
+   .. attribute:: name
+      
+
+      
+
+   .. attribute:: proj4
+      
+
+      
+
+   .. attribute:: proj
+      
+
+      
+
+   .. attribute:: lon
+      
+
+      
+
+   .. attribute:: lat
+      
+
+      
+
+   .. attribute:: xmin
+      
+
+      
+
+   .. attribute:: xmax
+      
+
+      
+
+   .. attribute:: ymin
+      
+
+      
+
+   .. attribute:: ymax
+      
+
+      
+
+   .. attribute:: zmin
+      
+
+      
+
+   .. attribute:: zmax
+      
+
+      
+
+   .. attribute:: delta_x
+      
+
+      
+
+   .. attribute:: delta_y
+      
+
+      
+
+   .. attribute:: shape
+      
+
+      
+
+   .. attribute:: start_time
+      
+
+      
+
+   .. attribute:: end_time
+      
+
+      
+
+   .. attribute:: time_step
+      
+
+      
+
+   .. attribute:: times
+      
+
+      Setting this to `True` overrides temporal and spatial bounds checks.
+      Also useful for readers that are constant and do not have a temporal
+      dimension.
+
+
+   .. attribute:: always_valid
+      :annotation: = False
+
+      
+
+   .. method:: rotate_vectors(self, reader_x, reader_y, u_component, v_component, proj_from, proj_to)
+
+      Rotate vectors from one srs to another.
+
+
+   .. method:: xy2lonlat(self, x, y)
+
+      Calculate x,y in own projection from given lon,lat (scalars/arrays).
+              
+
+
+   .. method:: lonlat2xy(self, lon, lat)
+
+      Calculate lon,lat from given x,y (scalars/arrays) in own projection.
+
+
+   .. method:: y_azimuth(self, lon, lat)
+
+      Calculate azimuth orientation of the y-axis of the reader SRS.
+
+
+   .. method:: pixel_size(self)
+
+
+   .. method:: _coverage_unit_(self)
+
+
+   .. method:: __repr__(self)
+
+      String representation of the current reader.
+
+
+   .. method:: covers_positions_xy(self, x, y, z=0)
+
+      Return indices of input points covered by reader.
+
+      Arguments in native projection of reader.
+
+
+   .. method:: covers_positions(self, lon, lat, z=0)
+
+      Return indices of input points covered by reader.
+
+
+   .. method:: global_coverage(self)
+
+      Return True if global coverage east-west
+
+
+   .. method:: domain_grid(self, npoints=1000)
+
+      Return arrays of lon,lat points spread evenly over reader domain.
+
+
+   .. method:: coverage_string(self)
+
+      Coverage of reader to be reported as string for debug output
+
+
+   .. method:: check_arguments(self, variables, time, x, y, z)
+
+      Check validity of arguments input to method get_variables.
+
+      Checks that requested positions and time are within coverage of
+      this reader, and that it can provide the requested variable(s).
+      Returns the input arguments, possibly modified/corrected (below)
+
+      Arguments:
+          See function get_variables for definition.
+
+      Returns:
+          variables: same as input, but converted to list if given as string.
+
+          time: same as input, or start_time of reader if given as None.
+
+          x, y, z: same as input, but converted to ndarrays
+          if given as scalars.
+
+          outside: boolean array which is True for any particles outside
+              the spatial domain covered by this reader.
+
+      Raises:
+
+          ValueError:
+
+          - if requested time is outside coverage of reader.
+
+          - if all requested positions are outside coverage of reader.
+
+
+   .. method:: covers_time(self, time)
+
+
+   .. method:: nearest_time(self, time)
+
+      Return nearest times before and after the requested time.
+
+      Returns:
+          nearest_time: datetime
+          time_before: datetime
+          time_after: datetime
+          indx_nearest: int
+          indx_before: int
+          indx_after: int
+
+
+
+.. function:: land_binary_mask_from_ocean_depth(env)
+
+
+.. function:: wind_from_speed_and_direction(env)
+
+
+.. py:class:: Variables
+
+   Bases: :class:`opendrift.readers.basereader.variables.ReaderDomain`
+
+   Handles reading and interpolation of variables.
+
+   Initialize self.  See help(type(self)) for accurate signature.
+
+   .. attribute:: variables
+      
+
+      
+
+   .. attribute:: derived_variables
+      
+
+      
+
+   .. attribute:: name
+      
+
+      
+
+   .. attribute:: buffer
+      :annotation: = 0
+
+      
+
+   .. method:: activate_environment_mapping(self, mapping_name)
+
+
+   .. method:: __calculate_derived_environment_variables__(self, env)
+
+
+   .. method:: set_buffer_size(self, max_speed)
+
+      Adjust buffer to minimise data block size needed to cover elements.
+
+      The buffer size is calculated from the maximum anticpated speed.
+      Seeding over a large area or over longer time can easily cause
+      particles to be located outside the block. This is not critical, but
+      causes interpolation to be one-sided in time for the relevant
+      particles.
+
+      Args:
+
+          max_speed: the maximum speed anticipated for particles.
+
+
+   .. method:: __check_env_coordinates__(self, env)
+
+      Make sure x and y are floats (and not e.g. int64)
+
+
+   .. method:: __check_variable_array__(name, variable)
+      :staticmethod:
+
+      Ensure arrays are not masked arrays and that values are within valid ranges.
+
+
+   .. method:: __check_env_arrays__(self, env)
+
+      Ensure arrays are not masked arrays and that values are within valid
+      ranges.
+
+      .. seealso::
+
+          Disabled in `StructuredReader` because variables are valided before
+          entered into interpolator:
+
+          :meth:`.structured.StructuredReader.__check_env_arrays__`
+
+
+   .. method:: _get_variables_interpolated_(self, variables, profiles, profiles_depth, time, reader_x, reader_y, z)
+      :abstractmethod:
+
+      This method _must_ be implemented by every reader. Usually by
+      subclassing one of the reader types (e.g.
+      :class:`structured.StructuredReader`).
+
+      Arguments are in _native projection_ of reader.
+
+      .. seealso:
+
+          * :meth:`get_variables_interpolated_xy`.
+          * :meth:`get_variables_interpolated`.
+
+
+   .. method:: get_variables_interpolated_xy(self, variables, profiles=None, profiles_depth=None, time=None, x=None, y=None, z=None, rotate_to_proj=None)
+
+      Get variables in native projection of reader.
+
+      .. seealso::
+
+          * :meth:`get_variables_interpolated`.
+          * :meth:`_get_variables_interpolated_`.
+
+
+   .. method:: get_variables_interpolated(self, variables, profiles=None, profiles_depth=None, time=None, lon=None, lat=None, z=None, rotate_to_proj=None)
+
+      `get_variables_interpolated` is the main interface to
+      :class:`opendrift.basemodel.OpenDriftSimulation`, and is responsible
+      for returning variables at the correct positions.
+
+      Readers should implement :meth:`_get_variables_interpolated_`.
+
+      Arguments:
+          variables: string, or list of strings (standard_name) of
+              requested variables. These must be provided by reader.
+
+          profiles: List of variable names that should be returned for the range in `profiles_depth`.
+
+          profiles_depth: A range [z-start, z-end] for which to return values for profile-variables. The exact z-depth are given by the reader and returned as `z` variable in `env_profiles`.
+
+          time: datetime or None, time at which data are requested.
+              Can be None (default) if reader/variable has no time
+              dimension (e.g. climatology or landmask).
+
+          lon: longitude, 1d array.
+
+          lat: latitude, 1d array, same length as lon.
+
+          z: float or ndarray; vertical position (in meters, positive up)
+              of requested points. either scalar or same length as lon, lat.
+              default: 0 m (unless otherwise documented by reader)
+
+          block: bool, see return below
+
+          rotate_to_proj: N/A
+
+        Returns:
+
+          (env, env_profiles)
+
+          Interpolated variables at x, y and z. `env` contains values at a fixed depth (`z`), while `env_profiles` contains depth-profiles in the range `profile_depth` for the variables listed in `profiles` for each element (in `x`, `y`). The exact depth is determined by the reader and specified in
+          `env_profiles['z']`. Thus variables in `env_profiles` are not interpolated in z-direction.
+
+      .. seealso::
+
+          :meth:`get_variables_interpolated_xy`.
+
+
+

@@ -1,0 +1,90 @@
+:mod:`opendrift.elements.elements`
+==================================
+
+.. py:module:: opendrift.elements.elements
+
+
+Module Contents
+---------------
+
+Classes
+~~~~~~~
+
+.. autoapisummary::
+
+   opendrift.elements.elements.LagrangianArray
+
+
+
+.. py:class:: LagrangianArray(**kwargs)
+
+   A generic array-like class for Lagrangian particle tracking.
+
+   A LagrangianArray is a generic class keeping the values of given
+   properties ('variables') of a collection of particles at a given time.
+   Values are stored as named attributes (similar to recarray) which are
+   ndarrays (1D, vectors) with one value for each particle, or as scalars
+   for values shared among all particles.
+
+   This is an Abstract Base Class, meaning that only subclasses can be used.
+   Subclasses will add specific variables for specific purposes (particle
+   types, e.g. oil, fish eggs...) to the core variables described below.
+
+   Attributes:
+
+       variables: An OrderedDict where keys are names of the
+           variables/properties of the current object. The values
+           of the OrderedDict are dictionaries with names such as
+           'dtype', 'unit', 'standard_name' (CF), 'default' etc.
+           All variable names will be added dynamically as attributes of
+           the object after initialisation. These attributes will be
+           numpy ndarrays of same length, or scalars. The core variables
+           are:
+
+               - ID: an integer identifying each particle.
+               - status: 0 for active particles and a positive integer when deactivated
+               - lon: longitude (np.float32)
+               - lat: latitude (np.float32)
+               - z: vertical position of the particle in m, positive upwards (above sea surface)
+
+   Initialises a LagrangianArray with given properties.
+
+   Args:
+       Keyword arguments (kwargs) with names corresponding to the
+       OrderedDict 'variables' of the class, and corresponding values.
+       The values must be ndarrays of equal length, or scalars.
+       All (or none) variables must be given, unless a default value
+       is specified in the OrderedDict 'variables'
+       An empty object may be created by giving no input.
+
+   .. attribute:: variables
+      
+
+      
+
+   .. method:: add_variables(cls, new_variables)
+      :classmethod:
+
+      Method used by subclasses to add specific properties/variables.
+
+
+   .. method:: extend(self, other)
+
+      Add elements from another object.
+
+
+   .. method:: move_elements(self, other, indices)
+
+      Remove elements with given indices, and append to another object.
+      NB: indices is boolean array, not real indices!
+
+
+   .. method:: __len__(self)
+
+
+   .. method:: __repr__(self)
+
+      Return repr(self).
+
+
+
