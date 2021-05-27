@@ -178,6 +178,7 @@
   <h1>Source code for opendrift.readers.basereader.unstructured</h1><div class="highlight"><pre>
 <span></span><span class="kn">from</span> <span class="nn">abc</span> <span class="kn">import</span> <span class="n">abstractmethod</span>
 <span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">scipy</span>
 <span class="kn">import</span> <span class="nn">logging</span>
 <span class="n">logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span>
 
@@ -200,6 +201,8 @@
 <span class="sd">        :class:`.structured.StructuredReader`</span>
 
 <span class="sd">    &quot;&quot;&quot;</span>
+    <span class="c1"># Number of parallel threads to use when possible</span>
+    <span class="n">PARALLEL_WORKERS</span> <span class="o">=</span> <span class="o">-</span><span class="mi">1</span>
 
     <span class="n">boundary</span> <span class="o">=</span> <span class="kc">None</span>
 
@@ -334,13 +337,12 @@
         <span class="n">P</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">vstack</span><span class="p">((</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">))</span><span class="o">.</span><span class="n">T</span>
         <span class="k">return</span> <span class="n">cKDTree</span><span class="p">(</span><span class="n">P</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="UnstructuredReader.__nearest_ckdtree__"><a class="viewcode-back" href="../../../../autoapi/opendrift/readers/basereader/unstructured/index.html#opendrift.readers.basereader.UnstructuredReader.__nearest_ckdtree__">[docs]</a>    <span class="nd">@staticmethod</span>
-    <span class="k">def</span> <span class="nf">__nearest_ckdtree__</span><span class="p">(</span><span class="n">idx</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">):</span>
+<div class="viewcode-block" id="UnstructuredReader.__nearest_ckdtree__"><a class="viewcode-back" href="../../../../autoapi/opendrift/readers/basereader/unstructured/index.html#opendrift.readers.basereader.UnstructuredReader.__nearest_ckdtree__">[docs]</a>    <span class="k">def</span> <span class="nf">__nearest_ckdtree__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">idx</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Return index of nearest point in cKDTree</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">q</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">vstack</span><span class="p">((</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">))</span><span class="o">.</span><span class="n">T</span>
-        <span class="k">return</span> <span class="n">idx</span><span class="o">.</span><span class="n">query</span><span class="p">(</span><span class="n">q</span><span class="p">,</span> <span class="n">k</span> <span class="o">=</span> <span class="mi">1</span><span class="p">,</span> <span class="n">workers</span> <span class="o">=</span> <span class="o">-</span><span class="mi">1</span><span class="p">)[</span><span class="mi">1</span><span class="p">]</span></div>
+        <span class="k">return</span> <span class="n">idx</span><span class="o">.</span><span class="n">query</span><span class="p">(</span><span class="n">q</span><span class="p">,</span> <span class="n">k</span> <span class="o">=</span> <span class="mi">1</span><span class="p">,</span> <span class="n">workers</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">PARALLEL_WORKERS</span><span class="p">)[</span><span class="mi">1</span><span class="p">]</span></div>
 
 <div class="viewcode-block" id="UnstructuredReader.__nearest_rtree__"><a class="viewcode-back" href="../../../../autoapi/opendrift/readers/basereader/unstructured/index.html#opendrift.readers.basereader.UnstructuredReader.__nearest_rtree__">[docs]</a>    <span class="nd">@staticmethod</span>
     <span class="k">def</span> <span class="nf">__nearest_rtree__</span><span class="p">(</span><span class="n">idx</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">):</span>
