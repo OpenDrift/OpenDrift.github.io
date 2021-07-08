@@ -21,7 +21,7 @@
 Plotting map
 ===============
 
-.. GENERATED FROM PYTHON SOURCE LINES 6-34
+.. GENERATED FROM PYTHON SOURCE LINES 6-39
 
 
 
@@ -36,6 +36,12 @@ Plotting map
 
  .. code-block:: none
 
+    17:20:14 DEBUG   opendrift.models.basemodel: Adding 17 config items from basemodel
+    17:20:14 DEBUG   opendrift.models.basemodel: Adding 4 config items from basemodel
+    17:20:14 DEBUG   opendrift.models.basemodel: Adding 34 config items from basemodel
+    17:20:14 INFO    opendrift.models.basemodel: OpenDriftSimulation initialised (version 1.6.0 / v1.6.0-134-ge01e2a0)
+    17:20:14 DEBUG   opendrift.models.basemodel: Adding 13 config items from oceandrift
+    17:20:14 DEBUG   opendrift.models.basemodel:   Overwriting config item seed:z
     0.19.0.post1
     1.7.1
 
@@ -54,6 +60,9 @@ Plotting map
     import cartopy.feature as cfeature
     import cartopy
     import shapely
+    from opendrift.models.oceandrift import OceanDrift
+    o = OceanDrift(loglevel=0)
+    from opendrift_landmask_data import Landmask
 
     print(cartopy.__version__)
     print(shapely.__version__)
@@ -62,9 +71,11 @@ Plotting map
     sp = ccrs.Stereographic(central_longitude=0, central_latitude=60)
     ax = fig.add_subplot(1, 1, 1, projection=sp)
 
-    corners = [-10, 10, 55, 65]
     corners = [-30, 30, 45, 75]
-    f = cfeature.GSHHSFeature(scale='auto', levels=[1])
+    s = cfeature.AdaptiveScaler('coarse',
+                    (('low', 100), ('intermediate', 20), ('high', 5), ('full', 1)))
+    lscale = s.scale_from_extent([corners[0], corners[1], corners[2], corners[3]])
+    f = cfeature.GSHHSFeature(scale=lscale, levels=[1])
     ax.add_geometries(
         #f.intersecting_geometries(corners),
         f.geometries(),
@@ -80,7 +91,7 @@ Plotting map
 
 .. rst-class:: sphx-glr-timing
 
-   **Total running time of the script:** ( 0 minutes  0.153 seconds)
+   **Total running time of the script:** ( 0 minutes  0.890 seconds)
 
 
 .. _sphx_glr_download_gallery_example_map.py:
