@@ -430,22 +430,19 @@
             <span class="n">latspan</span> <span class="o">=</span> <span class="n">latmax</span> <span class="o">-</span> <span class="n">latmin</span>
 
         <span class="c1"># Initialise map</span>
-        <span class="c1">#if latspan &lt; 90:</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">global_coverage</span><span class="p">():</span>
             <span class="c1"># Stereographic projection centred on domain, if small domain</span>
             <span class="n">x0</span> <span class="o">=</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">xmin</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">xmax</span><span class="p">)</span> <span class="o">/</span> <span class="mi">2</span>
             <span class="n">y0</span> <span class="o">=</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">ymin</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">ymax</span><span class="p">)</span> <span class="o">/</span> <span class="mi">2</span>
             <span class="n">lon0</span><span class="p">,</span> <span class="n">lat0</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">xy2lonlat</span><span class="p">(</span><span class="n">x0</span><span class="p">,</span> <span class="n">y0</span><span class="p">)</span>
             <span class="n">sp</span> <span class="o">=</span> <span class="n">ccrs</span><span class="o">.</span><span class="n">Stereographic</span><span class="p">(</span><span class="n">central_longitude</span><span class="o">=</span><span class="n">lon0</span><span class="p">,</span> <span class="n">central_latitude</span><span class="o">=</span><span class="n">lat0</span><span class="p">)</span>
-            <span class="n">ax</span> <span class="o">=</span> <span class="n">fig</span><span class="o">.</span><span class="n">add_subplot</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="n">projection</span><span class="o">=</span><span class="n">sp</span><span class="p">)</span>
-            <span class="n">corners_stere</span> <span class="o">=</span> <span class="n">sp</span><span class="o">.</span><span class="n">transform_points</span><span class="p">(</span><span class="n">ccrs</span><span class="o">.</span><span class="n">PlateCarree</span><span class="p">(),</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">corners</span><span class="p">[</span><span class="mi">0</span><span class="p">]),</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">corners</span><span class="p">[</span><span class="mi">1</span><span class="p">]))</span>
             <span class="n">latmax</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">maximum</span><span class="p">(</span><span class="n">latmax</span><span class="p">,</span> <span class="n">lat0</span><span class="p">)</span>
             <span class="n">latmin</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">minimum</span><span class="p">(</span><span class="n">latmin</span><span class="p">,</span> <span class="n">lat0</span><span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="c1"># Global map if reader domain is large</span>
             <span class="n">sp</span> <span class="o">=</span> <span class="n">ccrs</span><span class="o">.</span><span class="n">Mercator</span><span class="p">()</span>
-            <span class="n">ax</span> <span class="o">=</span> <span class="n">fig</span><span class="o">.</span><span class="n">add_subplot</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="n">projection</span><span class="o">=</span><span class="n">sp</span><span class="p">)</span>
 
+        <span class="n">ax</span> <span class="o">=</span> <span class="n">fig</span><span class="o">.</span><span class="n">add_subplot</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="n">projection</span><span class="o">=</span><span class="n">sp</span><span class="p">)</span>
 
         <span class="k">if</span> <span class="n">lscale</span> <span class="o">==</span> <span class="s1">&#39;auto&#39;</span><span class="p">:</span>  <span class="c1"># Custom lscale - this should be generalized to Basemodel also</span>
             <span class="n">s</span> <span class="o">=</span> <span class="n">cfeature</span><span class="o">.</span><span class="n">AdaptiveScaler</span><span class="p">(</span><span class="s1">&#39;coarse&#39;</span><span class="p">,</span>
@@ -454,8 +451,10 @@
 
         <span class="c1"># GSHHS coastlines</span>
         <span class="n">f</span> <span class="o">=</span> <span class="n">cfeature</span><span class="o">.</span><span class="n">GSHHSFeature</span><span class="p">(</span><span class="n">scale</span><span class="o">=</span><span class="n">lscale</span><span class="p">,</span> <span class="n">levels</span><span class="o">=</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
+        <span class="n">f</span><span class="o">.</span><span class="n">_geometries_cache</span> <span class="o">=</span> <span class="p">{}</span>
         <span class="n">ax</span><span class="o">.</span><span class="n">add_geometries</span><span class="p">(</span>
-            <span class="n">f</span><span class="o">.</span><span class="n">intersecting_geometries</span><span class="p">([</span><span class="n">lonmin</span><span class="p">,</span> <span class="n">lonmax</span><span class="p">,</span> <span class="n">latmin</span><span class="p">,</span> <span class="n">latmax</span><span class="p">]),</span>
+            <span class="c1">#f.intersecting_geometries([lonmin, lonmax, latmin, latmax]),</span>
+            <span class="n">f</span><span class="o">.</span><span class="n">geometries</span><span class="p">(),</span>
             <span class="n">ccrs</span><span class="o">.</span><span class="n">PlateCarree</span><span class="p">(),</span>
             <span class="n">facecolor</span><span class="o">=</span><span class="n">cfeature</span><span class="o">.</span><span class="n">COLORS</span><span class="p">[</span><span class="s1">&#39;land&#39;</span><span class="p">],</span>
             <span class="n">edgecolor</span><span class="o">=</span><span class="s1">&#39;black&#39;</span><span class="p">)</span>

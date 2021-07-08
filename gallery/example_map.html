@@ -40,8 +40,8 @@
     
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
-    <link rel="next" title="Initialising reader from JSON string" href="example_long_cmems_json.html" />
-    <link rel="prev" title="Thredds resources for GUI" href="example_thredds_resources.html" /> 
+    <link rel="next" title="Seeding from shapefile" href="example_seed_from_shapefile.html" />
+    <link rel="prev" title="Thredds (global)" href="example_long_global_thredds.html" /> 
 </head>
 
 <body class="wy-body-for-nav">
@@ -104,10 +104,10 @@
 <li class="toctree-l2"><a class="reference internal" href="example_constant_current.html">Constant current</a></li>
 <li class="toctree-l2"><a class="reference internal" href="example_roms_native.html">ROMS native reader</a></li>
 <li class="toctree-l2"><a class="reference internal" href="example_thredds_resources.html">Thredds resources for GUI</a></li>
-<li class="toctree-l2 current"><a class="current reference internal" href="#">Plotting map</a></li>
 <li class="toctree-l2"><a class="reference internal" href="example_long_cmems_json.html">Initialising reader from JSON string</a></li>
 <li class="toctree-l2"><a class="reference internal" href="example_depth.html">Drift at different depths</a></li>
 <li class="toctree-l2"><a class="reference internal" href="example_long_global_thredds.html">Thredds (global)</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">Plotting map</a></li>
 <li class="toctree-l2"><a class="reference internal" href="example_seed_from_shapefile.html">Seeding from shapefile</a></li>
 <li class="toctree-l2"><a class="reference internal" href="example_larvae.html">Fish Eggs and Larvae</a></li>
 <li class="toctree-l2"><a class="reference internal" href="example_double_gyre.html">Double gyre</a></li>
@@ -262,10 +262,6 @@ to download the full example code</p>
 <p class="sphx-glr-script-out">Out:</p>
 <div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>0.19.0.post1
 1.7.1
-/opt/conda/envs/opendrift/lib/python3.9/site-packages/cartopy/io/__init__.py:241: DownloadWarning: Downloading: https://www.ngdc.noaa.gov/mgg/shorelines/data/gshhs/oldversions/version2.2.0/GSHHS_shp_2.2.0.zip
-  warnings.warn(&#39;Downloading: {}&#39;.format(url), DownloadWarning)
-/opt/conda/envs/opendrift/lib/python3.9/site-packages/shapefile.py:391: UserWarning: Shapefile shape has invalid polygon: no exterior rings found (must have clockwise orientation); interpreting holes as exteriors.
-  warnings.warn(&#39;Shapefile shape has invalid polygon: no exterior rings found (must have clockwise orientation); interpreting holes as exteriors.&#39;)
 </pre></div>
 </div>
 <div class="line-block">
@@ -285,9 +281,11 @@ to download the full example code</p>
 <span class="n">ax</span> <span class="o">=</span> <span class="n">fig</span><span class="o">.</span><span class="n">add_subplot</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="n">projection</span><span class="o">=</span><span class="n">sp</span><span class="p">)</span>
 
 <span class="n">corners</span> <span class="o">=</span> <span class="p">[</span><span class="o">-</span><span class="mi">10</span><span class="p">,</span> <span class="mi">10</span><span class="p">,</span> <span class="mi">55</span><span class="p">,</span> <span class="mi">65</span><span class="p">]</span>
-<span class="n">f</span> <span class="o">=</span> <span class="n">cfeature</span><span class="o">.</span><span class="n">GSHHSFeature</span><span class="p">(</span><span class="n">scale</span><span class="o">=</span><span class="s1">&#39;h&#39;</span><span class="p">,</span> <span class="n">levels</span><span class="o">=</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
+<span class="n">corners</span> <span class="o">=</span> <span class="p">[</span><span class="o">-</span><span class="mi">30</span><span class="p">,</span> <span class="mi">30</span><span class="p">,</span> <span class="mi">45</span><span class="p">,</span> <span class="mi">75</span><span class="p">]</span>
+<span class="n">f</span> <span class="o">=</span> <span class="n">cfeature</span><span class="o">.</span><span class="n">GSHHSFeature</span><span class="p">(</span><span class="n">scale</span><span class="o">=</span><span class="s1">&#39;auto&#39;</span><span class="p">,</span> <span class="n">levels</span><span class="o">=</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
 <span class="n">ax</span><span class="o">.</span><span class="n">add_geometries</span><span class="p">(</span>
-    <span class="n">f</span><span class="o">.</span><span class="n">intersecting_geometries</span><span class="p">(</span><span class="n">corners</span><span class="p">),</span>
+    <span class="c1">#f.intersecting_geometries(corners),</span>
+    <span class="n">f</span><span class="o">.</span><span class="n">geometries</span><span class="p">(),</span>
     <span class="n">ccrs</span><span class="o">.</span><span class="n">PlateCarree</span><span class="p">(),</span>
     <span class="n">facecolor</span><span class="o">=</span><span class="n">cfeature</span><span class="o">.</span><span class="n">COLORS</span><span class="p">[</span><span class="s1">&#39;land&#39;</span><span class="p">],</span>
     <span class="n">edgecolor</span><span class="o">=</span><span class="s1">&#39;black&#39;</span><span class="p">)</span>
@@ -298,7 +296,7 @@ to download the full example code</p>
 <span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
 </pre></div>
 </div>
-<p class="sphx-glr-timing"><strong>Total running time of the script:</strong> ( 0 minutes  33.318 seconds)</p>
+<p class="sphx-glr-timing"><strong>Total running time of the script:</strong> ( 0 minutes  0.153 seconds)</p>
 <div class="sphx-glr-footer class sphx-glr-footer-example docutils container" id="sphx-glr-download-gallery-example-map-py">
 <div class="sphx-glr-download sphx-glr-download-python docutils container">
 <p><a class="reference download internal" download="" href="../_downloads/4e6fc301e0c8ee39888cee1c217e3774/example_map.py"><code class="xref download docutils literal notranslate"><span class="pre">Download</span> <span class="pre">Python</span> <span class="pre">source</span> <span class="pre">code:</span> <span class="pre">example_map.py</span></code></a></p>
@@ -316,8 +314,8 @@ to download the full example code</p>
           </div>
           <footer>
     <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
-        <a href="example_long_cmems_json.html" class="btn btn-neutral float-right" title="Initialising reader from JSON string" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
-        <a href="example_thredds_resources.html" class="btn btn-neutral float-left" title="Thredds resources for GUI" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="example_seed_from_shapefile.html" class="btn btn-neutral float-right" title="Seeding from shapefile" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+        <a href="example_long_global_thredds.html" class="btn btn-neutral float-left" title="Thredds (global)" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
     </div>
 
   <hr/>
