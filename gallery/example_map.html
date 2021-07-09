@@ -40,8 +40,8 @@
     
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
-    <link rel="next" title="Double gyre - Lagrangian Coherent Structures" href="example_double_gyre_LCS.html" />
-    <link rel="prev" title="Vertical diffusivity" href="example_diffusivities.html" /> 
+    <link rel="next" title="FVCOM: Using model input from unstructured grid" href="example_fvcom.html" />
+    <link rel="prev" title="Double gyre, advection" href="example_double_gyre_advection_schemes.html" /> 
 </head>
 
 <body class="wy-body-for-nav">
@@ -125,10 +125,10 @@
 <li class="toctree-l2"><a class="reference internal" href="example_LCS_norkyst.html">LCS Norkyst</a></li>
 <li class="toctree-l2"><a class="reference internal" href="example_reader_boundary.html">Reader boundary</a></li>
 <li class="toctree-l2"><a class="reference internal" href="example_double_gyre_advection_schemes.html">Double gyre, advection</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">Plotting map</a></li>
 <li class="toctree-l2"><a class="reference internal" href="example_fvcom.html">FVCOM: Using model input from unstructured grid</a></li>
 <li class="toctree-l2"><a class="reference internal" href="example_openberg_det.html">Ice berg (openberg) deterministic</a></li>
 <li class="toctree-l2"><a class="reference internal" href="example_diffusivities.html">Vertical diffusivity</a></li>
-<li class="toctree-l2 current"><a class="current reference internal" href="#">Plotting map</a></li>
 <li class="toctree-l2"><a class="reference internal" href="example_double_gyre_LCS.html">Double gyre - Lagrangian Coherent Structures</a></li>
 <li class="toctree-l2"><a class="reference internal" href="example_openberg_stat.html">Openberg - statistical mode</a></li>
 <li class="toctree-l2"><a class="reference internal" href="example_satellite.html">Satellite</a></li>
@@ -258,10 +258,25 @@ to download the full example code</p>
 </div>
 <div class="sphx-glr-example-title section" id="plotting-map">
 <span id="sphx-glr-gallery-example-map-py"></span><h1>Plotting map<a class="headerlink" href="#plotting-map" title="Permalink to this headline">¶</a></h1>
-<img alt="example map" class="sphx-glr-single-img" src="../_images/sphx_glr_example_map_001.png" />
+<ul class="sphx-glr-horizontal">
+<li><img alt="example map" class="sphx-glr-multi-img" src="../_images/sphx_glr_example_map_001.png" />
+</li>
+<li><img alt="example map" class="sphx-glr-multi-img" src="../_images/sphx_glr_example_map_002.png" />
+</li>
+<li><img alt="example map" class="sphx-glr-multi-img" src="../_images/sphx_glr_example_map_003.png" />
+</li>
+<li><img alt="example map" class="sphx-glr-multi-img" src="../_images/sphx_glr_example_map_004.png" />
+</li>
+<li><img alt="example map" class="sphx-glr-multi-img" src="../_images/sphx_glr_example_map_005.png" />
+</li>
+</ul>
 <p class="sphx-glr-script-out">Out:</p>
-<div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>0.19.0.post1
-1.7.1
+<div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>coarse LSCALE
+low LSCALE
+intermediate LSCALE
+high LSCALE
+/opt/conda/envs/opendrift/lib/python3.9/site-packages/shapefile.py:391: UserWarning: Shapefile shape has invalid polygon: no exterior rings found (must have clockwise orientation); interpreting holes as exteriors.
+  warnings.warn(&#39;Shapefile shape has invalid polygon: no exterior rings found (must have clockwise orientation); interpreting holes as exteriors.&#39;)
 auto LSCALE
 </pre></div>
 </div>
@@ -271,40 +286,34 @@ auto LSCALE
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="k">as</span> <span class="nn">plt</span>
 <span class="kn">import</span> <span class="nn">cartopy.crs</span> <span class="k">as</span> <span class="nn">ccrs</span>
 <span class="kn">import</span> <span class="nn">cartopy.feature</span> <span class="k">as</span> <span class="nn">cfeature</span>
-<span class="kn">import</span> <span class="nn">cartopy</span>
-<span class="kn">import</span> <span class="nn">shapely</span>
-<span class="c1">#from opendrift.models.oceandrift import OceanDrift</span>
-<span class="c1">#o = OceanDrift(loglevel=0)</span>
-<span class="c1">#from opendrift_landmask_data import Landmask</span>
 
-<span class="nb">print</span><span class="p">(</span><span class="n">cartopy</span><span class="o">.</span><span class="n">__version__</span><span class="p">)</span>
-<span class="nb">print</span><span class="p">(</span><span class="n">shapely</span><span class="o">.</span><span class="n">__version__</span><span class="p">)</span>
 
-<span class="n">fig</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">()</span>
-<span class="n">sp</span> <span class="o">=</span> <span class="n">ccrs</span><span class="o">.</span><span class="n">Stereographic</span><span class="p">(</span><span class="n">central_longitude</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">central_latitude</span><span class="o">=</span><span class="mi">60</span><span class="p">)</span>
-<span class="n">ax</span> <span class="o">=</span> <span class="n">fig</span><span class="o">.</span><span class="n">add_subplot</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="n">projection</span><span class="o">=</span><span class="n">sp</span><span class="p">)</span>
+<span class="k">for</span> <span class="n">lscale</span> <span class="ow">in</span> <span class="p">[</span><span class="s1">&#39;coarse&#39;</span><span class="p">,</span> <span class="s1">&#39;low&#39;</span><span class="p">,</span> <span class="s1">&#39;intermediate&#39;</span><span class="p">,</span> <span class="s1">&#39;high&#39;</span><span class="p">,</span> <span class="s1">&#39;auto&#39;</span><span class="p">]:</span>
+    <span class="n">fig</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">()</span>
+    <span class="n">sp</span> <span class="o">=</span> <span class="n">ccrs</span><span class="o">.</span><span class="n">Stereographic</span><span class="p">(</span><span class="n">central_longitude</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">central_latitude</span><span class="o">=</span><span class="mi">60</span><span class="p">)</span>
+    <span class="n">ax</span> <span class="o">=</span> <span class="n">fig</span><span class="o">.</span><span class="n">add_subplot</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="n">projection</span><span class="o">=</span><span class="n">sp</span><span class="p">)</span>
 
-<span class="n">corners</span> <span class="o">=</span> <span class="p">[</span><span class="o">-</span><span class="mi">30</span><span class="p">,</span> <span class="mi">30</span><span class="p">,</span> <span class="mi">45</span><span class="p">,</span> <span class="mi">75</span><span class="p">]</span>
-<span class="c1">#s = cfeature.AdaptiveScaler(&#39;coarse&#39;,</span>
-<span class="c1">#                ((&#39;low&#39;, 100), (&#39;intermediate&#39;, 20), (&#39;high&#39;, 5), (&#39;full&#39;, 1)))</span>
-<span class="c1">#lscale = s.scale_from_extent([corners[0], corners[1], corners[2], corners[3]])</span>
-<span class="n">lscale</span> <span class="o">=</span> <span class="s1">&#39;auto&#39;</span>
-<span class="nb">print</span><span class="p">(</span><span class="n">lscale</span><span class="p">,</span> <span class="s1">&#39;LSCALE&#39;</span><span class="p">)</span>
-<span class="n">f</span> <span class="o">=</span> <span class="n">cfeature</span><span class="o">.</span><span class="n">GSHHSFeature</span><span class="p">(</span><span class="n">scale</span><span class="o">=</span><span class="n">lscale</span><span class="p">,</span> <span class="n">levels</span><span class="o">=</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
-<span class="n">ax</span><span class="o">.</span><span class="n">add_geometries</span><span class="p">(</span>
-    <span class="c1">#f.intersecting_geometries(corners),</span>
-    <span class="n">f</span><span class="o">.</span><span class="n">geometries</span><span class="p">(),</span>
-    <span class="n">ccrs</span><span class="o">.</span><span class="n">PlateCarree</span><span class="p">(),</span>
-    <span class="n">facecolor</span><span class="o">=</span><span class="n">cfeature</span><span class="o">.</span><span class="n">COLORS</span><span class="p">[</span><span class="s1">&#39;land&#39;</span><span class="p">],</span>
-    <span class="n">edgecolor</span><span class="o">=</span><span class="s1">&#39;black&#39;</span><span class="p">)</span>
+    <span class="n">corners</span> <span class="o">=</span> <span class="p">[</span><span class="o">-</span><span class="mi">30</span><span class="p">,</span> <span class="mi">30</span><span class="p">,</span> <span class="mi">45</span><span class="p">,</span> <span class="mi">75</span><span class="p">]</span>
+    <span class="c1">#s = cfeature.AdaptiveScaler(&#39;coarse&#39;,</span>
+    <span class="c1">#                ((&#39;low&#39;, 100), (&#39;intermediate&#39;, 20), (&#39;high&#39;, 5), (&#39;full&#39;, 1)))</span>
+    <span class="c1">#lscale = s.scale_from_extent([corners[0], corners[1], corners[2], corners[3]])</span>
+    <span class="c1">#lscale = &#39;auto&#39;</span>
+    <span class="nb">print</span><span class="p">(</span><span class="n">lscale</span><span class="p">,</span> <span class="s1">&#39;LSCALE&#39;</span><span class="p">)</span>
+    <span class="n">f</span> <span class="o">=</span> <span class="n">cfeature</span><span class="o">.</span><span class="n">GSHHSFeature</span><span class="p">(</span><span class="n">scale</span><span class="o">=</span><span class="n">lscale</span><span class="p">,</span> <span class="n">levels</span><span class="o">=</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">add_geometries</span><span class="p">(</span>
+        <span class="c1">#f.intersecting_geometries(corners),</span>
+        <span class="n">f</span><span class="o">.</span><span class="n">geometries</span><span class="p">(),</span>
+        <span class="n">ccrs</span><span class="o">.</span><span class="n">PlateCarree</span><span class="p">(),</span>
+        <span class="n">facecolor</span><span class="o">=</span><span class="n">cfeature</span><span class="o">.</span><span class="n">COLORS</span><span class="p">[</span><span class="s1">&#39;land&#39;</span><span class="p">],</span>
+        <span class="n">edgecolor</span><span class="o">=</span><span class="s1">&#39;black&#39;</span><span class="p">)</span>
 
-<span class="n">ax</span><span class="o">.</span><span class="n">set_extent</span><span class="p">(</span><span class="n">corners</span><span class="p">,</span> <span class="n">crs</span><span class="o">=</span><span class="n">ccrs</span><span class="o">.</span><span class="n">PlateCarree</span><span class="p">())</span>
-<span class="n">gl</span> <span class="o">=</span> <span class="n">ax</span><span class="o">.</span><span class="n">gridlines</span><span class="p">(</span><span class="n">ccrs</span><span class="o">.</span><span class="n">PlateCarree</span><span class="p">())</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">set_extent</span><span class="p">(</span><span class="n">corners</span><span class="p">,</span> <span class="n">crs</span><span class="o">=</span><span class="n">ccrs</span><span class="o">.</span><span class="n">PlateCarree</span><span class="p">())</span>
+    <span class="n">gl</span> <span class="o">=</span> <span class="n">ax</span><span class="o">.</span><span class="n">gridlines</span><span class="p">(</span><span class="n">ccrs</span><span class="o">.</span><span class="n">PlateCarree</span><span class="p">())</span>
 
-<span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
 </pre></div>
 </div>
-<p class="sphx-glr-timing"><strong>Total running time of the script:</strong> ( 0 minutes  0.167 seconds)</p>
+<p class="sphx-glr-timing"><strong>Total running time of the script:</strong> ( 0 minutes  52.743 seconds)</p>
 <div class="sphx-glr-footer class sphx-glr-footer-example docutils container" id="sphx-glr-download-gallery-example-map-py">
 <div class="sphx-glr-download sphx-glr-download-python docutils container">
 <p><a class="reference download internal" download="" href="../_downloads/4e6fc301e0c8ee39888cee1c217e3774/example_map.py"><code class="xref download docutils literal notranslate"><span class="pre">Download</span> <span class="pre">Python</span> <span class="pre">source</span> <span class="pre">code:</span> <span class="pre">example_map.py</span></code></a></p>
@@ -322,8 +331,8 @@ auto LSCALE
           </div>
           <footer>
     <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
-        <a href="example_double_gyre_LCS.html" class="btn btn-neutral float-right" title="Double gyre - Lagrangian Coherent Structures" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
-        <a href="example_diffusivities.html" class="btn btn-neutral float-left" title="Vertical diffusivity" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="example_fvcom.html" class="btn btn-neutral float-right" title="FVCOM: Using model input from unstructured grid" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+        <a href="example_double_gyre_advection_schemes.html" class="btn btn-neutral float-left" title="Double gyre, advection" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
     </div>
 
   <hr/>
