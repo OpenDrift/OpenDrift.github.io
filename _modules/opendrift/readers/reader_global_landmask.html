@@ -192,13 +192,134 @@
 <span class="c1"># Copyright 2020, Gaute Hope, MET Norway</span>
 
 <span class="kn">from</span> <span class="nn">opendrift.readers.basereader</span> <span class="kn">import</span> <span class="n">BaseReader</span><span class="p">,</span> <span class="n">ContinuousReader</span>
-<span class="kn">from</span> <span class="nn">opendrift_landmask_data</span> <span class="kn">import</span> <span class="n">Landmask</span>
 
 <span class="kn">import</span> <span class="nn">warnings</span>
 <span class="kn">import</span> <span class="nn">pyproj</span>
 <span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">shapely.vectorized</span>
+<span class="kn">import</span> <span class="nn">shapely.prepared</span>
+<span class="kn">from</span> <span class="nn">shapely.geometry</span> <span class="kn">import</span> <span class="n">box</span>
+<span class="kn">import</span> <span class="nn">cartopy.crs</span> <span class="k">as</span> <span class="nn">ccrs</span>
+<span class="kn">import</span> <span class="nn">cartopy.feature</span> <span class="k">as</span> <span class="nn">cfeature</span>
 <span class="kn">import</span> <span class="nn">logging</span>
+
 <span class="n">logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span>
+
+<span class="c1"># TODO: replace this with weakref + thread-safety</span>
+<span class="n">__roaring_mask__</span> <span class="o">=</span> <span class="kc">None</span>
+
+<div class="viewcode-block" id="get_mask_type"><a class="viewcode-back" href="../../../autoapi/opendrift/readers/reader_global_landmask/index.html#opendrift.readers.reader_global_landmask.get_mask_type">[docs]</a><span class="k">def</span> <span class="nf">get_mask_type</span><span class="p">():</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Returns whether the landmask is provided by the opendrift_landmask_data</span>
+<span class="sd">    package (0), or the roaring-landmask package (1).</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="kn">from</span> <span class="nn">roaring_landmask</span> <span class="kn">import</span> <span class="n">RoaringLandmask</span> <span class="k">as</span> <span class="n">_</span>
+        <span class="k">return</span> <span class="mi">1</span>
+    <span class="k">except</span> <span class="ne">ImportError</span><span class="p">:</span>
+        <span class="k">return</span> <span class="mi">0</span></div>
+
+<div class="viewcode-block" id="get_mask"><a class="viewcode-back" href="../../../autoapi/opendrift/readers/reader_global_landmask/index.html#opendrift.readers.reader_global_landmask.get_mask">[docs]</a><span class="k">def</span> <span class="nf">get_mask</span><span class="p">(</span><span class="n">skippoly</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span> <span class="n">extent</span> <span class="o">=</span> <span class="kc">None</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Returns an instance of the landmask type and landmask. The mask data is</span>
+<span class="sd">    usually shared between threads.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">global</span> <span class="n">__roaring_mask__</span>
+
+    <span class="k">try</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">__roaring_mask__</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="kn">from</span> <span class="nn">roaring_landmask</span> <span class="kn">import</span> <span class="n">RoaringLandmask</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="s2">&quot;using the experimental RoaringLandmask&quot;</span><span class="p">)</span>
+            <span class="n">__roaring_mask__</span> <span class="o">=</span> <span class="n">RoaringLandmask</span><span class="o">.</span><span class="n">new</span><span class="p">()</span>
+
+        <span class="n">mask</span> <span class="o">=</span> <span class="n">__roaring_mask__</span>
+        <span class="n">mask_type</span> <span class="o">=</span> <span class="mi">1</span>
+        <span class="k">if</span> <span class="n">skippoly</span> <span class="ow">or</span> <span class="n">extent</span><span class="p">:</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span>
+                <span class="s1">&#39;skippoly and extent is not supported with RoaringLandmask&#39;</span><span class="p">)</span>
+
+    <span class="k">except</span> <span class="ne">ImportError</span><span class="p">:</span>
+        <span class="kn">from</span> <span class="nn">opendrift_landmask_data</span> <span class="kn">import</span> <span class="n">Landmask</span>
+        <span class="n">mask_type</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="n">mask</span> <span class="o">=</span> <span class="n">Landmask</span><span class="p">(</span><span class="n">extent</span><span class="p">,</span> <span class="n">skippoly</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">mask_type</span><span class="p">,</span> <span class="n">mask</span></div>
+
+<div class="viewcode-block" id="plot_land"><a class="viewcode-back" href="../../../autoapi/opendrift/readers/reader_global_landmask/index.html#opendrift.readers.reader_global_landmask.plot_land">[docs]</a><span class="k">def</span> <span class="nf">plot_land</span><span class="p">(</span><span class="n">ax</span><span class="p">,</span> <span class="n">lonmin</span><span class="p">,</span> <span class="n">latmin</span><span class="p">,</span> <span class="n">lonmax</span><span class="p">,</span> <span class="n">latmax</span><span class="p">,</span> <span class="n">fast</span><span class="p">,</span> <span class="n">ocean_color</span> <span class="o">=</span> <span class="s1">&#39;white&#39;</span><span class="p">,</span> <span class="n">land_color</span> <span class="o">=</span> <span class="n">cfeature</span><span class="o">.</span><span class="n">COLORS</span><span class="p">[</span><span class="s1">&#39;land&#39;</span><span class="p">],</span> <span class="n">lscale</span> <span class="o">=</span> <span class="s1">&#39;auto&#39;</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Plot the landmask or the shapes from GSHHG.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">def</span> <span class="nf">show_landmask_roaring</span><span class="p">(</span><span class="n">roaring</span><span class="p">):</span>
+        <span class="n">maxn</span> <span class="o">=</span> <span class="mf">512.</span>
+        <span class="n">dx</span> <span class="o">=</span> <span class="p">(</span><span class="n">lonmax</span> <span class="o">-</span> <span class="n">lonmin</span><span class="p">)</span> <span class="o">/</span> <span class="n">maxn</span>
+        <span class="n">dy</span> <span class="o">=</span> <span class="p">(</span><span class="n">latmax</span> <span class="o">-</span> <span class="n">latmin</span><span class="p">)</span> <span class="o">/</span> <span class="n">maxn</span>
+        <span class="n">dx</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="n">roaring</span><span class="o">.</span><span class="n">dx</span><span class="p">,</span> <span class="n">dx</span><span class="p">)</span>
+        <span class="n">dy</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="n">roaring</span><span class="o">.</span><span class="n">dy</span><span class="p">,</span> <span class="n">dy</span><span class="p">)</span>
+
+        <span class="n">x</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="n">lonmin</span><span class="p">,</span> <span class="n">lonmax</span><span class="p">,</span> <span class="n">dx</span><span class="p">)</span>
+        <span class="n">y</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="n">latmin</span><span class="p">,</span> <span class="n">latmax</span><span class="p">,</span> <span class="n">dy</span><span class="p">)</span>
+
+        <span class="n">yy</span><span class="p">,</span> <span class="n">xx</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">meshgrid</span><span class="p">(</span><span class="n">y</span><span class="p">,</span> <span class="n">x</span><span class="p">)</span>
+        <span class="n">img</span> <span class="o">=</span> <span class="n">roaring</span><span class="o">.</span><span class="n">mask</span><span class="o">.</span><span class="n">contains_many</span><span class="p">(</span><span class="n">xx</span><span class="o">.</span><span class="n">ravel</span><span class="p">(),</span> <span class="n">yy</span><span class="o">.</span><span class="n">ravel</span><span class="p">())</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="n">yy</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span><span class="o">.</span><span class="n">T</span>
+
+        <span class="kn">from</span> <span class="nn">matplotlib</span> <span class="kn">import</span> <span class="n">colors</span>
+        <span class="n">cmap</span> <span class="o">=</span> <span class="n">colors</span><span class="o">.</span><span class="n">ListedColormap</span><span class="p">([</span><span class="n">ocean_color</span><span class="p">,</span> <span class="n">land_color</span><span class="p">])</span>
+        <span class="n">ax</span><span class="o">.</span><span class="n">imshow</span><span class="p">(</span><span class="n">img</span><span class="p">,</span> <span class="n">origin</span> <span class="o">=</span> <span class="s1">&#39;lower&#39;</span><span class="p">,</span> <span class="n">extent</span><span class="o">=</span><span class="p">[</span><span class="n">lonmin</span><span class="p">,</span> <span class="n">lonmax</span><span class="p">,</span> <span class="n">latmin</span><span class="p">,</span> <span class="n">latmax</span><span class="p">],</span>
+                    <span class="n">transform</span><span class="o">=</span><span class="n">ccrs</span><span class="o">.</span><span class="n">PlateCarree</span><span class="p">(),</span> <span class="n">cmap</span><span class="o">=</span><span class="n">cmap</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">show_landmask_old</span><span class="p">(</span><span class="n">landmask</span><span class="p">):</span>
+        <span class="n">maxn</span> <span class="o">=</span> <span class="mf">512.</span>
+        <span class="n">dx</span> <span class="o">=</span> <span class="p">(</span><span class="n">lonmax</span> <span class="o">-</span> <span class="n">lonmin</span><span class="p">)</span> <span class="o">/</span> <span class="n">maxn</span>
+        <span class="n">dy</span> <span class="o">=</span> <span class="p">(</span><span class="n">latmax</span> <span class="o">-</span> <span class="n">latmin</span><span class="p">)</span> <span class="o">/</span> <span class="n">maxn</span>
+        <span class="n">dx</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="n">landmask</span><span class="o">.</span><span class="n">dx</span><span class="p">,</span> <span class="n">dx</span><span class="p">)</span>
+        <span class="n">dy</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="n">landmask</span><span class="o">.</span><span class="n">dy</span><span class="p">,</span> <span class="n">dy</span><span class="p">)</span>
+
+        <span class="n">x</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">lonmin</span><span class="p">,</span> <span class="n">lonmax</span><span class="p">])</span>
+        <span class="n">y</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">latmin</span><span class="p">,</span> <span class="n">latmax</span><span class="p">])</span>
+        <span class="n">ndx</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">int32</span><span class="p">(</span><span class="n">dx</span> <span class="o">/</span> <span class="n">landmask</span><span class="o">.</span><span class="n">dx</span><span class="p">)</span>  <span class="c1"># normalized delta</span>
+        <span class="n">ndy</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">int32</span><span class="p">(</span><span class="n">dy</span> <span class="o">/</span> <span class="n">landmask</span><span class="o">.</span><span class="n">dy</span><span class="p">)</span>
+
+        <span class="n">xm</span><span class="p">,</span> <span class="n">ym</span> <span class="o">=</span> <span class="n">landmask</span><span class="o">.</span><span class="n">invtransform</span> <span class="o">*</span> <span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">)</span>
+        <span class="n">xm</span> <span class="o">=</span> <span class="n">xm</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">int32</span><span class="p">)</span>
+        <span class="n">ym</span> <span class="o">=</span> <span class="n">ym</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">int32</span><span class="p">)</span>
+
+        <span class="n">img</span> <span class="o">=</span> <span class="n">landmask</span><span class="o">.</span><span class="n">mask</span><span class="p">[</span><span class="n">ym</span><span class="p">[</span><span class="mi">0</span><span class="p">]:</span><span class="n">ym</span><span class="p">[</span><span class="mi">1</span><span class="p">]:</span><span class="n">ndy</span><span class="p">,</span> <span class="n">xm</span><span class="p">[</span><span class="mi">0</span><span class="p">]:</span><span class="n">xm</span><span class="p">[</span><span class="mi">1</span><span class="p">]:</span><span class="n">ndx</span><span class="p">]</span>
+
+        <span class="kn">from</span> <span class="nn">matplotlib</span> <span class="kn">import</span> <span class="n">colors</span>
+        <span class="n">cmap</span> <span class="o">=</span> <span class="n">colors</span><span class="o">.</span><span class="n">ListedColormap</span><span class="p">([</span><span class="n">ocean_color</span><span class="p">,</span> <span class="n">land_color</span><span class="p">])</span>
+        <span class="n">ax</span><span class="o">.</span><span class="n">imshow</span><span class="p">(</span><span class="n">img</span><span class="p">,</span> <span class="n">origin</span> <span class="o">=</span> <span class="s1">&#39;lower&#39;</span><span class="p">,</span> <span class="n">extent</span><span class="o">=</span><span class="p">[</span><span class="n">lonmin</span><span class="p">,</span> <span class="n">lonmax</span><span class="p">,</span> <span class="n">latmin</span><span class="p">,</span> <span class="n">latmax</span><span class="p">],</span>
+                    <span class="n">transform</span><span class="o">=</span><span class="n">ccrs</span><span class="o">.</span><span class="n">PlateCarree</span><span class="p">(),</span> <span class="n">cmap</span><span class="o">=</span><span class="n">cmap</span><span class="p">)</span>
+
+    <span class="n">extent</span> <span class="o">=</span> <span class="p">[</span><span class="n">lonmin</span><span class="p">,</span> <span class="n">latmin</span><span class="p">,</span> <span class="n">lonmax</span><span class="p">,</span> <span class="n">latmax</span><span class="p">]</span>
+
+    <span class="k">if</span> <span class="n">fast</span><span class="p">:</span>
+        <span class="n">mask_type</span><span class="p">,</span> <span class="n">mask</span> <span class="o">=</span> <span class="n">get_mask</span><span class="p">(</span><span class="kc">True</span><span class="p">,</span> <span class="n">extent</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">mask_type</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="n">show_landmask_old</span><span class="p">(</span><span class="n">mask</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">show_landmask_roaring</span><span class="p">(</span><span class="n">mask</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">get_mask_type</span><span class="p">()</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;Using existing GSHHS shapes..&quot;</span><span class="p">)</span>
+            <span class="n">_</span><span class="p">,</span> <span class="n">mask</span> <span class="o">=</span> <span class="n">get_mask</span><span class="p">(</span><span class="kc">False</span><span class="p">,</span> <span class="n">extent</span><span class="p">)</span>
+            <span class="n">extent</span> <span class="o">=</span> <span class="n">box</span><span class="p">(</span><span class="n">lonmin</span><span class="p">,</span> <span class="n">latmin</span><span class="p">,</span> <span class="n">lonmax</span><span class="p">,</span> <span class="n">latmax</span><span class="p">)</span>
+            <span class="n">extent</span> <span class="o">=</span> <span class="n">shapely</span><span class="o">.</span><span class="n">prepared</span><span class="o">.</span><span class="n">prep</span><span class="p">(</span><span class="n">extent</span><span class="p">)</span>
+            <span class="n">polys</span> <span class="o">=</span> <span class="p">[</span><span class="n">p</span> <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">mask</span><span class="o">.</span><span class="n">polys</span><span class="o">.</span><span class="n">geoms</span> <span class="k">if</span> <span class="n">extent</span><span class="o">.</span><span class="n">intersects</span><span class="p">(</span><span class="n">p</span><span class="p">)]</span>
+
+            <span class="n">ax</span><span class="o">.</span><span class="n">add_geometries</span><span class="p">(</span><span class="n">polys</span><span class="p">,</span>
+                    <span class="n">ccrs</span><span class="o">.</span><span class="n">PlateCarree</span><span class="p">(),</span>
+                    <span class="n">facecolor</span><span class="o">=</span><span class="n">land_color</span><span class="p">,</span>
+                    <span class="n">edgecolor</span><span class="o">=</span><span class="s1">&#39;black&#39;</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">debug</span> <span class="p">(</span><span class="s2">&quot;Adding GSHHS shapes..&quot;</span><span class="p">)</span>
+            <span class="n">f</span> <span class="o">=</span> <span class="n">cfeature</span><span class="o">.</span><span class="n">GSHHSFeature</span><span class="p">(</span><span class="n">scale</span><span class="o">=</span><span class="n">lscale</span><span class="p">,</span> <span class="n">levels</span><span class="o">=</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span>
+                    <span class="n">facecolor</span><span class="o">=</span><span class="n">land_color</span><span class="p">)</span>
+            <span class="n">ax</span><span class="o">.</span><span class="n">add_geometries</span><span class="p">(</span>
+                    <span class="n">f</span><span class="o">.</span><span class="n">intersecting_geometries</span><span class="p">([</span><span class="n">lonmin</span><span class="p">,</span> <span class="n">lonmax</span><span class="p">,</span> <span class="n">latmin</span><span class="p">,</span> <span class="n">latmax</span><span class="p">]),</span>
+                    <span class="n">ccrs</span><span class="o">.</span><span class="n">PlateCarree</span><span class="p">(),</span>
+                    <span class="n">facecolor</span><span class="o">=</span><span class="n">land_color</span><span class="p">,</span>
+                    <span class="n">edgecolor</span><span class="o">=</span><span class="s1">&#39;black&#39;</span><span class="p">)</span></div>
+
 
 
 <div class="viewcode-block" id="Reader"><a class="viewcode-back" href="../../../autoapi/opendrift/readers/reader_global_landmask/index.html#opendrift.readers.reader_global_landmask.Reader">[docs]</a><span class="k">class</span> <span class="nc">Reader</span><span class="p">(</span><span class="n">BaseReader</span><span class="p">,</span> <span class="n">ContinuousReader</span><span class="p">):</span>
@@ -230,63 +351,69 @@
     <span class="n">name</span> <span class="o">=</span> <span class="s1">&#39;global_landmask&#39;</span>
     <span class="n">variables</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;land_binary_mask&#39;</span><span class="p">]</span>
     <span class="n">proj4</span> <span class="o">=</span> <span class="kc">None</span>
-    <span class="n">crs</span>   <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">crs</span> <span class="o">=</span> <span class="kc">None</span>
     <span class="n">skippoly</span> <span class="o">=</span> <span class="kc">False</span>
+    <span class="n">extent</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">mask_type</span> <span class="o">=</span> <span class="mi">0</span>  <span class="c1"># 0 is opendrift_landmask_data, 1 is roaring_landmask. try not to make any code depend on this!</span>
 
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span>
-                 <span class="n">extent</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-                 <span class="n">llcrnrlon</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-                 <span class="n">llcrnrlat</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-                 <span class="n">urcrnrlon</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-                 <span class="n">urcrnrlat</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-                 <span class="n">skippoly</span> <span class="o">=</span> <span class="kc">False</span><span class="p">):</span>
+                 <span class="n">extent</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                 <span class="n">llcrnrlon</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                 <span class="n">llcrnrlat</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                 <span class="n">urcrnrlon</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                 <span class="n">urcrnrlat</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                 <span class="n">skippoly</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">proj4</span> <span class="o">=</span> <span class="s1">&#39;+proj=lonlat +ellps=WGS84&#39;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">crs</span> <span class="o">=</span> <span class="n">pyproj</span><span class="o">.</span><span class="n">CRS</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">proj4</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">skippoly</span> <span class="o">=</span> <span class="n">skippoly</span>
 
-        <span class="nb">super</span> <span class="p">(</span><span class="n">Reader</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span> <span class="p">()</span>
+        <span class="nb">super</span><span class="p">(</span><span class="n">Reader</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
 
         <span class="c1"># Depth</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">z</span> <span class="o">=</span> <span class="kc">None</span>
 
         <span class="k">if</span> <span class="n">extent</span> <span class="ow">and</span> <span class="p">(</span><span class="n">llcrnrlat</span> <span class="ow">or</span> <span class="n">llcrnrlon</span> <span class="ow">or</span> <span class="n">urcrnrlat</span> <span class="ow">or</span> <span class="n">urcrnrlon</span><span class="p">):</span>
-            <span class="k">raise</span> <span class="ne">Exception</span> <span class="p">(</span><span class="s2">&quot;&#39;extent&#39; cannot be given togheter with any of &#39;llcrnrlon&#39;, ..&#39;&quot;</span><span class="p">)</span>
-        <span class="k">elif</span> <span class="n">extent</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">and</span> <span class="p">(</span><span class="n">llcrnrlat</span> <span class="ow">or</span> <span class="n">llcrnrlon</span> <span class="ow">or</span> <span class="n">urcrnrlat</span> <span class="ow">or</span> <span class="n">urcrnrlon</span><span class="p">):</span>
-            <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span><span class="s2">&quot;llcrnrlon, llcrnrlat, et. al. is deprecated for the global landmask reader. Prefer &#39;extent&#39; in stead.&quot;</span><span class="p">,</span> <span class="ne">DeprecationWarning</span><span class="p">)</span>
+            <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span>
+                <span class="s2">&quot;&#39;extent&#39; cannot be given togheter with any of &#39;llcrnrlon&#39;, ..&#39;&quot;</span>
+            <span class="p">)</span>
+        <span class="k">elif</span> <span class="n">extent</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">and</span> <span class="p">(</span><span class="n">llcrnrlat</span> <span class="ow">or</span> <span class="n">llcrnrlon</span> <span class="ow">or</span> <span class="n">urcrnrlat</span>
+                                 <span class="ow">or</span> <span class="n">urcrnrlon</span><span class="p">):</span>
+            <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span>
+                <span class="s2">&quot;llcrnrlon, llcrnrlat, et. al. is deprecated for the global landmask reader. Prefer &#39;extent&#39; in stead.&quot;</span><span class="p">,</span>
+                <span class="ne">DeprecationWarning</span><span class="p">)</span>
             <span class="n">extent</span> <span class="o">=</span> <span class="p">[</span><span class="n">llcrnrlon</span><span class="p">,</span> <span class="n">llcrnrlat</span><span class="p">,</span> <span class="n">urcrnrlon</span><span class="p">,</span> <span class="n">urcrnrlat</span><span class="p">]</span>
 
+        <span class="c1"># setup landmask</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">mask_type</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">mask</span> <span class="o">=</span> <span class="n">get_mask</span><span class="p">(</span><span class="n">skippoly</span><span class="p">,</span> <span class="n">extent</span><span class="p">)</span>
+
         <span class="c1"># Read and store min, max and step of x and y</span>
-        <span class="k">if</span> <span class="n">extent</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">mask_type</span> <span class="o">==</span> <span class="mi">0</span> <span class="ow">and</span> <span class="n">extent</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">xmin</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">ymin</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">xmax</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">ymax</span> <span class="o">=</span> <span class="n">extent</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">xmin</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">ymin</span> <span class="o">=</span> <span class="o">-</span><span class="mi">180</span><span class="p">,</span> <span class="o">-</span><span class="mi">90</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">xmax</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">ymax</span> <span class="o">=</span> <span class="mi">180</span><span class="p">,</span> <span class="mi">90</span>
 
-        <span class="bp">self</span><span class="o">.</span><span class="n">xmin</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">ymin</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">lonlat2xy</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">xmin</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">ymin</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">xmax</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">ymax</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">lonlat2xy</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">xmax</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">ymax</span><span class="p">)</span>
-
-        <span class="c1"># setup landmask</span>
-        <span class="k">try</span><span class="p">:</span>
-            <span class="kn">from</span> <span class="nn">roaring_landmask</span> <span class="kn">import</span> <span class="n">RoaringLandmask</span>
-            <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="s2">&quot;using the experimental RoaringLandmask&quot;</span><span class="p">)</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">mask</span> <span class="o">=</span> <span class="n">RoaringLandmask</span><span class="o">.</span><span class="n">new</span><span class="p">()</span>
-
-            <span class="k">if</span> <span class="n">skippoly</span><span class="p">:</span>
-                <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="s1">&#39;skippoly is not supported with RoaringLandmask&#39;</span><span class="p">)</span>
-
-        <span class="k">except</span> <span class="ne">ImportError</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">mask</span> <span class="o">=</span> <span class="n">Landmask</span><span class="p">(</span><span class="n">extent</span><span class="p">,</span> <span class="n">skippoly</span><span class="p">)</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">mask_type</span> <span class="o">==</span> <span class="mi">0</span> <span class="ow">and</span> <span class="n">extent</span><span class="p">:</span>
+            <span class="n">extent</span> <span class="o">=</span> <span class="n">box</span><span class="p">(</span><span class="o">*</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">xmin</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">ymin</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">xmax</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">ymax</span><span class="p">])</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">extent</span> <span class="o">=</span> <span class="n">shapely</span><span class="o">.</span><span class="n">prepared</span><span class="o">.</span><span class="n">prep</span><span class="p">(</span><span class="n">extent</span><span class="p">)</span>
 
 <div class="viewcode-block" id="Reader.__on_land__"><a class="viewcode-back" href="../../../autoapi/opendrift/readers/reader_global_landmask/index.html#opendrift.readers.reader_global_landmask.Reader.__on_land__">[docs]</a>    <span class="k">def</span> <span class="nf">__on_land__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">):</span>
-        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">mask</span><span class="p">,</span> <span class="n">Landmask</span><span class="p">):</span>
-            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">mask</span><span class="o">.</span><span class="n">contains</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">skippoly</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">skippoly</span><span class="p">,</span> <span class="n">checkextent</span> <span class="o">=</span> <span class="kc">False</span><span class="p">)</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">mask_type</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">mask</span><span class="o">.</span><span class="n">contains</span><span class="p">(</span><span class="n">x</span><span class="p">,</span>
+                                      <span class="n">y</span><span class="p">,</span>
+                                      <span class="n">skippoly</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">skippoly</span><span class="p">,</span>
+                                      <span class="n">checkextent</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="n">x</span> <span class="o">=</span> <span class="n">x</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">float64</span><span class="p">)</span>
             <span class="n">y</span> <span class="o">=</span> <span class="n">y</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">float64</span><span class="p">)</span>
             <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">mask</span><span class="o">.</span><span class="n">contains_many</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="Reader.get_variables"><a class="viewcode-back" href="../../../autoapi/opendrift/readers/reader_global_landmask/index.html#opendrift.readers.reader_global_landmask.Reader.get_variables">[docs]</a>    <span class="k">def</span> <span class="nf">get_variables</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">requestedVariables</span><span class="p">,</span> <span class="n">time</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-                      <span class="n">x</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">y</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">z</span> <span class="o">=</span> <span class="kc">None</span><span class="p">):</span>
+<div class="viewcode-block" id="Reader.get_variables"><a class="viewcode-back" href="../../../autoapi/opendrift/readers/reader_global_landmask/index.html#opendrift.readers.reader_global_landmask.Reader.get_variables">[docs]</a>    <span class="k">def</span> <span class="nf">get_variables</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span>
+                      <span class="n">requestedVariables</span><span class="p">,</span>
+                      <span class="n">time</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                      <span class="n">x</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                      <span class="n">y</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                      <span class="n">z</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Get binary mask of whether elements are on land or not.</span>
 
@@ -303,8 +430,7 @@
 <span class="sd">        &quot;&quot;&quot;</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">check_arguments</span><span class="p">(</span><span class="n">requestedVariables</span><span class="p">,</span> <span class="n">time</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">z</span><span class="p">)</span>
-        <span class="k">return</span> <span class="p">{</span> <span class="s1">&#39;land_binary_mask&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">__on_land__</span><span class="p">(</span><span class="n">x</span><span class="p">,</span><span class="n">y</span><span class="p">)</span> <span class="p">}</span></div></div>
-
+        <span class="k">return</span> <span class="p">{</span><span class="s1">&#39;land_binary_mask&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">__on_land__</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">)}</span></div></div>
 </pre></div>
 
            </div>
