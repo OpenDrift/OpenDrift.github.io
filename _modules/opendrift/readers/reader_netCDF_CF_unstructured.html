@@ -239,6 +239,7 @@
         <span class="s1">&#39;salinity&#39;</span><span class="p">,</span>
         <span class="s1">&#39;temperature&#39;</span><span class="p">,</span>
         <span class="s1">&#39;sea_floor_depth_below_sea_level&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;sea_floor_depth_below_geoid&#39;</span><span class="p">,</span>
         <span class="s1">&#39;sea_surface_height_above_geoid&#39;</span><span class="p">,</span>
     <span class="p">]</span>
 
@@ -463,18 +464,21 @@
                 <span class="n">dvar</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">dataset</span><span class="p">[</span><span class="n">dvar</span><span class="p">]</span>
 
                 <span class="c1"># sigma ind depends on whether variable is defined on sigma layer og sigma level</span>
-                <span class="n">sigma_ind</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">__nearest_node_sigma__</span><span class="p">(</span><span class="n">dvar</span><span class="p">,</span> <span class="n">nodes</span><span class="p">,</span> <span class="n">z</span><span class="p">)</span>
-                <span class="k">assert</span> <span class="nb">len</span><span class="p">(</span><span class="n">sigma_ind</span><span class="p">)</span> <span class="o">==</span> <span class="nb">len</span><span class="p">(</span><span class="n">z</span><span class="p">)</span>
+                <span class="k">if</span> <span class="s1">&#39;siglev&#39;</span> <span class="ow">in</span> <span class="n">dvar</span><span class="o">.</span><span class="n">dimensions</span><span class="p">:</span>
+                    <span class="n">sigma_ind</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">__nearest_node_sigma__</span><span class="p">(</span><span class="n">dvar</span><span class="p">,</span> <span class="n">nodes</span><span class="p">,</span> <span class="n">z</span><span class="p">)</span>
+                    <span class="k">assert</span> <span class="nb">len</span><span class="p">(</span><span class="n">sigma_ind</span><span class="p">)</span> <span class="o">==</span> <span class="nb">len</span><span class="p">(</span><span class="n">z</span><span class="p">)</span>
 
-                <span class="c1"># Reading the smallest block covering the actual data</span>
-                <span class="n">block</span> <span class="o">=</span> <span class="n">dvar</span><span class="p">[</span><span class="n">indx_nearest</span><span class="p">,</span>
-                             <span class="nb">slice</span><span class="p">(</span><span class="n">sigma_ind</span><span class="o">.</span><span class="n">min</span><span class="p">(),</span>
-                                   <span class="n">sigma_ind</span><span class="o">.</span><span class="n">max</span><span class="p">()</span> <span class="o">+</span> <span class="mi">1</span><span class="p">),</span>
-                             <span class="nb">slice</span><span class="p">(</span><span class="n">nodes</span><span class="o">.</span><span class="n">min</span><span class="p">(),</span>
-                                   <span class="n">nodes</span><span class="o">.</span><span class="n">max</span><span class="p">()</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)]</span>
-                <span class="c1"># Picking the nearest value</span>
-                <span class="n">variables</span><span class="p">[</span><span class="n">var</span><span class="p">]</span> <span class="o">=</span> <span class="n">block</span><span class="p">[</span><span class="n">sigma_ind</span> <span class="o">-</span> <span class="n">sigma_ind</span><span class="o">.</span><span class="n">min</span><span class="p">(),</span>
-                                       <span class="n">nodes</span> <span class="o">-</span> <span class="n">nodes</span><span class="o">.</span><span class="n">min</span><span class="p">()]</span>
+                    <span class="c1"># Reading the smallest block covering the actual data</span>
+                    <span class="n">block</span> <span class="o">=</span> <span class="n">dvar</span><span class="p">[</span><span class="n">indx_nearest</span><span class="p">,</span>
+                                 <span class="nb">slice</span><span class="p">(</span><span class="n">sigma_ind</span><span class="o">.</span><span class="n">min</span><span class="p">(),</span>
+                                       <span class="n">sigma_ind</span><span class="o">.</span><span class="n">max</span><span class="p">()</span> <span class="o">+</span> <span class="mi">1</span><span class="p">),</span>
+                                 <span class="nb">slice</span><span class="p">(</span><span class="n">nodes</span><span class="o">.</span><span class="n">min</span><span class="p">(),</span>
+                                       <span class="n">nodes</span><span class="o">.</span><span class="n">max</span><span class="p">()</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)]</span>
+                    <span class="c1"># Picking the nearest value</span>
+                    <span class="n">variables</span><span class="p">[</span><span class="n">var</span><span class="p">]</span> <span class="o">=</span> <span class="n">block</span><span class="p">[</span><span class="n">sigma_ind</span> <span class="o">-</span> <span class="n">sigma_ind</span><span class="o">.</span><span class="n">min</span><span class="p">(),</span>
+                                           <span class="n">nodes</span> <span class="o">-</span> <span class="n">nodes</span><span class="o">.</span><span class="n">min</span><span class="p">()]</span>
+                <span class="k">else</span><span class="p">:</span>  <span class="c1"># no depth dimension</span>
+                    <span class="n">variables</span><span class="p">[</span><span class="n">var</span><span class="p">]</span> <span class="o">=</span> <span class="n">dvar</span><span class="p">[</span><span class="nb">slice</span><span class="p">(</span><span class="n">nodes</span><span class="o">.</span><span class="n">min</span><span class="p">(),</span> <span class="n">nodes</span><span class="o">.</span><span class="n">max</span><span class="p">()</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)]</span>
 
         <span class="k">if</span> <span class="n">face_variables</span><span class="p">:</span>
             <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;Interpolating face-variables..&quot;</span><span class="p">)</span>
@@ -488,18 +492,21 @@
                 <span class="n">dvar</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">dataset</span><span class="p">[</span><span class="n">dvar</span><span class="p">]</span>
 
                 <span class="c1"># sigma ind depends on whether variable is defined on sigma layer og sigma level</span>
-                <span class="n">sigma_ind</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">__nearest_face_sigma__</span><span class="p">(</span><span class="n">dvar</span><span class="p">,</span> <span class="n">fcs</span><span class="p">,</span> <span class="n">z</span><span class="p">)</span>
-                <span class="k">assert</span> <span class="nb">len</span><span class="p">(</span><span class="n">sigma_ind</span><span class="p">)</span> <span class="o">==</span> <span class="nb">len</span><span class="p">(</span><span class="n">z</span><span class="p">)</span>
+                <span class="k">if</span> <span class="s1">&#39;siglay&#39;</span> <span class="ow">in</span> <span class="n">dvar</span><span class="o">.</span><span class="n">dimensions</span><span class="p">:</span>
+                    <span class="n">sigma_ind</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">__nearest_face_sigma__</span><span class="p">(</span><span class="n">dvar</span><span class="p">,</span> <span class="n">fcs</span><span class="p">,</span> <span class="n">z</span><span class="p">)</span>
+                    <span class="k">assert</span> <span class="nb">len</span><span class="p">(</span><span class="n">sigma_ind</span><span class="p">)</span> <span class="o">==</span> <span class="nb">len</span><span class="p">(</span><span class="n">z</span><span class="p">)</span>
 
-                <span class="c1"># Reading the smallest profile slice covering the actual data</span>
-                <span class="n">block</span> <span class="o">=</span> <span class="n">dvar</span><span class="p">[</span><span class="n">indx_nearest</span><span class="p">,</span>
-                             <span class="nb">slice</span><span class="p">(</span><span class="n">sigma_ind</span><span class="o">.</span><span class="n">min</span><span class="p">(),</span>
-                                   <span class="n">sigma_ind</span><span class="o">.</span><span class="n">max</span><span class="p">()</span> <span class="o">+</span> <span class="mi">1</span><span class="p">),</span>
-                             <span class="nb">slice</span><span class="p">(</span><span class="n">fcs</span><span class="o">.</span><span class="n">min</span><span class="p">(),</span>
-                                   <span class="n">fcs</span><span class="o">.</span><span class="n">max</span><span class="p">()</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)]</span>
-                <span class="c1"># Picking the nearest value</span>
-                <span class="n">variables</span><span class="p">[</span><span class="n">var</span><span class="p">]</span> <span class="o">=</span> <span class="n">block</span><span class="p">[</span><span class="n">sigma_ind</span> <span class="o">-</span> <span class="n">sigma_ind</span><span class="o">.</span><span class="n">min</span><span class="p">(),</span>
-                                       <span class="n">fcs</span> <span class="o">-</span> <span class="n">fcs</span><span class="o">.</span><span class="n">min</span><span class="p">()]</span>
+                    <span class="c1"># Reading the smallest profile slice covering the actual data</span>
+                    <span class="n">block</span> <span class="o">=</span> <span class="n">dvar</span><span class="p">[</span><span class="n">indx_nearest</span><span class="p">,</span>
+                                 <span class="nb">slice</span><span class="p">(</span><span class="n">sigma_ind</span><span class="o">.</span><span class="n">min</span><span class="p">(),</span>
+                                       <span class="n">sigma_ind</span><span class="o">.</span><span class="n">max</span><span class="p">()</span> <span class="o">+</span> <span class="mi">1</span><span class="p">),</span>
+                                 <span class="nb">slice</span><span class="p">(</span><span class="n">fcs</span><span class="o">.</span><span class="n">min</span><span class="p">(),</span>
+                                       <span class="n">fcs</span><span class="o">.</span><span class="n">max</span><span class="p">()</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)]</span>
+                    <span class="c1"># Picking the nearest value</span>
+                    <span class="n">variables</span><span class="p">[</span><span class="n">var</span><span class="p">]</span> <span class="o">=</span> <span class="n">block</span><span class="p">[</span><span class="n">sigma_ind</span> <span class="o">-</span> <span class="n">sigma_ind</span><span class="o">.</span><span class="n">min</span><span class="p">(),</span>
+                                           <span class="n">fcs</span> <span class="o">-</span> <span class="n">fcs</span><span class="o">.</span><span class="n">min</span><span class="p">()]</span>
+                <span class="k">else</span><span class="p">:</span>  <span class="c1"># no depth dimension</span>
+                    <span class="n">variables</span><span class="p">[</span><span class="n">var</span><span class="p">]</span> <span class="o">=</span> <span class="n">dvar</span><span class="p">[</span><span class="nb">slice</span><span class="p">(</span><span class="n">fcs</span><span class="o">.</span><span class="n">min</span><span class="p">(),</span> <span class="n">fcs</span><span class="o">.</span><span class="n">max</span><span class="p">()</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)]</span>
 
         <span class="k">return</span> <span class="n">variables</span></div>
 
