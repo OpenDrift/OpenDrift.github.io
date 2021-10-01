@@ -8,10 +8,10 @@
       <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
       <link rel="stylesheet" href="../../../_static/graphviz.css" type="text/css" />
       <link rel="stylesheet" href="../../../_static/plot_directive.css" type="text/css" />
-      <link rel="stylesheet" href="../../../_static/gallery.css" type="text/css" />
-      <link rel="stylesheet" href="../../../_static/gallery-binder.css" type="text/css" />
-      <link rel="stylesheet" href="../../../_static/gallery-dataframe.css" type="text/css" />
-      <link rel="stylesheet" href="../../../_static/gallery-rendered-html.css" type="text/css" />
+      <link rel="stylesheet" href="../../../_static/sg_gallery.css" type="text/css" />
+      <link rel="stylesheet" href="../../../_static/sg_gallery-binder.css" type="text/css" />
+      <link rel="stylesheet" href="../../../_static/sg_gallery-dataframe.css" type="text/css" />
+      <link rel="stylesheet" href="../../../_static/sg_gallery-rendered-html.css" type="text/css" />
       <link rel="stylesheet" href="../../../_static/theme_overrides.css" type="text/css" />
   <!--[if lt IE 9]>
     <script src="../../../_static/js/html5shiv.min.js"></script>
@@ -170,6 +170,7 @@
         <span class="s1">&#39;surface_downward_y_stress&#39;</span><span class="p">:</span> <span class="p">{</span><span class="s1">&#39;fallback&#39;</span><span class="p">:</span> <span class="mi">0</span><span class="p">},</span>
         <span class="s1">&#39;turbulent_kinetic_energy&#39;</span><span class="p">:</span> <span class="p">{</span><span class="s1">&#39;fallback&#39;</span><span class="p">:</span> <span class="mi">0</span><span class="p">},</span>
         <span class="s1">&#39;turbulent_generic_length_scale&#39;</span><span class="p">:</span> <span class="p">{</span><span class="s1">&#39;fallback&#39;</span><span class="p">:</span> <span class="mi">0</span><span class="p">},</span>
+        <span class="s1">&#39;ocean_mixed_layer_thickness&#39;</span><span class="p">:</span> <span class="p">{</span><span class="s1">&#39;fallback&#39;</span><span class="p">:</span> <span class="mi">50</span><span class="p">},</span>
         <span class="s1">&#39;sea_floor_depth_below_sea_level&#39;</span><span class="p">:</span> <span class="p">{</span><span class="s1">&#39;fallback&#39;</span><span class="p">:</span> <span class="mi">10000</span><span class="p">},</span>
         <span class="s1">&#39;land_binary_mask&#39;</span><span class="p">:</span> <span class="p">{</span><span class="s1">&#39;fallback&#39;</span><span class="p">:</span> <span class="kc">None</span><span class="p">},</span>
         <span class="p">}</span>
@@ -329,7 +330,7 @@
 <div class="viewcode-block" id="OceanDrift.get_diffusivity_profile"><a class="viewcode-back" href="../../../autoapi/opendrift/models/oceandrift/index.html#opendrift.models.oceandrift.OceanDrift.get_diffusivity_profile">[docs]</a>    <span class="k">def</span> <span class="nf">get_diffusivity_profile</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">model</span><span class="p">):</span>
         <span class="n">depths</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">environment_profiles</span><span class="p">[</span><span class="s1">&#39;z&#39;</span><span class="p">])</span>
         <span class="n">wind</span><span class="p">,</span> <span class="n">depth</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">meshgrid</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">wind_speed</span><span class="p">(),</span> <span class="n">depths</span><span class="p">)</span>
-        <span class="n">MLD</span> <span class="o">=</span> <span class="mi">50</span>  <span class="c1"># TODO: obtain from readers/environment</span>
+        <span class="n">MLD</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">environment</span><span class="o">.</span><span class="n">ocean_mixed_layer_thickness</span>
         <span class="n">background_diffusivity</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_config</span><span class="p">(</span><span class="s1">&#39;vertical_mixing:background_diffusivity&#39;</span><span class="p">)</span>
 
         <span class="k">if</span> <span class="n">model</span> <span class="o">==</span> <span class="s1">&#39;windspeed_Large1994&#39;</span><span class="p">:</span>
@@ -396,7 +397,8 @@
             <span class="k">else</span><span class="p">:</span>
                 <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;Using diffusivity from Large1994 since model diffusivities not available&#39;</span><span class="p">)</span>
                 <span class="c1"># Using higher vertical resolution when analytical</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">environment_profiles</span><span class="p">[</span><span class="s1">&#39;z&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="o">-</span><span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">50</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">environment_profiles</span><span class="p">[</span><span class="s1">&#39;z&#39;</span><span class="p">]</span> <span class="o">=</span> \
+                        <span class="o">-</span><span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">environment</span><span class="o">.</span><span class="n">ocean_mixed_layer_thickness</span><span class="o">.</span><span class="n">max</span><span class="p">()</span> <span class="o">+</span> <span class="mi">2</span><span class="p">)</span>
                 <span class="n">Kprofiles</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_diffusivity_profile</span><span class="p">(</span><span class="s1">&#39;windspeed_Large1994&#39;</span><span class="p">)</span>
         <span class="k">elif</span> <span class="n">diffusivity_model</span> <span class="o">==</span> <span class="s1">&#39;constant&#39;</span><span class="p">:</span>
             <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;Using constant diffusivity specified by fallback_values[&#39;&#39;ocean_vertical_diffusivity&#39;&#39;] = </span><span class="si">%s</span><span class="s1"> m2.s-1&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">fallback_values</span><span class="p">[</span><span class="s1">&#39;ocean_vertical_diffusivity&#39;</span><span class="p">]))</span>
@@ -407,7 +409,8 @@
             <span class="c1"># Using higher vertical resolution when analytical</span>
             <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">environment_profiles</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">environment_profiles</span> <span class="o">=</span> <span class="p">{}</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">environment_profiles</span><span class="p">[</span><span class="s1">&#39;z&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="o">-</span><span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">50</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">environment_profiles</span><span class="p">[</span><span class="s1">&#39;z&#39;</span><span class="p">]</span> <span class="o">=</span> \
+                    <span class="o">-</span><span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">environment</span><span class="o">.</span><span class="n">ocean_mixed_layer_thickness</span><span class="o">.</span><span class="n">max</span><span class="p">()</span> <span class="o">+</span> <span class="mi">2</span><span class="p">)</span>
             <span class="c1"># Note: although analytical functions, z is discretised</span>
             <span class="n">Kprofiles</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_diffusivity_profile</span><span class="p">(</span><span class="n">diffusivity_model</span><span class="p">)</span>
 
