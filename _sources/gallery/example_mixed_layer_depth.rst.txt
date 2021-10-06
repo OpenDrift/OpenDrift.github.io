@@ -21,7 +21,7 @@
 Mixing down to Mixed Layer Depth
 ================================
 
-.. GENERATED FROM PYTHON SOURCE LINES 6-30
+.. GENERATED FROM PYTHON SOURCE LINES 6-11
 
 .. code-block:: default
 
@@ -30,21 +30,48 @@ Mixing down to Mixed Layer Depth
     from opendrift.models.oceandrift import OceanDrift
     from opendrift.readers.reader_constant import Reader as ConstantReader
 
-    #%
-    # Mixed Layer Depth of 20m West of 3 deg E, and 50m to the east
+
+
+
+
+
+
+
+.. GENERATED FROM PYTHON SOURCE LINES 12-13
+
+Mixed Layer Depth of 20m West of 3 deg E, and 50m to the east
+
+.. GENERATED FROM PYTHON SOURCE LINES 13-18
+
+.. code-block:: default
+
     r1 = ConstantReader({'ocean_mixed_layer_thickness': 20})
     r2 = ConstantReader({'ocean_mixed_layer_thickness': 50})
     r1.xmax = 3
     r2.xmin = 3
 
-    #% 
-    # First with Sundby1983 parameterization of diffusivity, based on wind and MLD
+
+
+
+
+
+
+
+.. GENERATED FROM PYTHON SOURCE LINES 19-20
+
+First with Sundby1983 parameterization of diffusivity, based on wind and MLD
+
+.. GENERATED FROM PYTHON SOURCE LINES 20-31
+
+.. code-block:: default
+
     o = OceanDrift(loglevel=50)
     o.seed_cone(lon=[2, 4], lat=[60, 60], time=datetime.now(), number=5000)
     o.add_reader([r1, r2])
     o.set_config('environment:constant:y_wind', 8)  # Some wind for mixing
     o.set_config('drift:vertical_mixing', True)
     o.set_config('vertical_mixing:diffusivitymodel', 'windspeed_Sundby1983')
+    # Increasing background diffusivity beyond default (1.2e-5) to avoid artefact due to sharp gradient at MLD
     o.set_config('vertical_mixing:background_diffusivity', 0.001)
     o.run(duration=timedelta(hours=48))
     o.animation_profile()
@@ -64,11 +91,11 @@ Mixing down to Mixed Layer Depth
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 31-32
+.. GENERATED FROM PYTHON SOURCE LINES 32-33
 
 .. image:: /gallery/animations/example_mixed_layer_depth_0.gif
 
-.. GENERATED FROM PYTHON SOURCE LINES 32-45
+.. GENERATED FROM PYTHON SOURCE LINES 33-46
 
 .. code-block:: default
 
@@ -100,17 +127,18 @@ Mixing down to Mixed Layer Depth
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 46-47
+.. GENERATED FROM PYTHON SOURCE LINES 47-48
 
 .. image:: /gallery/animations/example_mixed_layer_depth_1.gif
 
-.. GENERATED FROM PYTHON SOURCE LINES 47-60
+.. GENERATED FROM PYTHON SOURCE LINES 50-51
+
+Using Large1994, but with 0 diffusivity below MLD
+
+.. GENERATED FROM PYTHON SOURCE LINES 51-61
 
 .. code-block:: default
 
-
-    #% 
-    # Using Large1994, but with 0 diffusivity below MLD
     o = OceanDrift(loglevel=50)
     o.seed_cone(lon=[2, 4], lat=[60, 60], time=datetime.now(), number=5000)
     o.add_reader([r1, r2])
@@ -136,14 +164,14 @@ Mixing down to Mixed Layer Depth
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 61-62
+.. GENERATED FROM PYTHON SOURCE LINES 62-63
 
 .. image:: /gallery/animations/example_mixed_layer_depth_2.gif
 
 
 .. rst-class:: sphx-glr-timing
 
-   **Total running time of the script:** ( 0 minutes  40.549 seconds)
+   **Total running time of the script:** ( 0 minutes  38.375 seconds)
 
 
 .. _sphx_glr_download_gallery_example_mixed_layer_depth.py:
