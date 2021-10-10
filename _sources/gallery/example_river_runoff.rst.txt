@@ -21,7 +21,7 @@
 River runoff
 ===========================
 
-.. GENERATED FROM PYTHON SOURCE LINES 6-24
+.. GENERATED FROM PYTHON SOURCE LINES 6-20
 
 .. code-block:: default
 
@@ -30,18 +30,14 @@ River runoff
     from datetime import datetime, timedelta
     import numpy as np
     import matplotlib.pyplot as plt
-    import matplotlib.dates as mdates
+    from matplotlib.dates import DateFormatter
     import opendrift
     from opendrift.models.oceandrift import OceanDrift
     from opendrift.readers import reader_oscillating
 
 
     outfile = 'runoff.nc'  # Raw simulation output
-    analysis_file = 'runoff_density.nc'  # Raw simulation output
-    try:
-        os.remove(analysis_file)
-    except OSError:
-        pass
+    histogram_file = 'runoff_histogram.nc'
 
 
 
@@ -50,11 +46,11 @@ River runoff
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 25-26
+.. GENERATED FROM PYTHON SOURCE LINES 21-22
 
 First make a simulation with two seedings, marked by *origin_marker*
 
-.. GENERATED FROM PYTHON SOURCE LINES 26-46
+.. GENERATED FROM PYTHON SOURCE LINES 22-42
 
 .. code-block:: default
 
@@ -88,139 +84,138 @@ First make a simulation with two seedings, marked by *origin_marker*
 
  .. code-block:: none
 
-    08:59:25 INFO    opendrift.models.basemodel: OpenDriftSimulation initialised (version 1.7.1 / v1.7.1-124-g9339ac5)
-    08:59:26 INFO    opendrift.models.basemodel: Fallback values will be used for the following variables which have no readers: 
-    08:59:26 INFO    opendrift.models.basemodel:    x_wind: 0.000000
-    08:59:26 INFO    opendrift.models.basemodel:    y_wind: 0.000000
-    08:59:26 INFO    opendrift.models.basemodel:    upward_sea_water_velocity: 0.000000
-    08:59:26 INFO    opendrift.models.basemodel:    ocean_vertical_diffusivity: 0.000000
-    08:59:26 INFO    opendrift.models.basemodel:    sea_surface_wave_significant_height: 0.000000
-    08:59:26 INFO    opendrift.models.basemodel:    sea_surface_wave_stokes_drift_x_velocity: 0.000000
-    08:59:26 INFO    opendrift.models.basemodel:    sea_surface_wave_stokes_drift_y_velocity: 0.000000
-    08:59:26 INFO    opendrift.models.basemodel:    sea_surface_wave_period_at_variance_spectral_density_maximum: 0.000000
-    08:59:26 INFO    opendrift.models.basemodel:    sea_surface_wave_mean_period_from_variance_spectral_density_second_frequency_moment: 0.000000
-    08:59:26 INFO    opendrift.models.basemodel:    surface_downward_x_stress: 0.000000
-    08:59:26 INFO    opendrift.models.basemodel:    surface_downward_y_stress: 0.000000
-    08:59:26 INFO    opendrift.models.basemodel:    turbulent_kinetic_energy: 0.000000
-    08:59:26 INFO    opendrift.models.basemodel:    turbulent_generic_length_scale: 0.000000
-    08:59:26 INFO    opendrift.models.basemodel:    ocean_mixed_layer_thickness: 50.000000
-    08:59:26 INFO    opendrift.models.basemodel:    sea_floor_depth_below_sea_level: 10000.000000
-    08:59:26 INFO    opendrift.models.basemodel: Adding a dynamical landmask with max. priority based on assumed maximum speed of 1 m/s. Adding a customised landmask may be faster...
-    08:59:28 INFO    opendrift.models.basemodel: Using existing reader for land_binary_mask
-    08:59:28 INFO    opendrift.models.basemodel: All points are in ocean
-    08:59:30 INFO    opendrift.models.basemodel: 2021-10-08 08:59:25.689958 - step 1 of 96 - 522 active elements (0 deactivated)
-    08:59:30 INFO    opendrift.models.basemodel: 2021-10-08 09:29:25.689958 - step 2 of 96 - 1042 active elements (0 deactivated)
-    08:59:30 INFO    opendrift.models.basemodel: 2021-10-08 09:59:25.689958 - step 3 of 96 - 1564 active elements (0 deactivated)
-    08:59:30 INFO    opendrift.models.basemodel: 2021-10-08 10:29:25.689958 - step 4 of 96 - 2084 active elements (0 deactivated)
-    08:59:30 INFO    opendrift.models.basemodel: 2021-10-08 10:59:25.689958 - step 5 of 96 - 2606 active elements (0 deactivated)
-    08:59:30 INFO    opendrift.models.basemodel: 2021-10-08 11:29:25.689958 - step 6 of 96 - 3126 active elements (0 deactivated)
-    08:59:30 INFO    opendrift.models.basemodel: 2021-10-08 11:59:25.689958 - step 7 of 96 - 3646 active elements (0 deactivated)
-    08:59:30 INFO    opendrift.models.basemodel: 2021-10-08 12:29:25.689958 - step 8 of 96 - 4168 active elements (0 deactivated)
-    08:59:30 INFO    opendrift.models.basemodel: 2021-10-08 12:59:25.689958 - step 9 of 96 - 4688 active elements (0 deactivated)
-    08:59:30 INFO    opendrift.models.basemodel: 2021-10-08 13:29:25.689958 - step 10 of 96 - 5210 active elements (0 deactivated)
-    08:59:30 INFO    opendrift.models.basemodel: 2021-10-08 13:59:25.689958 - step 11 of 96 - 5730 active elements (0 deactivated)
-    08:59:31 INFO    opendrift.models.basemodel: 2021-10-08 14:29:25.689958 - step 12 of 96 - 6250 active elements (0 deactivated)
-    08:59:31 INFO    opendrift.models.basemodel: 2021-10-08 14:59:25.689958 - step 13 of 96 - 6772 active elements (0 deactivated)
-    08:59:31 INFO    opendrift.models.basemodel: 2021-10-08 15:29:25.689958 - step 14 of 96 - 7292 active elements (0 deactivated)
-    08:59:31 INFO    opendrift.models.basemodel: 2021-10-08 15:59:25.689958 - step 15 of 96 - 7814 active elements (0 deactivated)
-    08:59:31 INFO    opendrift.models.basemodel: 2021-10-08 16:29:25.689958 - step 16 of 96 - 8334 active elements (0 deactivated)
-    08:59:31 INFO    opendrift.models.basemodel: 2021-10-08 16:59:25.689958 - step 17 of 96 - 8854 active elements (0 deactivated)
-    08:59:31 INFO    opendrift.models.basemodel: 2021-10-08 17:29:25.689958 - step 18 of 96 - 9376 active elements (0 deactivated)
-    08:59:31 INFO    opendrift.models.basemodel: 2021-10-08 17:59:25.689958 - step 19 of 96 - 9896 active elements (0 deactivated)
-    08:59:31 INFO    opendrift.models.basemodel: 2021-10-08 18:29:25.689958 - step 20 of 96 - 10418 active elements (0 deactivated)
-    08:59:31 INFO    opendrift.models.basemodel: 2021-10-08 18:59:25.689958 - step 21 of 96 - 10938 active elements (0 deactivated)
-    08:59:31 INFO    opendrift.models.basemodel: 2021-10-08 19:29:25.689958 - step 22 of 96 - 11458 active elements (0 deactivated)
-    08:59:31 INFO    opendrift.models.basemodel: 2021-10-08 19:59:25.689958 - step 23 of 96 - 11980 active elements (0 deactivated)
-    08:59:31 INFO    opendrift.models.basemodel: 2021-10-08 20:29:25.689958 - step 24 of 96 - 12500 active elements (0 deactivated)
-    08:59:31 INFO    opendrift.models.basemodel: 2021-10-08 20:59:25.689958 - step 25 of 96 - 13022 active elements (0 deactivated)
-    08:59:31 INFO    opendrift.models.basemodel: 2021-10-08 21:29:25.689958 - step 26 of 96 - 13542 active elements (0 deactivated)
-    08:59:31 INFO    opendrift.models.basemodel: 2021-10-08 21:59:25.689958 - step 27 of 96 - 14062 active elements (0 deactivated)
-    08:59:31 INFO    opendrift.models.basemodel: 2021-10-08 22:29:25.689958 - step 28 of 96 - 14584 active elements (0 deactivated)
-    08:59:31 INFO    opendrift.models.basemodel: 2021-10-08 22:59:25.689958 - step 29 of 96 - 15104 active elements (0 deactivated)
-    08:59:32 INFO    opendrift.models.basemodel: 2021-10-08 23:29:25.689958 - step 30 of 96 - 15626 active elements (0 deactivated)
-    08:59:32 INFO    opendrift.models.basemodel: 2021-10-08 23:59:25.689958 - step 31 of 96 - 16146 active elements (0 deactivated)
-    08:59:32 INFO    opendrift.models.basemodel: 2021-10-09 00:29:25.689958 - step 32 of 96 - 16668 active elements (0 deactivated)
-    08:59:32 INFO    opendrift.models.basemodel: 2021-10-09 00:59:25.689958 - step 33 of 96 - 17188 active elements (0 deactivated)
-    08:59:32 INFO    opendrift.models.basemodel: 2021-10-09 01:29:25.689958 - step 34 of 96 - 17708 active elements (0 deactivated)
-    08:59:32 INFO    opendrift.models.basemodel: 2021-10-09 01:59:25.689958 - step 35 of 96 - 18230 active elements (0 deactivated)
-    08:59:32 INFO    opendrift.models.basemodel: 2021-10-09 02:29:25.689958 - step 36 of 96 - 18750 active elements (0 deactivated)
-    08:59:32 INFO    opendrift.models.basemodel: 2021-10-09 02:59:25.689958 - step 37 of 96 - 19272 active elements (0 deactivated)
-    08:59:32 INFO    opendrift.models.basemodel: 2021-10-09 03:29:25.689958 - step 38 of 96 - 19792 active elements (0 deactivated)
-    08:59:32 INFO    opendrift.models.basemodel: 2021-10-09 03:59:25.689958 - step 39 of 96 - 20312 active elements (0 deactivated)
-    08:59:32 INFO    opendrift.models.basemodel: 2021-10-09 04:29:25.689958 - step 40 of 96 - 20834 active elements (0 deactivated)
-    08:59:33 INFO    opendrift.models.basemodel: 2021-10-09 04:59:25.689958 - step 41 of 96 - 21354 active elements (0 deactivated)
-    08:59:33 INFO    opendrift.models.basemodel: 2021-10-09 05:29:25.689958 - step 42 of 96 - 21876 active elements (0 deactivated)
-    08:59:33 INFO    opendrift.models.basemodel: 2021-10-09 05:59:25.689958 - step 43 of 96 - 22396 active elements (0 deactivated)
-    08:59:33 INFO    opendrift.models.basemodel: 2021-10-09 06:29:25.689958 - step 44 of 96 - 22916 active elements (0 deactivated)
-    08:59:33 INFO    opendrift.models.basemodel: 2021-10-09 06:59:25.689958 - step 45 of 96 - 23438 active elements (0 deactivated)
-    08:59:33 INFO    opendrift.models.basemodel: 2021-10-09 07:29:25.689958 - step 46 of 96 - 23958 active elements (0 deactivated)
-    08:59:33 INFO    opendrift.models.basemodel: 2021-10-09 07:59:25.689958 - step 47 of 96 - 24480 active elements (0 deactivated)
-    08:59:33 INFO    opendrift.models.basemodel: 2021-10-09 08:29:25.689958 - step 48 of 96 - 25000 active elements (0 deactivated)
-    08:59:33 INFO    opendrift.models.basemodel: 2021-10-09 08:59:25.689958 - step 49 of 96 - 25520 active elements (0 deactivated)
-    08:59:34 INFO    opendrift.models.basemodel: 2021-10-09 09:29:25.689958 - step 50 of 96 - 26042 active elements (0 deactivated)
-    08:59:34 INFO    opendrift.models.basemodel: 2021-10-09 09:59:25.689958 - step 51 of 96 - 26562 active elements (0 deactivated)
-    08:59:34 INFO    opendrift.models.basemodel: 2021-10-09 10:29:25.689958 - step 52 of 96 - 27084 active elements (0 deactivated)
-    08:59:34 INFO    opendrift.models.basemodel: 2021-10-09 10:59:25.689958 - step 53 of 96 - 27604 active elements (0 deactivated)
-    08:59:34 INFO    opendrift.models.basemodel: 2021-10-09 11:29:25.689958 - step 54 of 96 - 28124 active elements (0 deactivated)
-    08:59:34 INFO    opendrift.models.basemodel: 2021-10-09 11:59:25.689958 - step 55 of 96 - 28646 active elements (0 deactivated)
-    08:59:34 INFO    opendrift.models.basemodel: 2021-10-09 12:29:25.689958 - step 56 of 96 - 29166 active elements (0 deactivated)
-    08:59:34 INFO    opendrift.models.basemodel: 2021-10-09 12:59:25.689958 - step 57 of 96 - 29688 active elements (0 deactivated)
-    08:59:35 INFO    opendrift.models.basemodel: 2021-10-09 13:29:25.689958 - step 58 of 96 - 30208 active elements (0 deactivated)
-    08:59:35 INFO    opendrift.models.basemodel: 2021-10-09 13:59:25.689958 - step 59 of 96 - 30728 active elements (0 deactivated)
-    08:59:35 INFO    opendrift.models.basemodel: 2021-10-09 14:29:25.689958 - step 60 of 96 - 31250 active elements (0 deactivated)
-    08:59:35 INFO    opendrift.models.basemodel: 2021-10-09 14:59:25.689958 - step 61 of 96 - 31770 active elements (0 deactivated)
-    08:59:35 INFO    opendrift.models.basemodel: 2021-10-09 15:29:25.689958 - step 62 of 96 - 32292 active elements (0 deactivated)
-    08:59:35 INFO    opendrift.models.basemodel: 2021-10-09 15:59:25.689958 - step 63 of 96 - 32812 active elements (0 deactivated)
-    08:59:36 INFO    opendrift.models.basemodel: 2021-10-09 16:29:25.689958 - step 64 of 96 - 33334 active elements (0 deactivated)
-    08:59:36 INFO    opendrift.models.basemodel: 2021-10-09 16:59:25.689958 - step 65 of 96 - 33854 active elements (0 deactivated)
-    08:59:36 INFO    opendrift.models.basemodel: 2021-10-09 17:29:25.689958 - step 66 of 96 - 34374 active elements (0 deactivated)
-    08:59:36 INFO    opendrift.models.basemodel: 2021-10-09 17:59:25.689958 - step 67 of 96 - 34896 active elements (0 deactivated)
-    08:59:36 INFO    opendrift.models.basemodel: 2021-10-09 18:29:25.689958 - step 68 of 96 - 35416 active elements (0 deactivated)
-    08:59:36 INFO    opendrift.models.basemodel: 2021-10-09 18:59:25.689958 - step 69 of 96 - 35938 active elements (0 deactivated)
-    08:59:37 INFO    opendrift.models.basemodel: 2021-10-09 19:29:25.689958 - step 70 of 96 - 36458 active elements (0 deactivated)
-    08:59:37 INFO    opendrift.models.basemodel: 2021-10-09 19:59:25.689958 - step 71 of 96 - 36978 active elements (0 deactivated)
-    08:59:37 INFO    opendrift.models.basemodel: 2021-10-09 20:29:25.689958 - step 72 of 96 - 37500 active elements (0 deactivated)
-    08:59:37 INFO    opendrift.models.basemodel: 2021-10-09 20:59:25.689958 - step 73 of 96 - 38020 active elements (0 deactivated)
-    08:59:38 INFO    opendrift.models.basemodel: 2021-10-09 21:29:25.689958 - step 74 of 96 - 38542 active elements (0 deactivated)
-    08:59:38 INFO    opendrift.models.basemodel: 2021-10-09 21:59:25.689958 - step 75 of 96 - 39062 active elements (0 deactivated)
-    08:59:38 INFO    opendrift.models.basemodel: 2021-10-09 22:29:25.689958 - step 76 of 96 - 39582 active elements (0 deactivated)
-    08:59:38 INFO    opendrift.models.basemodel: 2021-10-09 22:59:25.689958 - step 77 of 96 - 40104 active elements (0 deactivated)
-    08:59:39 INFO    opendrift.models.basemodel: 2021-10-09 23:29:25.689958 - step 78 of 96 - 40624 active elements (0 deactivated)
-    08:59:39 INFO    opendrift.models.basemodel: 2021-10-09 23:59:25.689958 - step 79 of 96 - 41146 active elements (0 deactivated)
-    08:59:40 INFO    opendrift.models.basemodel: 2021-10-10 00:29:25.689958 - step 80 of 96 - 41666 active elements (0 deactivated)
-    08:59:40 INFO    opendrift.models.basemodel: 2021-10-10 00:59:25.689958 - step 81 of 96 - 42186 active elements (0 deactivated)
-    08:59:40 INFO    opendrift.models.basemodel: 2021-10-10 01:29:25.689958 - step 82 of 96 - 42708 active elements (0 deactivated)
-    08:59:40 INFO    opendrift.models.basemodel: 2021-10-10 01:59:25.689958 - step 83 of 96 - 43228 active elements (0 deactivated)
-    08:59:41 INFO    opendrift.models.basemodel: 2021-10-10 02:29:25.689958 - step 84 of 96 - 43750 active elements (0 deactivated)
-    08:59:41 INFO    opendrift.models.basemodel: 2021-10-10 02:59:25.689958 - step 85 of 96 - 44270 active elements (0 deactivated)
-    08:59:41 INFO    opendrift.models.basemodel: 2021-10-10 03:29:25.689958 - step 86 of 96 - 44790 active elements (0 deactivated)
-    08:59:42 INFO    opendrift.models.basemodel: 2021-10-10 03:59:25.689958 - step 87 of 96 - 45312 active elements (0 deactivated)
-    08:59:42 INFO    opendrift.models.basemodel: 2021-10-10 04:29:25.689958 - step 88 of 96 - 45832 active elements (0 deactivated)
-    08:59:42 INFO    opendrift.models.basemodel: 2021-10-10 04:59:25.689958 - step 89 of 96 - 46354 active elements (0 deactivated)
-    08:59:42 INFO    opendrift.models.basemodel: 2021-10-10 05:29:25.689958 - step 90 of 96 - 46874 active elements (0 deactivated)
-    08:59:43 INFO    opendrift.models.basemodel: 2021-10-10 05:59:25.689958 - step 91 of 96 - 47394 active elements (0 deactivated)
-    08:59:43 INFO    opendrift.models.basemodel: 2021-10-10 06:29:25.689958 - step 92 of 96 - 47916 active elements (0 deactivated)
-    08:59:43 INFO    opendrift.models.basemodel: 2021-10-10 06:59:25.689958 - step 93 of 96 - 48436 active elements (0 deactivated)
-    08:59:44 INFO    opendrift.models.basemodel: 2021-10-10 07:29:25.689958 - step 94 of 96 - 48958 active elements (0 deactivated)
-    08:59:44 INFO    opendrift.models.basemodel: 2021-10-10 07:59:25.689958 - step 95 of 96 - 49478 active elements (0 deactivated)
-    08:59:44 INFO    opendrift.models.basemodel: 2021-10-10 08:29:25.689958 - step 96 of 96 - 50000 active elements (0 deactivated)
-    08:59:47 INFO    opendrift.export.io_netcdf: Wrote 49 steps to file runoff.nc
+    21:20:23 INFO    opendrift.models.basemodel: OpenDriftSimulation initialised (version 1.7.1 / v1.7.1-127-gedba443)
+    21:20:23 INFO    opendrift.models.basemodel: Fallback values will be used for the following variables which have no readers: 
+    21:20:23 INFO    opendrift.models.basemodel:    x_wind: 0.000000
+    21:20:23 INFO    opendrift.models.basemodel:    y_wind: 0.000000
+    21:20:23 INFO    opendrift.models.basemodel:    upward_sea_water_velocity: 0.000000
+    21:20:23 INFO    opendrift.models.basemodel:    ocean_vertical_diffusivity: 0.000000
+    21:20:23 INFO    opendrift.models.basemodel:    sea_surface_wave_significant_height: 0.000000
+    21:20:23 INFO    opendrift.models.basemodel:    sea_surface_wave_stokes_drift_x_velocity: 0.000000
+    21:20:23 INFO    opendrift.models.basemodel:    sea_surface_wave_stokes_drift_y_velocity: 0.000000
+    21:20:23 INFO    opendrift.models.basemodel:    sea_surface_wave_period_at_variance_spectral_density_maximum: 0.000000
+    21:20:23 INFO    opendrift.models.basemodel:    sea_surface_wave_mean_period_from_variance_spectral_density_second_frequency_moment: 0.000000
+    21:20:23 INFO    opendrift.models.basemodel:    surface_downward_x_stress: 0.000000
+    21:20:23 INFO    opendrift.models.basemodel:    surface_downward_y_stress: 0.000000
+    21:20:23 INFO    opendrift.models.basemodel:    turbulent_kinetic_energy: 0.000000
+    21:20:23 INFO    opendrift.models.basemodel:    turbulent_generic_length_scale: 0.000000
+    21:20:23 INFO    opendrift.models.basemodel:    ocean_mixed_layer_thickness: 50.000000
+    21:20:23 INFO    opendrift.models.basemodel:    sea_floor_depth_below_sea_level: 10000.000000
+    21:20:23 INFO    opendrift.models.basemodel: Adding a dynamical landmask with max. priority based on assumed maximum speed of 1 m/s. Adding a customised landmask may be faster...
+    21:20:26 INFO    opendrift.models.basemodel: Using existing reader for land_binary_mask
+    21:20:26 INFO    opendrift.models.basemodel: All points are in ocean
+    21:20:28 INFO    opendrift.models.basemodel: 2021-10-10 21:20:23.350499 - step 1 of 96 - 522 active elements (0 deactivated)
+    21:20:28 INFO    opendrift.models.basemodel: 2021-10-10 21:50:23.350499 - step 2 of 96 - 1042 active elements (0 deactivated)
+    21:20:28 INFO    opendrift.models.basemodel: 2021-10-10 22:20:23.350499 - step 3 of 96 - 1564 active elements (0 deactivated)
+    21:20:28 INFO    opendrift.models.basemodel: 2021-10-10 22:50:23.350499 - step 4 of 96 - 2084 active elements (0 deactivated)
+    21:20:28 INFO    opendrift.models.basemodel: 2021-10-10 23:20:23.350499 - step 5 of 96 - 2606 active elements (0 deactivated)
+    21:20:28 INFO    opendrift.models.basemodel: 2021-10-10 23:50:23.350499 - step 6 of 96 - 3126 active elements (0 deactivated)
+    21:20:28 INFO    opendrift.models.basemodel: 2021-10-11 00:20:23.350499 - step 7 of 96 - 3646 active elements (0 deactivated)
+    21:20:28 INFO    opendrift.models.basemodel: 2021-10-11 00:50:23.350499 - step 8 of 96 - 4168 active elements (0 deactivated)
+    21:20:28 INFO    opendrift.models.basemodel: 2021-10-11 01:20:23.350499 - step 9 of 96 - 4688 active elements (0 deactivated)
+    21:20:28 INFO    opendrift.models.basemodel: 2021-10-11 01:50:23.350499 - step 10 of 96 - 5210 active elements (0 deactivated)
+    21:20:28 INFO    opendrift.models.basemodel: 2021-10-11 02:20:23.350499 - step 11 of 96 - 5730 active elements (0 deactivated)
+    21:20:28 INFO    opendrift.models.basemodel: 2021-10-11 02:50:23.350499 - step 12 of 96 - 6250 active elements (0 deactivated)
+    21:20:28 INFO    opendrift.models.basemodel: 2021-10-11 03:20:23.350499 - step 13 of 96 - 6772 active elements (0 deactivated)
+    21:20:28 INFO    opendrift.models.basemodel: 2021-10-11 03:50:23.350499 - step 14 of 96 - 7292 active elements (0 deactivated)
+    21:20:28 INFO    opendrift.models.basemodel: 2021-10-11 04:20:23.350499 - step 15 of 96 - 7814 active elements (0 deactivated)
+    21:20:28 INFO    opendrift.models.basemodel: 2021-10-11 04:50:23.350499 - step 16 of 96 - 8334 active elements (0 deactivated)
+    21:20:28 INFO    opendrift.models.basemodel: 2021-10-11 05:20:23.350499 - step 17 of 96 - 8854 active elements (0 deactivated)
+    21:20:28 INFO    opendrift.models.basemodel: 2021-10-11 05:50:23.350499 - step 18 of 96 - 9376 active elements (0 deactivated)
+    21:20:28 INFO    opendrift.models.basemodel: 2021-10-11 06:20:23.350499 - step 19 of 96 - 9896 active elements (0 deactivated)
+    21:20:28 INFO    opendrift.models.basemodel: 2021-10-11 06:50:23.350499 - step 20 of 96 - 10418 active elements (0 deactivated)
+    21:20:28 INFO    opendrift.models.basemodel: 2021-10-11 07:20:23.350499 - step 21 of 96 - 10938 active elements (0 deactivated)
+    21:20:28 INFO    opendrift.models.basemodel: 2021-10-11 07:50:23.350499 - step 22 of 96 - 11458 active elements (0 deactivated)
+    21:20:28 INFO    opendrift.models.basemodel: 2021-10-11 08:20:23.350499 - step 23 of 96 - 11980 active elements (0 deactivated)
+    21:20:29 INFO    opendrift.models.basemodel: 2021-10-11 08:50:23.350499 - step 24 of 96 - 12500 active elements (0 deactivated)
+    21:20:29 INFO    opendrift.models.basemodel: 2021-10-11 09:20:23.350499 - step 25 of 96 - 13022 active elements (0 deactivated)
+    21:20:29 INFO    opendrift.models.basemodel: 2021-10-11 09:50:23.350499 - step 26 of 96 - 13542 active elements (0 deactivated)
+    21:20:29 INFO    opendrift.models.basemodel: 2021-10-11 10:20:23.350499 - step 27 of 96 - 14062 active elements (0 deactivated)
+    21:20:29 INFO    opendrift.models.basemodel: 2021-10-11 10:50:23.350499 - step 28 of 96 - 14584 active elements (0 deactivated)
+    21:20:29 INFO    opendrift.models.basemodel: 2021-10-11 11:20:23.350499 - step 29 of 96 - 15104 active elements (0 deactivated)
+    21:20:29 INFO    opendrift.models.basemodel: 2021-10-11 11:50:23.350499 - step 30 of 96 - 15626 active elements (0 deactivated)
+    21:20:29 INFO    opendrift.models.basemodel: 2021-10-11 12:20:23.350499 - step 31 of 96 - 16146 active elements (0 deactivated)
+    21:20:29 INFO    opendrift.models.basemodel: 2021-10-11 12:50:23.350499 - step 32 of 96 - 16668 active elements (0 deactivated)
+    21:20:29 INFO    opendrift.models.basemodel: 2021-10-11 13:20:23.350499 - step 33 of 96 - 17188 active elements (0 deactivated)
+    21:20:29 INFO    opendrift.models.basemodel: 2021-10-11 13:50:23.350499 - step 34 of 96 - 17708 active elements (0 deactivated)
+    21:20:29 INFO    opendrift.models.basemodel: 2021-10-11 14:20:23.350499 - step 35 of 96 - 18230 active elements (0 deactivated)
+    21:20:29 INFO    opendrift.models.basemodel: 2021-10-11 14:50:23.350499 - step 36 of 96 - 18750 active elements (0 deactivated)
+    21:20:30 INFO    opendrift.models.basemodel: 2021-10-11 15:20:23.350499 - step 37 of 96 - 19272 active elements (0 deactivated)
+    21:20:30 INFO    opendrift.models.basemodel: 2021-10-11 15:50:23.350499 - step 38 of 96 - 19792 active elements (0 deactivated)
+    21:20:30 INFO    opendrift.models.basemodel: 2021-10-11 16:20:23.350499 - step 39 of 96 - 20312 active elements (0 deactivated)
+    21:20:30 INFO    opendrift.models.basemodel: 2021-10-11 16:50:23.350499 - step 40 of 96 - 20834 active elements (0 deactivated)
+    21:20:30 INFO    opendrift.models.basemodel: 2021-10-11 17:20:23.350499 - step 41 of 96 - 21354 active elements (0 deactivated)
+    21:20:30 INFO    opendrift.models.basemodel: 2021-10-11 17:50:23.350499 - step 42 of 96 - 21876 active elements (0 deactivated)
+    21:20:30 INFO    opendrift.models.basemodel: 2021-10-11 18:20:23.350499 - step 43 of 96 - 22396 active elements (0 deactivated)
+    21:20:30 INFO    opendrift.models.basemodel: 2021-10-11 18:50:23.350499 - step 44 of 96 - 22916 active elements (0 deactivated)
+    21:20:30 INFO    opendrift.models.basemodel: 2021-10-11 19:20:23.350499 - step 45 of 96 - 23438 active elements (0 deactivated)
+    21:20:30 INFO    opendrift.models.basemodel: 2021-10-11 19:50:23.350499 - step 46 of 96 - 23958 active elements (0 deactivated)
+    21:20:31 INFO    opendrift.models.basemodel: 2021-10-11 20:20:23.350499 - step 47 of 96 - 24480 active elements (0 deactivated)
+    21:20:31 INFO    opendrift.models.basemodel: 2021-10-11 20:50:23.350499 - step 48 of 96 - 25000 active elements (0 deactivated)
+    21:20:31 INFO    opendrift.models.basemodel: 2021-10-11 21:20:23.350499 - step 49 of 96 - 25520 active elements (0 deactivated)
+    21:20:31 INFO    opendrift.models.basemodel: 2021-10-11 21:50:23.350499 - step 50 of 96 - 26042 active elements (0 deactivated)
+    21:20:31 INFO    opendrift.models.basemodel: 2021-10-11 22:20:23.350499 - step 51 of 96 - 26562 active elements (0 deactivated)
+    21:20:31 INFO    opendrift.models.basemodel: 2021-10-11 22:50:23.350499 - step 52 of 96 - 27084 active elements (0 deactivated)
+    21:20:31 INFO    opendrift.models.basemodel: 2021-10-11 23:20:23.350499 - step 53 of 96 - 27604 active elements (0 deactivated)
+    21:20:31 INFO    opendrift.models.basemodel: 2021-10-11 23:50:23.350499 - step 54 of 96 - 28124 active elements (0 deactivated)
+    21:20:32 INFO    opendrift.models.basemodel: 2021-10-12 00:20:23.350499 - step 55 of 96 - 28646 active elements (0 deactivated)
+    21:20:32 INFO    opendrift.models.basemodel: 2021-10-12 00:50:23.350499 - step 56 of 96 - 29166 active elements (0 deactivated)
+    21:20:32 INFO    opendrift.models.basemodel: 2021-10-12 01:20:23.350499 - step 57 of 96 - 29688 active elements (0 deactivated)
+    21:20:32 INFO    opendrift.models.basemodel: 2021-10-12 01:50:23.350499 - step 58 of 96 - 30208 active elements (0 deactivated)
+    21:20:32 INFO    opendrift.models.basemodel: 2021-10-12 02:20:23.350499 - step 59 of 96 - 30728 active elements (0 deactivated)
+    21:20:32 INFO    opendrift.models.basemodel: 2021-10-12 02:50:23.350499 - step 60 of 96 - 31250 active elements (0 deactivated)
+    21:20:32 INFO    opendrift.models.basemodel: 2021-10-12 03:20:23.350499 - step 61 of 96 - 31770 active elements (0 deactivated)
+    21:20:33 INFO    opendrift.models.basemodel: 2021-10-12 03:50:23.350499 - step 62 of 96 - 32292 active elements (0 deactivated)
+    21:20:33 INFO    opendrift.models.basemodel: 2021-10-12 04:20:23.350499 - step 63 of 96 - 32812 active elements (0 deactivated)
+    21:20:33 INFO    opendrift.models.basemodel: 2021-10-12 04:50:23.350499 - step 64 of 96 - 33334 active elements (0 deactivated)
+    21:20:33 INFO    opendrift.models.basemodel: 2021-10-12 05:20:23.350499 - step 65 of 96 - 33854 active elements (0 deactivated)
+    21:20:33 INFO    opendrift.models.basemodel: 2021-10-12 05:50:23.350499 - step 66 of 96 - 34374 active elements (0 deactivated)
+    21:20:33 INFO    opendrift.models.basemodel: 2021-10-12 06:20:23.350499 - step 67 of 96 - 34896 active elements (0 deactivated)
+    21:20:34 INFO    opendrift.models.basemodel: 2021-10-12 06:50:23.350499 - step 68 of 96 - 35416 active elements (0 deactivated)
+    21:20:34 INFO    opendrift.models.basemodel: 2021-10-12 07:20:23.350499 - step 69 of 96 - 35938 active elements (0 deactivated)
+    21:20:34 INFO    opendrift.models.basemodel: 2021-10-12 07:50:23.350499 - step 70 of 96 - 36458 active elements (0 deactivated)
+    21:20:34 INFO    opendrift.models.basemodel: 2021-10-12 08:20:23.350499 - step 71 of 96 - 36978 active elements (0 deactivated)
+    21:20:34 INFO    opendrift.models.basemodel: 2021-10-12 08:50:23.350499 - step 72 of 96 - 37500 active elements (0 deactivated)
+    21:20:35 INFO    opendrift.models.basemodel: 2021-10-12 09:20:23.350499 - step 73 of 96 - 38020 active elements (0 deactivated)
+    21:20:35 INFO    opendrift.models.basemodel: 2021-10-12 09:50:23.350499 - step 74 of 96 - 38542 active elements (0 deactivated)
+    21:20:35 INFO    opendrift.models.basemodel: 2021-10-12 10:20:23.350499 - step 75 of 96 - 39062 active elements (0 deactivated)
+    21:20:35 INFO    opendrift.models.basemodel: 2021-10-12 10:50:23.350499 - step 76 of 96 - 39582 active elements (0 deactivated)
+    21:20:35 INFO    opendrift.models.basemodel: 2021-10-12 11:20:23.350499 - step 77 of 96 - 40104 active elements (0 deactivated)
+    21:20:36 INFO    opendrift.models.basemodel: 2021-10-12 11:50:23.350499 - step 78 of 96 - 40624 active elements (0 deactivated)
+    21:20:36 INFO    opendrift.models.basemodel: 2021-10-12 12:20:23.350499 - step 79 of 96 - 41146 active elements (0 deactivated)
+    21:20:36 INFO    opendrift.models.basemodel: 2021-10-12 12:50:23.350499 - step 80 of 96 - 41666 active elements (0 deactivated)
+    21:20:36 INFO    opendrift.models.basemodel: 2021-10-12 13:20:23.350499 - step 81 of 96 - 42186 active elements (0 deactivated)
+    21:20:37 INFO    opendrift.models.basemodel: 2021-10-12 13:50:23.350499 - step 82 of 96 - 42708 active elements (0 deactivated)
+    21:20:37 INFO    opendrift.models.basemodel: 2021-10-12 14:20:23.350499 - step 83 of 96 - 43228 active elements (0 deactivated)
+    21:20:37 INFO    opendrift.models.basemodel: 2021-10-12 14:50:23.350499 - step 84 of 96 - 43750 active elements (0 deactivated)
+    21:20:37 INFO    opendrift.models.basemodel: 2021-10-12 15:20:23.350499 - step 85 of 96 - 44270 active elements (0 deactivated)
+    21:20:38 INFO    opendrift.models.basemodel: 2021-10-12 15:50:23.350499 - step 86 of 96 - 44790 active elements (0 deactivated)
+    21:20:38 INFO    opendrift.models.basemodel: 2021-10-12 16:20:23.350499 - step 87 of 96 - 45312 active elements (0 deactivated)
+    21:20:38 INFO    opendrift.models.basemodel: 2021-10-12 16:50:23.350499 - step 88 of 96 - 45832 active elements (0 deactivated)
+    21:20:38 INFO    opendrift.models.basemodel: 2021-10-12 17:20:23.350499 - step 89 of 96 - 46354 active elements (0 deactivated)
+    21:20:39 INFO    opendrift.models.basemodel: 2021-10-12 17:50:23.350499 - step 90 of 96 - 46874 active elements (0 deactivated)
+    21:20:39 INFO    opendrift.models.basemodel: 2021-10-12 18:20:23.350499 - step 91 of 96 - 47394 active elements (0 deactivated)
+    21:20:39 INFO    opendrift.models.basemodel: 2021-10-12 18:50:23.350499 - step 92 of 96 - 47916 active elements (0 deactivated)
+    21:20:39 INFO    opendrift.models.basemodel: 2021-10-12 19:20:23.350499 - step 93 of 96 - 48436 active elements (0 deactivated)
+    21:20:40 INFO    opendrift.models.basemodel: 2021-10-12 19:50:23.350499 - step 94 of 96 - 48958 active elements (0 deactivated)
+    21:20:40 INFO    opendrift.models.basemodel: 2021-10-12 20:20:23.350499 - step 95 of 96 - 49478 active elements (0 deactivated)
+    21:20:40 INFO    opendrift.models.basemodel: 2021-10-12 20:50:23.350499 - step 96 of 96 - 50000 active elements (0 deactivated)
+    21:20:43 INFO    opendrift.export.io_netcdf: Wrote 49 steps to file runoff.nc
 
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 47-51
+.. GENERATED FROM PYTHON SOURCE LINES 43-46
 
 Opening the output file lazily with Xarray.
 This will work even if the file is too large to fit in memory, as it
 will read and process data chuck-by-chunk directly from file using Dask.
-Note that the analysis file will be re-used if existing. Thus this file should be deleted after making any changes to the simulation above.
 
-.. GENERATED FROM PYTHON SOURCE LINES 51-53
+.. GENERATED FROM PYTHON SOURCE LINES 46-48
 
 .. code-block:: default
 
-    o = opendrift.open_xarray(outfile, analysis_file=analysis_file)
+    o = opendrift.open_xarray(outfile)
 
 
 
@@ -232,24 +227,24 @@ Note that the analysis file will be re-used if existing. Thus this file should b
 
  .. code-block:: none
 
-    09:00:10 DEBUG   opendrift.models.basemodel: Adding 17 config items from basemodel
-    09:00:10 DEBUG   opendrift.models.basemodel: Adding 4 config items from basemodel
-    09:00:10 DEBUG   opendrift.models.basemodel: Adding 36 config items from basemodel
-    09:00:10 INFO    opendrift.models.basemodel: OpenDriftSimulation initialised (version 1.7.1 / v1.7.1-124-g9339ac5)
-    09:00:10 DEBUG   opendrift.models.basemodel: Adding 14 config items from oceandrift
-    09:00:10 DEBUG   opendrift.models.basemodel:   Overwriting config item seed:z
-    09:00:10 DEBUG   opendrift.export.io_netcdf: Importing with Xarray from runoff.nc
-    09:00:11 INFO    opendrift: Returning <class 'opendrift.models.oceandrift.OceanDrift'> object
+    21:21:07 DEBUG   opendrift.models.basemodel: Adding 17 config items from basemodel
+    21:21:07 DEBUG   opendrift.models.basemodel: Adding 4 config items from basemodel
+    21:21:07 DEBUG   opendrift.models.basemodel: Adding 36 config items from basemodel
+    21:21:07 INFO    opendrift.models.basemodel: OpenDriftSimulation initialised (version 1.7.1 / v1.7.1-127-gedba443)
+    21:21:07 DEBUG   opendrift.models.basemodel: Adding 14 config items from oceandrift
+    21:21:07 DEBUG   opendrift.models.basemodel:   Overwriting config item seed:z
+    21:21:07 DEBUG   opendrift.export.io_netcdf: Importing with Xarray from runoff.nc
+    21:21:07 INFO    opendrift: Returning <class 'opendrift.models.oceandrift.OceanDrift'> object
 
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 54-56
+.. GENERATED FROM PYTHON SOURCE LINES 49-51
 
 We want to extract timeseries of river water at the coordinates of a hypothetical measuring station
 as well as the amount of river water passing through two defined areas/regions
 
-.. GENERATED FROM PYTHON SOURCE LINES 56-63
+.. GENERATED FROM PYTHON SOURCE LINES 51-58
 
 .. code-block:: default
 
@@ -267,7 +262,7 @@ as well as the amount of river water passing through two defined areas/regions
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 64-73
+.. GENERATED FROM PYTHON SOURCE LINES 59-68
 
 Animation of the spatial density of river runoff water.
 Although there are the same number of elements from each river, the density plots are
@@ -279,7 +274,7 @@ for huge output files.
 Note that other analysis/plotting methods are not yet adapted
 to datasets opened lazily with open_xarray
 
-.. GENERATED FROM PYTHON SOURCE LINES 73-78
+.. GENERATED FROM PYTHON SOURCE LINES 68-73
 
 .. code-block:: default
 
@@ -295,16 +290,19 @@ to datasets opened lazily with open_xarray
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 79-80
+.. GENERATED FROM PYTHON SOURCE LINES 74-75
 
 Calculate density with given pixel size, weighted by runoff amount per element
 
-.. GENERATED FROM PYTHON SOURCE LINES 80-95
+.. GENERATED FROM PYTHON SOURCE LINES 75-93
 
 .. code-block:: default
 
-    o.get_density_xarray(pixelsize_m=1500, weights=runoff)
+    river_water = o.get_histogram(pixelsize_m=1500, weights=runoff, density=False)
 
+    rw = river_water.sum(dim='origin_marker')  # For both rivers
+    #rw = river_water.isel(origin_marker=1)    # For one of the rivers
+    river_water.name = 'River water [m3/cell]'
 
     text = [{'s': o.origin_marker[0], 'x': 8.55, 'y': 58.56, 'fontsize': 20, 'color': 'g',
              'backgroundcolor': 'white', 'bbox': dict(facecolor='white', alpha=0.8), 'zorder': 1000},
@@ -315,7 +313,7 @@ Calculate density with given pixel size, weighted by runoff amount per element
     box = [{'lon': box1_lon, 'lat': box1_lat, 'text': 'Area 1', 'fc': 'none', 'alpha': 0.8, 'lw': 1, 'ec': 'k'},
            {'lon': box2_lon, 'lat': box2_lat, 'text': 'Area 2', 'fc': 'none', 'alpha': 0.8, 'lw': 1, 'ec': 'k'}]
 
-    o.animation(background=o.ads.density.where(o.ads.density>0), bgalpha=1, fast=False,
+    o.animation(background=rw.where(rw>0), bgalpha=1, fast=False,
                 show_elements=False, vmin=0, vmax=120, text=text, box=box)
 
 
@@ -328,29 +326,27 @@ Calculate density with given pixel size, weighted by runoff amount per element
 
  .. code-block:: none
 
-    09:00:11 INFO    opendrift.models.basemodel: Calculating density array, this may take some time...
-    09:00:11 INFO    opendrift.models.basemodel:    calculating for origin_marker 0...
-    09:00:11 INFO    opendrift.models.basemodel:    calculating for origin_marker 1...
-    09:00:11 INFO    opendrift.models.basemodel: Time to calculate density array: 0:00:00.499036
-    09:00:11 DEBUG   opendrift.readers.reader_global_landmask: Using existing GSHHS shapes..
-    09:00:11 DEBUG   opendrift_landmask_data.mask: mask already memmapped
-    09:00:28 INFO    opendrift.models.basemodel: Saving animation to /root/project/docs/source/gallery/animations/example_river_runoff_0.gif...
-    09:00:28 INFO    opendrift.models.basemodel: Making animated gif...
+    21:21:07 INFO    opendrift.models.basemodel:    calculating for origin_marker 0...
+    21:21:07 INFO    opendrift.models.basemodel:    calculating for origin_marker 1...
+    21:21:08 DEBUG   opendrift.readers.reader_global_landmask: Using existing GSHHS shapes..
+    21:21:08 DEBUG   opendrift_landmask_data.mask: mask already memmapped
+    21:21:25 INFO    opendrift.models.basemodel: Saving animation to /root/project/docs/source/gallery/animations/example_river_runoff_0.gif...
+    21:21:25 INFO    opendrift.models.basemodel: Making animated gif...
     MovieWriter imagemagick unavailable; using Pillow instead.
-    09:01:13 DEBUG   opendrift.models.basemodel: Time to make animation: 0:01:02.373413
+    21:22:05 DEBUG   opendrift.models.basemodel: Time to make animation: 0:00:57.236279
 
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 96-97
+.. GENERATED FROM PYTHON SOURCE LINES 94-95
 
 .. image:: /gallery/animations/example_river_runoff_0.gif
 
-.. GENERATED FROM PYTHON SOURCE LINES 99-100
+.. GENERATED FROM PYTHON SOURCE LINES 97-98
 
 Plotting time series of river runoff, and corresponding water passing through the station and the two defined areas/boxes
 
-.. GENERATED FROM PYTHON SOURCE LINES 100-139
+.. GENERATED FROM PYTHON SOURCE LINES 98-137
 
 .. code-block:: default
 
@@ -360,39 +356,39 @@ Plotting time series of river runoff, and corresponding water passing through th
     ax1.plot(seed_times, runoff_river2, label=o.origin_marker[1])
     ax1.set_ylabel('Runoff  [m3/s]')
     ax1.set_title('Runoff')
-    ax1.margins(x=0)
-    ax1.legend()
     # Area 1
-    t1, t1_om = o.get_density_timeseries(lon=box1_lon, lat=box1_lat)
-    t1_om.isel(origin_marker=0).plot(label=o.origin_marker[0], ax=ax2)
-    t1_om.isel(origin_marker=1).plot(label=o.origin_marker[1], ax=ax2)
-    t1.plot(label='Total', linestyle='--', ax=ax2)
-    ax2.legend()
-    ax2.margins(x=0)
+    t1 = river_water.sel(lon_bin=slice(box1_lon[0], box1_lon[1]),
+                         lat_bin=slice(box1_lat[0], box1_lat[1]))
+    t1 = t1.sum(('lon_bin', 'lat_bin'))
+    t1.isel(origin_marker=0).plot(label=o.origin_marker[0], ax=ax2)
+    t1.isel(origin_marker=1).plot(label=o.origin_marker[1], ax=ax2)
+    t1.sum(dim='origin_marker').plot(label='Total', linestyle='--', ax=ax2)
     ax2.set_title('Amount of water passing through Area 1')
     # Area 2
-    t2, t2_om = o.get_density_timeseries(lon=box2_lon, lat=box2_lat)
-    t2_om.isel(origin_marker=0).plot(label=o.origin_marker[0], ax=ax3)
-    t2_om.isel(origin_marker=1).plot(label=o.origin_marker[1], ax=ax3)
-    t2.plot(label='Total', linestyle='--', ax=ax3)
-    ax3.legend()
-    ax3.margins(x=0)
+    t2 = river_water.sel(lon_bin=slice(box2_lon[0], box2_lon[1]),
+                         lat_bin=slice(box2_lat[0], box2_lat[1]))
+    t2 = t2.sum(('lon_bin', 'lat_bin'))
+    t2.isel(origin_marker=0).plot(label=o.origin_marker[0], ax=ax3)
+    t2.isel(origin_marker=1).plot(label=o.origin_marker[1], ax=ax3)
+    t2.sum(dim='origin_marker').plot(label='Total', linestyle='--', ax=ax3)
     ax3.set_title('Amount of water passing through Area 2')
     # Extracting time series at the location of the station
-    t, t_om = o.get_density_timeseries(lon=station_lon, lat=station_lat)
-    t_om.isel(origin_marker=0).plot(label=o.origin_marker[0], ax=ax4)
-    t_om.isel(origin_marker=1).plot(label=o.origin_marker[1], ax=ax4)
-    t.plot(label='Total', linestyle='--', ax=ax4)
+    t = river_water.sel(lon_bin=station_lon, lat_bin=station_lat, method='nearest')
+    t.isel(origin_marker=0).plot(label=o.origin_marker[0], ax=ax4)
+    t.isel(origin_marker=1).plot(label=o.origin_marker[1], ax=ax4)
+    t.sum(dim='origin_marker').plot(label='Total', linestyle='--', ax=ax4)
     ax4.legend()
     ax4.margins(x=0)
-    ax4.set_title('Density of water at Station')
 
+    for ax in [ax1, ax2, ax3]:
+        ax.margins(x=0)
+        ax.legend()
+        ax.set_xticks([])
+        ax.set_xlabel(None)
+    ax4.set_title('Density of water at Station')
+    ax4.xaxis.set_major_formatter(DateFormatter("%d %b %H"))
     plt.show()
 
-
-    # Cleaning up
-    os.remove(outfile)
-    os.remove(analysis_file)
 
 
 
@@ -405,10 +401,62 @@ Plotting time series of river runoff, and corresponding water passing through th
 
 
 
+.. GENERATED FROM PYTHON SOURCE LINES 138-139
+
+Finally, plot the spatial distribution of mean age of water 
+
+.. GENERATED FROM PYTHON SOURCE LINES 139-158
+
+.. code-block:: default
+
+    num = o.get_histogram(pixelsize_m=1500, weights=None, density=False)
+    num.name = 'number'
+    num.to_netcdf(histogram_file)
+
+    mas = o.get_histogram(pixelsize_m=1500, weights=o.ds['age_seconds'], density=False)
+    mas = mas/3600  # in hours
+    mas = mas/num  # per area
+    mas.name='mean_age'
+    mas.to_netcdf(histogram_file, 'a')
+    mas = mas.mean(dim='time').sum(dim='origin_marker')  # Mean time of both rivers
+    #mas = mas.mean(dim='time').isel(origin_marker=1)  # Mean age of a single river
+    mas.name='Mean age of water [hours]'
+
+    o.plot(background=mas.where(mas>0), fast=True, show_particles=False)
+
+
+    # Cleaning up
+    os.remove(outfile)
+    os.remove(histogram_file)
+
+
+
+.. image-sg:: /gallery/images/sphx_glr_example_river_runoff_002.png
+   :alt: OpenDrift - OceanDrift 2021-10-10 21:20 to 2021-10-12 21:20 UTC (49 steps)
+   :srcset: /gallery/images/sphx_glr_example_river_runoff_002.png
+   :class: sphx-glr-single-img
+
+
+.. rst-class:: sphx-glr-script-out
+
+ Out:
+
+ .. code-block:: none
+
+    21:22:05 INFO    opendrift.models.basemodel:    calculating for origin_marker 0...
+    21:22:05 INFO    opendrift.models.basemodel:    calculating for origin_marker 1...
+    21:22:06 INFO    opendrift.models.basemodel:    calculating for origin_marker 0...
+    21:22:06 INFO    opendrift.models.basemodel:    calculating for origin_marker 1...
+    21:22:06 WARNING opendrift.models.basemodel: Plotting fast. This will make your plots less accurate.
+    21:22:06 DEBUG   opendrift_landmask_data.mask: memmapping mask..
+
+
+
+
 
 .. rst-class:: sphx-glr-timing
 
-   **Total running time of the script:** ( 1 minutes  49.082 seconds)
+   **Total running time of the script:** ( 1 minutes  45.029 seconds)
 
 
 .. _sphx_glr_download_gallery_example_river_runoff.py:

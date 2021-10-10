@@ -71,8 +71,8 @@
 <li class="toctree-l2"><a class="reference internal" href="example_static_2d_current.html">Static 2D current field</a></li>
 <li class="toctree-l2"><a class="reference internal" href="example_2d.html">2D simulation profile</a></li>
 <li class="toctree-l2"><a class="reference internal" href="example_windblow.html">Wind blow model</a></li>
-<li class="toctree-l2"><a class="reference internal" href="example_dominating.html">Show dominating source</a></li>
 <li class="toctree-l2"><a class="reference internal" href="example_grid.html">Grid</a></li>
+<li class="toctree-l2"><a class="reference internal" href="example_dominating.html">Show dominating source</a></li>
 <li class="toctree-l2"><a class="reference internal" href="example_advection_schemes_eddy.html">Advection schemes</a></li>
 <li class="toctree-l2"><a class="reference internal" href="example_long_vietnam.html">Vietnam</a></li>
 <li class="toctree-l2"><a class="reference internal" href="example_shyfem.html">SHYFEM: Using model input from unstructured grid</a></li>
@@ -104,6 +104,7 @@
 <li class="toctree-l2"><a class="reference internal" href="example_oil_verticalmixing.html">Oil vertical mixing</a></li>
 <li class="toctree-l2"><a class="reference internal" href="example_plast.html">Plastic</a></li>
 <li class="toctree-l2"><a class="reference internal" href="example_openoil.html">Openoil</a></li>
+<li class="toctree-l2"><a class="reference internal" href="example_huge_output.html">Analysing huge output files</a></li>
 <li class="toctree-l2"><a class="reference internal" href="example_sediments.html">Sediment drift from Glomma river outlet</a></li>
 <li class="toctree-l2"><a class="reference internal" href="example_backandforth.html">Back and forth</a></li>
 <li class="toctree-l2"><a class="reference internal" href="example_model_landmask.html">Model landmask</a></li>
@@ -113,7 +114,6 @@
 <li class="toctree-l2"><a class="reference internal" href="example_macondo.html">Macondo</a></li>
 <li class="toctree-l2"><a class="reference internal" href="example_vertical_mixing.html">Vertical mixing</a></li>
 <li class="toctree-l2"><a class="reference internal" href="example_oil_budget_noaa.html">Oil budget (NOAA)</a></li>
-<li class="toctree-l2"><a class="reference internal" href="example_huge_output.html">Analysing huge output files</a></li>
 <li class="toctree-l2"><a class="reference internal" href="example_sediments_resuspension.html">Sediment drift with resuspension</a></li>
 <li class="toctree-l2"><a class="reference internal" href="example_leeway.html">Leeway</a></li>
 <li class="toctree-l2"><a class="reference internal" href="example_long_cmems.html">CMEMS</a></li>
@@ -180,18 +180,14 @@ to download the full example code</p>
 <span class="kn">from</span> <span class="nn">datetime</span> <span class="kn">import</span> <span class="n">datetime</span><span class="p">,</span> <span class="n">timedelta</span>
 <span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
 <span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="k">as</span> <span class="nn">plt</span>
-<span class="kn">import</span> <span class="nn">matplotlib.dates</span> <span class="k">as</span> <span class="nn">mdates</span>
+<span class="kn">from</span> <span class="nn">matplotlib.dates</span> <span class="kn">import</span> <span class="n">DateFormatter</span>
 <span class="kn">import</span> <span class="nn">opendrift</span>
 <span class="kn">from</span> <span class="nn">opendrift.models.oceandrift</span> <span class="kn">import</span> <span class="n">OceanDrift</span>
 <span class="kn">from</span> <span class="nn">opendrift.readers</span> <span class="kn">import</span> <span class="n">reader_oscillating</span>
 
 
 <span class="n">outfile</span> <span class="o">=</span> <span class="s1">&#39;runoff.nc&#39;</span>  <span class="c1"># Raw simulation output</span>
-<span class="n">analysis_file</span> <span class="o">=</span> <span class="s1">&#39;runoff_density.nc&#39;</span>  <span class="c1"># Raw simulation output</span>
-<span class="k">try</span><span class="p">:</span>
-    <span class="n">os</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="n">analysis_file</span><span class="p">)</span>
-<span class="k">except</span> <span class="ne">OSError</span><span class="p">:</span>
-    <span class="k">pass</span>
+<span class="n">histogram_file</span> <span class="o">=</span> <span class="s1">&#39;runoff_histogram.nc&#39;</span>
 </pre></div>
 </div>
 <p>First make a simulation with two seedings, marked by <em>origin_marker</em></p>
@@ -217,141 +213,140 @@ to download the full example code</p>
 </pre></div>
 </div>
 <p class="sphx-glr-script-out">Out:</p>
-<div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>08:59:25 INFO    opendrift.models.basemodel: OpenDriftSimulation initialised (version 1.7.1 / v1.7.1-124-g9339ac5)
-08:59:26 INFO    opendrift.models.basemodel: Fallback values will be used for the following variables which have no readers:
-08:59:26 INFO    opendrift.models.basemodel:    x_wind: 0.000000
-08:59:26 INFO    opendrift.models.basemodel:    y_wind: 0.000000
-08:59:26 INFO    opendrift.models.basemodel:    upward_sea_water_velocity: 0.000000
-08:59:26 INFO    opendrift.models.basemodel:    ocean_vertical_diffusivity: 0.000000
-08:59:26 INFO    opendrift.models.basemodel:    sea_surface_wave_significant_height: 0.000000
-08:59:26 INFO    opendrift.models.basemodel:    sea_surface_wave_stokes_drift_x_velocity: 0.000000
-08:59:26 INFO    opendrift.models.basemodel:    sea_surface_wave_stokes_drift_y_velocity: 0.000000
-08:59:26 INFO    opendrift.models.basemodel:    sea_surface_wave_period_at_variance_spectral_density_maximum: 0.000000
-08:59:26 INFO    opendrift.models.basemodel:    sea_surface_wave_mean_period_from_variance_spectral_density_second_frequency_moment: 0.000000
-08:59:26 INFO    opendrift.models.basemodel:    surface_downward_x_stress: 0.000000
-08:59:26 INFO    opendrift.models.basemodel:    surface_downward_y_stress: 0.000000
-08:59:26 INFO    opendrift.models.basemodel:    turbulent_kinetic_energy: 0.000000
-08:59:26 INFO    opendrift.models.basemodel:    turbulent_generic_length_scale: 0.000000
-08:59:26 INFO    opendrift.models.basemodel:    ocean_mixed_layer_thickness: 50.000000
-08:59:26 INFO    opendrift.models.basemodel:    sea_floor_depth_below_sea_level: 10000.000000
-08:59:26 INFO    opendrift.models.basemodel: Adding a dynamical landmask with max. priority based on assumed maximum speed of 1 m/s. Adding a customised landmask may be faster...
-08:59:28 INFO    opendrift.models.basemodel: Using existing reader for land_binary_mask
-08:59:28 INFO    opendrift.models.basemodel: All points are in ocean
-08:59:30 INFO    opendrift.models.basemodel: 2021-10-08 08:59:25.689958 - step 1 of 96 - 522 active elements (0 deactivated)
-08:59:30 INFO    opendrift.models.basemodel: 2021-10-08 09:29:25.689958 - step 2 of 96 - 1042 active elements (0 deactivated)
-08:59:30 INFO    opendrift.models.basemodel: 2021-10-08 09:59:25.689958 - step 3 of 96 - 1564 active elements (0 deactivated)
-08:59:30 INFO    opendrift.models.basemodel: 2021-10-08 10:29:25.689958 - step 4 of 96 - 2084 active elements (0 deactivated)
-08:59:30 INFO    opendrift.models.basemodel: 2021-10-08 10:59:25.689958 - step 5 of 96 - 2606 active elements (0 deactivated)
-08:59:30 INFO    opendrift.models.basemodel: 2021-10-08 11:29:25.689958 - step 6 of 96 - 3126 active elements (0 deactivated)
-08:59:30 INFO    opendrift.models.basemodel: 2021-10-08 11:59:25.689958 - step 7 of 96 - 3646 active elements (0 deactivated)
-08:59:30 INFO    opendrift.models.basemodel: 2021-10-08 12:29:25.689958 - step 8 of 96 - 4168 active elements (0 deactivated)
-08:59:30 INFO    opendrift.models.basemodel: 2021-10-08 12:59:25.689958 - step 9 of 96 - 4688 active elements (0 deactivated)
-08:59:30 INFO    opendrift.models.basemodel: 2021-10-08 13:29:25.689958 - step 10 of 96 - 5210 active elements (0 deactivated)
-08:59:30 INFO    opendrift.models.basemodel: 2021-10-08 13:59:25.689958 - step 11 of 96 - 5730 active elements (0 deactivated)
-08:59:31 INFO    opendrift.models.basemodel: 2021-10-08 14:29:25.689958 - step 12 of 96 - 6250 active elements (0 deactivated)
-08:59:31 INFO    opendrift.models.basemodel: 2021-10-08 14:59:25.689958 - step 13 of 96 - 6772 active elements (0 deactivated)
-08:59:31 INFO    opendrift.models.basemodel: 2021-10-08 15:29:25.689958 - step 14 of 96 - 7292 active elements (0 deactivated)
-08:59:31 INFO    opendrift.models.basemodel: 2021-10-08 15:59:25.689958 - step 15 of 96 - 7814 active elements (0 deactivated)
-08:59:31 INFO    opendrift.models.basemodel: 2021-10-08 16:29:25.689958 - step 16 of 96 - 8334 active elements (0 deactivated)
-08:59:31 INFO    opendrift.models.basemodel: 2021-10-08 16:59:25.689958 - step 17 of 96 - 8854 active elements (0 deactivated)
-08:59:31 INFO    opendrift.models.basemodel: 2021-10-08 17:29:25.689958 - step 18 of 96 - 9376 active elements (0 deactivated)
-08:59:31 INFO    opendrift.models.basemodel: 2021-10-08 17:59:25.689958 - step 19 of 96 - 9896 active elements (0 deactivated)
-08:59:31 INFO    opendrift.models.basemodel: 2021-10-08 18:29:25.689958 - step 20 of 96 - 10418 active elements (0 deactivated)
-08:59:31 INFO    opendrift.models.basemodel: 2021-10-08 18:59:25.689958 - step 21 of 96 - 10938 active elements (0 deactivated)
-08:59:31 INFO    opendrift.models.basemodel: 2021-10-08 19:29:25.689958 - step 22 of 96 - 11458 active elements (0 deactivated)
-08:59:31 INFO    opendrift.models.basemodel: 2021-10-08 19:59:25.689958 - step 23 of 96 - 11980 active elements (0 deactivated)
-08:59:31 INFO    opendrift.models.basemodel: 2021-10-08 20:29:25.689958 - step 24 of 96 - 12500 active elements (0 deactivated)
-08:59:31 INFO    opendrift.models.basemodel: 2021-10-08 20:59:25.689958 - step 25 of 96 - 13022 active elements (0 deactivated)
-08:59:31 INFO    opendrift.models.basemodel: 2021-10-08 21:29:25.689958 - step 26 of 96 - 13542 active elements (0 deactivated)
-08:59:31 INFO    opendrift.models.basemodel: 2021-10-08 21:59:25.689958 - step 27 of 96 - 14062 active elements (0 deactivated)
-08:59:31 INFO    opendrift.models.basemodel: 2021-10-08 22:29:25.689958 - step 28 of 96 - 14584 active elements (0 deactivated)
-08:59:31 INFO    opendrift.models.basemodel: 2021-10-08 22:59:25.689958 - step 29 of 96 - 15104 active elements (0 deactivated)
-08:59:32 INFO    opendrift.models.basemodel: 2021-10-08 23:29:25.689958 - step 30 of 96 - 15626 active elements (0 deactivated)
-08:59:32 INFO    opendrift.models.basemodel: 2021-10-08 23:59:25.689958 - step 31 of 96 - 16146 active elements (0 deactivated)
-08:59:32 INFO    opendrift.models.basemodel: 2021-10-09 00:29:25.689958 - step 32 of 96 - 16668 active elements (0 deactivated)
-08:59:32 INFO    opendrift.models.basemodel: 2021-10-09 00:59:25.689958 - step 33 of 96 - 17188 active elements (0 deactivated)
-08:59:32 INFO    opendrift.models.basemodel: 2021-10-09 01:29:25.689958 - step 34 of 96 - 17708 active elements (0 deactivated)
-08:59:32 INFO    opendrift.models.basemodel: 2021-10-09 01:59:25.689958 - step 35 of 96 - 18230 active elements (0 deactivated)
-08:59:32 INFO    opendrift.models.basemodel: 2021-10-09 02:29:25.689958 - step 36 of 96 - 18750 active elements (0 deactivated)
-08:59:32 INFO    opendrift.models.basemodel: 2021-10-09 02:59:25.689958 - step 37 of 96 - 19272 active elements (0 deactivated)
-08:59:32 INFO    opendrift.models.basemodel: 2021-10-09 03:29:25.689958 - step 38 of 96 - 19792 active elements (0 deactivated)
-08:59:32 INFO    opendrift.models.basemodel: 2021-10-09 03:59:25.689958 - step 39 of 96 - 20312 active elements (0 deactivated)
-08:59:32 INFO    opendrift.models.basemodel: 2021-10-09 04:29:25.689958 - step 40 of 96 - 20834 active elements (0 deactivated)
-08:59:33 INFO    opendrift.models.basemodel: 2021-10-09 04:59:25.689958 - step 41 of 96 - 21354 active elements (0 deactivated)
-08:59:33 INFO    opendrift.models.basemodel: 2021-10-09 05:29:25.689958 - step 42 of 96 - 21876 active elements (0 deactivated)
-08:59:33 INFO    opendrift.models.basemodel: 2021-10-09 05:59:25.689958 - step 43 of 96 - 22396 active elements (0 deactivated)
-08:59:33 INFO    opendrift.models.basemodel: 2021-10-09 06:29:25.689958 - step 44 of 96 - 22916 active elements (0 deactivated)
-08:59:33 INFO    opendrift.models.basemodel: 2021-10-09 06:59:25.689958 - step 45 of 96 - 23438 active elements (0 deactivated)
-08:59:33 INFO    opendrift.models.basemodel: 2021-10-09 07:29:25.689958 - step 46 of 96 - 23958 active elements (0 deactivated)
-08:59:33 INFO    opendrift.models.basemodel: 2021-10-09 07:59:25.689958 - step 47 of 96 - 24480 active elements (0 deactivated)
-08:59:33 INFO    opendrift.models.basemodel: 2021-10-09 08:29:25.689958 - step 48 of 96 - 25000 active elements (0 deactivated)
-08:59:33 INFO    opendrift.models.basemodel: 2021-10-09 08:59:25.689958 - step 49 of 96 - 25520 active elements (0 deactivated)
-08:59:34 INFO    opendrift.models.basemodel: 2021-10-09 09:29:25.689958 - step 50 of 96 - 26042 active elements (0 deactivated)
-08:59:34 INFO    opendrift.models.basemodel: 2021-10-09 09:59:25.689958 - step 51 of 96 - 26562 active elements (0 deactivated)
-08:59:34 INFO    opendrift.models.basemodel: 2021-10-09 10:29:25.689958 - step 52 of 96 - 27084 active elements (0 deactivated)
-08:59:34 INFO    opendrift.models.basemodel: 2021-10-09 10:59:25.689958 - step 53 of 96 - 27604 active elements (0 deactivated)
-08:59:34 INFO    opendrift.models.basemodel: 2021-10-09 11:29:25.689958 - step 54 of 96 - 28124 active elements (0 deactivated)
-08:59:34 INFO    opendrift.models.basemodel: 2021-10-09 11:59:25.689958 - step 55 of 96 - 28646 active elements (0 deactivated)
-08:59:34 INFO    opendrift.models.basemodel: 2021-10-09 12:29:25.689958 - step 56 of 96 - 29166 active elements (0 deactivated)
-08:59:34 INFO    opendrift.models.basemodel: 2021-10-09 12:59:25.689958 - step 57 of 96 - 29688 active elements (0 deactivated)
-08:59:35 INFO    opendrift.models.basemodel: 2021-10-09 13:29:25.689958 - step 58 of 96 - 30208 active elements (0 deactivated)
-08:59:35 INFO    opendrift.models.basemodel: 2021-10-09 13:59:25.689958 - step 59 of 96 - 30728 active elements (0 deactivated)
-08:59:35 INFO    opendrift.models.basemodel: 2021-10-09 14:29:25.689958 - step 60 of 96 - 31250 active elements (0 deactivated)
-08:59:35 INFO    opendrift.models.basemodel: 2021-10-09 14:59:25.689958 - step 61 of 96 - 31770 active elements (0 deactivated)
-08:59:35 INFO    opendrift.models.basemodel: 2021-10-09 15:29:25.689958 - step 62 of 96 - 32292 active elements (0 deactivated)
-08:59:35 INFO    opendrift.models.basemodel: 2021-10-09 15:59:25.689958 - step 63 of 96 - 32812 active elements (0 deactivated)
-08:59:36 INFO    opendrift.models.basemodel: 2021-10-09 16:29:25.689958 - step 64 of 96 - 33334 active elements (0 deactivated)
-08:59:36 INFO    opendrift.models.basemodel: 2021-10-09 16:59:25.689958 - step 65 of 96 - 33854 active elements (0 deactivated)
-08:59:36 INFO    opendrift.models.basemodel: 2021-10-09 17:29:25.689958 - step 66 of 96 - 34374 active elements (0 deactivated)
-08:59:36 INFO    opendrift.models.basemodel: 2021-10-09 17:59:25.689958 - step 67 of 96 - 34896 active elements (0 deactivated)
-08:59:36 INFO    opendrift.models.basemodel: 2021-10-09 18:29:25.689958 - step 68 of 96 - 35416 active elements (0 deactivated)
-08:59:36 INFO    opendrift.models.basemodel: 2021-10-09 18:59:25.689958 - step 69 of 96 - 35938 active elements (0 deactivated)
-08:59:37 INFO    opendrift.models.basemodel: 2021-10-09 19:29:25.689958 - step 70 of 96 - 36458 active elements (0 deactivated)
-08:59:37 INFO    opendrift.models.basemodel: 2021-10-09 19:59:25.689958 - step 71 of 96 - 36978 active elements (0 deactivated)
-08:59:37 INFO    opendrift.models.basemodel: 2021-10-09 20:29:25.689958 - step 72 of 96 - 37500 active elements (0 deactivated)
-08:59:37 INFO    opendrift.models.basemodel: 2021-10-09 20:59:25.689958 - step 73 of 96 - 38020 active elements (0 deactivated)
-08:59:38 INFO    opendrift.models.basemodel: 2021-10-09 21:29:25.689958 - step 74 of 96 - 38542 active elements (0 deactivated)
-08:59:38 INFO    opendrift.models.basemodel: 2021-10-09 21:59:25.689958 - step 75 of 96 - 39062 active elements (0 deactivated)
-08:59:38 INFO    opendrift.models.basemodel: 2021-10-09 22:29:25.689958 - step 76 of 96 - 39582 active elements (0 deactivated)
-08:59:38 INFO    opendrift.models.basemodel: 2021-10-09 22:59:25.689958 - step 77 of 96 - 40104 active elements (0 deactivated)
-08:59:39 INFO    opendrift.models.basemodel: 2021-10-09 23:29:25.689958 - step 78 of 96 - 40624 active elements (0 deactivated)
-08:59:39 INFO    opendrift.models.basemodel: 2021-10-09 23:59:25.689958 - step 79 of 96 - 41146 active elements (0 deactivated)
-08:59:40 INFO    opendrift.models.basemodel: 2021-10-10 00:29:25.689958 - step 80 of 96 - 41666 active elements (0 deactivated)
-08:59:40 INFO    opendrift.models.basemodel: 2021-10-10 00:59:25.689958 - step 81 of 96 - 42186 active elements (0 deactivated)
-08:59:40 INFO    opendrift.models.basemodel: 2021-10-10 01:29:25.689958 - step 82 of 96 - 42708 active elements (0 deactivated)
-08:59:40 INFO    opendrift.models.basemodel: 2021-10-10 01:59:25.689958 - step 83 of 96 - 43228 active elements (0 deactivated)
-08:59:41 INFO    opendrift.models.basemodel: 2021-10-10 02:29:25.689958 - step 84 of 96 - 43750 active elements (0 deactivated)
-08:59:41 INFO    opendrift.models.basemodel: 2021-10-10 02:59:25.689958 - step 85 of 96 - 44270 active elements (0 deactivated)
-08:59:41 INFO    opendrift.models.basemodel: 2021-10-10 03:29:25.689958 - step 86 of 96 - 44790 active elements (0 deactivated)
-08:59:42 INFO    opendrift.models.basemodel: 2021-10-10 03:59:25.689958 - step 87 of 96 - 45312 active elements (0 deactivated)
-08:59:42 INFO    opendrift.models.basemodel: 2021-10-10 04:29:25.689958 - step 88 of 96 - 45832 active elements (0 deactivated)
-08:59:42 INFO    opendrift.models.basemodel: 2021-10-10 04:59:25.689958 - step 89 of 96 - 46354 active elements (0 deactivated)
-08:59:42 INFO    opendrift.models.basemodel: 2021-10-10 05:29:25.689958 - step 90 of 96 - 46874 active elements (0 deactivated)
-08:59:43 INFO    opendrift.models.basemodel: 2021-10-10 05:59:25.689958 - step 91 of 96 - 47394 active elements (0 deactivated)
-08:59:43 INFO    opendrift.models.basemodel: 2021-10-10 06:29:25.689958 - step 92 of 96 - 47916 active elements (0 deactivated)
-08:59:43 INFO    opendrift.models.basemodel: 2021-10-10 06:59:25.689958 - step 93 of 96 - 48436 active elements (0 deactivated)
-08:59:44 INFO    opendrift.models.basemodel: 2021-10-10 07:29:25.689958 - step 94 of 96 - 48958 active elements (0 deactivated)
-08:59:44 INFO    opendrift.models.basemodel: 2021-10-10 07:59:25.689958 - step 95 of 96 - 49478 active elements (0 deactivated)
-08:59:44 INFO    opendrift.models.basemodel: 2021-10-10 08:29:25.689958 - step 96 of 96 - 50000 active elements (0 deactivated)
-08:59:47 INFO    opendrift.export.io_netcdf: Wrote 49 steps to file runoff.nc
+<div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>21:20:23 INFO    opendrift.models.basemodel: OpenDriftSimulation initialised (version 1.7.1 / v1.7.1-127-gedba443)
+21:20:23 INFO    opendrift.models.basemodel: Fallback values will be used for the following variables which have no readers:
+21:20:23 INFO    opendrift.models.basemodel:    x_wind: 0.000000
+21:20:23 INFO    opendrift.models.basemodel:    y_wind: 0.000000
+21:20:23 INFO    opendrift.models.basemodel:    upward_sea_water_velocity: 0.000000
+21:20:23 INFO    opendrift.models.basemodel:    ocean_vertical_diffusivity: 0.000000
+21:20:23 INFO    opendrift.models.basemodel:    sea_surface_wave_significant_height: 0.000000
+21:20:23 INFO    opendrift.models.basemodel:    sea_surface_wave_stokes_drift_x_velocity: 0.000000
+21:20:23 INFO    opendrift.models.basemodel:    sea_surface_wave_stokes_drift_y_velocity: 0.000000
+21:20:23 INFO    opendrift.models.basemodel:    sea_surface_wave_period_at_variance_spectral_density_maximum: 0.000000
+21:20:23 INFO    opendrift.models.basemodel:    sea_surface_wave_mean_period_from_variance_spectral_density_second_frequency_moment: 0.000000
+21:20:23 INFO    opendrift.models.basemodel:    surface_downward_x_stress: 0.000000
+21:20:23 INFO    opendrift.models.basemodel:    surface_downward_y_stress: 0.000000
+21:20:23 INFO    opendrift.models.basemodel:    turbulent_kinetic_energy: 0.000000
+21:20:23 INFO    opendrift.models.basemodel:    turbulent_generic_length_scale: 0.000000
+21:20:23 INFO    opendrift.models.basemodel:    ocean_mixed_layer_thickness: 50.000000
+21:20:23 INFO    opendrift.models.basemodel:    sea_floor_depth_below_sea_level: 10000.000000
+21:20:23 INFO    opendrift.models.basemodel: Adding a dynamical landmask with max. priority based on assumed maximum speed of 1 m/s. Adding a customised landmask may be faster...
+21:20:26 INFO    opendrift.models.basemodel: Using existing reader for land_binary_mask
+21:20:26 INFO    opendrift.models.basemodel: All points are in ocean
+21:20:28 INFO    opendrift.models.basemodel: 2021-10-10 21:20:23.350499 - step 1 of 96 - 522 active elements (0 deactivated)
+21:20:28 INFO    opendrift.models.basemodel: 2021-10-10 21:50:23.350499 - step 2 of 96 - 1042 active elements (0 deactivated)
+21:20:28 INFO    opendrift.models.basemodel: 2021-10-10 22:20:23.350499 - step 3 of 96 - 1564 active elements (0 deactivated)
+21:20:28 INFO    opendrift.models.basemodel: 2021-10-10 22:50:23.350499 - step 4 of 96 - 2084 active elements (0 deactivated)
+21:20:28 INFO    opendrift.models.basemodel: 2021-10-10 23:20:23.350499 - step 5 of 96 - 2606 active elements (0 deactivated)
+21:20:28 INFO    opendrift.models.basemodel: 2021-10-10 23:50:23.350499 - step 6 of 96 - 3126 active elements (0 deactivated)
+21:20:28 INFO    opendrift.models.basemodel: 2021-10-11 00:20:23.350499 - step 7 of 96 - 3646 active elements (0 deactivated)
+21:20:28 INFO    opendrift.models.basemodel: 2021-10-11 00:50:23.350499 - step 8 of 96 - 4168 active elements (0 deactivated)
+21:20:28 INFO    opendrift.models.basemodel: 2021-10-11 01:20:23.350499 - step 9 of 96 - 4688 active elements (0 deactivated)
+21:20:28 INFO    opendrift.models.basemodel: 2021-10-11 01:50:23.350499 - step 10 of 96 - 5210 active elements (0 deactivated)
+21:20:28 INFO    opendrift.models.basemodel: 2021-10-11 02:20:23.350499 - step 11 of 96 - 5730 active elements (0 deactivated)
+21:20:28 INFO    opendrift.models.basemodel: 2021-10-11 02:50:23.350499 - step 12 of 96 - 6250 active elements (0 deactivated)
+21:20:28 INFO    opendrift.models.basemodel: 2021-10-11 03:20:23.350499 - step 13 of 96 - 6772 active elements (0 deactivated)
+21:20:28 INFO    opendrift.models.basemodel: 2021-10-11 03:50:23.350499 - step 14 of 96 - 7292 active elements (0 deactivated)
+21:20:28 INFO    opendrift.models.basemodel: 2021-10-11 04:20:23.350499 - step 15 of 96 - 7814 active elements (0 deactivated)
+21:20:28 INFO    opendrift.models.basemodel: 2021-10-11 04:50:23.350499 - step 16 of 96 - 8334 active elements (0 deactivated)
+21:20:28 INFO    opendrift.models.basemodel: 2021-10-11 05:20:23.350499 - step 17 of 96 - 8854 active elements (0 deactivated)
+21:20:28 INFO    opendrift.models.basemodel: 2021-10-11 05:50:23.350499 - step 18 of 96 - 9376 active elements (0 deactivated)
+21:20:28 INFO    opendrift.models.basemodel: 2021-10-11 06:20:23.350499 - step 19 of 96 - 9896 active elements (0 deactivated)
+21:20:28 INFO    opendrift.models.basemodel: 2021-10-11 06:50:23.350499 - step 20 of 96 - 10418 active elements (0 deactivated)
+21:20:28 INFO    opendrift.models.basemodel: 2021-10-11 07:20:23.350499 - step 21 of 96 - 10938 active elements (0 deactivated)
+21:20:28 INFO    opendrift.models.basemodel: 2021-10-11 07:50:23.350499 - step 22 of 96 - 11458 active elements (0 deactivated)
+21:20:28 INFO    opendrift.models.basemodel: 2021-10-11 08:20:23.350499 - step 23 of 96 - 11980 active elements (0 deactivated)
+21:20:29 INFO    opendrift.models.basemodel: 2021-10-11 08:50:23.350499 - step 24 of 96 - 12500 active elements (0 deactivated)
+21:20:29 INFO    opendrift.models.basemodel: 2021-10-11 09:20:23.350499 - step 25 of 96 - 13022 active elements (0 deactivated)
+21:20:29 INFO    opendrift.models.basemodel: 2021-10-11 09:50:23.350499 - step 26 of 96 - 13542 active elements (0 deactivated)
+21:20:29 INFO    opendrift.models.basemodel: 2021-10-11 10:20:23.350499 - step 27 of 96 - 14062 active elements (0 deactivated)
+21:20:29 INFO    opendrift.models.basemodel: 2021-10-11 10:50:23.350499 - step 28 of 96 - 14584 active elements (0 deactivated)
+21:20:29 INFO    opendrift.models.basemodel: 2021-10-11 11:20:23.350499 - step 29 of 96 - 15104 active elements (0 deactivated)
+21:20:29 INFO    opendrift.models.basemodel: 2021-10-11 11:50:23.350499 - step 30 of 96 - 15626 active elements (0 deactivated)
+21:20:29 INFO    opendrift.models.basemodel: 2021-10-11 12:20:23.350499 - step 31 of 96 - 16146 active elements (0 deactivated)
+21:20:29 INFO    opendrift.models.basemodel: 2021-10-11 12:50:23.350499 - step 32 of 96 - 16668 active elements (0 deactivated)
+21:20:29 INFO    opendrift.models.basemodel: 2021-10-11 13:20:23.350499 - step 33 of 96 - 17188 active elements (0 deactivated)
+21:20:29 INFO    opendrift.models.basemodel: 2021-10-11 13:50:23.350499 - step 34 of 96 - 17708 active elements (0 deactivated)
+21:20:29 INFO    opendrift.models.basemodel: 2021-10-11 14:20:23.350499 - step 35 of 96 - 18230 active elements (0 deactivated)
+21:20:29 INFO    opendrift.models.basemodel: 2021-10-11 14:50:23.350499 - step 36 of 96 - 18750 active elements (0 deactivated)
+21:20:30 INFO    opendrift.models.basemodel: 2021-10-11 15:20:23.350499 - step 37 of 96 - 19272 active elements (0 deactivated)
+21:20:30 INFO    opendrift.models.basemodel: 2021-10-11 15:50:23.350499 - step 38 of 96 - 19792 active elements (0 deactivated)
+21:20:30 INFO    opendrift.models.basemodel: 2021-10-11 16:20:23.350499 - step 39 of 96 - 20312 active elements (0 deactivated)
+21:20:30 INFO    opendrift.models.basemodel: 2021-10-11 16:50:23.350499 - step 40 of 96 - 20834 active elements (0 deactivated)
+21:20:30 INFO    opendrift.models.basemodel: 2021-10-11 17:20:23.350499 - step 41 of 96 - 21354 active elements (0 deactivated)
+21:20:30 INFO    opendrift.models.basemodel: 2021-10-11 17:50:23.350499 - step 42 of 96 - 21876 active elements (0 deactivated)
+21:20:30 INFO    opendrift.models.basemodel: 2021-10-11 18:20:23.350499 - step 43 of 96 - 22396 active elements (0 deactivated)
+21:20:30 INFO    opendrift.models.basemodel: 2021-10-11 18:50:23.350499 - step 44 of 96 - 22916 active elements (0 deactivated)
+21:20:30 INFO    opendrift.models.basemodel: 2021-10-11 19:20:23.350499 - step 45 of 96 - 23438 active elements (0 deactivated)
+21:20:30 INFO    opendrift.models.basemodel: 2021-10-11 19:50:23.350499 - step 46 of 96 - 23958 active elements (0 deactivated)
+21:20:31 INFO    opendrift.models.basemodel: 2021-10-11 20:20:23.350499 - step 47 of 96 - 24480 active elements (0 deactivated)
+21:20:31 INFO    opendrift.models.basemodel: 2021-10-11 20:50:23.350499 - step 48 of 96 - 25000 active elements (0 deactivated)
+21:20:31 INFO    opendrift.models.basemodel: 2021-10-11 21:20:23.350499 - step 49 of 96 - 25520 active elements (0 deactivated)
+21:20:31 INFO    opendrift.models.basemodel: 2021-10-11 21:50:23.350499 - step 50 of 96 - 26042 active elements (0 deactivated)
+21:20:31 INFO    opendrift.models.basemodel: 2021-10-11 22:20:23.350499 - step 51 of 96 - 26562 active elements (0 deactivated)
+21:20:31 INFO    opendrift.models.basemodel: 2021-10-11 22:50:23.350499 - step 52 of 96 - 27084 active elements (0 deactivated)
+21:20:31 INFO    opendrift.models.basemodel: 2021-10-11 23:20:23.350499 - step 53 of 96 - 27604 active elements (0 deactivated)
+21:20:31 INFO    opendrift.models.basemodel: 2021-10-11 23:50:23.350499 - step 54 of 96 - 28124 active elements (0 deactivated)
+21:20:32 INFO    opendrift.models.basemodel: 2021-10-12 00:20:23.350499 - step 55 of 96 - 28646 active elements (0 deactivated)
+21:20:32 INFO    opendrift.models.basemodel: 2021-10-12 00:50:23.350499 - step 56 of 96 - 29166 active elements (0 deactivated)
+21:20:32 INFO    opendrift.models.basemodel: 2021-10-12 01:20:23.350499 - step 57 of 96 - 29688 active elements (0 deactivated)
+21:20:32 INFO    opendrift.models.basemodel: 2021-10-12 01:50:23.350499 - step 58 of 96 - 30208 active elements (0 deactivated)
+21:20:32 INFO    opendrift.models.basemodel: 2021-10-12 02:20:23.350499 - step 59 of 96 - 30728 active elements (0 deactivated)
+21:20:32 INFO    opendrift.models.basemodel: 2021-10-12 02:50:23.350499 - step 60 of 96 - 31250 active elements (0 deactivated)
+21:20:32 INFO    opendrift.models.basemodel: 2021-10-12 03:20:23.350499 - step 61 of 96 - 31770 active elements (0 deactivated)
+21:20:33 INFO    opendrift.models.basemodel: 2021-10-12 03:50:23.350499 - step 62 of 96 - 32292 active elements (0 deactivated)
+21:20:33 INFO    opendrift.models.basemodel: 2021-10-12 04:20:23.350499 - step 63 of 96 - 32812 active elements (0 deactivated)
+21:20:33 INFO    opendrift.models.basemodel: 2021-10-12 04:50:23.350499 - step 64 of 96 - 33334 active elements (0 deactivated)
+21:20:33 INFO    opendrift.models.basemodel: 2021-10-12 05:20:23.350499 - step 65 of 96 - 33854 active elements (0 deactivated)
+21:20:33 INFO    opendrift.models.basemodel: 2021-10-12 05:50:23.350499 - step 66 of 96 - 34374 active elements (0 deactivated)
+21:20:33 INFO    opendrift.models.basemodel: 2021-10-12 06:20:23.350499 - step 67 of 96 - 34896 active elements (0 deactivated)
+21:20:34 INFO    opendrift.models.basemodel: 2021-10-12 06:50:23.350499 - step 68 of 96 - 35416 active elements (0 deactivated)
+21:20:34 INFO    opendrift.models.basemodel: 2021-10-12 07:20:23.350499 - step 69 of 96 - 35938 active elements (0 deactivated)
+21:20:34 INFO    opendrift.models.basemodel: 2021-10-12 07:50:23.350499 - step 70 of 96 - 36458 active elements (0 deactivated)
+21:20:34 INFO    opendrift.models.basemodel: 2021-10-12 08:20:23.350499 - step 71 of 96 - 36978 active elements (0 deactivated)
+21:20:34 INFO    opendrift.models.basemodel: 2021-10-12 08:50:23.350499 - step 72 of 96 - 37500 active elements (0 deactivated)
+21:20:35 INFO    opendrift.models.basemodel: 2021-10-12 09:20:23.350499 - step 73 of 96 - 38020 active elements (0 deactivated)
+21:20:35 INFO    opendrift.models.basemodel: 2021-10-12 09:50:23.350499 - step 74 of 96 - 38542 active elements (0 deactivated)
+21:20:35 INFO    opendrift.models.basemodel: 2021-10-12 10:20:23.350499 - step 75 of 96 - 39062 active elements (0 deactivated)
+21:20:35 INFO    opendrift.models.basemodel: 2021-10-12 10:50:23.350499 - step 76 of 96 - 39582 active elements (0 deactivated)
+21:20:35 INFO    opendrift.models.basemodel: 2021-10-12 11:20:23.350499 - step 77 of 96 - 40104 active elements (0 deactivated)
+21:20:36 INFO    opendrift.models.basemodel: 2021-10-12 11:50:23.350499 - step 78 of 96 - 40624 active elements (0 deactivated)
+21:20:36 INFO    opendrift.models.basemodel: 2021-10-12 12:20:23.350499 - step 79 of 96 - 41146 active elements (0 deactivated)
+21:20:36 INFO    opendrift.models.basemodel: 2021-10-12 12:50:23.350499 - step 80 of 96 - 41666 active elements (0 deactivated)
+21:20:36 INFO    opendrift.models.basemodel: 2021-10-12 13:20:23.350499 - step 81 of 96 - 42186 active elements (0 deactivated)
+21:20:37 INFO    opendrift.models.basemodel: 2021-10-12 13:50:23.350499 - step 82 of 96 - 42708 active elements (0 deactivated)
+21:20:37 INFO    opendrift.models.basemodel: 2021-10-12 14:20:23.350499 - step 83 of 96 - 43228 active elements (0 deactivated)
+21:20:37 INFO    opendrift.models.basemodel: 2021-10-12 14:50:23.350499 - step 84 of 96 - 43750 active elements (0 deactivated)
+21:20:37 INFO    opendrift.models.basemodel: 2021-10-12 15:20:23.350499 - step 85 of 96 - 44270 active elements (0 deactivated)
+21:20:38 INFO    opendrift.models.basemodel: 2021-10-12 15:50:23.350499 - step 86 of 96 - 44790 active elements (0 deactivated)
+21:20:38 INFO    opendrift.models.basemodel: 2021-10-12 16:20:23.350499 - step 87 of 96 - 45312 active elements (0 deactivated)
+21:20:38 INFO    opendrift.models.basemodel: 2021-10-12 16:50:23.350499 - step 88 of 96 - 45832 active elements (0 deactivated)
+21:20:38 INFO    opendrift.models.basemodel: 2021-10-12 17:20:23.350499 - step 89 of 96 - 46354 active elements (0 deactivated)
+21:20:39 INFO    opendrift.models.basemodel: 2021-10-12 17:50:23.350499 - step 90 of 96 - 46874 active elements (0 deactivated)
+21:20:39 INFO    opendrift.models.basemodel: 2021-10-12 18:20:23.350499 - step 91 of 96 - 47394 active elements (0 deactivated)
+21:20:39 INFO    opendrift.models.basemodel: 2021-10-12 18:50:23.350499 - step 92 of 96 - 47916 active elements (0 deactivated)
+21:20:39 INFO    opendrift.models.basemodel: 2021-10-12 19:20:23.350499 - step 93 of 96 - 48436 active elements (0 deactivated)
+21:20:40 INFO    opendrift.models.basemodel: 2021-10-12 19:50:23.350499 - step 94 of 96 - 48958 active elements (0 deactivated)
+21:20:40 INFO    opendrift.models.basemodel: 2021-10-12 20:20:23.350499 - step 95 of 96 - 49478 active elements (0 deactivated)
+21:20:40 INFO    opendrift.models.basemodel: 2021-10-12 20:50:23.350499 - step 96 of 96 - 50000 active elements (0 deactivated)
+21:20:43 INFO    opendrift.export.io_netcdf: Wrote 49 steps to file runoff.nc
 </pre></div>
 </div>
 <p>Opening the output file lazily with Xarray.
 This will work even if the file is too large to fit in memory, as it
-will read and process data chuck-by-chunk directly from file using Dask.
-Note that the analysis file will be re-used if existing. Thus this file should be deleted after making any changes to the simulation above.</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">o</span> <span class="o">=</span> <span class="n">opendrift</span><span class="o">.</span><span class="n">open_xarray</span><span class="p">(</span><span class="n">outfile</span><span class="p">,</span> <span class="n">analysis_file</span><span class="o">=</span><span class="n">analysis_file</span><span class="p">)</span>
+will read and process data chuck-by-chunk directly from file using Dask.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">o</span> <span class="o">=</span> <span class="n">opendrift</span><span class="o">.</span><span class="n">open_xarray</span><span class="p">(</span><span class="n">outfile</span><span class="p">)</span>
 </pre></div>
 </div>
 <p class="sphx-glr-script-out">Out:</p>
-<div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>09:00:10 DEBUG   opendrift.models.basemodel: Adding 17 config items from basemodel
-09:00:10 DEBUG   opendrift.models.basemodel: Adding 4 config items from basemodel
-09:00:10 DEBUG   opendrift.models.basemodel: Adding 36 config items from basemodel
-09:00:10 INFO    opendrift.models.basemodel: OpenDriftSimulation initialised (version 1.7.1 / v1.7.1-124-g9339ac5)
-09:00:10 DEBUG   opendrift.models.basemodel: Adding 14 config items from oceandrift
-09:00:10 DEBUG   opendrift.models.basemodel:   Overwriting config item seed:z
-09:00:10 DEBUG   opendrift.export.io_netcdf: Importing with Xarray from runoff.nc
-09:00:11 INFO    opendrift: Returning &lt;class &#39;opendrift.models.oceandrift.OceanDrift&#39;&gt; object
+<div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>21:21:07 DEBUG   opendrift.models.basemodel: Adding 17 config items from basemodel
+21:21:07 DEBUG   opendrift.models.basemodel: Adding 4 config items from basemodel
+21:21:07 DEBUG   opendrift.models.basemodel: Adding 36 config items from basemodel
+21:21:07 INFO    opendrift.models.basemodel: OpenDriftSimulation initialised (version 1.7.1 / v1.7.1-127-gedba443)
+21:21:07 DEBUG   opendrift.models.basemodel: Adding 14 config items from oceandrift
+21:21:07 DEBUG   opendrift.models.basemodel:   Overwriting config item seed:z
+21:21:07 DEBUG   opendrift.export.io_netcdf: Importing with Xarray from runoff.nc
+21:21:07 INFO    opendrift: Returning &lt;class &#39;opendrift.models.oceandrift.OceanDrift&#39;&gt; object
 </pre></div>
 </div>
 <p>We want to extract timeseries of river water at the coordinates of a hypothetical measuring station
@@ -379,8 +374,11 @@ to datasets opened lazily with open_xarray</p>
 </pre></div>
 </div>
 <p>Calculate density with given pixel size, weighted by runoff amount per element</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">o</span><span class="o">.</span><span class="n">get_density_xarray</span><span class="p">(</span><span class="n">pixelsize_m</span><span class="o">=</span><span class="mi">1500</span><span class="p">,</span> <span class="n">weights</span><span class="o">=</span><span class="n">runoff</span><span class="p">)</span>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">river_water</span> <span class="o">=</span> <span class="n">o</span><span class="o">.</span><span class="n">get_histogram</span><span class="p">(</span><span class="n">pixelsize_m</span><span class="o">=</span><span class="mi">1500</span><span class="p">,</span> <span class="n">weights</span><span class="o">=</span><span class="n">runoff</span><span class="p">,</span> <span class="n">density</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
 
+<span class="n">rw</span> <span class="o">=</span> <span class="n">river_water</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">dim</span><span class="o">=</span><span class="s1">&#39;origin_marker&#39;</span><span class="p">)</span>  <span class="c1"># For both rivers</span>
+<span class="c1">#rw = river_water.isel(origin_marker=1)    # For one of the rivers</span>
+<span class="n">river_water</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="s1">&#39;River water [m3/cell]&#39;</span>
 
 <span class="n">text</span> <span class="o">=</span> <span class="p">[{</span><span class="s1">&#39;s&#39;</span><span class="p">:</span> <span class="n">o</span><span class="o">.</span><span class="n">origin_marker</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="s1">&#39;x&#39;</span><span class="p">:</span> <span class="mf">8.55</span><span class="p">,</span> <span class="s1">&#39;y&#39;</span><span class="p">:</span> <span class="mf">58.56</span><span class="p">,</span> <span class="s1">&#39;fontsize&#39;</span><span class="p">:</span> <span class="mi">20</span><span class="p">,</span> <span class="s1">&#39;color&#39;</span><span class="p">:</span> <span class="s1">&#39;g&#39;</span><span class="p">,</span>
          <span class="s1">&#39;backgroundcolor&#39;</span><span class="p">:</span> <span class="s1">&#39;white&#39;</span><span class="p">,</span> <span class="s1">&#39;bbox&#39;</span><span class="p">:</span> <span class="nb">dict</span><span class="p">(</span><span class="n">facecolor</span><span class="o">=</span><span class="s1">&#39;white&#39;</span><span class="p">,</span> <span class="n">alpha</span><span class="o">=</span><span class="mf">0.8</span><span class="p">),</span> <span class="s1">&#39;zorder&#39;</span><span class="p">:</span> <span class="mi">1000</span><span class="p">},</span>
@@ -391,21 +389,19 @@ to datasets opened lazily with open_xarray</p>
 <span class="n">box</span> <span class="o">=</span> <span class="p">[{</span><span class="s1">&#39;lon&#39;</span><span class="p">:</span> <span class="n">box1_lon</span><span class="p">,</span> <span class="s1">&#39;lat&#39;</span><span class="p">:</span> <span class="n">box1_lat</span><span class="p">,</span> <span class="s1">&#39;text&#39;</span><span class="p">:</span> <span class="s1">&#39;Area 1&#39;</span><span class="p">,</span> <span class="s1">&#39;fc&#39;</span><span class="p">:</span> <span class="s1">&#39;none&#39;</span><span class="p">,</span> <span class="s1">&#39;alpha&#39;</span><span class="p">:</span> <span class="mf">0.8</span><span class="p">,</span> <span class="s1">&#39;lw&#39;</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span> <span class="s1">&#39;ec&#39;</span><span class="p">:</span> <span class="s1">&#39;k&#39;</span><span class="p">},</span>
        <span class="p">{</span><span class="s1">&#39;lon&#39;</span><span class="p">:</span> <span class="n">box2_lon</span><span class="p">,</span> <span class="s1">&#39;lat&#39;</span><span class="p">:</span> <span class="n">box2_lat</span><span class="p">,</span> <span class="s1">&#39;text&#39;</span><span class="p">:</span> <span class="s1">&#39;Area 2&#39;</span><span class="p">,</span> <span class="s1">&#39;fc&#39;</span><span class="p">:</span> <span class="s1">&#39;none&#39;</span><span class="p">,</span> <span class="s1">&#39;alpha&#39;</span><span class="p">:</span> <span class="mf">0.8</span><span class="p">,</span> <span class="s1">&#39;lw&#39;</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span> <span class="s1">&#39;ec&#39;</span><span class="p">:</span> <span class="s1">&#39;k&#39;</span><span class="p">}]</span>
 
-<span class="n">o</span><span class="o">.</span><span class="n">animation</span><span class="p">(</span><span class="n">background</span><span class="o">=</span><span class="n">o</span><span class="o">.</span><span class="n">ads</span><span class="o">.</span><span class="n">density</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">o</span><span class="o">.</span><span class="n">ads</span><span class="o">.</span><span class="n">density</span><span class="o">&gt;</span><span class="mi">0</span><span class="p">),</span> <span class="n">bgalpha</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">fast</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+<span class="n">o</span><span class="o">.</span><span class="n">animation</span><span class="p">(</span><span class="n">background</span><span class="o">=</span><span class="n">rw</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">rw</span><span class="o">&gt;</span><span class="mi">0</span><span class="p">),</span> <span class="n">bgalpha</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">fast</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
             <span class="n">show_elements</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">vmin</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">vmax</span><span class="o">=</span><span class="mi">120</span><span class="p">,</span> <span class="n">text</span><span class="o">=</span><span class="n">text</span><span class="p">,</span> <span class="n">box</span><span class="o">=</span><span class="n">box</span><span class="p">)</span>
 </pre></div>
 </div>
 <p class="sphx-glr-script-out">Out:</p>
-<div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>09:00:11 INFO    opendrift.models.basemodel: Calculating density array, this may take some time...
-09:00:11 INFO    opendrift.models.basemodel:    calculating for origin_marker 0...
-09:00:11 INFO    opendrift.models.basemodel:    calculating for origin_marker 1...
-09:00:11 INFO    opendrift.models.basemodel: Time to calculate density array: 0:00:00.499036
-09:00:11 DEBUG   opendrift.readers.reader_global_landmask: Using existing GSHHS shapes..
-09:00:11 DEBUG   opendrift_landmask_data.mask: mask already memmapped
-09:00:28 INFO    opendrift.models.basemodel: Saving animation to /root/project/docs/source/gallery/animations/example_river_runoff_0.gif...
-09:00:28 INFO    opendrift.models.basemodel: Making animated gif...
+<div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>21:21:07 INFO    opendrift.models.basemodel:    calculating for origin_marker 0...
+21:21:07 INFO    opendrift.models.basemodel:    calculating for origin_marker 1...
+21:21:08 DEBUG   opendrift.readers.reader_global_landmask: Using existing GSHHS shapes..
+21:21:08 DEBUG   opendrift_landmask_data.mask: mask already memmapped
+21:21:25 INFO    opendrift.models.basemodel: Saving animation to /root/project/docs/source/gallery/animations/example_river_runoff_0.gif...
+21:21:25 INFO    opendrift.models.basemodel: Making animated gif...
 MovieWriter imagemagick unavailable; using Pillow instead.
-09:01:13 DEBUG   opendrift.models.basemodel: Time to make animation: 0:01:02.373413
+21:22:05 DEBUG   opendrift.models.basemodel: Time to make animation: 0:00:57.236279
 </pre></div>
 </div>
 <img alt="../_images/example_river_runoff_0.gif" src="../_images/example_river_runoff_0.gif" />
@@ -416,42 +412,72 @@ MovieWriter imagemagick unavailable; using Pillow instead.
 <span class="n">ax1</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">seed_times</span><span class="p">,</span> <span class="n">runoff_river2</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="n">o</span><span class="o">.</span><span class="n">origin_marker</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
 <span class="n">ax1</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="s1">&#39;Runoff  [m3/s]&#39;</span><span class="p">)</span>
 <span class="n">ax1</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="s1">&#39;Runoff&#39;</span><span class="p">)</span>
-<span class="n">ax1</span><span class="o">.</span><span class="n">margins</span><span class="p">(</span><span class="n">x</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
-<span class="n">ax1</span><span class="o">.</span><span class="n">legend</span><span class="p">()</span>
 <span class="c1"># Area 1</span>
-<span class="n">t1</span><span class="p">,</span> <span class="n">t1_om</span> <span class="o">=</span> <span class="n">o</span><span class="o">.</span><span class="n">get_density_timeseries</span><span class="p">(</span><span class="n">lon</span><span class="o">=</span><span class="n">box1_lon</span><span class="p">,</span> <span class="n">lat</span><span class="o">=</span><span class="n">box1_lat</span><span class="p">)</span>
-<span class="n">t1_om</span><span class="o">.</span><span class="n">isel</span><span class="p">(</span><span class="n">origin_marker</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">label</span><span class="o">=</span><span class="n">o</span><span class="o">.</span><span class="n">origin_marker</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">ax</span><span class="o">=</span><span class="n">ax2</span><span class="p">)</span>
-<span class="n">t1_om</span><span class="o">.</span><span class="n">isel</span><span class="p">(</span><span class="n">origin_marker</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">label</span><span class="o">=</span><span class="n">o</span><span class="o">.</span><span class="n">origin_marker</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">ax</span><span class="o">=</span><span class="n">ax2</span><span class="p">)</span>
-<span class="n">t1</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">label</span><span class="o">=</span><span class="s1">&#39;Total&#39;</span><span class="p">,</span> <span class="n">linestyle</span><span class="o">=</span><span class="s1">&#39;--&#39;</span><span class="p">,</span> <span class="n">ax</span><span class="o">=</span><span class="n">ax2</span><span class="p">)</span>
-<span class="n">ax2</span><span class="o">.</span><span class="n">legend</span><span class="p">()</span>
-<span class="n">ax2</span><span class="o">.</span><span class="n">margins</span><span class="p">(</span><span class="n">x</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+<span class="n">t1</span> <span class="o">=</span> <span class="n">river_water</span><span class="o">.</span><span class="n">sel</span><span class="p">(</span><span class="n">lon_bin</span><span class="o">=</span><span class="nb">slice</span><span class="p">(</span><span class="n">box1_lon</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">box1_lon</span><span class="p">[</span><span class="mi">1</span><span class="p">]),</span>
+                     <span class="n">lat_bin</span><span class="o">=</span><span class="nb">slice</span><span class="p">(</span><span class="n">box1_lat</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">box1_lat</span><span class="p">[</span><span class="mi">1</span><span class="p">]))</span>
+<span class="n">t1</span> <span class="o">=</span> <span class="n">t1</span><span class="o">.</span><span class="n">sum</span><span class="p">((</span><span class="s1">&#39;lon_bin&#39;</span><span class="p">,</span> <span class="s1">&#39;lat_bin&#39;</span><span class="p">))</span>
+<span class="n">t1</span><span class="o">.</span><span class="n">isel</span><span class="p">(</span><span class="n">origin_marker</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">label</span><span class="o">=</span><span class="n">o</span><span class="o">.</span><span class="n">origin_marker</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">ax</span><span class="o">=</span><span class="n">ax2</span><span class="p">)</span>
+<span class="n">t1</span><span class="o">.</span><span class="n">isel</span><span class="p">(</span><span class="n">origin_marker</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">label</span><span class="o">=</span><span class="n">o</span><span class="o">.</span><span class="n">origin_marker</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">ax</span><span class="o">=</span><span class="n">ax2</span><span class="p">)</span>
+<span class="n">t1</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">dim</span><span class="o">=</span><span class="s1">&#39;origin_marker&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">label</span><span class="o">=</span><span class="s1">&#39;Total&#39;</span><span class="p">,</span> <span class="n">linestyle</span><span class="o">=</span><span class="s1">&#39;--&#39;</span><span class="p">,</span> <span class="n">ax</span><span class="o">=</span><span class="n">ax2</span><span class="p">)</span>
 <span class="n">ax2</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="s1">&#39;Amount of water passing through Area 1&#39;</span><span class="p">)</span>
 <span class="c1"># Area 2</span>
-<span class="n">t2</span><span class="p">,</span> <span class="n">t2_om</span> <span class="o">=</span> <span class="n">o</span><span class="o">.</span><span class="n">get_density_timeseries</span><span class="p">(</span><span class="n">lon</span><span class="o">=</span><span class="n">box2_lon</span><span class="p">,</span> <span class="n">lat</span><span class="o">=</span><span class="n">box2_lat</span><span class="p">)</span>
-<span class="n">t2_om</span><span class="o">.</span><span class="n">isel</span><span class="p">(</span><span class="n">origin_marker</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">label</span><span class="o">=</span><span class="n">o</span><span class="o">.</span><span class="n">origin_marker</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">ax</span><span class="o">=</span><span class="n">ax3</span><span class="p">)</span>
-<span class="n">t2_om</span><span class="o">.</span><span class="n">isel</span><span class="p">(</span><span class="n">origin_marker</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">label</span><span class="o">=</span><span class="n">o</span><span class="o">.</span><span class="n">origin_marker</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">ax</span><span class="o">=</span><span class="n">ax3</span><span class="p">)</span>
-<span class="n">t2</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">label</span><span class="o">=</span><span class="s1">&#39;Total&#39;</span><span class="p">,</span> <span class="n">linestyle</span><span class="o">=</span><span class="s1">&#39;--&#39;</span><span class="p">,</span> <span class="n">ax</span><span class="o">=</span><span class="n">ax3</span><span class="p">)</span>
-<span class="n">ax3</span><span class="o">.</span><span class="n">legend</span><span class="p">()</span>
-<span class="n">ax3</span><span class="o">.</span><span class="n">margins</span><span class="p">(</span><span class="n">x</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+<span class="n">t2</span> <span class="o">=</span> <span class="n">river_water</span><span class="o">.</span><span class="n">sel</span><span class="p">(</span><span class="n">lon_bin</span><span class="o">=</span><span class="nb">slice</span><span class="p">(</span><span class="n">box2_lon</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">box2_lon</span><span class="p">[</span><span class="mi">1</span><span class="p">]),</span>
+                     <span class="n">lat_bin</span><span class="o">=</span><span class="nb">slice</span><span class="p">(</span><span class="n">box2_lat</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">box2_lat</span><span class="p">[</span><span class="mi">1</span><span class="p">]))</span>
+<span class="n">t2</span> <span class="o">=</span> <span class="n">t2</span><span class="o">.</span><span class="n">sum</span><span class="p">((</span><span class="s1">&#39;lon_bin&#39;</span><span class="p">,</span> <span class="s1">&#39;lat_bin&#39;</span><span class="p">))</span>
+<span class="n">t2</span><span class="o">.</span><span class="n">isel</span><span class="p">(</span><span class="n">origin_marker</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">label</span><span class="o">=</span><span class="n">o</span><span class="o">.</span><span class="n">origin_marker</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">ax</span><span class="o">=</span><span class="n">ax3</span><span class="p">)</span>
+<span class="n">t2</span><span class="o">.</span><span class="n">isel</span><span class="p">(</span><span class="n">origin_marker</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">label</span><span class="o">=</span><span class="n">o</span><span class="o">.</span><span class="n">origin_marker</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">ax</span><span class="o">=</span><span class="n">ax3</span><span class="p">)</span>
+<span class="n">t2</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">dim</span><span class="o">=</span><span class="s1">&#39;origin_marker&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">label</span><span class="o">=</span><span class="s1">&#39;Total&#39;</span><span class="p">,</span> <span class="n">linestyle</span><span class="o">=</span><span class="s1">&#39;--&#39;</span><span class="p">,</span> <span class="n">ax</span><span class="o">=</span><span class="n">ax3</span><span class="p">)</span>
 <span class="n">ax3</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="s1">&#39;Amount of water passing through Area 2&#39;</span><span class="p">)</span>
 <span class="c1"># Extracting time series at the location of the station</span>
-<span class="n">t</span><span class="p">,</span> <span class="n">t_om</span> <span class="o">=</span> <span class="n">o</span><span class="o">.</span><span class="n">get_density_timeseries</span><span class="p">(</span><span class="n">lon</span><span class="o">=</span><span class="n">station_lon</span><span class="p">,</span> <span class="n">lat</span><span class="o">=</span><span class="n">station_lat</span><span class="p">)</span>
-<span class="n">t_om</span><span class="o">.</span><span class="n">isel</span><span class="p">(</span><span class="n">origin_marker</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">label</span><span class="o">=</span><span class="n">o</span><span class="o">.</span><span class="n">origin_marker</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">ax</span><span class="o">=</span><span class="n">ax4</span><span class="p">)</span>
-<span class="n">t_om</span><span class="o">.</span><span class="n">isel</span><span class="p">(</span><span class="n">origin_marker</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">label</span><span class="o">=</span><span class="n">o</span><span class="o">.</span><span class="n">origin_marker</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">ax</span><span class="o">=</span><span class="n">ax4</span><span class="p">)</span>
-<span class="n">t</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">label</span><span class="o">=</span><span class="s1">&#39;Total&#39;</span><span class="p">,</span> <span class="n">linestyle</span><span class="o">=</span><span class="s1">&#39;--&#39;</span><span class="p">,</span> <span class="n">ax</span><span class="o">=</span><span class="n">ax4</span><span class="p">)</span>
+<span class="n">t</span> <span class="o">=</span> <span class="n">river_water</span><span class="o">.</span><span class="n">sel</span><span class="p">(</span><span class="n">lon_bin</span><span class="o">=</span><span class="n">station_lon</span><span class="p">,</span> <span class="n">lat_bin</span><span class="o">=</span><span class="n">station_lat</span><span class="p">,</span> <span class="n">method</span><span class="o">=</span><span class="s1">&#39;nearest&#39;</span><span class="p">)</span>
+<span class="n">t</span><span class="o">.</span><span class="n">isel</span><span class="p">(</span><span class="n">origin_marker</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">label</span><span class="o">=</span><span class="n">o</span><span class="o">.</span><span class="n">origin_marker</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">ax</span><span class="o">=</span><span class="n">ax4</span><span class="p">)</span>
+<span class="n">t</span><span class="o">.</span><span class="n">isel</span><span class="p">(</span><span class="n">origin_marker</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">label</span><span class="o">=</span><span class="n">o</span><span class="o">.</span><span class="n">origin_marker</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">ax</span><span class="o">=</span><span class="n">ax4</span><span class="p">)</span>
+<span class="n">t</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">dim</span><span class="o">=</span><span class="s1">&#39;origin_marker&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">label</span><span class="o">=</span><span class="s1">&#39;Total&#39;</span><span class="p">,</span> <span class="n">linestyle</span><span class="o">=</span><span class="s1">&#39;--&#39;</span><span class="p">,</span> <span class="n">ax</span><span class="o">=</span><span class="n">ax4</span><span class="p">)</span>
 <span class="n">ax4</span><span class="o">.</span><span class="n">legend</span><span class="p">()</span>
 <span class="n">ax4</span><span class="o">.</span><span class="n">margins</span><span class="p">(</span><span class="n">x</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
-<span class="n">ax4</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="s1">&#39;Density of water at Station&#39;</span><span class="p">)</span>
 
+<span class="k">for</span> <span class="n">ax</span> <span class="ow">in</span> <span class="p">[</span><span class="n">ax1</span><span class="p">,</span> <span class="n">ax2</span><span class="p">,</span> <span class="n">ax3</span><span class="p">]:</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">margins</span><span class="p">(</span><span class="n">x</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">legend</span><span class="p">()</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">set_xticks</span><span class="p">([])</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">set_xlabel</span><span class="p">(</span><span class="kc">None</span><span class="p">)</span>
+<span class="n">ax4</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="s1">&#39;Density of water at Station&#39;</span><span class="p">)</span>
+<span class="n">ax4</span><span class="o">.</span><span class="n">xaxis</span><span class="o">.</span><span class="n">set_major_formatter</span><span class="p">(</span><span class="n">DateFormatter</span><span class="p">(</span><span class="s2">&quot;</span><span class="si">%d</span><span class="s2"> %b %H&quot;</span><span class="p">))</span>
 <span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+</pre></div>
+</div>
+<img src="../_images/sphx_glr_example_river_runoff_001.png" srcset="../_images/sphx_glr_example_river_runoff_001.png" alt="Runoff, Amount of water passing through Area 1, Amount of water passing through Area 2, Density of water at Station" class = "sphx-glr-single-img"/><p>Finally, plot the spatial distribution of mean age of water</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">num</span> <span class="o">=</span> <span class="n">o</span><span class="o">.</span><span class="n">get_histogram</span><span class="p">(</span><span class="n">pixelsize_m</span><span class="o">=</span><span class="mi">1500</span><span class="p">,</span> <span class="n">weights</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">density</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+<span class="n">num</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="s1">&#39;number&#39;</span>
+<span class="n">num</span><span class="o">.</span><span class="n">to_netcdf</span><span class="p">(</span><span class="n">histogram_file</span><span class="p">)</span>
+
+<span class="n">mas</span> <span class="o">=</span> <span class="n">o</span><span class="o">.</span><span class="n">get_histogram</span><span class="p">(</span><span class="n">pixelsize_m</span><span class="o">=</span><span class="mi">1500</span><span class="p">,</span> <span class="n">weights</span><span class="o">=</span><span class="n">o</span><span class="o">.</span><span class="n">ds</span><span class="p">[</span><span class="s1">&#39;age_seconds&#39;</span><span class="p">],</span> <span class="n">density</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+<span class="n">mas</span> <span class="o">=</span> <span class="n">mas</span><span class="o">/</span><span class="mi">3600</span>  <span class="c1"># in hours</span>
+<span class="n">mas</span> <span class="o">=</span> <span class="n">mas</span><span class="o">/</span><span class="n">num</span>  <span class="c1"># per area</span>
+<span class="n">mas</span><span class="o">.</span><span class="n">name</span><span class="o">=</span><span class="s1">&#39;mean_age&#39;</span>
+<span class="n">mas</span><span class="o">.</span><span class="n">to_netcdf</span><span class="p">(</span><span class="n">histogram_file</span><span class="p">,</span> <span class="s1">&#39;a&#39;</span><span class="p">)</span>
+<span class="n">mas</span> <span class="o">=</span> <span class="n">mas</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">dim</span><span class="o">=</span><span class="s1">&#39;time&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">dim</span><span class="o">=</span><span class="s1">&#39;origin_marker&#39;</span><span class="p">)</span>  <span class="c1"># Mean time of both rivers</span>
+<span class="c1">#mas = mas.mean(dim=&#39;time&#39;).isel(origin_marker=1)  # Mean age of a single river</span>
+<span class="n">mas</span><span class="o">.</span><span class="n">name</span><span class="o">=</span><span class="s1">&#39;Mean age of water [hours]&#39;</span>
+
+<span class="n">o</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">background</span><span class="o">=</span><span class="n">mas</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">mas</span><span class="o">&gt;</span><span class="mi">0</span><span class="p">),</span> <span class="n">fast</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">show_particles</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
 
 
 <span class="c1"># Cleaning up</span>
 <span class="n">os</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="n">outfile</span><span class="p">)</span>
-<span class="n">os</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="n">analysis_file</span><span class="p">)</span>
+<span class="n">os</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="n">histogram_file</span><span class="p">)</span>
 </pre></div>
 </div>
-<img src="../_images/sphx_glr_example_river_runoff_001.png" srcset="../_images/sphx_glr_example_river_runoff_001.png" alt="Runoff, Amount of water passing through Area 1, Amount of water passing through Area 2, Density of water at Station" class = "sphx-glr-single-img"/><p class="sphx-glr-timing"><strong>Total running time of the script:</strong> ( 1 minutes  49.082 seconds)</p>
+<img src="../_images/sphx_glr_example_river_runoff_002.png" srcset="../_images/sphx_glr_example_river_runoff_002.png" alt="OpenDrift - OceanDrift 2021-10-10 21:20 to 2021-10-12 21:20 UTC (49 steps)" class = "sphx-glr-single-img"/><p class="sphx-glr-script-out">Out:</p>
+<div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>21:22:05 INFO    opendrift.models.basemodel:    calculating for origin_marker 0...
+21:22:05 INFO    opendrift.models.basemodel:    calculating for origin_marker 1...
+21:22:06 INFO    opendrift.models.basemodel:    calculating for origin_marker 0...
+21:22:06 INFO    opendrift.models.basemodel:    calculating for origin_marker 1...
+21:22:06 WARNING opendrift.models.basemodel: Plotting fast. This will make your plots less accurate.
+21:22:06 DEBUG   opendrift_landmask_data.mask: memmapping mask..
+</pre></div>
+</div>
+<p class="sphx-glr-timing"><strong>Total running time of the script:</strong> ( 1 minutes  45.029 seconds)</p>
 <div class="sphx-glr-footer class sphx-glr-footer-example docutils container" id="sphx-glr-download-gallery-example-river-runoff-py">
 <div class="sphx-glr-download sphx-glr-download-python docutils container">
 <p><a class="reference download internal" download="" href="../_downloads/a86edf1ccd8ec639ac0cb705f3fd56c3/example_river_runoff.py"><code class="xref download docutils literal notranslate"><span class="pre">Download</span> <span class="pre">Python</span> <span class="pre">source</span> <span class="pre">code:</span> <span class="pre">example_river_runoff.py</span></code></a></p>
