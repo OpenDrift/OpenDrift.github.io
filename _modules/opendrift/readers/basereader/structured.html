@@ -117,15 +117,11 @@
 
 <span class="sd">        :py:mod:`opendrift.readers`</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="c1"># `projected` is set to True if `fakeproj` is used</span>
-    <span class="n">projected</span> <span class="o">=</span> <span class="kc">None</span>
-    <span class="n">shape</span> <span class="o">=</span> <span class="kc">None</span>
+
+    <span class="c1"># TODO: should the variables below not be instance variables, and not class variables?</span>
     <span class="n">clipped</span> <span class="o">=</span> <span class="mi">0</span>
     <span class="n">x</span> <span class="o">=</span> <span class="kc">None</span>
     <span class="n">y</span> <span class="o">=</span> <span class="kc">None</span>
-
-    <span class="n">var_block_before</span> <span class="o">=</span> <span class="kc">None</span>
-    <span class="n">var_block_after</span> <span class="o">=</span> <span class="kc">None</span>
     <span class="n">interpolation</span> <span class="o">=</span> <span class="s1">&#39;linearNDFast&#39;</span>
     <span class="n">convolve</span> <span class="o">=</span> <span class="kc">None</span>  <span class="c1"># Convolution kernel or kernel size</span>
 
@@ -144,6 +140,10 @@
             <span class="kn">from</span> <span class="nn">scipy.interpolate</span> <span class="kn">import</span> <span class="n">LinearNDInterpolator</span>
             <span class="kn">import</span> <span class="nn">copy</span>
             <span class="kn">from</span> <span class="nn">.</span> <span class="kn">import</span> <span class="n">fakeproj</span>
+
+            <span class="c1"># `projected` is set to True if `fakeproj` is used</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">projected</span> <span class="o">=</span> <span class="kc">None</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">shape</span> <span class="o">=</span> <span class="kc">None</span>
 
             <span class="bp">self</span><span class="o">.</span><span class="n">proj4</span> <span class="o">=</span> <span class="s1">&#39;None&#39;</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">proj</span> <span class="o">=</span> <span class="n">fakeproj</span><span class="o">.</span><span class="n">fakeproj</span><span class="p">()</span>
@@ -203,6 +203,16 @@
 <span class="sd">            keywords: variables (string)</span>
 <span class="sd">            values: 2D ndarray bounding x and y.</span>
 <span class="sd">        &quot;&quot;&quot;</span></div>
+
+<div class="viewcode-block" id="StructuredReader.prepare"><a class="viewcode-back" href="../../../../autoapi/opendrift/readers/basereader/structured/index.html#opendrift.readers.basereader.StructuredReader.prepare">[docs]</a>    <span class="k">def</span> <span class="nf">prepare</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">extent</span><span class="p">,</span> <span class="n">start_time</span><span class="p">,</span> <span class="n">end_time</span><span class="p">,</span> <span class="n">max_speed</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Prepare reader for given simulation coverage in time and space.&quot;&quot;&quot;</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;Clearing cache for reader </span><span class="si">%s</span><span class="s1"> before starting new simulation&#39;</span> <span class="o">%</span> <span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">var_block_before</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">var_block_after</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">time_step</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>  <span class="c1"># Set buffer large nough for whole simulation</span>
+                <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;Time step is None for </span><span class="si">%s</span><span class="s1">, setting buffer size large nough for whole simulation&#39;</span> <span class="o">%</span> <span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">set_buffer_size</span><span class="p">(</span><span class="n">max_speed</span><span class="p">,</span> <span class="n">end_time</span><span class="o">-</span><span class="n">start_time</span><span class="p">)</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">prepare</span><span class="p">(</span><span class="n">extent</span><span class="p">,</span> <span class="n">start_time</span><span class="p">,</span> <span class="n">end_time</span><span class="p">,</span> <span class="n">max_speed</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="StructuredReader.set_convolution_kernel"><a class="viewcode-back" href="../../../../autoapi/opendrift/readers/basereader/structured/index.html#opendrift.readers.basereader.StructuredReader.set_convolution_kernel">[docs]</a>    <span class="k">def</span> <span class="nf">set_convolution_kernel</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">convolve</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Set a convolution kernel or kernel size (of array of ones) used by `get_variables` on read variables.&quot;&quot;&quot;</span>
@@ -367,6 +377,7 @@
                            <span class="s1">&#39;cover element positions within timestep. &#39;</span>
                            <span class="s1">&#39;Buffer size (</span><span class="si">%s</span><span class="s1">) must be increased. See `Variables.set_buffer_size`.&#39;</span> <span class="o">%</span>
                            <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">buffer</span><span class="p">)))</span>
+            <span class="c1"># TODO; could add dynamic incraes of buffer size here</span>
 
         <span class="c1">############################################################</span>
         <span class="c1"># Interpolate before/after blocks onto particles in space</span>
