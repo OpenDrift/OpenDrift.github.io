@@ -132,18 +132,13 @@
 
 <span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
 <span class="kn">from</span> <span class="nn">datetime</span> <span class="kn">import</span> <span class="n">datetime</span>
-<span class="kn">from</span> <span class="nn">netCDF4</span> <span class="kn">import</span> <span class="n">Dataset</span><span class="p">,</span> <span class="n">MFDataset</span><span class="p">,</span> <span class="n">num2date</span>
+<span class="kn">from</span> <span class="nn">netCDF4</span> <span class="kn">import</span> <span class="n">num2date</span>
 <span class="kn">from</span> <span class="nn">scipy.interpolate</span> <span class="kn">import</span> <span class="n">LinearNDInterpolator</span>
 <span class="kn">from</span> <span class="nn">scipy.spatial</span> <span class="kn">import</span> <span class="n">cKDTree</span> <span class="c1">#cython-based KDtree for quick nearest-neighbor search</span>
 <span class="kn">import</span> <span class="nn">pyproj</span>
 <span class="kn">from</span> <span class="nn">opendrift.readers.basereader</span> <span class="kn">import</span> <span class="n">BaseReader</span><span class="p">,</span> <span class="n">UnstructuredReader</span>
 <span class="kn">from</span> <span class="nn">opendrift.readers.basereader.consts</span> <span class="kn">import</span> <span class="o">*</span>
-
-<span class="k">try</span><span class="p">:</span>
-    <span class="kn">import</span> <span class="nn">xarray</span> <span class="k">as</span> <span class="nn">xr</span>
-    <span class="n">has_xarray</span> <span class="o">=</span> <span class="kc">True</span>
-<span class="k">except</span><span class="p">:</span>
-    <span class="n">has_xarray</span> <span class="o">=</span> <span class="kc">False</span>
+<span class="kn">import</span> <span class="nn">xarray</span> <span class="k">as</span> <span class="nn">xr</span>
 
 
 <div class="viewcode-block" id="Reader"><a class="viewcode-back" href="../../../autoapi/opendrift/readers/reader_schism_native/index.html#opendrift.readers.reader_schism_native.Reader">[docs]</a><span class="k">class</span> <span class="nc">Reader</span><span class="p">(</span><span class="n">BaseReader</span><span class="p">,</span><span class="n">UnstructuredReader</span><span class="p">):</span>
@@ -206,17 +201,11 @@
             <span class="k">if</span> <span class="p">(</span><span class="s1">&#39;*&#39;</span> <span class="ow">in</span> <span class="n">filestr</span><span class="p">)</span> <span class="ow">or</span> <span class="p">(</span><span class="s1">&#39;?&#39;</span> <span class="ow">in</span> <span class="n">filestr</span><span class="p">)</span> <span class="ow">or</span> <span class="p">(</span><span class="s1">&#39;[&#39;</span> <span class="ow">in</span> <span class="n">filestr</span><span class="p">):</span>
                 <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s1">&#39;Opening files with MFdataset&#39;</span><span class="p">)</span>
                 <span class="c1"># self.dataset = MFdataset(filename)</span>
-                <span class="k">if</span> <span class="n">has_xarray</span><span class="p">:</span>
-                    <span class="bp">self</span><span class="o">.</span><span class="n">dataset</span> <span class="o">=</span> <span class="n">xr</span><span class="o">.</span><span class="n">open_mfdataset</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span><span class="n">chunks</span><span class="o">=</span><span class="p">{</span><span class="s1">&#39;time&#39;</span><span class="p">:</span> <span class="mi">1</span><span class="p">})</span>
-                <span class="k">else</span><span class="p">:</span>
-                    <span class="bp">self</span><span class="o">.</span><span class="n">dataset</span> <span class="o">=</span> <span class="n">MFDataset</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span><span class="n">aggdim</span><span class="o">=</span><span class="s1">&#39;time&#39;</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">dataset</span> <span class="o">=</span> <span class="n">xr</span><span class="o">.</span><span class="n">open_mfdataset</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span><span class="n">chunks</span><span class="o">=</span><span class="p">{</span><span class="s1">&#39;time&#39;</span><span class="p">:</span> <span class="mi">1</span><span class="p">},</span> <span class="n">decode_times</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
             <span class="k">else</span><span class="p">:</span>
                 <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s1">&#39;Opening file with dataset&#39;</span><span class="p">)</span>
                 <span class="c1"># self.dataset = dataset(filename, &#39;r&#39;)</span>
-                <span class="k">if</span> <span class="n">has_xarray</span><span class="p">:</span>
-                    <span class="bp">self</span><span class="o">.</span><span class="n">dataset</span> <span class="o">=</span> <span class="n">xr</span><span class="o">.</span><span class="n">open_dataset</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span><span class="n">chunks</span><span class="o">=</span><span class="p">{</span><span class="s1">&#39;time&#39;</span><span class="p">:</span> <span class="mi">1</span><span class="p">})</span>
-                <span class="k">else</span><span class="p">:</span>
-                    <span class="bp">self</span><span class="o">.</span><span class="n">dataset</span> <span class="o">=</span> <span class="n">Dataset</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="s1">&#39;r&#39;</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">dataset</span> <span class="o">=</span> <span class="n">xr</span><span class="o">.</span><span class="n">open_dataset</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span><span class="n">chunks</span><span class="o">=</span><span class="p">{</span><span class="s1">&#39;time&#39;</span><span class="p">:</span> <span class="mi">1</span><span class="p">},</span> <span class="n">decode_times</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
         <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="n">e</span><span class="p">)</span>
 
@@ -257,12 +246,8 @@
                 <span class="k">continue</span>
 
             <span class="n">var</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">dataset</span><span class="o">.</span><span class="n">variables</span><span class="p">[</span><span class="n">var_name</span><span class="p">]</span>
-            <span class="k">if</span> <span class="n">has_xarray</span><span class="p">:</span>
-                <span class="n">attributes</span> <span class="o">=</span> <span class="n">var</span><span class="o">.</span><span class="n">attrs</span>
-                <span class="n">att_dict</span> <span class="o">=</span> <span class="n">var</span><span class="o">.</span><span class="n">attrs</span>
-            <span class="k">else</span><span class="p">:</span>
-                <span class="n">attributes</span> <span class="o">=</span> <span class="n">var</span><span class="o">.</span><span class="n">ncattrs</span><span class="p">()</span>
-                <span class="n">att_dict</span> <span class="o">=</span> <span class="n">var</span><span class="o">.</span><span class="vm">__dict__</span>
+            <span class="n">attributes</span> <span class="o">=</span> <span class="n">var</span><span class="o">.</span><span class="n">attrs</span>
+            <span class="n">att_dict</span> <span class="o">=</span> <span class="n">var</span><span class="o">.</span><span class="n">attrs</span>
             <span class="n">standard_name</span> <span class="o">=</span> <span class="s1">&#39;&#39;</span>
             <span class="n">long_name</span> <span class="o">=</span> <span class="s1">&#39;&#39;</span>
             <span class="n">axis</span> <span class="o">=</span> <span class="s1">&#39;&#39;</span>
@@ -295,10 +280,7 @@
                     <span class="n">unitfactor</span> <span class="o">=</span> <span class="mi">1000</span>
                 <span class="k">else</span><span class="p">:</span>
                     <span class="n">unitfactor</span> <span class="o">=</span> <span class="mi">1</span>
-                <span class="k">if</span> <span class="n">has_xarray</span><span class="p">:</span>
-                    <span class="n">var_data</span> <span class="o">=</span> <span class="n">var</span><span class="o">.</span><span class="n">values</span>
-                <span class="k">else</span><span class="p">:</span>
-                    <span class="n">var_data</span> <span class="o">=</span> <span class="n">var</span><span class="p">[:]</span>
+                <span class="n">var_data</span> <span class="o">=</span> <span class="n">var</span><span class="o">.</span><span class="n">values</span>
                 <span class="n">x</span> <span class="o">=</span> <span class="n">var_data</span><span class="o">*</span><span class="n">unitfactor</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">unitfactor</span> <span class="o">=</span> <span class="n">unitfactor</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">numx</span> <span class="o">=</span> <span class="n">var</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
@@ -316,37 +298,26 @@
                     <span class="n">unitfactor</span> <span class="o">=</span> <span class="mi">1000</span>
                 <span class="k">else</span><span class="p">:</span>
                     <span class="n">unitfactor</span> <span class="o">=</span> <span class="mi">1</span>
-                <span class="k">if</span> <span class="n">has_xarray</span><span class="p">:</span>
-                    <span class="n">var_data</span> <span class="o">=</span> <span class="n">var</span><span class="o">.</span><span class="n">values</span>
-                <span class="k">else</span><span class="p">:</span>
-                    <span class="n">var_data</span> <span class="o">=</span> <span class="n">var</span><span class="p">[:]</span>
+                <span class="n">var_data</span> <span class="o">=</span> <span class="n">var</span><span class="o">.</span><span class="n">values</span>
                 <span class="n">y</span> <span class="o">=</span> <span class="n">var_data</span><span class="o">*</span><span class="n">unitfactor</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">numy</span> <span class="o">=</span> <span class="n">var</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
             <span class="k">if</span> <span class="n">standard_name</span> <span class="o">==</span> <span class="s1">&#39;depth&#39;</span> <span class="ow">or</span> <span class="n">axis</span> <span class="o">==</span> <span class="s1">&#39;Z&#39;</span><span class="p">:</span>
-                <span class="k">if</span> <span class="n">has_xarray</span><span class="p">:</span>
-                    <span class="n">var_data</span> <span class="o">=</span> <span class="n">var</span><span class="o">.</span><span class="n">values</span>
-                <span class="k">else</span><span class="p">:</span>
-                    <span class="n">var_data</span> <span class="o">=</span> <span class="n">var</span><span class="p">[:]</span>
+                <span class="n">var_data</span> <span class="o">=</span> <span class="n">var</span><span class="o">.</span><span class="n">values</span>
                 <span class="k">if</span> <span class="s1">&#39;positive&#39;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">var</span><span class="o">.</span><span class="n">ncattrs</span><span class="p">()</span> <span class="ow">or</span> \
                         <span class="n">var</span><span class="o">.</span><span class="vm">__dict__</span><span class="p">[</span><span class="s1">&#39;positive&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="s1">&#39;up&#39;</span><span class="p">:</span>
                     <span class="bp">self</span><span class="o">.</span><span class="n">z</span> <span class="o">=</span> <span class="n">var_data</span>
                 <span class="k">else</span><span class="p">:</span>
                     <span class="bp">self</span><span class="o">.</span><span class="n">z</span> <span class="o">=</span> <span class="o">-</span><span class="n">var_data</span>
             <span class="k">if</span> <span class="n">standard_name</span> <span class="o">==</span> <span class="s1">&#39;time&#39;</span> <span class="ow">or</span> <span class="n">axis</span> <span class="o">==</span> <span class="s1">&#39;T&#39;</span> <span class="ow">or</span> <span class="n">var_name</span> <span class="o">==</span> <span class="s1">&#39;time&#39;</span><span class="p">:</span>
-                <span class="k">if</span> <span class="n">has_xarray</span><span class="p">:</span>
-                    <span class="n">var_data</span> <span class="o">=</span> <span class="n">var</span><span class="o">.</span><span class="n">values</span>
-                <span class="k">else</span><span class="p">:</span>
-                    <span class="n">var_data</span> <span class="o">=</span> <span class="n">var</span><span class="p">[:]</span>
+                <span class="n">var_data</span> <span class="o">=</span> <span class="n">var</span><span class="o">.</span><span class="n">values</span>
                 <span class="c1"># Read and store time coverage (of this particular file)</span>
                 <span class="n">time</span> <span class="o">=</span> <span class="n">var_data</span>
                 <span class="n">time_units</span> <span class="o">=</span> <span class="n">units</span>
-                <span class="k">if</span> <span class="n">has_xarray</span><span class="p">:</span>
-                    <span class="c1"># convert from numpy.datetime64 to datetime</span>
-                    <span class="bp">self</span><span class="o">.</span><span class="n">times</span> <span class="o">=</span> <span class="p">[</span><span class="n">datetime</span><span class="o">.</span><span class="n">utcfromtimestamp</span><span class="p">((</span><span class="n">OT</span> <span class="o">-</span>
-                        <span class="n">np</span><span class="o">.</span><span class="n">datetime64</span><span class="p">(</span><span class="s1">&#39;1970-01-01T00:00:00Z&#39;</span><span class="p">)</span>
-                            <span class="p">)</span> <span class="o">/</span> <span class="n">np</span><span class="o">.</span><span class="n">timedelta64</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="s1">&#39;s&#39;</span><span class="p">))</span> <span class="k">for</span> <span class="n">OT</span> <span class="ow">in</span> <span class="n">time</span><span class="p">]</span>
+                <span class="k">if</span> <span class="s1">&#39;calendar&#39;</span> <span class="ow">in</span> <span class="n">var</span><span class="o">.</span><span class="n">attrs</span><span class="p">:</span>
+                    <span class="n">calendar</span> <span class="o">=</span> <span class="n">var</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s1">&#39;calendar&#39;</span><span class="p">]</span>
                 <span class="k">else</span><span class="p">:</span>
-                    <span class="bp">self</span><span class="o">.</span><span class="n">times</span> <span class="o">=</span> <span class="n">num2date</span><span class="p">(</span><span class="n">time</span><span class="p">,</span> <span class="n">time_units</span><span class="p">)</span>
+                    <span class="n">calendar</span> <span class="o">=</span> <span class="s1">&#39;standard&#39;</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">times</span> <span class="o">=</span> <span class="n">num2date</span><span class="p">(</span><span class="n">time</span><span class="p">,</span> <span class="n">time_units</span><span class="p">,</span> <span class="n">calendar</span><span class="o">=</span><span class="n">calendar</span><span class="p">)</span>
 
                 <span class="bp">self</span><span class="o">.</span><span class="n">start_time</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">times</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">end_time</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">times</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
@@ -389,12 +360,8 @@
             <span class="k">if</span> <span class="n">var_name</span> <span class="ow">in</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">xname</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">yname</span><span class="p">]:</span> <span class="c1">#&#39;depth&#39;</span>
                 <span class="k">continue</span>  <span class="c1"># Skip coordinate variables</span>
             <span class="n">var</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">dataset</span><span class="o">.</span><span class="n">variables</span><span class="p">[</span><span class="n">var_name</span><span class="p">]</span>
-            <span class="k">if</span> <span class="n">has_xarray</span><span class="p">:</span>
-                <span class="n">attributes</span> <span class="o">=</span> <span class="n">var</span><span class="o">.</span><span class="n">attrs</span>
-                <span class="n">att_dict</span> <span class="o">=</span> <span class="n">var</span><span class="o">.</span><span class="n">attrs</span>
-            <span class="k">else</span><span class="p">:</span>
-                <span class="n">attributes</span> <span class="o">=</span> <span class="n">var</span><span class="o">.</span><span class="n">ncattrs</span><span class="p">()</span>
-                <span class="n">att_dict</span> <span class="o">=</span> <span class="n">var</span><span class="o">.</span><span class="vm">__dict__</span>
+            <span class="n">attributes</span> <span class="o">=</span> <span class="n">var</span><span class="o">.</span><span class="n">attrs</span>
+            <span class="n">att_dict</span> <span class="o">=</span> <span class="n">var</span><span class="o">.</span><span class="n">attrs</span>
 
             <span class="k">if</span> <span class="n">var_name</span> <span class="ow">in</span> <span class="n">schism_mapping</span><span class="p">:</span>
                 <span class="c1"># current velocity variables [&#39;dahv&#39;,&#39;hvel&#39;] need special treatment because</span>
@@ -501,8 +468,7 @@
                     <span class="n">data</span><span class="p">,</span><span class="n">variables</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">convert_3d_to_array</span><span class="p">(</span><span class="n">indxTime</span><span class="p">,</span><span class="n">data</span><span class="p">,</span><span class="n">variables</span><span class="p">)</span>
 
             <span class="n">variables</span><span class="p">[</span><span class="n">par</span><span class="p">]</span> <span class="o">=</span> <span class="n">data</span> <span class="c1"># save all data slice to dictionary with key &#39;par&#39;</span>
-            <span class="k">if</span> <span class="n">has_xarray</span> <span class="ow">is</span> <span class="kc">True</span><span class="p">:</span>
-                <span class="n">variables</span><span class="p">[</span><span class="n">par</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">variables</span><span class="p">[</span><span class="n">par</span><span class="p">])</span>
+            <span class="n">variables</span><span class="p">[</span><span class="n">par</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">variables</span><span class="p">[</span><span class="n">par</span><span class="p">])</span>
 
         <span class="k">return</span> <span class="n">variables</span></div>
 
@@ -529,11 +495,10 @@
             <span class="c1"># depth are negative down consistent with convention used in OpenDrift</span>
             <span class="c1"># if using the netCDF4 library, vertical_levels is masked array where &quot;masked&quot; levels are those below seabed  (= 9.9692100e+36)</span>
             <span class="c1"># if using the xarray library, vertical_levels is nan for levels are those below seabed</span>
-            <span class="k">if</span> <span class="n">has_xarray</span><span class="p">:</span>
-                <span class="c1"># convert to masked array to be consistent with what netCDF4 lib returns</span>
-                <span class="n">vertical_levels</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">ma</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">vertical_levels</span><span class="p">,</span> <span class="n">mask</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">isnan</span><span class="p">(</span><span class="n">vertical_levels</span><span class="o">.</span><span class="n">data</span><span class="p">))</span>
-                <span class="n">data</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
-                <span class="c1"># vertical_levels.mask = np.isnan(vertical_levels.data) # masked using nan&#39;s when using xarray</span>
+            <span class="c1"># convert to masked array to be consistent with what netCDF4 lib returns</span>
+            <span class="n">vertical_levels</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">ma</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">vertical_levels</span><span class="p">,</span> <span class="n">mask</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">isnan</span><span class="p">(</span><span class="n">vertical_levels</span><span class="o">.</span><span class="n">data</span><span class="p">))</span>
+            <span class="n">data</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
+            <span class="c1"># vertical_levels.mask = np.isnan(vertical_levels.data) # masked using nan&#39;s when using xarray</span>
         <span class="k">except</span><span class="p">:</span>
             <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;no vertical level information present in file &#39;&#39;zcor&#39;&#39; ... stopping&#39;</span><span class="p">)</span>
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;variable &#39;&#39;zcor&#39;&#39; must be present in netcdf file to be able to use 3D currents&#39;</span><span class="p">)</span>
