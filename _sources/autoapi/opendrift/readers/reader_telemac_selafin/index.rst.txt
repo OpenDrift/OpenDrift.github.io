@@ -36,24 +36,19 @@ Attributes
 
    
 
-.. py:class:: Reader(filename=None, name=None, proj4=None)
+.. py:class:: Reader(filename=None, name=None, proj4=None, start_time=None)
 
    Bases: :py:obj:`opendrift.readers.basereader.BaseReader`, :py:obj:`opendrift.readers.basereader.UnstructuredReader`
 
    A reader for unstructured (irregularily gridded) `Telemac3D` files.
-
    Args:
        :param filename: A single Selafin file
        :type filename: string, required.
-
        :param name: Name of reader
        :type name: string, optional
-
        :param proj4: PROJ.4 string describing projection of data.
        :type proj4: string, optional
-
    .. seealso::
-
        py:mod:`opendrift.readers.basereader.unstructured`.
 
    Common constructor for all readers
@@ -70,26 +65,37 @@ Attributes
       - extract the z array corresponding.
       - extract the index of the node within the 3D mesh
       - extract the variables at the point
-
       Args:
-
           x,y,z: np.arrays(float)
               3D coordinates of the particles
           time: np.datetime64
               age of the particle set
           variables: np.array(int)
               indexes of variables
-
       Returns:
-
           variables: dictionary of numpy arrays
 
 
-   .. py:method:: filter_points(self, indexes)
+   .. py:method:: __nearest_idx__(array, value)
+      :staticmethod:
 
-      Filter points that are not within the grid.
-      use finite element method to evaluate properties
-      ~~~ To be continued ~~~
+      we are looking for a tuple describing where the sample is and at which
+      distance. So we can calculate the FE solution of the variable value.
+      input:
+          array: a 1D numpy array
+          monotonic array
+      output:
+          bounds: a tupple
+          tupple describing the bounding indexes
+          dist = tupple
+          the distance between the sample and the index values
+          so that dist[0]+dist[1]=0
+
+
+   .. py:method:: __extractslf__(self, frames, duration, index_var, index_nodes)
+
+      extract variables from slf files
+      index_var must be a list of integer
 
 
 
