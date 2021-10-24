@@ -25,8 +25,8 @@
     <script src="../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
-    <link rel="next" title="Seeding from GeoJSON string" href="example_seed_geojson.html" />
-    <link rel="prev" title="Oil budget" href="example_oil_budget.html" /> 
+    <link rel="next" title="Entrainment rate for light and heavy oils" href="example_entrainment_rate_oil_types.html" />
+    <link rel="prev" title="Horizontal diffusion" href="example_horizontal_diffusion.html" /> 
 </head>
 
 <body class="wy-body-for-nav"> 
@@ -121,13 +121,13 @@
 <li class="toctree-l2"><a class="reference internal" href="example_convolve_input.html">Convolve input</a></li>
 <li class="toctree-l2"><a class="reference internal" href="example_mixed_layer_depth.html">Mixing down to Mixed Layer Depth</a></li>
 <li class="toctree-l2"><a class="reference internal" href="example_oil_budget.html">Oil budget</a></li>
-<li class="toctree-l2 current"><a class="current reference internal" href="#">Retieving wind drift factor from trajectory</a></li>
 <li class="toctree-l2"><a class="reference internal" href="example_seed_geojson.html">Seeding from GeoJSON string</a></li>
 <li class="toctree-l2"><a class="reference internal" href="example_generic.html">Generic example</a></li>
 <li class="toctree-l2"><a class="reference internal" href="example_compare.html">Compare</a></li>
 <li class="toctree-l2"><a class="reference internal" href="example_schism_native.html">SCHISM native reader</a></li>
 <li class="toctree-l2"><a class="reference internal" href="example_current_from_drifter.html">Current from drifter</a></li>
 <li class="toctree-l2"><a class="reference internal" href="example_horizontal_diffusion.html">Horizontal diffusion</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">Retieving wind drift factor from trajectory</a></li>
 <li class="toctree-l2"><a class="reference internal" href="example_entrainment_rate_oil_types.html">Entrainment rate for light and heavy oils</a></li>
 <li class="toctree-l2"><a class="reference internal" href="example_oil_thickness.html">Oil film thickness</a></li>
 <li class="toctree-l2"><a class="reference internal" href="example_seed_demonstration.html">Seed demonstration</a></li>
@@ -178,7 +178,9 @@ to download the full example code</p>
 <section class="sphx-glr-example-title" id="retieving-wind-drift-factor-from-trajectory">
 <span id="sphx-glr-gallery-example-wind-drift-coefficient-from-trajectory-py"></span><h1>Retieving wind drift factor from trajectory<a class="headerlink" href="#retieving-wind-drift-factor-from-trajectory" title="Permalink to this headline"></a></h1>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">datetime</span> <span class="kn">import</span> <span class="n">datetime</span><span class="p">,</span> <span class="n">timedelta</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
 <span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="k">as</span> <span class="nn">plt</span>
+<span class="kn">import</span> <span class="nn">cmocean</span>
 <span class="kn">from</span> <span class="nn">opendrift.models.oceandrift</span> <span class="kn">import</span> <span class="n">OceanDrift</span>
 <span class="kn">from</span> <span class="nn">opendrift.models.physics_methods</span> <span class="kn">import</span> <span class="n">wind_drift_factor_from_trajectory</span>
 </pre></div>
@@ -223,23 +225,7 @@ can be calculated from an observed trajectory.</p>
 <span class="n">t</span> <span class="o">=</span> <span class="n">o</span><span class="o">.</span><span class="n">get_variables_along_trajectory</span><span class="p">(</span><span class="n">variables</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;x_sea_water_velocity&#39;</span><span class="p">,</span> <span class="s1">&#39;y_sea_water_velocity&#39;</span><span class="p">,</span> <span class="s1">&#39;x_wind&#39;</span><span class="p">,</span> <span class="s1">&#39;y_wind&#39;</span><span class="p">],</span>
         <span class="n">lons</span><span class="o">=</span><span class="n">drifter_lons</span><span class="p">,</span> <span class="n">lats</span><span class="o">=</span><span class="n">drifter_lats</span><span class="p">,</span> <span class="n">times</span><span class="o">=</span><span class="n">drifter_times</span><span class="p">)</span>
 
-<span class="n">wind_drift_factor</span> <span class="o">=</span> <span class="n">wind_drift_factor_from_trajectory</span><span class="p">(</span><span class="n">t</span><span class="p">)</span>
-<span class="nb">print</span><span class="p">(</span><span class="n">wind_drift_factor</span><span class="p">)</span>
-</pre></div>
-</div>
-<p class="sphx-glr-script-out">Out:</p>
-<div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>[0.03086397 0.05481181 0.01345228 0.02533443 0.03768893 0.04688713
- 0.02941138 0.03340967 0.02393407 0.02366076 0.05784242 0.02147846
- 0.01268932 0.03119064 0.0410952  0.03512898 0.03018438 0.03624475
- 0.0373606  0.03358645 0.03369332 0.0564688  0.03373189 0.04586428
- 0.04303053 0.04100323 0.03010449 0.03603417 0.03467312 0.03475287
- 0.03492666 0.02966471 0.02937077 0.04520528 0.03822638 0.03106469
- 0.01920823 0.02619712 0.03370469 0.03482368 0.04521656 0.01903623
- 0.04682748 0.02851284 0.04612479 0.04495397 0.04110427 0.03846344
- 0.04936829 0.03664389 0.02288361 0.04714141 0.05763657 0.02368844
- 0.05975038 0.05722883 0.0561231  0.04066096 0.04441061 0.04757565
- 0.03669327 0.04465733 0.0239421  0.04053894 0.04174813 0.02637324
- 0.02609949 0.02782988 0.03944837 0.0390428  0.01626522 0.03686566]
+<span class="n">wind_drift_factor</span><span class="p">,</span> <span class="n">azimuth</span> <span class="o">=</span> <span class="n">wind_drift_factor_from_trajectory</span><span class="p">(</span><span class="n">t</span><span class="p">)</span>
 </pre></div>
 </div>
 <p>The mean retrieved wind_drift_factor is 0.036, slichtly higher than the value 0.033 used for the simulation.
@@ -253,7 +239,7 @@ other forcing datasets will yeld different value of the wind_drift_factor.</p>
 <span class="n">plt</span><span class="o">.</span><span class="n">axvline</span><span class="p">(</span><span class="n">x</span><span class="o">=</span><span class="n">wind_drift_factor</span><span class="o">.</span><span class="n">mean</span><span class="p">(),</span> <span class="n">label</span><span class="o">=</span><span class="s1">&#39;Mean retieved wind_drift_factor of </span><span class="si">%.3f</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="n">wind_drift_factor</span><span class="o">.</span><span class="n">mean</span><span class="p">(),</span> <span class="n">color</span><span class="o">=</span><span class="s1">&#39;r&#39;</span><span class="p">)</span>
 <span class="n">plt</span><span class="o">.</span><span class="n">ylabel</span><span class="p">(</span><span class="s1">&#39;Number&#39;</span><span class="p">)</span>
 <span class="n">plt</span><span class="o">.</span><span class="n">xlabel</span><span class="p">(</span><span class="s1">&#39;Wind drift factor  [fraction]&#39;</span><span class="p">)</span>
-<span class="n">plt</span><span class="o">.</span><span class="n">legend</span><span class="p">()</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">legend</span><span class="p">(</span><span class="n">loc</span><span class="o">=</span><span class="s1">&#39;lower left&#39;</span><span class="p">)</span>
 <span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
 </pre></div>
 </div>
@@ -261,7 +247,24 @@ other forcing datasets will yeld different value of the wind_drift_factor.</p>
 <div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>0.03640083777721621
 </pre></div>
 </div>
-<p class="sphx-glr-timing"><strong>Total running time of the script:</strong> ( 0 minutes  19.093 seconds)</p>
+<p>A polar 2D histogram showing also the azimuth offset direction of the retrieced wind drift factor</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">wmax</span> <span class="o">=</span> <span class="n">wind_drift_factor</span><span class="o">.</span><span class="n">max</span><span class="p">()</span>
+<span class="n">wbins</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">wmax</span><span class="o">+</span><span class="mf">.005</span><span class="p">,</span> <span class="mf">.005</span><span class="p">)</span>
+<span class="n">abins</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="o">-</span><span class="mi">180</span><span class="p">,</span> <span class="mi">180</span><span class="p">,</span> <span class="mi">30</span><span class="p">)</span>
+<span class="n">hist</span><span class="p">,</span> <span class="n">_</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">histogram2d</span><span class="p">(</span><span class="n">azimuth</span><span class="p">,</span> <span class="n">wind_drift_factor</span><span class="p">,</span> <span class="n">bins</span><span class="o">=</span><span class="p">(</span><span class="n">abins</span><span class="p">,</span> <span class="n">wbins</span><span class="p">))</span>
+<span class="n">A</span><span class="p">,</span> <span class="n">W</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">meshgrid</span><span class="p">(</span><span class="n">abins</span><span class="p">,</span> <span class="n">wbins</span><span class="p">)</span>
+<span class="n">fig</span><span class="p">,</span> <span class="n">ax</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span><span class="n">subplot_kw</span><span class="o">=</span><span class="nb">dict</span><span class="p">(</span><span class="n">projection</span><span class="o">=</span><span class="s1">&#39;polar&#39;</span><span class="p">))</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">set_theta_zero_location</span><span class="p">(</span><span class="s1">&#39;N&#39;</span><span class="p">,</span> <span class="n">offset</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">set_theta_direction</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span>
+<span class="n">pc</span> <span class="o">=</span> <span class="n">ax</span><span class="o">.</span><span class="n">pcolormesh</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">radians</span><span class="p">(</span><span class="n">A</span><span class="p">),</span> <span class="n">W</span><span class="p">,</span> <span class="n">hist</span><span class="o">.</span><span class="n">T</span><span class="p">,</span> <span class="n">cmap</span><span class="o">=</span><span class="n">cmocean</span><span class="o">.</span><span class="n">cm</span><span class="o">.</span><span class="n">dense</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">arrow</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">pi</span><span class="p">,</span> <span class="n">wmax</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="o">-</span><span class="n">wmax</span><span class="p">,</span> <span class="n">width</span><span class="o">=</span><span class="mf">.015</span><span class="p">,</span> <span class="n">facecolor</span><span class="o">=</span><span class="s1">&#39;k&#39;</span><span class="p">,</span> <span class="n">zorder</span><span class="o">=</span><span class="mi">100</span><span class="p">,</span>
+          <span class="n">head_width</span><span class="o">=</span><span class="mf">.8</span><span class="p">,</span> <span class="n">lw</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">head_length</span><span class="o">=</span><span class="mf">.005</span><span class="p">,</span> <span class="n">length_includes_head</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">text</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">pi</span><span class="p">,</span> <span class="n">wmax</span><span class="o">*</span><span class="mf">.5</span><span class="p">,</span> <span class="s1">&#39; Wind direction&#39;</span><span class="p">,</span> <span class="n">fontsize</span><span class="o">=</span><span class="mi">18</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">grid</span><span class="p">()</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+</pre></div>
+</div>
+<img src="../_images/sphx_glr_example_wind_drift_coefficient_from_trajectory_003.png" srcset="../_images/sphx_glr_example_wind_drift_coefficient_from_trajectory_003.png" alt="example wind drift coefficient from trajectory" class = "sphx-glr-single-img"/><p class="sphx-glr-timing"><strong>Total running time of the script:</strong> ( 0 minutes  30.241 seconds)</p>
 <div class="sphx-glr-footer class sphx-glr-footer-example docutils container" id="sphx-glr-download-gallery-example-wind-drift-coefficient-from-trajectory-py">
 <div class="sphx-glr-download sphx-glr-download-python docutils container">
 <p><a class="reference download internal" download="" href="../_downloads/88e407aefe00a8e42f7b6bc12d926652/example_wind_drift_coefficient_from_trajectory.py"><code class="xref download docutils literal notranslate"><span class="pre">Download</span> <span class="pre">Python</span> <span class="pre">source</span> <span class="pre">code:</span> <span class="pre">example_wind_drift_coefficient_from_trajectory.py</span></code></a></p>
@@ -277,8 +280,8 @@ other forcing datasets will yeld different value of the wind_drift_factor.</p>
            </div>
           </div>
           <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
-        <a href="example_oil_budget.html" class="btn btn-neutral float-left" title="Oil budget" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
-        <a href="example_seed_geojson.html" class="btn btn-neutral float-right" title="Seeding from GeoJSON string" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+        <a href="example_horizontal_diffusion.html" class="btn btn-neutral float-left" title="Horizontal diffusion" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="example_entrainment_rate_oil_types.html" class="btn btn-neutral float-right" title="Entrainment rate for light and heavy oils" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
     </div>
 
   <hr/>
