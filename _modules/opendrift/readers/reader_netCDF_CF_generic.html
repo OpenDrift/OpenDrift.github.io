@@ -580,6 +580,23 @@
             <span class="k">else</span><span class="p">:</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">rotate_variable_dict</span><span class="p">(</span><span class="n">variables</span><span class="p">)</span>
 
+        <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s1">&#39;shift_x&#39;</span><span class="p">):</span>
+            <span class="c1"># &quot;hidden feature&quot;: if reader.shift_x and reader.shift_y are defined,</span>
+            <span class="c1"># the returned fields are shifted this many meters in the x- and y directions</span>
+            <span class="c1"># E.g. reader.shift_x=10000 gives a shift 10 km eastwards (if x is east direction)</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">proj</span><span class="o">.</span><span class="n">crs</span><span class="o">.</span><span class="n">is_geographic</span><span class="p">:</span>  <span class="c1"># meters to degrees</span>
+                <span class="n">shift_y</span> <span class="o">=</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">shift_y</span><span class="o">/</span><span class="mi">111000</span><span class="p">)</span>
+                <span class="n">shift_x</span> <span class="o">=</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">shift_x</span><span class="o">/</span><span class="mi">111000</span><span class="p">)</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">cos</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">radians</span><span class="p">(</span><span class="n">variables</span><span class="p">[</span><span class="s1">&#39;y&#39;</span><span class="p">]))</span>
+                <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s1">&#39;Shifting x between </span><span class="si">%s</span><span class="s1"> and </span><span class="si">%s</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">shift_x</span><span class="o">.</span><span class="n">min</span><span class="p">(),</span> <span class="n">shift_x</span><span class="o">.</span><span class="n">max</span><span class="p">()))</span>
+                <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s1">&#39;Shifting y with </span><span class="si">%s</span><span class="s1"> m&#39;</span> <span class="o">%</span> <span class="n">shift_y</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">shift_x</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">shift_x</span>
+                <span class="n">shift_y</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">shift_y</span>
+                <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s1">&#39;Shifting x with </span><span class="si">%s</span><span class="s1"> m&#39;</span> <span class="o">%</span> <span class="n">shift_x</span><span class="p">)</span>
+                <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s1">&#39;Shifting y with </span><span class="si">%s</span><span class="s1"> m&#39;</span> <span class="o">%</span> <span class="n">shift_y</span><span class="p">)</span>
+            <span class="n">variables</span><span class="p">[</span><span class="s1">&#39;x&#39;</span><span class="p">]</span> <span class="o">+=</span> <span class="n">shift_x</span>
+            <span class="n">variables</span><span class="p">[</span><span class="s1">&#39;y&#39;</span><span class="p">]</span> <span class="o">+=</span> <span class="n">shift_y</span>
+
         <span class="k">return</span> <span class="n">variables</span></div></div>
 </pre></div>
 
