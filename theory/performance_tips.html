@@ -1,8 +1,7 @@
 <!DOCTYPE html>
 <html class="writer-html5" lang="en" >
 <head>
-  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
-
+  <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Improving performance &mdash; OpenDrift  documentation</title>
       <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
@@ -98,7 +97,7 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
              
-  <section id="improving-performance">
+  <div class="section" id="improving-performance">
 <h1>Improving performance<a class="headerlink" href="#improving-performance" title="Permalink to this headline"></a></h1>
 <p>OpenDrift is fairly optimised Python code, but simulations may take long time (even several days) if many elements (~millions) and many time steps (~thousands).
 We hope to parallelise OpenDrift in the near future, to improve performance on machines with many cores. In the meantime, the following can be done to increase performance or decrease memory and disk usage:</p>
@@ -120,7 +119,7 @@ We hope to parallelise OpenDrift in the near future, to improve performance on m
 </li>
 <li><p>Quasi-parallelisation can be done by splitting the initial elements up in geographical sub-regions, and running simulations in parallel for each subset.</p></li>
 </ul>
-<section id="some-notes-about-performance">
+<div class="section" id="some-notes-about-performance">
 <h2>Some notes about performance<a class="headerlink" href="#some-notes-about-performance" title="Permalink to this headline"></a></h2>
 <p>Each OpenDrift module has an attribute <code class="docutils literal notranslate"><span class="pre">max_speed</span></code> which indicates the maximum velocity that elements will likely encounter. This is accessible as <code class="docutils literal notranslate"><span class="pre">o.max_speed</span></code> for an OpenDrift object <code class="docutils literal notranslate"><span class="pre">o</span></code>. Typical values are 2 m/s for ocean drift models, but as large as 12 m/s for the WindBlow module where elements move at the speed of the wind. It might be overriden by the user at any time, simply by writing <code class="docutils literal notranslate"><span class="pre">o.max_speed</span> <span class="pre">=</span> <span class="pre">3</span></code> before starting a run. This parameter is not an absolute bound for instantaneous velocity, but rather for the average velocity in a particular direction over a time period. It serves two purposes:</p>
 <ul class="simple">
@@ -128,8 +127,8 @@ We hope to parallelise OpenDrift in the near future, to improve performance on m
 <span class="pre">*</span> <span class="pre">simulation_duration_seconds</span></code>. It is of interest to keep this buffer as small as possible, as checking land encounter for many particles versus a large area of coastline and islands may be costly.</p></li>
 <li><p>During the run, all readers are called to return data (2D or 3D “blocks”) covering all the elements. This block of data should not only cover elements at their present position, but also the area over which elements might move within the next timestep of the reader (e.g. typically 1, 3, 6 or 24 hours for an ocean model). As with the landmask above, this buffer around present positions is calculated as <code class="docutils literal notranslate"><span class="pre">o.max_speed</span> <span class="pre">*</span> <span class="pre">timestep_of_reader</span></code>. Again, it of interest to keep the buffer as small as possible to save time reading data from file (or from Thredds), but still avoiding that elements will leave the reader-block coverage within the timestep.</p></li>
 </ul>
-</section>
-</section>
+</div>
+</div>
 
 
            </div>
