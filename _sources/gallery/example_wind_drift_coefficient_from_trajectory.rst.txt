@@ -31,7 +31,7 @@ Retieving wind drift factor from trajectory
     import matplotlib.pyplot as plt
     import cmocean
     from opendrift.models.oceandrift import OceanDrift
-    from opendrift.models.physics_methods import wind_drift_factor_from_trajectory
+    from opendrift.models.physics_methods import wind_drift_factor_from_trajectory, distance_between_trajectories
 
 
 
@@ -90,40 +90,25 @@ Using a wind_drift_factor of 0.33 i.e. drift is current + 3.3% of wind speed
 
 Adding some horizontal diffusivity as "noise"
 
-.. GENERATED FROM PYTHON SOURCE LINES 35-40
+.. GENERATED FROM PYTHON SOURCE LINES 35-38
 
 .. code-block:: default
 
     ot.set_config('drift:horizontal_diffusivity', 10)
     ot.run(duration=timedelta(hours=12), time_step=600)
 
-    ot.plot(fast=True, title='Synthetic drifter trajectory')
 
 
 
 
-.. image-sg:: /gallery/images/sphx_glr_example_wind_drift_coefficient_from_trajectory_001.png
-   :alt: Synthetic drifter trajectory
-   :srcset: /gallery/images/sphx_glr_example_wind_drift_coefficient_from_trajectory_001.png
-   :class: sphx-glr-single-img
-
-
-.. rst-class:: sphx-glr-script-out
-
- Out:
-
- .. code-block:: none
-
-
-    (<GeoAxesSubplot:title={'center':'Synthetic drifter trajectory'}>, <module 'matplotlib.pyplot' from '/opt/conda/envs/opendrift/lib/python3.9/site-packages/matplotlib/pyplot.py'>)
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 41-42
+.. GENERATED FROM PYTHON SOURCE LINES 39-40
 
 Secondly, calculating the wind_drift_factor which reproduces the "observed" trajectory with minimal difference
 
-.. GENERATED FROM PYTHON SOURCE LINES 42-55
+.. GENERATED FROM PYTHON SOURCE LINES 40-56
 
 .. code-block:: default
 
@@ -140,6 +125,8 @@ Secondly, calculating the wind_drift_factor which reproduces the "observed" traj
 
     wind_drift_factor, azimuth = wind_drift_factor_from_trajectory(t)
 
+    o.seed_elements(lon=4, lat=60, number=1, time=ot.readers[list(ot.readers)[0]].start_time,
+                    wind_drift_factor=0.033)
 
 
 
@@ -147,14 +134,82 @@ Secondly, calculating the wind_drift_factor which reproduces the "observed" traj
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 56-60
+
+.. GENERATED FROM PYTHON SOURCE LINES 57-58
+
+New simulation, this time without diffusivity/noise
+
+.. GENERATED FROM PYTHON SOURCE LINES 58-60
+
+.. code-block:: default
+
+    o.run(duration=timedelta(hours=12), time_step=600)
+
+
+
+
+
+
+
+
+.. GENERATED FROM PYTHON SOURCE LINES 61-62
+
+Calculate distances (meters) between simulation and synthetic drifter at each time step
+
+.. GENERATED FROM PYTHON SOURCE LINES 62-69
+
+.. code-block:: default
+
+    distances = distance_between_trajectories(o.history['lon'][0], o.history['lat'][0],
+                                              drifter_lons, drifter_lats)
+    print(distances)
+
+    o.plot(fast=True, legend=True, trajectory_dict={'lon': drifter_lons, 'lat': drifter_lats,
+            'time': drifter_times, 'linestyle': 'b--', 'label': 'Synthetic drifter'})
+
+
+
+
+.. image-sg:: /gallery/images/sphx_glr_example_wind_drift_coefficient_from_trajectory_001.png
+   :alt: OpenDrift - OceanDrift 2015-11-16 00:00 to 2015-11-16 12:00 UTC (73 steps)
+   :srcset: /gallery/images/sphx_glr_example_wind_drift_coefficient_from_trajectory_001.png
+   :class: sphx-glr-single-img
+
+
+.. rst-class:: sphx-glr-script-out
+
+ Out:
+
+ .. code-block:: none
+
+    [   0.          198.23333315  417.50078863  532.26327164  624.00504307
+      623.74534057  700.4714585   772.5640744   825.54965591  955.72756482
+      947.09322653  692.91135028  746.54075057  970.89965385  979.46836053
+     1150.07666045 1169.80651893 1079.09373976 1026.5094282  1145.3998271
+     1095.96460474  977.54900406  815.72651558  748.60265455  626.30550862
+      437.58989068  354.11220059  254.37670852  275.21740728  332.32963544
+      295.33723678  230.93817081   39.78574948   63.75329065  124.4218301
+      222.05460255  140.41958587   91.05632877  171.50541499  240.70886042
+      245.88091123  252.9855333   329.07232604   75.32335621  162.98902685
+       21.64391169  153.5111606   257.68264903  334.15102667  525.37165814
+      567.52834043  489.75387854  537.3508742   740.87659466  669.24024069
+      855.17768547 1013.16678878 1185.89566758 1268.18714485 1273.08702306
+     1370.68396267 1230.87160165 1354.76221795 1311.02188125 1509.48971843
+     1568.85675672 1642.21283261 1667.10054756 1773.41106041 1782.76801759
+     1694.10196547 1784.63122265 1883.28436459]
+
+    (<GeoAxesSubplot:title={'center':'OpenDrift - OceanDrift\n2015-11-16 00:00 to 2015-11-16 12:00 UTC (73 steps)'}>, <module 'matplotlib.pyplot' from '/opt/conda/envs/opendrift/lib/python3.9/site-packages/matplotlib/pyplot.py'>)
+
+
+
+.. GENERATED FROM PYTHON SOURCE LINES 70-74
 
 The mean retrieved wind_drift_factor is 0.036, slichtly higher than the value 0.033 used for the simulation.
 The difference is due to the "noise" added by horizontal diffusion.
 Note that the retieved wind_drift_factor is linked to the wind and current used for the retrieval,
 other forcing datasets will yeld different value of the wind_drift_factor.
 
-.. GENERATED FROM PYTHON SOURCE LINES 60-71
+.. GENERATED FROM PYTHON SOURCE LINES 74-85
 
 .. code-block:: default
 
@@ -189,11 +244,11 @@ other forcing datasets will yeld different value of the wind_drift_factor.
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 72-73
+.. GENERATED FROM PYTHON SOURCE LINES 86-87
 
 A polar 2D histogram showing also the azimuth offset direction of the retrieced wind drift factor
 
-.. GENERATED FROM PYTHON SOURCE LINES 73-87
+.. GENERATED FROM PYTHON SOURCE LINES 87-101
 
 .. code-block:: default
 
@@ -226,7 +281,7 @@ A polar 2D histogram showing also the azimuth offset direction of the retrieced 
 
 .. rst-class:: sphx-glr-timing
 
-   **Total running time of the script:** ( 0 minutes  19.026 seconds)
+   **Total running time of the script:** ( 0 minutes  30.172 seconds)
 
 
 .. _sphx_glr_download_gallery_example_wind_drift_coefficient_from_trajectory.py:
