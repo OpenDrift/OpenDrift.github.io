@@ -114,9 +114,13 @@
 <span class="kn">import</span> <span class="nn">logging</span><span class="p">;</span> <span class="n">logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span>
 <span class="kn">import</span> <span class="nn">glob</span>
 <span class="kn">import</span> <span class="nn">json</span>
+<span class="kn">import</span> <span class="nn">opendrift</span>
 
 <div class="viewcode-block" id="reader_from_url"><a class="viewcode-back" href="../../autoapi/opendrift/readers/index.html#opendrift.readers.reader_from_url">[docs]</a><span class="k">def</span> <span class="nf">reader_from_url</span><span class="p">(</span><span class="n">url</span><span class="p">,</span> <span class="n">timeout</span><span class="o">=</span><span class="mi">10</span><span class="p">):</span>
     <span class="sd">&#39;&#39;&#39;Make readers from URLs or paths to datasets&#39;&#39;&#39;</span>
+
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">url</span><span class="p">,</span> <span class="nb">list</span><span class="p">):</span>
+        <span class="k">return</span> <span class="p">[</span><span class="n">reader_from_url</span><span class="p">(</span><span class="n">u</span><span class="p">)</span> <span class="k">for</span> <span class="n">u</span> <span class="ow">in</span> <span class="n">url</span><span class="p">]</span>
 
     <span class="k">try</span><span class="p">:</span>  <span class="c1"># Initialise reader from JSON string</span>
         <span class="n">j</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">loads</span><span class="p">(</span><span class="n">url</span><span class="p">)</span>
@@ -133,81 +137,30 @@
     <span class="k">except</span><span class="p">:</span>
         <span class="k">pass</span>
 
-    <span class="kn">from</span> <span class="nn">opendrift.readers</span> <span class="kn">import</span> <span class="n">reader_netCDF_CF_generic</span>
-
-    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">url</span><span class="p">,</span> <span class="nb">list</span><span class="p">):</span>
-        <span class="k">return</span> <span class="p">[</span><span class="n">reader_from_url</span><span class="p">(</span><span class="n">u</span><span class="p">)</span> <span class="k">for</span> <span class="n">u</span> <span class="ow">in</span> <span class="n">url</span><span class="p">]</span>
-
-    <span class="n">files</span> <span class="o">=</span> <span class="n">glob</span><span class="o">.</span><span class="n">glob</span><span class="p">(</span><span class="n">url</span><span class="p">)</span>
-    <span class="k">for</span> <span class="n">f</span> <span class="ow">in</span> <span class="n">files</span><span class="p">:</span>  <span class="c1"># Regular file</span>
+    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">glob</span><span class="o">.</span><span class="n">glob</span><span class="p">(</span><span class="n">url</span><span class="p">))</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>  <span class="c1"># Check if this is a URL, and not giving timeout</span>
+        <span class="kn">import</span> <span class="nn">requests</span>
         <span class="k">try</span><span class="p">:</span>
-            <span class="n">r</span> <span class="o">=</span> <span class="n">reader_netCDF_CF_generic</span><span class="o">.</span><span class="n">Reader</span><span class="p">(</span><span class="n">f</span><span class="p">)</span>
-            <span class="k">return</span> <span class="n">r</span>
-
+            <span class="n">resp</span> <span class="o">=</span> <span class="n">requests</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">url</span><span class="p">,</span> <span class="n">timeout</span><span class="o">=</span><span class="n">timeout</span><span class="p">)</span>
+        <span class="k">except</span> <span class="n">requests</span><span class="o">.</span><span class="n">exceptions</span><span class="o">.</span><span class="n">MissingSchema</span><span class="p">:</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s1">&#39;Neither a file or a URL: &#39;</span> <span class="o">+</span> <span class="n">url</span><span class="p">)</span>
+            <span class="k">return</span> <span class="kc">None</span>
         <span class="k">except</span><span class="p">:</span>
-            <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="s1">&#39;</span><span class="si">%s</span><span class="s1"> is not a netCDF CF file recognised by &#39;</span>
-                            <span class="s1">&#39;OpenDrift&#39;</span> <span class="o">%</span> <span class="n">f</span><span class="p">)</span>
-            <span class="k">try</span><span class="p">:</span>
-                <span class="kn">from</span> <span class="nn">opendrift.readers.reader_ROMS_native</span> <span class="kn">import</span> <span class="n">Reader</span> <span class="k">as</span> <span class="n">Reader_ROMS_native</span>
-                <span class="n">r</span> <span class="o">=</span> <span class="n">Reader_ROMS_native</span><span class="p">(</span><span class="n">f</span><span class="p">)</span>
-                <span class="k">return</span> <span class="n">r</span>
-            <span class="k">except</span><span class="p">:</span>
-                <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="s1">&#39;</span><span class="si">%s</span><span class="s1"> is also not a ROMS netCDF file recognised by &#39;</span>
-                                <span class="s1">&#39;OpenDrift&#39;</span> <span class="o">%</span> <span class="n">f</span><span class="p">)</span>
-                <span class="k">try</span><span class="p">:</span>
-                    <span class="kn">from</span> <span class="nn">opendrift.readers.reader_grib</span> <span class="kn">import</span> <span class="n">Reader</span> <span class="k">as</span> <span class="n">Reader_grib</span>
-                    <span class="n">r</span> <span class="o">=</span> <span class="n">Reader_grib</span><span class="p">(</span><span class="n">f</span><span class="p">)</span>
-                    <span class="k">return</span> <span class="n">r</span>
-                <span class="k">except</span><span class="p">:</span>
-                    <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="s1">&#39;</span><span class="si">%s</span><span class="s1"> is also not a GRIB file recognised by &#39;</span>
-                                    <span class="s1">&#39;OpenDrift&#39;</span> <span class="o">%</span> <span class="n">f</span><span class="p">)</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s1">&#39;Connection error for &#39;</span> <span class="o">+</span> <span class="n">url</span><span class="p">)</span>
+            <span class="k">return</span> <span class="kc">None</span>
 
-    <span class="k">if</span> <span class="n">files</span> <span class="o">==</span> <span class="p">[]:</span>  <span class="c1"># Try with OPeNDAP URL</span>
-        <span class="k">try</span><span class="p">:</span>  <span class="c1"># Check URL accessibility/timeout</span>
-            <span class="kn">import</span> <span class="nn">urllib.request</span> <span class="k">as</span> <span class="nn">urllib_request</span>
-            <span class="n">request</span> <span class="o">=</span> <span class="n">urllib_request</span><span class="o">.</span><span class="n">Request</span><span class="p">(</span><span class="n">url</span><span class="p">)</span>
-            <span class="k">try</span><span class="p">:</span>  <span class="c1"># netrc</span>
-                <span class="kn">import</span> <span class="nn">netrc</span>
-                <span class="kn">import</span> <span class="nn">base64</span>
-                <span class="n">parts</span> <span class="o">=</span> <span class="n">urllib_request</span><span class="o">.</span><span class="n">urlparse</span><span class="o">.</span><span class="n">urlparse</span><span class="p">(</span><span class="n">url</span><span class="p">)</span>
-                <span class="n">login</span><span class="p">,</span> <span class="n">account</span><span class="p">,</span> <span class="n">password</span> <span class="o">=</span> <span class="n">netrc</span><span class="o">.</span><span class="n">netrc</span><span class="p">()</span><span class="o">.</span><span class="n">authenticators</span><span class="p">(</span><span class="n">parts</span><span class="o">.</span><span class="n">netloc</span><span class="p">)</span>
-                <span class="n">creds</span> <span class="o">=</span> <span class="n">base64</span><span class="o">.</span><span class="n">encodestring</span><span class="p">(</span><span class="s1">&#39;</span><span class="si">%s</span><span class="s1">:</span><span class="si">%s</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">login</span><span class="p">,</span> <span class="n">password</span><span class="p">))</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
-                <span class="n">request</span><span class="o">.</span><span class="n">add_header</span><span class="p">(</span><span class="s2">&quot;Authorization&quot;</span><span class="p">,</span> <span class="s2">&quot;Basic </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">creds</span><span class="p">)</span>
-                <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;Applied NETRC credentials&#39;</span><span class="p">)</span>
-            <span class="k">except</span><span class="p">:</span>
-                <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;Could not apply NETRC credentials&#39;</span><span class="p">)</span>
-            <span class="n">urllib_request</span><span class="o">.</span><span class="n">urlopen</span><span class="p">(</span><span class="n">request</span><span class="p">,</span> <span class="n">timeout</span><span class="o">=</span><span class="n">timeout</span><span class="p">)</span>
+    <span class="n">reader_modules</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;reader_netCDF_CF_generic&#39;</span><span class="p">,</span>
+                      <span class="s1">&#39;reader_ROMS_native&#39;</span><span class="p">,</span>
+                      <span class="s1">&#39;reader_grib&#39;</span><span class="p">]</span>
+
+    <span class="k">for</span> <span class="n">rm</span> <span class="ow">in</span> <span class="n">reader_modules</span><span class="p">:</span>
+        <span class="n">reader_module</span> <span class="o">=</span> <span class="n">importlib</span><span class="o">.</span><span class="n">import_module</span><span class="p">(</span><span class="s1">&#39;opendrift.readers.&#39;</span> <span class="o">+</span> <span class="n">rm</span><span class="p">)</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">r</span> <span class="o">=</span> <span class="n">reader_module</span><span class="o">.</span><span class="n">Reader</span><span class="p">(</span><span class="n">url</span><span class="p">)</span>
+            <span class="k">return</span> <span class="n">r</span>
         <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
-            <span class="c1"># Error code 400 is expected!</span>
-            <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">e</span><span class="p">,</span> <span class="n">urllib_request</span><span class="o">.</span><span class="n">HTTPError</span><span class="p">)</span> <span class="ow">or</span> <span class="n">e</span><span class="o">.</span><span class="n">code</span> <span class="o">!=</span> <span class="mi">400</span><span class="p">:</span>
-                <span class="n">status_code</span> <span class="o">=</span> <span class="kc">None</span>
-                <span class="k">try</span><span class="p">:</span>  <span class="c1"># Trying with requests library (should be default)</span>
-                    <span class="kn">import</span> <span class="nn">requests</span>
-                    <span class="n">resp</span> <span class="o">=</span> <span class="n">requests</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">url</span> <span class="o">+</span> <span class="s1">&#39;.das&#39;</span><span class="p">)</span>
-                    <span class="n">status_code</span> <span class="o">=</span> <span class="n">resp</span><span class="o">.</span><span class="n">status_code</span>
-                <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
-                    <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="s1">&#39;ULR </span><span class="si">%s</span><span class="s1"> not accessible: &#39;</span> <span class="o">%</span> <span class="n">url</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">e</span><span class="p">))</span>
-                    <span class="k">return</span> <span class="kc">None</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Could not open </span><span class="si">%s</span><span class="s1"> with </span><span class="si">%s</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">url</span><span class="p">,</span> <span class="n">rm</span><span class="p">))</span>
 
-                <span class="k">if</span> <span class="n">status_code</span> <span class="o">&gt;=</span> <span class="mi">400</span><span class="p">:</span>
-                    <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="s1">&#39;ULR </span><span class="si">%s</span><span class="s1"> not accessible: &#39;</span> <span class="o">%</span> <span class="n">url</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">e</span><span class="p">))</span>
-                    <span class="k">return</span> <span class="kc">None</span>
-            <span class="k">try</span><span class="p">:</span>
-                <span class="kn">from</span> <span class="nn">opendrift.readers</span> <span class="kn">import</span> <span class="n">reader_netCDF_CF_generic</span>
-                <span class="n">r</span> <span class="o">=</span> <span class="n">reader_netCDF_CF_generic</span><span class="o">.</span><span class="n">Reader</span><span class="p">(</span><span class="n">url</span><span class="p">)</span>
-                <span class="k">return</span> <span class="n">r</span>
-            <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
-                <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="s1">&#39;</span><span class="si">%s</span><span class="s1"> is not a netCDF file recognised &#39;</span>
-                                <span class="s1">&#39;by OpenDrift: </span><span class="si">%s</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">url</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">e</span><span class="p">)))</span>
-                <span class="k">try</span><span class="p">:</span>
-                    <span class="kn">from</span> <span class="nn">opendrift.readers.reader_ROMS_native</span> <span class="kn">import</span> <span class="n">Reader</span> <span class="k">as</span> <span class="n">Reader_ROMS_native</span>
-                    <span class="n">r</span> <span class="o">=</span> <span class="n">Reader_ROMS_native</span><span class="p">(</span><span class="n">url</span><span class="p">)</span>
-                    <span class="k">return</span> <span class="n">r</span>
-                <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
-                    <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="s1">&#39;</span><span class="si">%s</span><span class="s1"> is also not a ROMS netCDF file recognised by &#39;</span>
-                                    <span class="s1">&#39;OpenDrift: </span><span class="si">%s</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">url</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">e</span><span class="p">)))</span>
-
-                <span class="k">return</span> <span class="kc">None</span></div>
+    <span class="k">return</span> <span class="kc">None</span>  <span class="c1"># No readers worked</span></div>
 </pre></div>
 
            </div>
