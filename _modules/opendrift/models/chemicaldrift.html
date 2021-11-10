@@ -582,7 +582,8 @@
         <span class="nb">super</span><span class="p">(</span><span class="n">ChemicalDrift</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">seed_elements</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="ChemicalDrift.tempcorr"><a class="viewcode-back" href="../../../autoapi/opendrift/models/chemicaldrift/index.html#opendrift.models.chemicaldrift.ChemicalDrift.tempcorr">[docs]</a>    <span class="k">def</span> <span class="nf">tempcorr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">mode</span><span class="p">,</span><span class="n">DeltaH</span><span class="p">,</span><span class="n">T_C</span><span class="p">,</span><span class="n">Tref_C</span><span class="p">):</span>
-
+        <span class="sd">&#39;&#39;&#39; Temperature correction using Arrhenius or Q10 method</span>
+<span class="sd">        &#39;&#39;&#39;</span>
         <span class="k">if</span> <span class="n">mode</span> <span class="o">==</span> <span class="s1">&#39;Arrhenius&#39;</span><span class="p">:</span>
             <span class="n">R</span> <span class="o">=</span> <span class="mf">8.3145</span> <span class="c1"># J/(mol*K)</span>
             <span class="n">T_K</span> <span class="o">=</span> <span class="n">T_C</span> <span class="o">+</span> <span class="mf">273.15</span>
@@ -593,7 +594,8 @@
         <span class="k">return</span> <span class="n">corr</span></div>
 
 <div class="viewcode-block" id="ChemicalDrift.salinitycorr"><a class="viewcode-back" href="../../../autoapi/opendrift/models/chemicaldrift/index.html#opendrift.models.chemicaldrift.ChemicalDrift.salinitycorr">[docs]</a>    <span class="k">def</span> <span class="nf">salinitycorr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">Setschenow</span><span class="p">,</span><span class="n">Temperature</span><span class="p">,</span><span class="n">Salinity</span><span class="p">):</span>
-
+        <span class="sd">&#39;&#39;&#39; Salinity correction</span>
+<span class="sd">        &#39;&#39;&#39;</span>
         <span class="c1"># Setschenow constant for the given chemical (L/mol)</span>
         <span class="c1"># Salinity   (PSU =g/Kg)</span>
         <span class="c1"># Temperature (Celsius)</span>
@@ -2021,24 +2023,40 @@
             <span class="c1">#mass_element_ug=1e6     # 1e6 - 1 element is 1g chemical</span>
 
             <span class="k">def</span> <span class="nf">emission_factors</span><span class="p">(</span><span class="n">scrubber_type</span><span class="p">,</span> <span class="n">chemical_compound</span><span class="p">):</span>
+                <span class="sd">&quot;&quot;&quot;Emission factors for heavy metals and PAHs in</span>
+<span class="sd">                    open loop and closed loop scrubbers</span>
+
+<span class="sd">                    Hermansson et al 2021</span>
+<span class="sd">                    https://doi.org/10.1016/j.trd.2021.102912</span>
+<span class="sd">                &quot;&quot;&quot;</span>
                 <span class="n">emission_factors_open_loop</span> <span class="o">=</span> <span class="p">{</span>
-                    <span class="s2">&quot;Copper&quot;</span><span class="p">:</span> <span class="mf">38.75</span><span class="p">,</span>                <span class="c1"># ug/L micrograms per liter</span>
-                    <span class="s2">&quot;Nickel&quot;</span><span class="p">:</span> <span class="mf">46.86</span><span class="p">,</span>
-                    <span class="s2">&quot;Vanadium&quot;</span><span class="p">:</span> <span class="mf">176.59</span><span class="p">,</span>
-                    <span class="s2">&quot;Zinc&quot;</span><span class="p">:</span> <span class="mf">110.84</span><span class="p">,</span>
-                    <span class="s2">&quot;Naphthalene&quot;</span><span class="p">:</span> <span class="mf">2.76</span><span class="p">,</span>
-                    <span class="s2">&quot;Phenanthrene&quot;</span><span class="p">:</span> <span class="mf">1.51</span><span class="p">,</span>
-                    <span class="s2">&quot;Fluoranthene&quot;</span><span class="p">:</span> <span class="mf">0.16</span><span class="p">,</span>
-                    <span class="s2">&quot;Benzo(a)anthracene&quot;</span><span class="p">:</span> <span class="mf">0.13</span><span class="p">,</span>
-                    <span class="s2">&quot;Benzo(a)pyrene&quot;</span><span class="p">:</span> <span class="mf">0.05</span><span class="p">,</span>
-                    <span class="s2">&quot;Dibenzo(a,h)anthracene&quot;</span><span class="p">:</span> <span class="mf">0.03</span>
+                    <span class="c1">#                           mean    +/-95%</span>
+                    <span class="c1">#                           ug/L    ug/L</span>
+                    <span class="s2">&quot;Arsenic&quot;</span><span class="p">:</span>                  <span class="p">[</span><span class="mf">6.8</span><span class="p">,</span>    <span class="mf">3.4</span><span class="p">],</span>
+                    <span class="s2">&quot;Cadmium&quot;</span><span class="p">:</span>                  <span class="p">[</span><span class="mf">0.8</span><span class="p">,</span>    <span class="mf">0.3</span><span class="p">],</span>
+                    <span class="s2">&quot;Chromium&quot;</span><span class="p">:</span>                 <span class="p">[</span><span class="mf">15.</span><span class="p">,</span>    <span class="mf">6.5</span><span class="p">],</span>
+                    <span class="s2">&quot;Copper&quot;</span><span class="p">:</span>                   <span class="p">[</span><span class="mf">36.</span><span class="p">,</span>    <span class="mf">12.</span><span class="p">],</span>
+                    <span class="s2">&quot;Iron&quot;</span><span class="p">:</span>                     <span class="p">[</span><span class="mf">260.</span><span class="p">,</span>   <span class="mf">250.</span><span class="p">],</span>
+                    <span class="s2">&quot;Lead&quot;</span><span class="p">:</span>                     <span class="p">[</span><span class="mf">8.8</span><span class="p">,</span>    <span class="mf">4.4</span><span class="p">],</span>
+                    <span class="s2">&quot;Mercury&quot;</span><span class="p">:</span>                  <span class="p">[</span><span class="mf">0.09</span><span class="p">,</span>   <span class="mf">0.01</span><span class="p">],</span>
+                    <span class="s2">&quot;Nickel&quot;</span><span class="p">:</span>                   <span class="p">[</span><span class="mf">48.</span><span class="p">,</span>    <span class="mf">12.</span><span class="p">],</span>
+                    <span class="s2">&quot;Vanadium&quot;</span><span class="p">:</span>                 <span class="p">[</span><span class="mf">170.</span><span class="p">,</span>   <span class="mf">49.</span><span class="p">],</span>
+                    <span class="s2">&quot;Zinc&quot;</span><span class="p">:</span>                     <span class="p">[</span><span class="mf">110.</span><span class="p">,</span>   <span class="mf">59.</span><span class="p">],</span>
+                    <span class="c1">#</span>
+                    <span class="s2">&quot;Naphthalene&quot;</span><span class="p">:</span>              <span class="p">[</span><span class="mf">2.81</span><span class="p">,</span>   <span class="mf">0.77</span><span class="p">],</span>
+                    <span class="s2">&quot;Phenanthrene&quot;</span><span class="p">:</span>             <span class="p">[</span><span class="mf">1.51</span><span class="p">,</span>   <span class="mf">0.29</span><span class="p">],</span>
+                    <span class="s2">&quot;Fluoranthene&quot;</span><span class="p">:</span>             <span class="p">[</span><span class="mf">0.16</span><span class="p">,</span>   <span class="mf">0.04</span><span class="p">],</span>
+                    <span class="s2">&quot;Benzo(a)anthracene&quot;</span><span class="p">:</span>       <span class="p">[</span><span class="mf">0.12</span><span class="p">,</span>   <span class="mf">0.05</span><span class="p">],</span>
+                    <span class="s2">&quot;Benzo(a)pyrene&quot;</span><span class="p">:</span>           <span class="p">[</span><span class="mf">0.05</span><span class="p">,</span>   <span class="mf">0.02</span><span class="p">],</span>
+                    <span class="s2">&quot;Dibenzo(a,h)anthracene&quot;</span><span class="p">:</span>   <span class="p">[</span><span class="mf">0.03</span><span class="p">,</span>   <span class="mf">0.01</span><span class="p">],</span>
                     <span class="p">}</span>
 
                 <span class="n">emission_factors_closed_loop</span> <span class="o">=</span> <span class="p">{</span>
                     <span class="p">}</span>
 
                 <span class="k">if</span> <span class="n">scrubber_type</span><span class="o">==</span><span class="s2">&quot;open_loop&quot;</span><span class="p">:</span>
-                    <span class="k">return</span> <span class="n">emission_factors_open_loop</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">chemical_compound</span><span class="p">)</span>
+                    <span class="k">return</span> <span class="n">emission_factors_open_loop</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">chemical_compound</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+                    <span class="c1"># TODO: Add emission uncertainty based on 95% confidence interval</span>
 
             <span class="n">sel</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">((</span><span class="n">steam</span> <span class="o">&gt;</span> <span class="n">lowerbound</span><span class="p">)</span> <span class="o">&amp;</span> <span class="p">(</span><span class="n">steam</span> <span class="o">&lt;</span> <span class="n">higherbound</span><span class="p">))</span>
             <span class="n">t</span><span class="o">=</span><span class="n">steam</span><span class="o">.</span><span class="n">time</span><span class="p">[</span><span class="n">sel</span><span class="p">[</span><span class="mi">0</span><span class="p">]]</span><span class="o">.</span><span class="n">data</span>
@@ -2068,6 +2086,15 @@
                                 <span class="n">mass</span><span class="o">=</span><span class="n">mass_residual</span><span class="p">,</span><span class="n">mass_degraded</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span><span class="n">mass_volatilized</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">z</span><span class="o">=</span><span class="n">z</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="ChemicalDrift.init_chemical_compound"><a class="viewcode-back" href="../../../autoapi/opendrift/models/chemicaldrift/index.html#opendrift.models.chemicaldrift.ChemicalDrift.init_chemical_compound">[docs]</a>    <span class="k">def</span> <span class="nf">init_chemical_compound</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">chemical_compound</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39; Chemical parameters for a selection of PAHs:</span>
+<span class="sd">            Naphthalene, Phenanthrene, Fluorene,</span>
+<span class="sd">            Benzo(a)anthracene, Benzo(a)pyrene, Dibenzo(a,h)anthracene</span>
+
+<span class="sd">            Data collected from literature by</span>
+<span class="sd">            Isabel Hanstein (University of Heidelberg / Norwegian Meteorological Insitute)</span>
+<span class="sd">            Mattia Boscherini, Loris Calgaro (University Ca&#39; Foscari, Venezia)</span>
+<span class="sd">            Manuel Aghito (Norwegian Meteorological Institute / University of Bergen)</span>
+<span class="sd">        &#39;&#39;&#39;</span>
 
         <span class="k">if</span>  <span class="n">chemical_compound</span><span class="o">==</span><span class="s2">&quot;Naphthalene&quot;</span><span class="p">:</span>
 
