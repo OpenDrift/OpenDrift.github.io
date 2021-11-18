@@ -1,0 +1,183 @@
+:py:mod:`opendrift.models.sealice`
+==================================
+
+.. py:module:: opendrift.models.sealice
+
+
+Module Contents
+---------------
+
+Classes
+~~~~~~~
+
+.. autoapisummary::
+
+   opendrift.models.sealice.SeaLiceElement
+   opendrift.models.sealice.SeaLice
+
+
+
+
+Attributes
+~~~~~~~~~~
+
+.. autoapisummary::
+
+   opendrift.models.sealice.logger
+
+
+.. py:data:: logger
+   
+
+   
+
+.. py:class:: SeaLiceElement(**kwargs)
+
+   Bases: :py:obj:`opendrift.models.oceandrift.Lagrangian3DArray`
+
+   Extending Lagrangian3DArray with specific properties for larval and
+   juvenile stages of sea lice into super individuals
+
+   Initialises a LagrangianArray with given properties.
+
+   Args:
+       Keyword arguments (kwargs) with names corresponding to the
+       OrderedDict 'variables' of the class, and corresponding values.
+       The values must be ndarrays of equal length, or scalars.
+       All (or none) variables must be given, unless a default value
+       is specified in the OrderedDict 'variables'
+       An empty object may be created by giving no input.
+
+   .. py:attribute:: variables
+      
+
+      
+
+
+.. py:class:: SeaLice(*args, **kwargs)
+
+   Bases: :py:obj:`opendrift.models.oceandrift.OceanDrift`
+
+   Particle trajectory model based on the OpenDrift framework.
+   Developed by Julien Moreau (Plastics@Bay CIC)
+   Generic module for particles that are subject to vertical turbulent
+   mixing with the possibility for positive or negative buoyancy
+   Particles are sea-lice (Lepeophtheirus salmonis).
+
+   Initialise OpenDriftSimulation
+
+   Args:
+       seed: integer or None. A given integer will yield identical
+           random numbers drawn each simulation. Random numbers are
+           e.g. used to distribute particles spatially when seeding,
+           and may be used by modules (subclasses) for e.g. diffusion.
+           Specifying a fixed value (default: 0) is useful for sensitivity
+           tests. With seed = None, different random numbers will be drawn
+           for subsequent runs, even with identical configuration/input.
+       iomodule: name of module used to export data
+           default: netcdf, see :py:mod:`opendrift.io` for more alternatives.
+           `iomodule` is module/filename without preceeding `io_`
+       loglevel: set to 0 (default) to retrieve all debug information.
+           Provide a higher value (e.g. 20) to receive less output.
+           Use the string 'custom' to configure logging from outside.
+       logtime: if True, a time stamp is given for each logging line.
+                logtime can also be given as a python time specifier
+                (e.g. '%H:%M:%S')
+
+   .. py:attribute:: ElementType
+      
+
+      
+
+   .. py:attribute:: required_variables
+      
+
+      
+
+   .. py:method:: prepare_run(self)
+
+
+   .. py:method:: new_born(self)
+
+      Approach by Rittenhouse et al., (2016) [Rittenhouse, M.A., C.W. Revie
+      and A. Hurford, 2016. A model for sea lice (Lepeophtheirus salmonis)
+      dynamics in a seasonally changing environment. Energetics, 16, 8–16.,
+      whereby the numbers of lice nauplii released every day (NP) are
+      estimated according to the following equation:
+      NP(t)=ηενA(t)
+      where η = 592 is the number of eggs per clutch (Heuch et al., 2000;
+      Rittenhouse et al., 2016),
+      ε = 0.0476 is the egg string production rate per day (Heuch et al.,
+      2000; Rittenhouse et al., 2016),
+      ν = 0.6 is the hatching success i.e. the proportion of eggs which
+      produce viable nauplii (Johnson and Albright, 1991),
+      and A(t) is the total number of adult female lice on each farm,
+      derived here from lice target levels and number of fish on site.
+
+
+   .. py:method:: population(self)
+
+      Simulate the population evolution according to the biological parameters
+      Parameters
+      ----------
+      t: numpy array (float)
+      Time abscissa in seconds through the experiment
+      self.Mat: int
+      Age in timestep when the nauplii start to become adult copepodids
+      maturation_rate: float
+      Probability of maturation by time-step (t>= Mat)
+      death_rate: float
+      Probability of death by time-step
+
+      Number of lice per particle when generated is standardised to 1
+      Returns
+      -------
+      juv, adults, dead: np.arrays(int)
+      Juveniles(Nauplii), adults(Copepodid), dead lices arrays through
+      the duration of the experiment
+
+
+   .. py:method:: SI_pop(self)
+
+      distribute the age fractions in the particles
+
+
+   .. py:method:: sensing(self)
+
+      Lice sensing if above or bellow the conditions are better for them
+      within a specified distance.
+      moving the particles up and then down then back in their initial position
+
+
+   .. py:method:: degree_days(self)
+
+      Calculate the degree days of a particles
+      >>> under development <<<
+
+
+   .. py:method:: irradiance(self)
+
+      Distribute the daily energy from irradiance with a gaussian distribution.
+      We use the twilight times for high sensitivity organisms
+      Convert irradiance from W.m-2 to micromol photon.s-1.m-2
+      https://www.berthold.com/en/bioanalytic/knowledge/faq/irradiance-to-photon-flux
+      calculate the photon flux in the water according to exponential decay from the sea surface
+
+
+   .. py:method:: depth_test(self)
+
+      The natural range of the larvae is 0-50m
+
+
+   .. py:method:: Lice_vertical_migration(self)
+
+      Make larval sea lice to migrate vertically according to salinity, light
+      and temperature triggers.
+
+
+   .. py:method:: update(self)
+
+      Update positions and properties of elements.
+
+
+

@@ -1,0 +1,509 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>opendrift.models.sealice &mdash; OpenDrift  documentation</title>
+      <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
+      <link rel="stylesheet" href="../../../_static/graphviz.css" type="text/css" />
+      <link rel="stylesheet" href="../../../_static/plot_directive.css" type="text/css" />
+      <link rel="stylesheet" href="../../../_static/sg_gallery.css" type="text/css" />
+      <link rel="stylesheet" href="../../../_static/sg_gallery-binder.css" type="text/css" />
+      <link rel="stylesheet" href="../../../_static/sg_gallery-dataframe.css" type="text/css" />
+      <link rel="stylesheet" href="../../../_static/sg_gallery-rendered-html.css" type="text/css" />
+      <link rel="stylesheet" href="../../../_static/theme_overrides.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="../../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="../../../" id="documentation_options" src="../../../_static/documentation_options.js"></script>
+        <script src="../../../_static/jquery.js"></script>
+        <script src="../../../_static/underscore.js"></script>
+        <script src="../../../_static/doctools.js"></script>
+    <script src="../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+            <a href="../../../index.html" class="icon icon-home"> OpenDrift
+            <img src="../../../_static/opendrift_logo.png" class="logo" alt="Logo"/>
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../index.html">Introduction to OpenDrift</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../history_link.html">History</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../install.html">Installing OpenDrift</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../tutorial.html">Tutorial</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../theory/index.html">Theory</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../choosing_a_model.html">How to choose which model to use</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../writing_a_new_model.html">How to write a new module</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../gallery/index.html">Gallery</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../oil_types.html">Oil types</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../interaction_with_coastline.html">Interaction with coastline</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../docker.html">Using OpenDrift in a container</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../gui.html">Graphical User Interface</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../references.html">Publications</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../services.html">Services using OpenDrift</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../autoapi/index.html">API Reference</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">OpenDrift</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../index.html" class="icon icon-home"></a> &raquo;</li>
+          <li><a href="../../index.html">Module code</a> &raquo;</li>
+          <li><a href="../../opendrift.html">opendrift</a> &raquo;</li>
+      <li>opendrift.models.sealice</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for opendrift.models.sealice</h1><div class="highlight"><pre>
+<span></span><span class="c1"># This file is part of OpenDrift.</span>
+<span class="c1">#</span>
+<span class="c1"># OpenDrift is free software: you can redistribute it and/or modify</span>
+<span class="c1"># it under the terms of the GNU General Public License as published by</span>
+<span class="c1"># the Free Software Foundation, version 2</span>
+<span class="c1">#</span>
+<span class="c1"># OpenDrift is distributed in the hope that it will be useful,</span>
+<span class="c1"># but WITHOUT ANY WARRANTY; without even the implied warranty of</span>
+<span class="c1"># MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the</span>
+<span class="c1"># GNU General Public License for more details.</span>
+<span class="c1">#</span>
+<span class="c1"># You should have received a copy of the GNU General Public License</span>
+<span class="c1"># along with OpenDrift.  If not, see &lt;https://www.gnu.org/licenses/&gt;.</span>
+<span class="c1">#</span>
+<span class="c1"># Copyright 2021, Julien Moreau, Plastic@Bay CIC</span>
+
+<span class="kn">from</span> <span class="nn">datetime</span> <span class="kn">import</span> <span class="n">timedelta</span><span class="p">,</span> <span class="n">datetime</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">logging</span><span class="p">;</span> <span class="n">logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span>
+<span class="kn">from</span> <span class="nn">opendrift.models.oceandrift</span> <span class="kn">import</span> <span class="n">Lagrangian3DArray</span><span class="p">,</span> <span class="n">OceanDrift</span>
+<span class="kn">from</span> <span class="nn">opendrift.models.physics_methods</span> <span class="kn">import</span> <span class="n">hour_angle</span><span class="p">,</span> <span class="n">solar_elevation</span>
+
+<div class="viewcode-block" id="SeaLiceElement"><a class="viewcode-back" href="../../../autoapi/opendrift/models/sealice/index.html#opendrift.models.sealice.SeaLiceElement">[docs]</a><span class="k">class</span> <span class="nc">SeaLiceElement</span><span class="p">(</span><span class="n">Lagrangian3DArray</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Extending Lagrangian3DArray with specific properties for larval and</span>
+<span class="sd">    juvenile stages of sea lice into super individuals</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">variables</span> <span class="o">=</span> <span class="n">Lagrangian3DArray</span><span class="o">.</span><span class="n">add_variables</span><span class="p">([</span>
+        <span class="p">(</span><span class="s1">&#39;LicePerFish&#39;</span><span class="p">,{</span><span class="s1">&#39;dtype&#39;</span><span class="p">:</span><span class="n">np</span><span class="o">.</span><span class="n">float32</span><span class="p">,</span>
+                        <span class="s1">&#39;units&#39;</span><span class="p">:</span><span class="s1">&#39;&#39;</span><span class="p">,</span>
+                        <span class="s1">&#39;default&#39;</span><span class="p">:</span><span class="mf">0.5</span><span class="p">}),</span>
+        <span class="p">(</span><span class="s1">&#39;AvFishW8&#39;</span><span class="p">,{</span><span class="s1">&#39;dtype&#39;</span><span class="p">:</span><span class="n">np</span><span class="o">.</span><span class="n">float32</span><span class="p">,</span>
+                    <span class="s1">&#39;units&#39;</span><span class="p">:</span><span class="s1">&#39;kg&#39;</span><span class="p">,</span>
+                    <span class="s1">&#39;default&#39;</span><span class="p">:</span><span class="mf">4.5</span><span class="p">}),</span>
+        <span class="p">(</span><span class="s1">&#39;particle_biomass&#39;</span><span class="p">,{</span><span class="s1">&#39;dtype&#39;</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">float32</span><span class="p">,</span>
+                            <span class="s1">&#39;units&#39;</span><span class="p">:</span> <span class="s1">&#39;kg&#39;</span><span class="p">,</span>
+                            <span class="s1">&#39;default&#39;</span><span class="p">:</span> <span class="mf">1000.</span><span class="p">}),</span>
+        <span class="p">(</span><span class="s1">&#39;hatched&#39;</span><span class="p">,{</span><span class="s1">&#39;dtype&#39;</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">float32</span><span class="p">,</span>
+                            <span class="s1">&#39;units&#39;</span><span class="p">:</span> <span class="s1">&#39;&#39;</span><span class="p">,</span>
+                            <span class="s1">&#39;default&#39;</span><span class="p">:</span> <span class="mf">0.</span><span class="p">}),</span>
+        <span class="p">(</span><span class="s1">&#39;nauplii&#39;</span><span class="p">,</span> <span class="p">{</span><span class="s1">&#39;dtype&#39;</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">float32</span><span class="p">,</span>
+                            <span class="s1">&#39;units&#39;</span><span class="p">:</span> <span class="s1">&#39;&#39;</span><span class="p">,</span>
+                            <span class="s1">&#39;default&#39;</span><span class="p">:</span> <span class="mf">0.</span><span class="p">}),</span>
+        <span class="p">(</span><span class="s1">&#39;copepodid&#39;</span><span class="p">,</span> <span class="p">{</span><span class="s1">&#39;dtype&#39;</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">float32</span><span class="p">,</span>
+                     <span class="s1">&#39;units&#39;</span><span class="p">:</span> <span class="s1">&#39;&#39;</span><span class="p">,</span>
+                     <span class="s1">&#39;default&#39;</span><span class="p">:</span> <span class="mf">0.</span><span class="p">}),</span>
+        <span class="p">(</span><span class="s1">&#39;dead&#39;</span><span class="p">,</span>  <span class="p">{</span><span class="s1">&#39;dtype&#39;</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">float32</span><span class="p">,</span>
+                     <span class="s1">&#39;units&#39;</span><span class="p">:</span> <span class="s1">&#39;&#39;</span><span class="p">,</span>
+                     <span class="s1">&#39;default&#39;</span><span class="p">:</span> <span class="mf">0.</span><span class="p">}),</span>
+        <span class="p">(</span><span class="s1">&#39;eliminated&#39;</span><span class="p">,{</span><span class="s1">&#39;dtype&#39;</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">int8</span><span class="p">,</span>
+                     <span class="s1">&#39;units&#39;</span><span class="p">:</span> <span class="s1">&#39;&#39;</span><span class="p">,</span>
+                     <span class="s1">&#39;default&#39;</span><span class="p">:</span> <span class="mi">0</span><span class="p">}),</span>
+        <span class="p">(</span><span class="s1">&#39;degree_days&#39;</span><span class="p">,</span> <span class="p">{</span><span class="s1">&#39;dtype&#39;</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">float32</span><span class="p">,</span>
+                     <span class="s1">&#39;units&#39;</span><span class="p">:</span> <span class="s1">&#39;&#39;</span><span class="p">,</span>
+                    <span class="s1">&#39;default&#39;</span><span class="p">:</span> <span class="mi">0</span><span class="p">}),</span> <span class="c1">#range 40-170</span>
+        <span class="p">(</span><span class="s1">&#39;safe_salinity_above&#39;</span><span class="p">,</span> <span class="p">{</span><span class="s1">&#39;dtype&#39;</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">int8</span><span class="p">,</span>
+                     <span class="s1">&#39;units&#39;</span><span class="p">:</span> <span class="s1">&#39;&#39;</span><span class="p">,</span>
+                    <span class="s1">&#39;default&#39;</span><span class="p">:</span> <span class="mi">0</span><span class="p">}),</span>
+        <span class="p">(</span><span class="s1">&#39;temperature_above&#39;</span><span class="p">,</span> <span class="p">{</span><span class="s1">&#39;dtype&#39;</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">float32</span><span class="p">,</span>
+                     <span class="s1">&#39;units&#39;</span><span class="p">:</span> <span class="s1">&#39;&#39;</span><span class="p">,</span>
+                    <span class="s1">&#39;default&#39;</span><span class="p">:</span> <span class="mi">10</span><span class="p">}),</span>
+        <span class="p">(</span><span class="s1">&#39;temperature_below&#39;</span><span class="p">,</span> <span class="p">{</span><span class="s1">&#39;dtype&#39;</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">float32</span><span class="p">,</span>
+                     <span class="s1">&#39;units&#39;</span><span class="p">:</span> <span class="s1">&#39;&#39;</span><span class="p">,</span>
+                    <span class="s1">&#39;default&#39;</span><span class="p">:</span> <span class="mi">10</span><span class="p">}),</span>
+        <span class="p">(</span><span class="s1">&#39;light&#39;</span><span class="p">,</span> <span class="p">{</span><span class="s1">&#39;dtype&#39;</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">float32</span><span class="p">,</span>
+                     <span class="s1">&#39;units&#39;</span><span class="p">:</span> <span class="s1">&#39;µmol photon s−1 m−2&#39;</span><span class="p">,</span>
+                     <span class="s1">&#39;default&#39;</span><span class="p">:</span> <span class="mf">0.</span><span class="p">}),</span>
+                      <span class="p">])</span></div>
+
+
+<div class="viewcode-block" id="SeaLice"><a class="viewcode-back" href="../../../autoapi/opendrift/models/sealice/index.html#opendrift.models.sealice.SeaLice">[docs]</a><span class="k">class</span> <span class="nc">SeaLice</span><span class="p">(</span><span class="n">OceanDrift</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Particle trajectory model based on the OpenDrift framework.</span>
+<span class="sd">    Developed by Julien Moreau (Plastics@Bay CIC)</span>
+<span class="sd">    Generic module for particles that are subject to vertical turbulent</span>
+<span class="sd">    mixing with the possibility for positive or negative buoyancy</span>
+<span class="sd">    Particles are sea-lice (Lepeophtheirus salmonis).</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">ElementType</span> <span class="o">=</span> <span class="n">SeaLiceElement</span>
+
+    <span class="n">required_variables</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="s1">&#39;x_sea_water_velocity&#39;</span><span class="p">:</span> <span class="p">{</span><span class="s1">&#39;fallback&#39;</span><span class="p">:</span> <span class="mi">0</span><span class="p">},</span>
+        <span class="s1">&#39;y_sea_water_velocity&#39;</span><span class="p">:</span> <span class="p">{</span><span class="s1">&#39;fallback&#39;</span><span class="p">:</span> <span class="mi">0</span><span class="p">},</span>
+        <span class="c1"># &#39;sea_surface_wave_significant_height&#39;: {&#39;fallback&#39;: 0},</span>
+        <span class="c1"># &#39;x_wind&#39;: {&#39;fallback&#39;: 0},</span>
+        <span class="c1"># &#39;y_wind&#39;: {&#39;fallback&#39;: 0},</span>
+        <span class="s1">&#39;land_binary_mask&#39;</span><span class="p">:</span> <span class="p">{</span><span class="s1">&#39;fallback&#39;</span><span class="p">:</span> <span class="kc">None</span><span class="p">},</span>
+        <span class="s1">&#39;sea_floor_depth_below_sea_level&#39;</span><span class="p">:</span> <span class="p">{</span><span class="s1">&#39;fallback&#39;</span><span class="p">:</span> <span class="mi">50</span><span class="p">},</span>
+        <span class="s1">&#39;surface_net_downward_radiative_flux&#39;</span><span class="p">:{</span><span class="s1">&#39;fallback&#39;</span><span class="p">:</span> <span class="mi">0</span><span class="p">},</span>
+        <span class="s1">&#39;ocean_vertical_diffusivity&#39;</span><span class="p">:</span> <span class="p">{</span><span class="s1">&#39;fallback&#39;</span><span class="p">:</span> <span class="mf">0.01</span><span class="p">},</span>
+        <span class="s1">&#39;sea_water_temperature&#39;</span><span class="p">:</span> <span class="p">{</span><span class="s1">&#39;fallback&#39;</span><span class="p">:</span> <span class="mi">10</span><span class="p">},</span>
+        <span class="s1">&#39;sea_water_salinity&#39;</span><span class="p">:</span> <span class="p">{</span><span class="s1">&#39;fallback&#39;</span><span class="p">:</span> <span class="mi">34</span><span class="p">}</span>
+    <span class="p">}</span>
+
+    <span class="c1"># required_profiles_z_range = [0, -50]  # The depth range (in m) which profiles should cover</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+
+        <span class="c1"># Calling general constructor of parent class</span>
+        <span class="c1"># super(SeaLice, self).__init__(*args, **kwargs)</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+
+        <span class="c1"># Configuration options</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_add_config</span><span class="p">({</span>
+            <span class="s1">&#39;general:duration&#39;</span><span class="p">:{</span><span class="s1">&#39;type&#39;</span><span class="p">:</span><span class="s1">&#39;float&#39;</span><span class="p">,</span> <span class="s1">&#39;default&#39;</span><span class="p">:</span><span class="mf">0.</span><span class="p">,</span>
+                                <span class="s1">&#39;min&#39;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span> <span class="s1">&#39;max&#39;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span> <span class="s1">&#39;units&#39;</span><span class="p">:</span> <span class="s1">&#39;seconds&#39;</span><span class="p">,</span>
+                                <span class="s1">&#39;description&#39;</span><span class="p">:</span> <span class="s1">&#39;Experiment time in seconds&#39;</span><span class="p">,</span>
+                                <span class="s1">&#39;level&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">CONFIG_LEVEL_ESSENTIAL</span><span class="p">},</span>
+            <span class="s1">&#39;lice:seeding_time_step&#39;</span><span class="p">:{</span><span class="s1">&#39;type&#39;</span><span class="p">:</span><span class="s1">&#39;float&#39;</span><span class="p">,</span> <span class="s1">&#39;default&#39;</span><span class="p">:</span><span class="kc">None</span><span class="p">,</span>
+                                <span class="s1">&#39;min&#39;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span> <span class="s1">&#39;max&#39;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span> <span class="s1">&#39;units&#39;</span><span class="p">:</span> <span class="s1">&#39;seconds&#39;</span><span class="p">,</span>
+                                <span class="s1">&#39;description&#39;</span><span class="p">:</span> <span class="s1">&#39;Time between particle release&#39;</span><span class="p">,</span>
+                                <span class="s1">&#39;level&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">CONFIG_LEVEL_ESSENTIAL</span><span class="p">},</span>
+            <span class="s1">&#39;lice:death_rate&#39;</span><span class="p">:{</span><span class="s1">&#39;type&#39;</span><span class="p">:</span><span class="s1">&#39;float&#39;</span><span class="p">,</span> <span class="s1">&#39;default&#39;</span><span class="p">:</span><span class="mf">0.01</span><span class="o">/</span><span class="mi">3600</span><span class="p">,</span>
+                                <span class="s1">&#39;min&#39;</span><span class="p">:</span> <span class="mf">0.</span><span class="p">,</span> <span class="s1">&#39;max&#39;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span> <span class="s1">&#39;units&#39;</span><span class="p">:</span> <span class="s1">&#39;s-1&#39;</span><span class="p">,</span>
+                                <span class="s1">&#39;description&#39;</span><span class="p">:</span> <span class="s1">&#39;Rate of Larvae death per seconds&#39;</span><span class="p">,</span>
+                                <span class="s1">&#39;level&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">CONFIG_LEVEL_BASIC</span><span class="p">},</span>
+            <span class="s1">&#39;lice:maturation_rate&#39;</span><span class="p">:{</span><span class="s1">&#39;type&#39;</span><span class="p">:</span><span class="s1">&#39;float&#39;</span><span class="p">,</span> <span class="s1">&#39;default&#39;</span><span class="p">:</span><span class="mf">0.1</span><span class="o">/</span><span class="mi">3600</span><span class="p">,</span>
+                                <span class="s1">&#39;min&#39;</span><span class="p">:</span> <span class="mf">0.</span><span class="p">,</span> <span class="s1">&#39;max&#39;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span> <span class="s1">&#39;units&#39;</span><span class="p">:</span> <span class="s1">&#39;s-1&#39;</span><span class="p">,</span>
+                                <span class="s1">&#39;description&#39;</span><span class="p">:</span> <span class="s1">&#39;Rate of Nauplii maturation in Copepodids&#39;</span><span class="p">,</span>
+                                <span class="s1">&#39;level&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">CONFIG_LEVEL_BASIC</span><span class="p">},</span>
+            <span class="s1">&#39;lice:maturity_date&#39;</span><span class="p">:{</span><span class="s1">&#39;type&#39;</span><span class="p">:</span><span class="s1">&#39;float&#39;</span><span class="p">,</span> <span class="s1">&#39;default&#39;</span><span class="p">:</span><span class="mf">3.63</span><span class="p">,</span>
+                                <span class="s1">&#39;min&#39;</span><span class="p">:</span> <span class="mf">0.</span><span class="p">,</span> <span class="s1">&#39;max&#39;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span> <span class="s1">&#39;units&#39;</span><span class="p">:</span> <span class="s1">&#39;days&#39;</span><span class="p">,</span>
+                                <span class="s1">&#39;description&#39;</span><span class="p">:</span> <span class="s1">&#39;Days to start maturing into Copepodids&#39;</span><span class="p">,</span>
+                                <span class="s1">&#39;level&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">CONFIG_LEVEL_BASIC</span><span class="p">},</span>
+            <span class="s1">&#39;lice:sinking_velocity&#39;</span><span class="p">:{</span><span class="s1">&#39;type&#39;</span><span class="p">:</span><span class="s1">&#39;float&#39;</span><span class="p">,</span> <span class="s1">&#39;default&#39;</span><span class="p">:</span><span class="mf">0.00025</span><span class="p">,</span>
+                                <span class="s1">&#39;min&#39;</span><span class="p">:</span> <span class="mf">0.</span><span class="p">,</span> <span class="s1">&#39;max&#39;</span><span class="p">:</span> <span class="mf">0.01</span><span class="p">,</span> <span class="s1">&#39;units&#39;</span><span class="p">:</span> <span class="s1">&#39;m.s-1&#39;</span><span class="p">,</span>
+                                <span class="s1">&#39;description&#39;</span><span class="p">:</span> <span class="s1">&#39;Larvae sinking velocity&#39;</span><span class="p">,</span>
+                                <span class="s1">&#39;level&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">CONFIG_LEVEL_BASIC</span><span class="p">},</span>
+            <span class="s1">&#39;lice:vertical_migration_speed&#39;</span><span class="p">:{</span><span class="s1">&#39;type&#39;</span><span class="p">:</span><span class="s1">&#39;float&#39;</span><span class="p">,</span> <span class="s1">&#39;default&#39;</span><span class="p">:</span><span class="mf">0.00075</span><span class="p">,</span>
+                                <span class="s1">&#39;min&#39;</span><span class="p">:</span> <span class="mf">0.</span><span class="p">,</span> <span class="s1">&#39;max&#39;</span><span class="p">:</span> <span class="mf">0.01</span><span class="p">,</span> <span class="s1">&#39;units&#39;</span><span class="p">:</span> <span class="s1">&#39;m.s-1&#39;</span><span class="p">,</span>
+                                <span class="s1">&#39;description&#39;</span><span class="p">:</span> <span class="s1">&#39;Larvae vertical speed&#39;</span><span class="p">,</span>
+                                <span class="s1">&#39;level&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">CONFIG_LEVEL_BASIC</span><span class="p">},</span>
+            <span class="s1">&#39;lice:freezing_salinity&#39;</span><span class="p">:{</span><span class="s1">&#39;type&#39;</span><span class="p">:</span><span class="s1">&#39;float&#39;</span><span class="p">,</span> <span class="s1">&#39;default&#39;</span><span class="p">:</span><span class="mf">27.</span><span class="p">,</span>
+                                <span class="s1">&#39;min&#39;</span><span class="p">:</span> <span class="mf">0.</span><span class="p">,</span> <span class="s1">&#39;max&#39;</span><span class="p">:</span> <span class="mf">35.</span><span class="p">,</span> <span class="s1">&#39;units&#39;</span><span class="p">:</span> <span class="s1">&#39;PSU&#39;</span><span class="p">,</span>
+                                <span class="s1">&#39;description&#39;</span><span class="p">:</span> <span class="s1">&#39;Salinity immobilising larvae&#39;</span><span class="p">,</span>
+                                <span class="s1">&#39;level&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">CONFIG_LEVEL_BASIC</span><span class="p">},</span>
+            <span class="s1">&#39;lice:avoided_salinity&#39;</span><span class="p">:{</span><span class="s1">&#39;type&#39;</span><span class="p">:</span><span class="s1">&#39;float&#39;</span><span class="p">,</span> <span class="s1">&#39;default&#39;</span><span class="p">:</span><span class="mf">32.</span><span class="p">,</span>
+                                <span class="s1">&#39;min&#39;</span><span class="p">:</span> <span class="mf">0.</span><span class="p">,</span> <span class="s1">&#39;max&#39;</span><span class="p">:</span> <span class="mf">50.</span><span class="p">,</span> <span class="s1">&#39;units&#39;</span><span class="p">:</span> <span class="s1">&#39;PSU&#39;</span><span class="p">,</span>
+                                <span class="s1">&#39;description&#39;</span><span class="p">:</span> <span class="s1">&#39;Salinity actively avoided&#39;</span><span class="p">,</span>
+                                <span class="s1">&#39;level&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">CONFIG_LEVEL_BASIC</span><span class="p">},</span>
+            <span class="s1">&#39;lice:nu&#39;</span><span class="p">:{</span><span class="s1">&#39;type&#39;</span><span class="p">:</span><span class="s1">&#39;float&#39;</span><span class="p">,</span> <span class="s1">&#39;default&#39;</span><span class="p">:</span><span class="mf">500.</span><span class="p">,</span>
+                                <span class="s1">&#39;min&#39;</span><span class="p">:</span> <span class="mi">100</span><span class="p">,</span> <span class="s1">&#39;max&#39;</span><span class="p">:</span> <span class="mi">1000</span><span class="p">,</span> <span class="s1">&#39;units&#39;</span><span class="p">:</span> <span class="s1">&#39;nm&#39;</span><span class="p">,</span>
+                                <span class="s1">&#39;description&#39;</span><span class="p">:</span> <span class="s1">&#39;Wavelength used to calculate irradiance&#39;</span><span class="p">,</span>
+                                <span class="s1">&#39;level&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">CONFIG_LEVEL_ADVANCED</span><span class="p">},</span>
+            <span class="s1">&#39;lice:k_water&#39;</span><span class="p">:{</span><span class="s1">&#39;type&#39;</span><span class="p">:</span><span class="s1">&#39;float&#39;</span><span class="p">,</span> <span class="s1">&#39;default&#39;</span><span class="p">:</span><span class="mf">0.2</span><span class="p">,</span>
+                                <span class="s1">&#39;min&#39;</span><span class="p">:</span> <span class="o">-</span><span class="mf">10.</span><span class="p">,</span> <span class="s1">&#39;max&#39;</span><span class="p">:</span> <span class="mf">0.</span><span class="p">,</span> <span class="s1">&#39;units&#39;</span><span class="p">:</span> <span class="s1">&#39;&#39;</span><span class="p">,</span>
+                                <span class="s1">&#39;description&#39;</span><span class="p">:</span> <span class="s1">&#39;coefficient of exponential decay of light in water&#39;</span><span class="p">,</span>
+                                <span class="s1">&#39;level&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">CONFIG_LEVEL_ADVANCED</span><span class="p">},</span>
+            <span class="s1">&#39;lice:Nauplii_light_trigger&#39;</span><span class="p">:{</span><span class="s1">&#39;type&#39;</span><span class="p">:</span><span class="s1">&#39;float&#39;</span><span class="p">,</span> <span class="s1">&#39;default&#39;</span><span class="p">:</span><span class="mf">2.E-5</span><span class="p">,</span>
+                                <span class="s1">&#39;min&#39;</span><span class="p">:</span> <span class="mf">0.</span><span class="p">,</span> <span class="s1">&#39;max&#39;</span><span class="p">:</span> <span class="mf">1.</span><span class="p">,</span> <span class="s1">&#39;units&#39;</span><span class="p">:</span> <span class="s1">&#39;µmol photon  s−1 m−2&#39;</span><span class="p">,</span>
+                                <span class="s1">&#39;description&#39;</span><span class="p">:</span> <span class="s1">&#39;light detection threshold of Nauplii&#39;</span><span class="p">,</span>
+                                <span class="s1">&#39;level&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">CONFIG_LEVEL_BASIC</span><span class="p">},</span>
+            <span class="s1">&#39;lice:Copepodid_light_trigger&#39;</span><span class="p">:{</span><span class="s1">&#39;type&#39;</span><span class="p">:</span><span class="s1">&#39;float&#39;</span><span class="p">,</span> <span class="s1">&#39;default&#39;</span><span class="p">:</span><span class="mf">0.392</span><span class="p">,</span>
+                                <span class="s1">&#39;min&#39;</span><span class="p">:</span> <span class="mf">0.0</span><span class="p">,</span> <span class="s1">&#39;max&#39;</span><span class="p">:</span> <span class="mf">1.0</span><span class="p">,</span> <span class="s1">&#39;units&#39;</span><span class="p">:</span> <span class="s1">&#39;µmol photon  s−1 m−2&#39;</span><span class="p">,</span>
+                                <span class="s1">&#39;description&#39;</span><span class="p">:</span> <span class="s1">&#39;light detection threshold of copepodids&#39;</span><span class="p">,</span>
+                                <span class="s1">&#39;level&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">CONFIG_LEVEL_BASIC</span><span class="p">},</span>
+            <span class="s1">&#39;lice:twilight&#39;</span><span class="p">:{</span><span class="s1">&#39;type&#39;</span><span class="p">:</span><span class="s1">&#39;float&#39;</span><span class="p">,</span> <span class="s1">&#39;default&#39;</span><span class="p">:</span><span class="mi">15</span><span class="p">,</span>
+                                <span class="s1">&#39;min&#39;</span><span class="p">:</span> <span class="mf">0.</span><span class="p">,</span> <span class="s1">&#39;max&#39;</span><span class="p">:</span> <span class="mf">90.</span><span class="p">,</span> <span class="s1">&#39;units&#39;</span><span class="p">:</span> <span class="s1">&#39;degrees&#39;</span><span class="p">,</span>
+                                <span class="s1">&#39;description&#39;</span><span class="p">:</span> <span class="s1">&#39;angle below the horizon for twilight&#39;</span><span class="p">,</span>
+                                <span class="s1">&#39;level&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">CONFIG_LEVEL_ADVANCED</span><span class="p">},</span>
+            <span class="p">})</span>
+
+<div class="viewcode-block" id="SeaLice.prepare_run"><a class="viewcode-back" href="../../../autoapi/opendrift/models/sealice/index.html#opendrift.models.sealice.SeaLice.prepare_run">[docs]</a>    <span class="k">def</span> <span class="nf">prepare_run</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;preparing the run...&quot;</span><span class="p">)</span>
+        <span class="c1">### need to find a better way of initialising the variables...</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">prefix</span><span class="o">=</span><span class="s2">&quot;lice:&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">vertical_migration_speed</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">get_config</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">prefix</span><span class="o">+</span><span class="s1">&#39;vertical_migration_speed&#39;</span><span class="p">)</span> \
+                                        <span class="o">*</span><span class="bp">self</span><span class="o">.</span><span class="n">time_step</span><span class="o">.</span><span class="n">total_seconds</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">sensing_distance</span><span class="o">=</span><span class="mi">2</span><span class="o">*</span><span class="bp">self</span><span class="o">.</span><span class="n">vertical_migration_speed</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">tau</span><span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span><span class="o">+</span><span class="mi">2</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">deg2rad</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">get_config</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">prefix</span><span class="o">+</span><span class="s1">&#39;twilight&#39;</span><span class="p">))</span> <span class="c1">#width of solar irridation distribution</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">nu</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">get_config</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">prefix</span><span class="o">+</span><span class="s1">&#39;nu&#39;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">sinking_velocity</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">get_config</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">prefix</span><span class="o">+</span><span class="s1">&#39;sinking_velocity&#39;</span><span class="p">)</span> \
+                                <span class="o">*</span><span class="bp">self</span><span class="o">.</span><span class="n">time_step</span><span class="o">.</span><span class="n">total_seconds</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">freezing_salinity</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">get_config</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">prefix</span><span class="o">+</span><span class="s1">&#39;freezing_salinity&#39;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">avoided_salinity</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">get_config</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">prefix</span><span class="o">+</span><span class="s1">&#39;avoided_salinity&#39;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">k_water</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">get_config</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">prefix</span><span class="o">+</span><span class="s1">&#39;k_water&#39;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">Nauplii_light_trigger</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">get_config</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">prefix</span><span class="o">+</span><span class="s1">&#39;Nauplii_light_trigger&#39;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">Copepodid_light_trigger</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">get_config</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">prefix</span><span class="o">+</span><span class="s1">&#39;Copepodid_light_trigger&#39;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">new_born</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">population</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">ref_date</span> <span class="o">=</span> <span class="n">datetime</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="SeaLice.new_born"><a class="viewcode-back" href="../../../autoapi/opendrift/models/sealice/index.html#opendrift.models.sealice.SeaLice.new_born">[docs]</a>    <span class="k">def</span> <span class="nf">new_born</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Approach by Rittenhouse et al., (2016) [Rittenhouse, M.A., C.W. Revie</span>
+<span class="sd">        and A. Hurford, 2016. A model for sea lice (Lepeophtheirus salmonis)</span>
+<span class="sd">        dynamics in a seasonally changing environment. Energetics, 16, 8–16.,</span>
+<span class="sd">        whereby the numbers of lice nauplii released every day (NP) are</span>
+<span class="sd">        estimated according to the following equation:</span>
+<span class="sd">        NP(t)=ηενA(t)</span>
+<span class="sd">        where η = 592 is the number of eggs per clutch (Heuch et al., 2000;</span>
+<span class="sd">        Rittenhouse et al., 2016),</span>
+<span class="sd">        ε = 0.0476 is the egg string production rate per day (Heuch et al.,</span>
+<span class="sd">        2000; Rittenhouse et al., 2016),</span>
+<span class="sd">        ν = 0.6 is the hatching success i.e. the proportion of eggs which</span>
+<span class="sd">        produce viable nauplii (Johnson and Albright, 1991),</span>
+<span class="sd">        and A(t) is the total number of adult female lice on each farm,</span>
+<span class="sd">        derived here from lice target levels and number of fish on site.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;Calculating standard spawn of nauplii&quot;</span><span class="p">)</span>
+        <span class="n">Ne</span><span class="p">,</span> <span class="n">nu</span> <span class="o">=</span> <span class="mi">592</span> <span class="p">,</span> <span class="mf">0.6</span>
+        <span class="n">Eps</span><span class="o">=</span><span class="mf">0.0476</span><span class="o">/</span><span class="n">timedelta</span><span class="p">(</span><span class="n">days</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span><span class="o">.</span><span class="n">total_seconds</span><span class="p">()</span><span class="o">*</span><span class="bp">self</span><span class="o">.</span><span class="n">get_config</span><span class="p">(</span> \
+                                                <span class="bp">self</span><span class="o">.</span><span class="n">prefix</span><span class="o">+</span><span class="s1">&#39;seeding_time_step&#39;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">spawn</span><span class="o">=</span><span class="n">Ne</span><span class="o">*</span> <span class="n">Eps</span><span class="o">*</span> <span class="n">nu</span></div>
+
+<div class="viewcode-block" id="SeaLice.population"><a class="viewcode-back" href="../../../autoapi/opendrift/models/sealice/index.html#opendrift.models.sealice.SeaLice.population">[docs]</a>    <span class="k">def</span> <span class="nf">population</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Simulate the population evolution according to the biological parameters</span>
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        t: numpy array (float)</span>
+<span class="sd">        Time abscissa in seconds through the experiment</span>
+<span class="sd">        self.Mat: int</span>
+<span class="sd">        Age in timestep when the nauplii start to become adult copepodids</span>
+<span class="sd">        maturation_rate: float</span>
+<span class="sd">        Probability of maturation by time-step (t&gt;= Mat)</span>
+<span class="sd">        death_rate: float</span>
+<span class="sd">        Probability of death by time-step</span>
+
+<span class="sd">        Number of lice per particle when generated is standardised to 1</span>
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        juv, adults, dead: np.arrays(int)</span>
+<span class="sd">        Juveniles(Nauplii), adults(Copepodid), dead lices arrays through</span>
+<span class="sd">        the duration of the experiment</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;Building global population model&quot;</span><span class="p">)</span>
+        <span class="n">death_rate</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">get_config</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">prefix</span><span class="o">+</span><span class="s1">&#39;death_rate&#39;</span><span class="p">)</span><span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">time_step</span><span class="o">.</span><span class="n">total_seconds</span><span class="p">()</span>
+        <span class="n">maturation_rate</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">get_config</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">prefix</span><span class="o">+</span><span class="s1">&#39;maturation_rate&#39;</span><span class="p">)</span><span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">time_step</span><span class="o">.</span><span class="n">total_seconds</span><span class="p">()</span>
+        <span class="n">duration</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_config</span><span class="p">(</span><span class="s1">&#39;general:duration&#39;</span><span class="p">)</span><span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">time_step</span><span class="o">.</span><span class="n">total_seconds</span><span class="p">()</span>
+        <span class="n">Mat</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">ceil</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">get_config</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">prefix</span><span class="o">+</span><span class="s1">&#39;maturity_date&#39;</span><span class="p">)</span><span class="o">*</span><span class="mi">24</span><span class="o">*</span><span class="mi">3600</span><span class="o">/</span> \
+                    <span class="bp">self</span><span class="o">.</span><span class="n">time_step</span><span class="o">.</span><span class="n">total_seconds</span><span class="p">()))</span> <span class="c1"># maturity age in timestep</span>
+        <span class="n">t</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="n">duration</span><span class="o">+</span><span class="mi">1</span><span class="p">,</span><span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">int</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">juv</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="o">*</span><span class="n">death_rate</span><span class="o">*</span><span class="n">t</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">juv</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">=</span><span class="mi">1</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">dead</span><span class="o">=</span><span class="mi">1</span><span class="o">-</span><span class="bp">self</span><span class="o">.</span><span class="n">juv</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">adult</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">zeros_like</span><span class="p">(</span><span class="n">t</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">float</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">Mat</span><span class="o">&lt;</span><span class="n">duration</span><span class="p">:</span>
+            <span class="n">decayjuv</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">juv</span><span class="p">[</span><span class="n">Mat</span><span class="p">]</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="o">*</span><span class="p">(</span><span class="n">maturation_rate</span><span class="o">+</span><span class="n">death_rate</span><span class="p">)</span><span class="o">*</span><span class="p">(</span><span class="n">t</span><span class="p">[</span><span class="n">t</span><span class="o">&gt;=</span><span class="n">Mat</span><span class="p">]</span><span class="o">-</span><span class="n">Mat</span><span class="p">))</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">juv</span><span class="p">[</span><span class="n">t</span><span class="o">&gt;=</span><span class="n">Mat</span><span class="p">]</span> <span class="o">=</span><span class="n">decayjuv</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">adult</span><span class="p">[</span><span class="n">t</span><span class="o">&gt;=</span><span class="n">Mat</span><span class="p">]</span><span class="o">=</span><span class="mi">1</span><span class="o">-</span><span class="bp">self</span><span class="o">.</span><span class="n">dead</span><span class="p">[</span><span class="n">t</span><span class="o">&gt;=</span><span class="n">Mat</span><span class="p">]</span><span class="o">-</span><span class="bp">self</span><span class="o">.</span><span class="n">juv</span><span class="p">[</span><span class="n">t</span><span class="o">&gt;=</span><span class="n">Mat</span><span class="p">]</span></div>
+
+<div class="viewcode-block" id="SeaLice.SI_pop"><a class="viewcode-back" href="../../../autoapi/opendrift/models/sealice/index.html#opendrift.models.sealice.SeaLice.SI_pop">[docs]</a>    <span class="k">def</span> <span class="nf">SI_pop</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        distribute the age fractions in the particles</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;Aging the super_individuals&quot;</span><span class="p">)</span>
+        <span class="n">scaling</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">elements</span><span class="o">.</span><span class="n">particle_biomass</span><span class="o">*</span><span class="bp">self</span><span class="o">.</span><span class="n">elements</span><span class="o">.</span><span class="n">LicePerFish</span><span class="o">/</span> \
+                    <span class="bp">self</span><span class="o">.</span><span class="n">elements</span><span class="o">.</span><span class="n">AvFishW8</span>
+        <span class="c1">#identify new spawns</span>
+        <span class="n">New_release</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">elements</span><span class="o">.</span><span class="n">age_seconds</span><span class="o">&lt;=</span><span class="bp">self</span><span class="o">.</span><span class="n">time_step</span><span class="o">.</span><span class="n">total_seconds</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">elements</span><span class="o">.</span><span class="n">hatched</span><span class="p">[</span><span class="n">New_release</span><span class="p">]</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">spawn</span><span class="o">*</span><span class="n">scaling</span><span class="p">[</span><span class="n">New_release</span><span class="p">]</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">elements</span><span class="o">.</span><span class="n">nauplii</span><span class="p">[</span><span class="n">New_release</span><span class="p">]</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">elements</span><span class="o">.</span><span class="n">hatched</span><span class="p">[</span><span class="n">New_release</span><span class="p">]</span>
+        <span class="n">Free</span> <span class="o">=</span> <span class="o">~</span><span class="n">New_release</span>
+        <span class="n">time_in_step</span><span class="o">=</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">elements</span><span class="o">.</span><span class="n">age_seconds</span><span class="p">[</span><span class="n">Free</span><span class="p">]</span><span class="o">/</span> \
+                    <span class="bp">self</span><span class="o">.</span><span class="n">time_step</span><span class="o">.</span><span class="n">total_seconds</span><span class="p">())</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">int</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">elements</span><span class="o">.</span><span class="n">nauplii</span><span class="p">[</span><span class="n">Free</span><span class="p">]</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">elements</span><span class="o">.</span><span class="n">hatched</span><span class="p">[</span><span class="n">Free</span><span class="p">]</span><span class="o">*</span> \
+                                    <span class="bp">self</span><span class="o">.</span><span class="n">juv</span><span class="p">[</span><span class="n">time_in_step</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">elements</span><span class="o">.</span><span class="n">copepodid</span><span class="p">[</span><span class="n">Free</span><span class="p">]</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">elements</span><span class="o">.</span><span class="n">hatched</span><span class="p">[</span><span class="n">Free</span><span class="p">]</span><span class="o">*</span> \
+                                    <span class="bp">self</span><span class="o">.</span><span class="n">adult</span><span class="p">[</span><span class="n">time_in_step</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">elements</span><span class="o">.</span><span class="n">dead</span><span class="p">[</span><span class="n">Free</span><span class="p">]</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">elements</span><span class="o">.</span><span class="n">hatched</span><span class="p">[</span><span class="n">Free</span><span class="p">]</span><span class="o">*</span> \
+                                    <span class="bp">self</span><span class="o">.</span><span class="n">dead</span><span class="p">[</span><span class="n">time_in_step</span><span class="p">]</span>
+        <span class="c1"># desactivate dead particles</span>
+        <span class="c1">## this test is not good for seeds with few lice</span>
+        <span class="n">Dying</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">elements</span><span class="o">.</span><span class="n">nauplii</span><span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">elements</span><span class="o">.</span><span class="n">copepodid</span><span class="o">&lt;</span><span class="mi">1</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">elements</span><span class="o">.</span><span class="n">eliminated</span><span class="p">[</span><span class="n">Dying</span><span class="p">]</span><span class="o">=</span><span class="mi">1</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">deactivate_elements</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">elements</span><span class="o">.</span><span class="n">eliminated</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">bool</span><span class="p">),</span> <span class="n">reason</span><span class="o">=</span><span class="s2">&quot;All dead&quot;</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="SeaLice.sensing"><a class="viewcode-back" href="../../../autoapi/opendrift/models/sealice/index.html#opendrift.models.sealice.SeaLice.sensing">[docs]</a>    <span class="k">def</span> <span class="nf">sensing</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Lice sensing if above or bellow the conditions are better for them</span>
+<span class="sd">        within a specified distance.</span>
+<span class="sd">        moving the particles up and then down then back in their initial position</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;sensing temperature and salinity&quot;</span><span class="p">)</span>
+        <span class="n">Backup</span><span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">copy</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">elements</span><span class="o">.</span><span class="n">z</span><span class="p">[:])</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">elements</span><span class="o">.</span><span class="n">z</span> <span class="o">+=</span><span class="bp">self</span><span class="o">.</span><span class="n">sensing_distance</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">elements</span><span class="o">.</span><span class="n">safe_salinity_above</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">environment</span><span class="o">.</span><span class="n">sea_water_salinity</span><span class="o">&gt;</span> \
+                                            <span class="bp">self</span><span class="o">.</span><span class="n">avoided_salinity</span><span class="p">]</span><span class="o">=</span><span class="mi">1</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">elements</span><span class="o">.</span><span class="n">temperature_above</span><span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">environment</span><span class="o">.</span><span class="n">sea_water_temperature</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">elements</span><span class="o">.</span><span class="n">z</span> <span class="o">-=</span> <span class="mi">2</span><span class="o">*</span><span class="bp">self</span><span class="o">.</span><span class="n">sensing_distance</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">elements</span><span class="o">.</span><span class="n">temperature_below</span><span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">environment</span><span class="o">.</span><span class="n">sea_water_temperature</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">elements</span><span class="o">.</span><span class="n">z</span> <span class="o">=</span> <span class="n">Backup</span></div>
+
+<div class="viewcode-block" id="SeaLice.degree_days"><a class="viewcode-back" href="../../../autoapi/opendrift/models/sealice/index.html#opendrift.models.sealice.SeaLice.degree_days">[docs]</a>    <span class="k">def</span> <span class="nf">degree_days</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Calculate the degree days of a particles</span>
+<span class="sd">        &gt;&gt;&gt; under development &lt;&lt;&lt;</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;accumulate degree_days **Experimental**&quot;</span><span class="p">)</span>
+        <span class="c1">### define active elements</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">elements</span><span class="o">.</span><span class="n">degree_days</span><span class="o">+=</span><span class="bp">self</span><span class="o">.</span><span class="n">environment</span><span class="o">.</span><span class="n">sea_water_temperature</span><span class="o">*</span> \
+                <span class="bp">self</span><span class="o">.</span><span class="n">time_step</span><span class="o">.</span><span class="n">total_seconds</span><span class="p">()</span><span class="o">/</span><span class="n">timedelta</span><span class="p">(</span><span class="n">days</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span><span class="o">.</span><span class="n">total_seconds</span><span class="p">()</span></div>
+
+    <span class="c1"># def solar_noon(self):</span>
+    <span class="c1">#     &quot;&quot;&quot;</span>
+    <span class="c1">#     Search solar noon at the longitude</span>
+    <span class="c1">#     &quot;&quot;&quot;</span>
+    <span class="c1">#     self.ref_date=self.time.date.replace(hour=0,minute=0,second=0)</span>
+    <span class="c1">#     Av_lon= np.mean(self.elements.lon)</span>
+    <span class="c1">#     Av_lat= np.mean(self.elements.lat)</span>
+    <span class="c1">#     minutes=np.arange(0,60*24, dtype=np.float32)</span>
+    <span class="c1">#     angles = np.empty_like(minutes)</span>
+    <span class="c1">#     for i in range(len(minutes)):</span>
+    <span class="c1">#         angles[i]=hour_angle(self.ref_date+timedelta(minutes=float(minutes[i])),Av_lon)</span>
+    <span class="c1">#</span>
+    <span class="c1">#     solar_noon=o.ref_date+timedelta(minutes=float(minutes[np.argmin(np.abs(angles))]))</span>
+    <span class="c1">#     self.noon_elevation=solar_elevation(solar_noon, Av_lon, Av_lat)</span>
+
+
+<div class="viewcode-block" id="SeaLice.irradiance"><a class="viewcode-back" href="../../../autoapi/opendrift/models/sealice/index.html#opendrift.models.sealice.SeaLice.irradiance">[docs]</a>    <span class="k">def</span> <span class="nf">irradiance</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Distribute the daily energy from irradiance with a gaussian distribution.</span>
+<span class="sd">        We use the twilight times for high sensitivity organisms</span>
+<span class="sd">        Convert irradiance from W.m-2 to micromol photon.s-1.m-2</span>
+<span class="sd">        https://www.berthold.com/en/bioanalytic/knowledge/faq/irradiance-to-photon-flux</span>
+<span class="sd">        calculate the photon flux in the water according to exponential decay from the sea surface</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">elements</span><span class="o">.</span><span class="n">solar_angle</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">deg2rad</span><span class="p">(</span><span class="n">hour_angle</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">time</span><span class="p">,</span><span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">elements</span><span class="o">.</span><span class="n">lon</span><span class="p">)))</span>
+        <span class="n">solar_coeff</span><span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">tau</span><span class="o">/</span><span class="p">(</span><span class="mi">2</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">pi</span><span class="p">)</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="o">-</span><span class="bp">self</span><span class="o">.</span><span class="n">tau</span><span class="o">/</span><span class="mi">2</span><span class="o">*</span><span class="bp">self</span><span class="o">.</span><span class="n">elements</span><span class="o">.</span><span class="n">solar_angle</span><span class="o">**</span><span class="mi">2</span><span class="p">))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">elements</span><span class="o">.</span><span class="n">light</span> <span class="o">=</span> <span class="n">solar_coeff</span><span class="o">*</span> \
+                        <span class="bp">self</span><span class="o">.</span><span class="n">environment</span><span class="o">.</span><span class="n">surface_net_downward_radiative_flux</span><span class="o">*</span> \
+                        <span class="bp">self</span><span class="o">.</span><span class="n">nu</span><span class="o">*</span><span class="mf">0.00836</span><span class="o">*</span> \
+                        <span class="n">np</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">k_water</span><span class="o">*</span><span class="bp">self</span><span class="o">.</span><span class="n">elements</span><span class="o">.</span><span class="n">z</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="SeaLice.depth_test"><a class="viewcode-back" href="../../../autoapi/opendrift/models/sealice/index.html#opendrift.models.sealice.SeaLice.depth_test">[docs]</a>    <span class="k">def</span> <span class="nf">depth_test</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        The natural range of the larvae is 0-50m</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">elements</span><span class="o">.</span><span class="n">z</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">elements</span><span class="o">.</span><span class="n">z</span><span class="o">&gt;</span><span class="mi">0</span><span class="p">]</span><span class="o">=</span><span class="mi">0</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">elements</span><span class="o">.</span><span class="n">z</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">elements</span><span class="o">.</span><span class="n">z</span><span class="o">&lt;-</span><span class="mi">50</span><span class="p">]</span><span class="o">=-</span><span class="mi">50</span></div>
+
+<div class="viewcode-block" id="SeaLice.Lice_vertical_migration"><a class="viewcode-back" href="../../../autoapi/opendrift/models/sealice/index.html#opendrift.models.sealice.SeaLice.Lice_vertical_migration">[docs]</a>    <span class="k">def</span> <span class="nf">Lice_vertical_migration</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Make larval sea lice to migrate vertically according to salinity, light</span>
+<span class="sd">        and temperature triggers.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1">### all lice sink at the same speed</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">elements</span><span class="o">.</span><span class="n">z</span> <span class="o">-=</span> <span class="bp">self</span><span class="o">.</span><span class="n">sinking_velocity</span>
+
+        <span class="c1">### filter actively avoiding salt</span>
+        <span class="c1"># Frozen=self.environment.sea_water_salinity&lt;self.freezing_salinity</span>
+        <span class="n">Avoiding</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">logical_and</span><span class="p">((</span><span class="bp">self</span><span class="o">.</span><span class="n">freezing_salinity</span><span class="o">&lt;</span> \
+                    <span class="bp">self</span><span class="o">.</span><span class="n">environment</span><span class="o">.</span><span class="n">sea_water_salinity</span><span class="p">),</span>
+                    <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">environment</span><span class="o">.</span><span class="n">sea_water_salinity</span><span class="o">&lt;</span><span class="bp">self</span><span class="o">.</span><span class="n">avoided_salinity</span><span class="p">))</span>
+
+        <span class="n">Normal_salt</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">environment</span><span class="o">.</span><span class="n">sea_water_salinity</span><span class="o">&gt;=</span><span class="bp">self</span><span class="o">.</span><span class="n">avoided_salinity</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">sensing</span><span class="p">()</span>
+        <span class="c1">### Irradiance computation</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">irradiance</span><span class="p">()</span>
+        <span class="c1">### identify the elements involved in the different scenarios</span>
+        <span class="n">Filter_N</span><span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">elements</span><span class="o">.</span><span class="n">copepodid</span> <span class="o">&lt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">elements</span><span class="o">.</span><span class="n">nauplii</span>
+        <span class="n">Filter_C</span><span class="o">=~</span><span class="n">Filter_N</span>
+        <span class="n">safe_up_salt</span><span class="o">=</span><span class="n">Normal_salt</span><span class="o">&amp;</span><span class="bp">self</span><span class="o">.</span><span class="n">elements</span><span class="o">.</span><span class="n">safe_salinity_above</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">bool</span><span class="p">)</span>
+        <span class="c1">#### need to be able to deal with false arrays of Filter_N and C...</span>
+        <span class="c1">### They generate empty arrays</span>
+        <span class="n">light_mig_N</span><span class="o">=</span> <span class="n">safe_up_salt</span><span class="o">&amp;</span><span class="n">Filter_N</span><span class="o">&amp;</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">elements</span><span class="o">.</span><span class="n">light</span> \
+                    <span class="o">&gt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">Nauplii_light_trigger</span><span class="p">)</span>
+
+        <span class="n">light_mig_C</span><span class="o">=</span> <span class="n">safe_up_salt</span><span class="o">&amp;</span><span class="n">Filter_C</span><span class="o">&amp;</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">elements</span><span class="o">.</span><span class="n">light</span> \
+                    <span class="o">&gt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">Copepodid_light_trigger</span><span class="p">)</span>
+
+        <span class="n">up_temp_mig</span><span class="o">=</span> <span class="n">safe_up_salt</span><span class="o">&amp;~</span><span class="n">light_mig_N</span><span class="o">&amp;~</span><span class="n">light_mig_C</span><span class="o">&amp;</span> \
+                    <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">elements</span><span class="o">.</span><span class="n">temperature_above</span> \
+                    <span class="o">&gt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">environment</span><span class="o">.</span><span class="n">sea_water_temperature</span><span class="p">)</span>
+        <span class="n">down_temp_mig</span><span class="o">=</span><span class="n">Normal_salt</span><span class="o">&amp;~</span><span class="n">up_temp_mig</span><span class="o">&amp;~</span><span class="n">light_mig_N</span><span class="o">&amp;</span> <span class="o">~</span><span class="n">light_mig_C</span><span class="o">&amp;</span> \
+                        <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">elements</span><span class="o">.</span><span class="n">temperature_below</span><span class="o">&gt;</span> \
+                        <span class="bp">self</span><span class="o">.</span><span class="n">environment</span><span class="o">.</span><span class="n">sea_water_temperature</span><span class="p">)</span>
+
+        <span class="c1">### Active migration</span>
+        <span class="n">going_down</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">logical_or</span><span class="p">(</span><span class="n">Avoiding</span><span class="p">,</span><span class="n">down_temp_mig</span><span class="p">)</span>
+        <span class="n">going_up</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">logical_or</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">logical_or</span><span class="p">(</span><span class="n">light_mig_N</span><span class="p">,</span><span class="n">light_mig_C</span><span class="p">),</span><span class="n">up_temp_mig</span><span class="p">)</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;</span><span class="si">{}</span><span class="s2"> going down, </span><span class="si">{}</span><span class="s2"> going up&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">going_down</span><span class="o">.</span><span class="n">sum</span><span class="p">(),</span> <span class="n">going_up</span><span class="o">.</span><span class="n">sum</span><span class="p">()))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">elements</span><span class="o">.</span><span class="n">z</span><span class="p">[</span><span class="n">going_down</span><span class="p">]</span> <span class="o">-=</span> <span class="bp">self</span><span class="o">.</span><span class="n">vertical_migration_speed</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">elements</span><span class="o">.</span><span class="n">z</span><span class="p">[</span><span class="n">going_up</span><span class="p">]</span> <span class="o">+=</span>   <span class="bp">self</span><span class="o">.</span><span class="n">vertical_migration_speed</span></div>
+
+
+<div class="viewcode-block" id="SeaLice.update"><a class="viewcode-back" href="../../../autoapi/opendrift/models/sealice/index.html#opendrift.models.sealice.SeaLice.update">[docs]</a>    <span class="k">def</span> <span class="nf">update</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">SI_pop</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">degree_days</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">advect_ocean_current</span><span class="p">()</span>        
+        <span class="bp">self</span><span class="o">.</span><span class="n">vertical_mixing</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">Lice_vertical_migration</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">depth_test</span><span class="p">()</span></div></div>
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2020, Knut-Frode Dagestad (knutfd@met.no) and Gaute Hope (gauteh@met.no)..</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>
