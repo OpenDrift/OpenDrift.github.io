@@ -590,7 +590,7 @@
         <span class="k">else</span><span class="p">:</span>
             <span class="k">return</span> <span class="kc">None</span></div>
 
-<div class="viewcode-block" id="OceanDrift.animate_vertical_distribution"><a class="viewcode-back" href="../../../autoapi/opendrift/models/oceandrift/index.html#opendrift.models.oceandrift.OceanDrift.animate_vertical_distribution">[docs]</a>    <span class="k">def</span> <span class="nf">animate_vertical_distribution</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">depths</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">maxdepth</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">bins</span><span class="o">=</span><span class="mi">50</span><span class="p">,</span> <span class="n">filename</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">subsamplingstep</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">fastwriter</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+<div class="viewcode-block" id="OceanDrift.animate_vertical_distribution"><a class="viewcode-back" href="../../../autoapi/opendrift/models/oceandrift/index.html#opendrift.models.oceandrift.OceanDrift.animate_vertical_distribution">[docs]</a>    <span class="k">def</span> <span class="nf">animate_vertical_distribution</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">depths</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">maxdepth</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">bins</span><span class="o">=</span><span class="mi">50</span><span class="p">,</span> <span class="n">filename</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">subsamplingstep</span><span class="o">=</span><span class="mi">1</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Function to animate vertical distribution of particles</span>
 <span class="sd">            bins:            number of bins in the histogram</span>
 <span class="sd">            maxdepth:        maximum depth</span>
@@ -599,6 +599,8 @@
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="k">as</span> <span class="nn">plt</span>
         <span class="kn">import</span> <span class="nn">matplotlib.animation</span> <span class="k">as</span> <span class="nn">animation</span>
+
+        <span class="n">start_time</span> <span class="o">=</span> <span class="n">datetime</span><span class="o">.</span><span class="n">now</span><span class="p">()</span>
 
         <span class="c1">#from timeit import default_timer as timer</span>
         <span class="c1">#start=timer()</span>
@@ -640,12 +642,6 @@
             <span class="n">hist_series</span><span class="p">[:,</span><span class="n">i</span><span class="p">],</span> <span class="n">bin_series</span><span class="p">[:,</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">histogram</span><span class="p">(</span><span class="n">z</span><span class="p">[</span><span class="n">i</span><span class="p">,:][</span><span class="n">np</span><span class="o">.</span><span class="n">isfinite</span><span class="p">(</span><span class="n">z</span><span class="p">[</span><span class="n">i</span><span class="p">,:])],</span> <span class="n">bins</span><span class="o">=</span><span class="n">bins</span><span class="p">,</span> <span class="nb">range</span><span class="o">=</span><span class="p">(</span><span class="n">maxdepth</span><span class="p">,</span><span class="n">z</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">isfinite</span><span class="p">(</span><span class="n">z</span><span class="p">)]</span><span class="o">.</span><span class="n">max</span><span class="p">()))</span>
         <span class="n">maxnum</span> <span class="o">=</span> <span class="n">hist_series</span><span class="o">.</span><span class="n">max</span><span class="p">()</span>
 
-        <span class="c1"># 4 different methods for building the animation available for testing</span>
-        <span class="c1"># No significant differences observed so far. Can be useful to keep the</span>
-        <span class="c1"># alternative methods here for further testing</span>
-
-        <span class="c1"># Current method</span>
-
         <span class="n">axn</span><span class="o">.</span><span class="n">clear</span><span class="p">()</span>
         <span class="n">bc</span><span class="o">=</span><span class="n">axn</span><span class="o">.</span><span class="n">barh</span><span class="p">(</span><span class="n">bin_series</span><span class="p">[</span><span class="mi">0</span><span class="p">:</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span><span class="n">i</span><span class="p">],</span> <span class="n">hist_series</span><span class="p">[:,</span><span class="n">i</span><span class="p">],</span> <span class="n">height</span><span class="o">=-</span><span class="n">maxdepth</span><span class="o">/</span><span class="n">bins</span><span class="p">,</span> <span class="n">align</span><span class="o">=</span><span class="s1">&#39;edge&#39;</span><span class="p">)</span>
         <span class="n">axn</span><span class="o">.</span><span class="n">set_ylim</span><span class="p">([</span><span class="n">maxdepth</span><span class="p">,</span> <span class="mi">0</span><span class="p">])</span>
@@ -658,80 +654,18 @@
                 <span class="n">rect</span><span class="o">.</span><span class="n">set_width</span><span class="p">(</span><span class="n">y</span><span class="p">)</span>
             <span class="n">title</span><span class="o">.</span><span class="n">set_text</span><span class="p">(</span><span class="s1">&#39;</span><span class="si">%s</span><span class="s1"> UTC&#39;</span> <span class="o">%</span> <span class="n">times</span><span class="p">[</span><span class="n">i</span><span class="p">])</span>
 
-        <span class="n">animation</span> <span class="o">=</span> <span class="n">animation</span><span class="o">.</span><span class="n">FuncAnimation</span><span class="p">(</span><span class="n">fig</span><span class="p">,</span> <span class="n">update_histogram</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">times</span><span class="p">))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">__save_or_plot_animation__</span><span class="p">(</span><span class="n">plt</span><span class="o">.</span><span class="n">gcf</span><span class="p">(),</span>
+                                        <span class="n">update_histogram</span><span class="p">,</span>
+                                        <span class="n">filename</span><span class="p">,</span>
+                                        <span class="n">frames</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">times</span><span class="p">),</span>
+                                        <span class="n">fps</span> <span class="o">=</span> <span class="mi">10</span><span class="p">,</span>
+                                        <span class="n">interval</span><span class="o">=</span><span class="mi">50</span><span class="p">)</span>
 
-        <span class="c1"># alternative methods tested</span>
-        <span class="c1">#</span>
-        <span class="c1"># alternative1</span>
-        <span class="c1">#</span>
-        <span class="c1">#     axn.clear()</span>
-        <span class="c1">#     bc=axn.barh(bin_series[0:-1,i], hist_series[:,i], height=-maxdepth/bins, align=&#39;edge&#39;)</span>
-        <span class="c1">#     axn.set_ylim([maxdepth, 0])</span>
-        <span class="c1">#     axn.set_xlim([0, maxnum])</span>
-        <span class="c1">#     title=axn.set_title(&#39;%s UTC&#39; % times[i])</span>
-        <span class="c1">#     axn.set_xlabel(&#39;Number of particles&#39;)</span>
-        <span class="c1">#</span>
-        <span class="c1">#     for i in range(len(bc)):</span>
-        <span class="c1">#         axn.add_patch(bc[i])</span>
-        <span class="c1">#</span>
-        <span class="c1">#     def update2(i):</span>
-        <span class="c1">#         for j in range(len(bc)):</span>
-        <span class="c1">#             bc[j].set_width(hist_series[j,i])</span>
-        <span class="c1">#</span>
-        <span class="c1">#         title.set_text(&#39;%s UTC&#39; % times[i])</span>
-        <span class="c1">#         return [bc[i] for i in range(len(bc))]</span>
-        <span class="c1">#</span>
-        <span class="c1">#</span>
-        <span class="c1"># alternative2</span>
-        <span class="c1">#</span>
-        <span class="c1">#     axn.clear()</span>
-        <span class="c1">#     bc=axn.barh(bin_series[0:-1,i], hist_series[:,i], height=-maxdepth/bins, align=&#39;edge&#39;)</span>
-        <span class="c1">#     axn.set_ylim([maxdepth, 0])</span>
-        <span class="c1">#     axn.set_xlim([0, maxnum])</span>
-        <span class="c1">#     title=axn.set_title(&#39;%s UTC&#39; % times[i])</span>
-        <span class="c1">#     axn.set_xlabel(&#39;Number of particles&#39;)</span>
-        <span class="c1">#</span>
-        <span class="c1">#     def prepare_animation3(bc):</span>
-        <span class="c1">#         def animate(i):</span>
-        <span class="c1">#             for count, rect in zip(hist_series[:,i], bc.patches):</span>
-        <span class="c1">#                 rect.set_width(count)</span>
-        <span class="c1">#             title.set_text(&#39;%s UTC&#39; % times[i])</span>
-        <span class="c1">#             return bc.patches</span>
-        <span class="c1">#         return animate</span>
-        <span class="c1">#</span>
-        <span class="c1"># alternative3</span>
-        <span class="c1">#</span>
-        <span class="c1">#     axn.cla()</span>
-        <span class="c1">#     axn.grid()</span>
-        <span class="c1">#     axn.hist(z[i, :], bins=bins,</span>
-        <span class="c1">#                   range=[maxdepth, 0], orientation=&#39;horizontal&#39;)</span>
-        <span class="c1">#     axn.set_ylim([maxdepth, 0])</span>
-        <span class="c1">#     axn.set_xlim([0, maxnum])</span>
-        <span class="c1">#     axn.set_xlabel(&#39;number of particles&#39;)</span>
-        <span class="c1">#     axn.set_title(&#39;%s UTC&#39; % times[i])</span>
-        <span class="c1">#</span>
-        <span class="c1">#     def update4(i):</span>
-        <span class="c1">#         axn.cla()</span>
-        <span class="c1">#         #axn.grid()</span>
-        <span class="c1">#         axn.hist(z[i, :], bins=bins,</span>
-        <span class="c1">#                       range=[maxdepth, 0], orientation=&#39;horizontal&#39;)</span>
-        <span class="c1">#         axn.set_ylim([maxdepth, 0])</span>
-        <span class="c1">#         axn.set_xlim([0, maxnum])</span>
-        <span class="c1">#         axn.set_xlabel(&#39;number of particles&#39;)</span>
-        <span class="c1">#         axn.set_title(&#39;%s UTC&#39; % times[i])</span>
-        <span class="c1">#         #fig.canvas.draw_idle()</span>
-        <span class="c1">#</span>
-        <span class="c1">#     animation = animation.FuncAnimation(fig, update2, len(times), blit=True)</span>
-        <span class="c1">#     animation = animation.FuncAnimation(fig, prepare_animation3(bc), len(times), blit=True)</span>
-        <span class="c1">#     animation = animation.FuncAnimation(fig, update3, len(times))</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s1">&#39;Time to make animation: </span><span class="si">%s</span><span class="s1">&#39;</span> <span class="o">%</span>
+                    <span class="p">(</span><span class="n">datetime</span><span class="o">.</span><span class="n">now</span><span class="p">()</span> <span class="o">-</span> <span class="n">start_time</span><span class="p">))</span></div>
 
-        <span class="c1">#end=timer()</span>
-        <span class="c1">#print(end-start)</span>
 
-        <span class="k">if</span> <span class="n">filename</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">or</span> <span class="s1">&#39;sphinx_gallery&#39;</span> <span class="ow">in</span> <span class="n">sys</span><span class="o">.</span><span class="n">modules</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">_save_animation</span><span class="p">(</span><span class="n">animation</span><span class="p">,</span> <span class="n">filename</span><span class="p">,</span> <span class="n">fps</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span> <span class="n">fastwriter</span><span class="o">=</span><span class="n">fastwriter</span><span class="p">)</span>
-        <span class="k">else</span><span class="p">:</span>
-            <span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span></div>
+
 
 <div class="viewcode-block" id="OceanDrift.plot_vertical_distribution"><a class="viewcode-back" href="../../../autoapi/opendrift/models/oceandrift/index.html#opendrift.models.oceandrift.OceanDrift.plot_vertical_distribution">[docs]</a>    <span class="k">def</span> <span class="nf">plot_vertical_distribution</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">maxdepth</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">bins</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">maxnum</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Function to plot vertical distribution of particles</span>
@@ -805,8 +739,8 @@
             <span class="n">dz</span><span class="o">=</span><span class="mf">1.</span><span class="p">,</span> <span class="n">maxrange</span><span class="o">=-</span><span class="mi">100</span><span class="p">,</span> <span class="n">bins</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">step</span><span class="o">=</span><span class="mi">1</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Function to plot vertical distribution of particles.</span>
 
-<span class="sd">	Use mask to plot any selection of particles.</span>
-<span class="sd">	&quot;&quot;&quot;</span>
+<span class="sd">        Use mask to plot any selection of particles.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="kn">from</span> <span class="nn">pylab</span> <span class="kn">import</span> <span class="n">axes</span><span class="p">,</span> <span class="n">draw</span>
         <span class="kn">from</span> <span class="nn">matplotlib</span> <span class="kn">import</span> <span class="n">dates</span><span class="p">,</span> <span class="n">pyplot</span>
 
