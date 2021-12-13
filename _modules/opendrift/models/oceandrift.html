@@ -537,13 +537,17 @@
             <span class="n">w</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">elements</span><span class="o">.</span><span class="n">terminal_velocity</span>
 
             <span class="c1"># Diffusivity and its gradient at z</span>
-            <span class="n">zi</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="n">z_index</span><span class="p">(</span><span class="o">-</span><span class="bp">self</span><span class="o">.</span><span class="n">elements</span><span class="o">.</span><span class="n">z</span><span class="p">))</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">uint8</span><span class="p">)</span>
+            <span class="n">zi</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="n">z_index</span><span class="p">(</span><span class="o">-</span><span class="bp">self</span><span class="o">.</span><span class="n">elements</span><span class="o">.</span><span class="n">z</span><span class="p">))</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">uint16</span><span class="p">)</span>
             <span class="n">Kz</span> <span class="o">=</span> <span class="n">Kprofiles</span><span class="p">[</span><span class="n">zi</span><span class="p">,</span> <span class="nb">range</span><span class="p">(</span><span class="n">Kprofiles</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">])]</span>
             <span class="n">dKdz</span> <span class="o">=</span> <span class="n">gradK</span><span class="p">[</span><span class="n">zi</span><span class="p">,</span> <span class="nb">range</span><span class="p">(</span><span class="n">Kprofiles</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">])]</span>
 
-            <span class="c1"># Visser et al. 1996 random walk mixing</span>
+            <span class="c1"># Visser et al. 1997 random walk mixing</span>
             <span class="c1"># requires an inner loop time step dt such that</span>
             <span class="c1"># dt &lt;&lt; (d2K/dz2)^-1, e.g. typically dt &lt;&lt; 15min</span>
+            <span class="c1">#</span>
+            <span class="c1"># NB: In the last term Kz is evaluated in zi, while</span>
+            <span class="c1"># it should be evaluated in (self.elements.z - dKdz*dt_mix)</span>
+            <span class="c1"># This is not expected have large impact on the result</span>
             <span class="n">R</span> <span class="o">=</span> <span class="mi">2</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">random</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">num_elements_active</span><span class="p">())</span> <span class="o">-</span> <span class="mi">1</span>
             <span class="n">r</span> <span class="o">=</span> <span class="mf">1.0</span><span class="o">/</span><span class="mi">3</span>
             <span class="c1"># New position  =  old position   - up_K_flux   + random walk</span>
