@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Specifications and background requirements &mdash; OpenDrift  documentation</title>
+  <title>Lagrangian simulation of drift trajectories &mdash; OpenDrift  documentation</title>
       <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
       <link rel="stylesheet" href="../_static/graphviz.css" type="text/css" />
@@ -24,8 +24,8 @@
     <script src="../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
-    <link rel="next" title="Data model" href="data_model.html" />
-    <link rel="prev" title="Eulerian simulation of drift trajectories" href="eulerian.html" /> 
+    <link rel="next" title="Eulerian simulation of drift trajectories" href="eulerian.html" />
+    <link rel="prev" title="Theory" href="index.html" /> 
 </head>
 
 <body class="wy-body-for-nav"> 
@@ -53,9 +53,9 @@
 <li class="toctree-l1"><a class="reference internal" href="../performance.html">Performance in OpenDrift</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../tutorial.html">Tutorial</a></li>
 <li class="toctree-l1 current"><a class="reference internal" href="index.html">Theory</a><ul class="current">
-<li class="toctree-l2"><a class="reference internal" href="lagrangian.html">Lagrangian simulation of drift trajectories</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">Lagrangian simulation of drift trajectories</a></li>
 <li class="toctree-l2"><a class="reference internal" href="eulerian.html">Eulerian simulation of drift trajectories</a></li>
-<li class="toctree-l2 current"><a class="current reference internal" href="#">Specifications and background requirements</a></li>
+<li class="toctree-l2"><a class="reference internal" href="specification.html">Specifications and background requirements</a></li>
 <li class="toctree-l2"><a class="reference internal" href="data_model.html">Data model</a></li>
 </ul>
 </li>
@@ -87,9 +87,9 @@
   <ul class="wy-breadcrumbs">
       <li><a href="../index.html" class="icon icon-home"></a> &raquo;</li>
           <li><a href="index.html">Theory</a> &raquo;</li>
-      <li>Specifications and background requirements</li>
+      <li>Lagrangian simulation of drift trajectories</li>
       <li class="wy-breadcrumbs-aside">
-            <a href="../_sources/theory/specification.rst.txt" rel="nofollow"> View page source</a>
+            <a href="../_sources/theory/lagrangian.rst.txt" rel="nofollow"> View page source</a>
       </li>
   </ul>
   <hr/>
@@ -97,89 +97,16 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
              
-  <div class="section" id="specifications-and-background-requirements">
-<h1>Specifications and background requirements<a class="headerlink" href="#specifications-and-background-requirements" title="Permalink to this headline"></a></h1>
-<p><strong>OpenDrift is designed to be a generic, open source trajectory model for any kind of particles (Lagrangian Elements) drifting in the ocean (or even in atmosphere).</strong></p>
-<p>Some design criteria are:</p>
-<ul class="simple">
-<li><p><strong>Modular</strong></p>
-<ul>
-<li><p>Can read input (driver) data (currents, wind, waves etc) from any source/model in any projection and file format (including OPeNDAP/Thredds)</p>
-<ul>
-<li><p>reads data only for the relevant locations/times where the active drifting objects are located</p></li>
-<li><p>should be easy to add “readers” for new sources/models</p></li>
-<li><p>parameters referred to by their CF standard-names, for consistency</p></li>
-</ul>
-</li>
-<li><p>A <strong>core module</strong> will contain everything common to all types of particles</p>
-<ul>
-<li><p>fetch driver data (wind, wave, current, water temp, air temp, diffusivity, etc)</p></li>
-<li><p>check beaching/stranding</p></li>
-<li><p>export output, with possibility to import for continued simulation</p></li>
-<li><p>switch between “trajectory view” (history for each particle) and “field view” (particle positions/properties at given time)</p></li>
-<li><p>plot figure (trajectories, or spatial distribution at given time; density maps, convex hull, …)</p></li>
-</ul>
-</li>
-<li><p><strong>Separate modules</strong> with functions to advect and update the properties of specific types of particles:</p>
-<ul>
-<li><p>oil (based on OD3D)</p></li>
-<li><p>rigid objects (based on Leeway)</p></li>
-<li><p>plankton, fish eggs, larvae (based on Ladim)</p></li>
-</ul>
-</li>
-<li><p>Generic methods for <strong>seeding of particles</strong> (point source, line, cone, shapefile, satellite image initialisation etc)</p></li>
-</ul>
-</li>
-<li><p><strong>Robust</strong></p>
-<ul>
-<li><p>using priority list of driver data in case a source is missing, or if the particles leaves the domain in space or time. Using climatology or constant values as last option.</p></li>
-<li><p>gracious error handling (try-except)</p></li>
-</ul>
-</li>
-<li><p><strong>Fast</strong> (enough)</p>
-<ul>
-<li><p>Using vectorized code (performance similar to c and fortran)</p></li>
-</ul>
-</li>
-<li><p><strong>Flexible</strong></p>
-<ul>
-<li><p>Can be run for at any location worldwide where driver data are available</p></li>
-<li><p>Option to run both forwards and backwards in time</p></li>
-<li><p>Modules and functions/parameterisations can be modified easily by the user, e.g. for sensitivity tests and scientific studies</p></li>
-</ul>
-</li>
-<li><p><strong>Stochastic</strong></p>
-<ul>
-<li><p>Take into account uncertainty:</p>
-<ul>
-<li><p>ensemble input</p></li>
-<li><p>multi-driver ensemble</p></li>
-<li><p>error, standard deviation</p></li>
-</ul>
-</li>
-<li><p>Yet reproducible, using pseudo-random numbers, allowing sensitivity tests (various parameterisations, driver data sources etc)</p></li>
-</ul>
-</li>
-<li><p><strong>Programmed in Python</strong></p>
-<ul>
-<li><p>with optional possibility to implement specific modules og bottlenecks in other laguages, e.g. c or fortran</p></li>
-<li><p>platform independent and simple installation</p>
-<ul>
-<li><p>based on as few external packages as possible</p></li>
-</ul>
-</li>
-<li><p>clean code, following the <a class="reference external" href="https://www.python.org/dev/peps/pep-0008">PEP8</a> and <a class="reference external" href="https://www.python.org/dev/peps/pep-0257/">PEP257</a> style guides.</p></li>
-</ul>
-</li>
-</ul>
+  <div class="section" id="lagrangian-simulation-of-drift-trajectories">
+<h1>Lagrangian simulation of drift trajectories<a class="headerlink" href="#lagrangian-simulation-of-drift-trajectories" title="Permalink to this headline"></a></h1>
 </div>
 
 
            </div>
           </div>
           <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
-        <a href="eulerian.html" class="btn btn-neutral float-left" title="Eulerian simulation of drift trajectories" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
-        <a href="data_model.html" class="btn btn-neutral float-right" title="Data model" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+        <a href="index.html" class="btn btn-neutral float-left" title="Theory" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="eulerian.html" class="btn btn-neutral float-right" title="Eulerian simulation of drift trajectories" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
     </div>
 
   <hr/>
