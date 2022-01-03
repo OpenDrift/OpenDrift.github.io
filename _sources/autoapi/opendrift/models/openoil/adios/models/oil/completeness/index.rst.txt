@@ -1,0 +1,130 @@
+:py:mod:`opendrift.models.openoil.adios.models.oil.completeness`
+================================================================
+
+.. py:module:: opendrift.models.openoil.adios.models.oil.completeness
+
+.. autoapi-nested-parse::
+
+   Calculate the completeness of the data contained in an oil record.
+
+   The top-level interface is a single function:
+       completeness(pyjson_of_an_oil_record)
+
+   (pyjson is a python dict that is a match for the JSON)
+
+   It performs calculations that were designed by RobertJ, and returns a value
+   with a scale of 0->100%.
+
+
+
+Module Contents
+---------------
+
+
+Functions
+~~~~~~~~~
+
+.. autoapisummary::
+
+   opendrift.models.openoil.adios.models.oil.completeness.set_completeness
+   opendrift.models.openoil.adios.models.oil.completeness.completeness
+   opendrift.models.openoil.adios.models.oil.completeness.check_emulsion_water_content
+   opendrift.models.openoil.adios.models.oil.completeness.check_density
+   opendrift.models.openoil.adios.models.oil.completeness.check_second_density
+   opendrift.models.openoil.adios.models.oil.completeness.check_viscosity
+   opendrift.models.openoil.adios.models.oil.completeness.check_second_viscosity
+   opendrift.models.openoil.adios.models.oil.completeness.check_distillation
+   opendrift.models.openoil.adios.models.oil.completeness.check_weathered_density
+   opendrift.models.openoil.adios.models.oil.completeness.check_weathered_viscosity
+   opendrift.models.openoil.adios.models.oil.completeness.is_measurement_good
+
+
+
+Attributes
+~~~~~~~~~~
+
+.. autoapisummary::
+
+   opendrift.models.openoil.adios.models.oil.completeness.logger
+   opendrift.models.openoil.adios.models.oil.completeness.CHECKS
+
+
+.. py:data:: logger
+   
+
+   
+
+.. py:function:: set_completeness(oil)
+
+
+.. py:function:: completeness(oil)
+
+   Calculate the completeness of the data contained in an oil record.
+
+   :param oil: The oil record to be validated, in json-compatible python
+               data structure.
+
+
+.. py:function:: check_emulsion_water_content(oil)
+
+   One emulsion water content in any subsample. Score = 2.5
+
+
+.. py:function:: check_density(oil)
+
+   Fresh oil: One density or API. Score = 1
+
+
+.. py:function:: check_second_density(oil)
+
+   Fresh oil: Second density separated by temperature.
+
+   Score = deltaT/40 but not greater than 0.5
+
+   maxDeltaT: The difference between the lowest and highest
+   measurement in the set.
+
+
+.. py:function:: check_viscosity(oil)
+
+   Fresh oil: One viscosity. Score = 0.5
+
+
+.. py:function:: check_second_viscosity(oil)
+
+   Fresh oil: Second viscosity at a different temperature.
+
+   Score = maxDeltaT/40, but not greater than 0.5
+
+   maxDeltaT: The difference between the lowest and highest
+   measurement in the set.
+
+
+.. py:function:: check_distillation(oil)
+
+   Fresh oil: Two Distillation cuts separated by mass or volume fraction.
+
+   Score = 3 * maxDeltaFraction
+
+   maxDeltaFraction: The difference between the lowest and
+   highest measurement in the set
+
+
+.. py:function:: check_weathered_density(oil)
+
+   One Evaporated oil: Density. Score = 1
+
+
+.. py:function:: check_weathered_viscosity(oil)
+
+   One Evaporated oil: Viscosity. Score = 1
+
+
+.. py:function:: is_measurement_good(measurement)
+
+
+.. py:data:: CHECKS
+   
+
+   
+

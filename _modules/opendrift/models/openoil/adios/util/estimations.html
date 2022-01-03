@@ -1,0 +1,574 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>opendrift.models.openoil.adios.util.estimations &mdash; OpenDrift  documentation</title>
+      <link rel="stylesheet" href="../../../../../../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../../../../../../_static/css/theme.css" type="text/css" />
+      <link rel="stylesheet" href="../../../../../../_static/graphviz.css" type="text/css" />
+      <link rel="stylesheet" href="../../../../../../_static/plot_directive.css" type="text/css" />
+      <link rel="stylesheet" href="../../../../../../_static/sg_gallery.css" type="text/css" />
+      <link rel="stylesheet" href="../../../../../../_static/sg_gallery-binder.css" type="text/css" />
+      <link rel="stylesheet" href="../../../../../../_static/sg_gallery-dataframe.css" type="text/css" />
+      <link rel="stylesheet" href="../../../../../../_static/sg_gallery-rendered-html.css" type="text/css" />
+      <link rel="stylesheet" href="../../../../../../_static/theme_overrides.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="../../../../../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="../../../../../../" id="documentation_options" src="../../../../../../_static/documentation_options.js"></script>
+        <script src="../../../../../../_static/jquery.js"></script>
+        <script src="../../../../../../_static/underscore.js"></script>
+        <script src="../../../../../../_static/doctools.js"></script>
+    <script src="../../../../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+            <a href="../../../../../../index.html" class="icon icon-home"> OpenDrift
+            <img src="../../../../../../_static/opendrift_logo.png" class="logo" alt="Logo"/>
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../../index.html">Introduction to OpenDrift</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../../history_link.html">History</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../../install.html">Installing OpenDrift</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../../performance.html">Performance in OpenDrift</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../../tutorial.html">Tutorial</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../../theory/index.html">Theory</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../../theory/index.html#drift-in-the-ocean">Drift in the Ocean</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../../choosing_a_model.html">How to choose which model to use</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../../writing_a_new_model.html">How to write a new module</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../../gallery/index.html">Gallery</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../../oil_types.html">Oil types</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../../interaction_with_coastline.html">Interaction with coastline</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../../docker.html">Using OpenDrift in a container</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../../gui.html">Graphical User Interface</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../../references.html">Publications</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../../services.html">Services using OpenDrift</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../../autoapi/index.html">API Reference</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../../../../index.html">OpenDrift</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../../../../index.html" class="icon icon-home"></a> &raquo;</li>
+          <li><a href="../../../../../index.html">Module code</a> &raquo;</li>
+          <li><a href="../../../../../opendrift.html">opendrift</a> &raquo;</li>
+      <li>opendrift.models.openoil.adios.util.estimations</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for opendrift.models.openoil.adios.util.estimations</h1><div class="highlight"><pre>
+<span></span><span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">    Oil Properties Estimations.</span>
+
+<span class="sd">    These are primitive estimation algorithms to be used primarily for</span>
+<span class="sd">    estimating oil properties based on known measured values.</span>
+<span class="sd">&#39;&#39;&#39;</span>
+
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+
+
+<span class="c1"># fixme -- these are unit conversion, and are in the unit_conversion(NUCOS)</span>
+<span class="c1">#          library.  We should use that lib to be consistent.</span>
+
+<div class="viewcode-block" id="density_from_api"><a class="viewcode-back" href="../../../../../../autoapi/opendrift/models/openoil/adios/util/estimations/index.html#opendrift.models.openoil.adios.util.estimations.density_from_api">[docs]</a><span class="k">def</span> <span class="nf">density_from_api</span><span class="p">(</span><span class="n">api</span><span class="p">):</span>
+    <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">        Source: Adios2</span>
+
+<span class="sd">        API is a measure of how heavy an oil is compared to water.</span>
+<span class="sd">        So it is a different unit for specific gravity</span>
+<span class="sd">    &#39;&#39;&#39;</span>
+    <span class="n">kg_m_3</span> <span class="o">=</span> <span class="mf">141.5</span> <span class="o">/</span> <span class="p">(</span><span class="mf">131.5</span> <span class="o">+</span> <span class="n">api</span><span class="p">)</span> <span class="o">*</span> <span class="mf">1000.0</span>
+    <span class="n">ref_temp_k</span> <span class="o">=</span> <span class="mf">273.15</span> <span class="o">+</span> <span class="mf">15.0</span>
+
+    <span class="k">return</span> <span class="n">kg_m_3</span><span class="p">,</span> <span class="n">ref_temp_k</span></div>
+
+
+<div class="viewcode-block" id="api_from_density"><a class="viewcode-back" href="../../../../../../autoapi/opendrift/models/openoil/adios/util/estimations/index.html#opendrift.models.openoil.adios.util.estimations.api_from_density">[docs]</a><span class="k">def</span> <span class="nf">api_from_density</span><span class="p">(</span><span class="n">density</span><span class="p">):</span>
+    <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">        Source: Adios2</span>
+<span class="sd">    &#39;&#39;&#39;</span>
+    <span class="n">kg_m_3</span> <span class="o">=</span> <span class="n">density</span>
+
+    <span class="k">return</span> <span class="p">(</span><span class="mf">141.5</span> <span class="o">/</span> <span class="n">kg_m_3</span> <span class="o">*</span> <span class="mf">1000.0</span><span class="p">)</span> <span class="o">-</span> <span class="mf">131.5</span></div>
+
+
+<div class="viewcode-block" id="density_at_temp"><a class="viewcode-back" href="../../../../../../autoapi/opendrift/models/openoil/adios/util/estimations/index.html#opendrift.models.openoil.adios.util.estimations.density_at_temp">[docs]</a><span class="k">def</span> <span class="nf">density_at_temp</span><span class="p">(</span><span class="n">ref_density</span><span class="p">,</span> <span class="n">ref_temp_k</span><span class="p">,</span> <span class="n">temp_k</span><span class="p">,</span> <span class="n">k_rho_t</span><span class="o">=</span><span class="mf">0.0008</span><span class="p">):</span>
+    <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">        Source: Adios2</span>
+
+<span class="sd">        If we have an oil density at a reference temperature,</span>
+<span class="sd">        then we can estimate what its density might be at</span>
+<span class="sd">        another temperature.</span>
+
+<span class="sd">        NOTE: need a reference for the coefficient of expansion</span>
+<span class="sd">    &#39;&#39;&#39;</span>
+    <span class="k">return</span> <span class="n">ref_density</span> <span class="o">/</span> <span class="p">(</span><span class="mf">1.0</span> <span class="o">-</span> <span class="n">k_rho_t</span> <span class="o">*</span> <span class="p">(</span><span class="n">ref_temp_k</span> <span class="o">-</span> <span class="n">temp_k</span><span class="p">))</span></div>
+
+
+<div class="viewcode-block" id="vol_expansion_coeff"><a class="viewcode-back" href="../../../../../../autoapi/opendrift/models/openoil/adios/util/estimations/index.html#opendrift.models.openoil.adios.util.estimations.vol_expansion_coeff">[docs]</a><span class="k">def</span> <span class="nf">vol_expansion_coeff</span><span class="p">(</span><span class="n">rho_0</span><span class="p">,</span> <span class="n">t_0</span><span class="p">,</span> <span class="n">rho_1</span><span class="p">,</span> <span class="n">t_1</span><span class="p">):</span>
+    <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">        Calculate the volumetric expansion coefficient of a liquid</span>
+<span class="sd">        based on a set of two densities and their associated temperatures.</span>
+<span class="sd">    &#39;&#39;&#39;</span>
+    <span class="k">if</span> <span class="n">t_0</span> <span class="o">==</span> <span class="n">t_1</span><span class="p">:</span>
+        <span class="n">k_rho_t</span> <span class="o">=</span> <span class="mf">0.0</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">k_rho_t</span> <span class="o">=</span> <span class="p">(</span><span class="n">rho_0</span> <span class="o">-</span> <span class="n">rho_1</span><span class="p">)</span> <span class="o">/</span> <span class="p">(</span><span class="n">rho_0</span> <span class="o">*</span> <span class="p">(</span><span class="n">t_1</span> <span class="o">-</span> <span class="n">t_0</span><span class="p">))</span>
+
+    <span class="k">return</span> <span class="n">k_rho_t</span></div>
+
+
+<div class="viewcode-block" id="specific_gravity"><a class="viewcode-back" href="../../../../../../autoapi/opendrift/models/openoil/adios/util/estimations/index.html#opendrift.models.openoil.adios.util.estimations.specific_gravity">[docs]</a><span class="k">def</span> <span class="nf">specific_gravity</span><span class="p">(</span><span class="n">density</span><span class="p">):</span>
+    <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">        Specific Gravity of Oil with respect to water at 15C (definition used</span>
+<span class="sd">        for API gravity)</span>
+<span class="sd">    &#39;&#39;&#39;</span>
+    <span class="k">return</span> <span class="n">density</span> <span class="o">/</span> <span class="mf">999.103</span></div>
+
+
+<div class="viewcode-block" id="dvis_to_kvis"><a class="viewcode-back" href="../../../../../../autoapi/opendrift/models/openoil/adios/util/estimations/index.html#opendrift.models.openoil.adios.util.estimations.dvis_to_kvis">[docs]</a><span class="k">def</span> <span class="nf">dvis_to_kvis</span><span class="p">(</span><span class="n">dvis</span><span class="p">,</span> <span class="n">density</span><span class="p">):</span>
+    <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">        Source: Definition of kinematic viscosity.</span>
+
+<span class="sd">        Conversion from dynamic viscosity to kinematic viscosity.</span>
+<span class="sd">    &#39;&#39;&#39;</span>
+    <span class="k">return</span> <span class="n">dvis</span> <span class="o">/</span> <span class="n">density</span></div>
+
+
+<div class="viewcode-block" id="kvis_at_temp"><a class="viewcode-back" href="../../../../../../autoapi/opendrift/models/openoil/adios/util/estimations/index.html#opendrift.models.openoil.adios.util.estimations.kvis_at_temp">[docs]</a><span class="k">def</span> <span class="nf">kvis_at_temp</span><span class="p">(</span><span class="n">ref_kvis</span><span class="p">,</span> <span class="n">ref_temp_k</span><span class="p">,</span> <span class="n">temp_k</span><span class="p">,</span> <span class="n">k_v2</span><span class="o">=</span><span class="mf">2416.0</span><span class="p">):</span>
+    <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">        Source: Adios2</span>
+
+<span class="sd">        If we have an oil kinematic viscosity at a reference temperature,</span>
+<span class="sd">        then we can estimate what its viscosity might be at</span>
+<span class="sd">        another temperature.</span>
+
+<span class="sd">        Note: Bill&#39;s most recent viscosity document, and an analysis of the</span>
+<span class="sd">              multi-KVis oils in our oil library suggest that a value of</span>
+<span class="sd">              2416.0 (Abu Eishah 1999) would be a good default value for k_v2.</span>
+<span class="sd">    &#39;&#39;&#39;</span>
+    <span class="k">return</span> <span class="n">ref_kvis</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="n">k_v2</span> <span class="o">/</span> <span class="n">temp_k</span> <span class="o">-</span> <span class="n">k_v2</span> <span class="o">/</span> <span class="n">ref_temp_k</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="resin_fraction"><a class="viewcode-back" href="../../../../../../autoapi/opendrift/models/openoil/adios/util/estimations/index.html#opendrift.models.openoil.adios.util.estimations.resin_fraction">[docs]</a><span class="k">def</span> <span class="nf">resin_fraction</span><span class="p">(</span><span class="n">density</span><span class="p">,</span> <span class="n">viscosity</span><span class="p">,</span> <span class="n">f_other</span><span class="o">=</span><span class="mf">0.0</span><span class="p">):</span>
+    <span class="n">A</span> <span class="o">=</span> <span class="n">_A_coeff</span><span class="p">(</span><span class="n">density</span><span class="p">)</span>
+    <span class="n">B</span> <span class="o">=</span> <span class="n">_B_coeff</span><span class="p">(</span><span class="n">density</span><span class="p">,</span> <span class="n">viscosity</span><span class="p">)</span>
+
+    <span class="n">f_res</span> <span class="o">=</span> <span class="mf">0.033</span> <span class="o">*</span> <span class="n">A</span> <span class="o">+</span> <span class="mf">0.00087</span> <span class="o">*</span> <span class="n">B</span> <span class="o">-</span> <span class="mf">0.74</span>
+    <span class="n">f_res</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">clip</span><span class="p">(</span><span class="n">f_res</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">,</span> <span class="mf">1.0</span> <span class="o">-</span> <span class="n">f_other</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">f_res</span></div>
+
+
+<div class="viewcode-block" id="asphaltene_fraction"><a class="viewcode-back" href="../../../../../../autoapi/opendrift/models/openoil/adios/util/estimations/index.html#opendrift.models.openoil.adios.util.estimations.asphaltene_fraction">[docs]</a><span class="k">def</span> <span class="nf">asphaltene_fraction</span><span class="p">(</span><span class="n">density</span><span class="p">,</span> <span class="n">viscosity</span><span class="p">,</span> <span class="n">f_other</span><span class="o">=</span><span class="mf">0.0</span><span class="p">):</span>
+    <span class="n">A</span> <span class="o">=</span> <span class="n">_A_coeff</span><span class="p">(</span><span class="n">density</span><span class="p">)</span>
+    <span class="n">B</span> <span class="o">=</span> <span class="n">_B_coeff</span><span class="p">(</span><span class="n">density</span><span class="p">,</span> <span class="n">viscosity</span><span class="p">)</span>
+
+    <span class="n">f_asph</span> <span class="o">=</span> <span class="p">(</span><span class="mf">0.000014</span> <span class="o">*</span> <span class="n">A</span> <span class="o">**</span> <span class="mf">3.0</span> <span class="o">+</span>
+              <span class="mf">0.000004</span> <span class="o">*</span> <span class="n">B</span> <span class="o">**</span> <span class="mf">2.0</span> <span class="o">-</span>
+              <span class="mf">0.18</span><span class="p">)</span>
+    <span class="n">f_asph</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">clip</span><span class="p">(</span><span class="n">f_asph</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">,</span> <span class="mf">1.0</span> <span class="o">-</span> <span class="n">f_other</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">f_asph</span></div>
+
+
+<div class="viewcode-block" id="saturates_fraction"><a class="viewcode-back" href="../../../../../../autoapi/opendrift/models/openoil/adios/util/estimations/index.html#opendrift.models.openoil.adios.util.estimations.saturates_fraction">[docs]</a><span class="k">def</span> <span class="nf">saturates_fraction</span><span class="p">(</span><span class="n">density</span><span class="p">,</span> <span class="n">viscosity</span><span class="p">,</span> <span class="n">f_other</span><span class="o">=</span><span class="mf">0.0</span><span class="p">):</span>
+    <span class="n">A</span> <span class="o">=</span> <span class="n">_A_coeff</span><span class="p">(</span><span class="n">density</span><span class="p">)</span>
+    <span class="n">B</span> <span class="o">=</span> <span class="n">_B_coeff</span><span class="p">(</span><span class="n">density</span><span class="p">,</span> <span class="n">viscosity</span><span class="p">)</span>
+
+    <span class="n">f_sat</span> <span class="o">=</span> <span class="o">-</span><span class="mf">2.5</span> <span class="o">+</span> <span class="mf">76.6</span> <span class="o">/</span> <span class="n">A</span> <span class="o">+</span> <span class="mf">0.00013</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="n">B</span><span class="p">)</span>
+    <span class="n">f_sat</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">clip</span><span class="p">(</span><span class="n">f_sat</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">,</span> <span class="mf">1.0</span> <span class="o">-</span> <span class="n">f_other</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">f_sat</span></div>
+
+
+<div class="viewcode-block" id="aromatics_fraction"><a class="viewcode-back" href="../../../../../../autoapi/opendrift/models/openoil/adios/util/estimations/index.html#opendrift.models.openoil.adios.util.estimations.aromatics_fraction">[docs]</a><span class="k">def</span> <span class="nf">aromatics_fraction</span><span class="p">(</span><span class="n">f_res</span><span class="p">,</span> <span class="n">f_asph</span><span class="p">,</span> <span class="n">f_sat</span><span class="p">):</span>
+    <span class="n">f_arom</span> <span class="o">=</span> <span class="mf">1.0</span> <span class="o">-</span> <span class="p">(</span><span class="n">f_res</span> <span class="o">+</span> <span class="n">f_asph</span> <span class="o">+</span> <span class="n">f_sat</span><span class="p">)</span>
+    <span class="n">f_arom</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">clip</span><span class="p">(</span><span class="n">f_arom</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">f_arom</span></div>
+
+
+<div class="viewcode-block" id="_A_coeff"><a class="viewcode-back" href="../../../../../../autoapi/opendrift/models/openoil/adios/util/estimations/index.html#opendrift.models.openoil.adios.util.estimations._A_coeff">[docs]</a><span class="k">def</span> <span class="nf">_A_coeff</span><span class="p">(</span><span class="n">density</span><span class="p">):</span>
+    <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">        Source: Fingas empirical formulas that are based upon analysis</span>
+<span class="sd">                of ESTC oil properties database.</span>
+
+<span class="sd">        This is an intermediate calculation for a coefficient to be</span>
+<span class="sd">        used to generate the inert mass fractions of an oil.</span>
+<span class="sd">    &#39;&#39;&#39;</span>
+    <span class="k">return</span> <span class="mf">10.0</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="mf">0.001</span> <span class="o">*</span> <span class="n">density</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="_B_coeff"><a class="viewcode-back" href="../../../../../../autoapi/opendrift/models/openoil/adios/util/estimations/index.html#opendrift.models.openoil.adios.util.estimations._B_coeff">[docs]</a><span class="k">def</span> <span class="nf">_B_coeff</span><span class="p">(</span><span class="n">density</span><span class="p">,</span> <span class="n">viscosity</span><span class="p">):</span>
+    <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">        Source: Fingas empirical formulas that are based upon analysis</span>
+<span class="sd">                of ESTC oil properties database.</span>
+
+<span class="sd">        This is an intermediate calculation for a coefficient to be</span>
+<span class="sd">        used to generate the inert mass fractions of an oil.</span>
+<span class="sd">    &#39;&#39;&#39;</span>
+    <span class="k">return</span> <span class="mf">10.0</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="mf">1000.0</span> <span class="o">*</span> <span class="n">density</span> <span class="o">*</span> <span class="n">viscosity</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="cut_temps_from_api"><a class="viewcode-back" href="../../../../../../autoapi/opendrift/models/openoil/adios/util/estimations/index.html#opendrift.models.openoil.adios.util.estimations.cut_temps_from_api">[docs]</a><span class="k">def</span> <span class="nf">cut_temps_from_api</span><span class="p">(</span><span class="n">api</span><span class="p">,</span> <span class="n">N</span><span class="o">=</span><span class="mi">5</span><span class="p">):</span>
+    <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">        Source: Adios2 &amp; Jones R. (1997),</span>
+<span class="sd">                A Simplified Pseudo-component Oil Evaporation Model,</span>
+<span class="sd">                Proceedings of the 20th Arctic and Marine Oil Spill Program,</span>
+<span class="sd">                Vancouver, CA,</span>
+<span class="sd">                Vol. 1, pp. 43-62</span>
+
+<span class="sd">        Generate distillation cut temperatures from the oil&#39;s API.</span>
+<span class="sd">    &#39;&#39;&#39;</span>
+    <span class="n">T_0</span> <span class="o">=</span> <span class="mf">457.0</span> <span class="o">-</span> <span class="mf">3.34</span> <span class="o">*</span> <span class="n">api</span>
+    <span class="n">T_G</span> <span class="o">=</span> <span class="mf">1357.0</span> <span class="o">-</span> <span class="mf">247.7</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="n">api</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([(</span><span class="n">T_0</span> <span class="o">+</span> <span class="n">T_G</span> <span class="o">*</span> <span class="n">i</span> <span class="o">/</span> <span class="n">N</span><span class="p">)</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">N</span><span class="p">)])</span></div>
+
+
+<div class="viewcode-block" id="fmasses_from_cuts"><a class="viewcode-back" href="../../../../../../autoapi/opendrift/models/openoil/adios/util/estimations/index.html#opendrift.models.openoil.adios.util.estimations.fmasses_from_cuts">[docs]</a><span class="k">def</span> <span class="nf">fmasses_from_cuts</span><span class="p">(</span><span class="n">f_evap_i</span><span class="p">):</span>
+    <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">        Generate distillation cut fractional masses from the</span>
+<span class="sd">        cumulative distillation fractions in the cut data.</span>
+<span class="sd">    &#39;&#39;&#39;</span>
+    <span class="n">fmass_i</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">f_evap_i</span><span class="p">)</span>
+    <span class="n">fmass_i</span><span class="p">[</span><span class="mi">1</span><span class="p">:]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">diff</span><span class="p">(</span><span class="n">fmass_i</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">fmass_i</span></div>
+
+
+<div class="viewcode-block" id="fmasses_flat_dist"><a class="viewcode-back" href="../../../../../../autoapi/opendrift/models/openoil/adios/util/estimations/index.html#opendrift.models.openoil.adios.util.estimations.fmasses_flat_dist">[docs]</a><span class="k">def</span> <span class="nf">fmasses_flat_dist</span><span class="p">(</span><span class="n">f_res</span><span class="p">,</span> <span class="n">f_asph</span><span class="p">,</span> <span class="n">N</span><span class="o">=</span><span class="mi">5</span><span class="p">):</span>
+    <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">        Generate a flat distribution of N distillation cut fractional masses.</span>
+<span class="sd">    &#39;&#39;&#39;</span>
+    <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([(</span><span class="mf">1.0</span> <span class="o">-</span> <span class="n">f_res</span> <span class="o">-</span> <span class="n">f_asph</span><span class="p">)</span> <span class="o">/</span> <span class="n">N</span><span class="p">]</span> <span class="o">*</span> <span class="n">N</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="saturate_mol_wt"><a class="viewcode-back" href="../../../../../../autoapi/opendrift/models/openoil/adios/util/estimations/index.html#opendrift.models.openoil.adios.util.estimations.saturate_mol_wt">[docs]</a><span class="k">def</span> <span class="nf">saturate_mol_wt</span><span class="p">(</span><span class="n">boiling_point</span><span class="p">):</span>
+    <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">        Source: Dr. M. R. Riazi,</span>
+<span class="sd">                Characterization and Properties of Petroleum Fractions</span>
+<span class="sd">                eq. 2.48 and table 2.6</span>
+
+<span class="sd">        Note: for this to actually work in every case, we need to limit</span>
+<span class="sd">              our temperature to:</span>
+<span class="sd">              - T_i &lt; 1070.0</span>
+<span class="sd">              - T_i &gt;</span>
+<span class="sd">              - T_i &gt; 1070.0 - exp(6.98291)  (roughly about == -8.06)</span>
+<span class="sd">    &#39;&#39;&#39;</span>
+    <span class="n">T_i</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">clip</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">boiling_point</span><span class="p">),</span>
+                  <span class="mf">1070.0</span> <span class="o">-</span> <span class="n">np</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="mf">6.98291</span><span class="p">)</span> <span class="o">+</span> <span class="mf">0.00001</span><span class="p">,</span>
+                  <span class="mf">1070.0</span> <span class="o">-</span> <span class="mf">0.00001</span><span class="p">)</span>
+    <span class="k">return</span> <span class="p">(</span><span class="mf">49.677</span> <span class="o">*</span> <span class="p">(</span><span class="mf">6.98291</span> <span class="o">-</span> <span class="n">np</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="mf">1070.0</span> <span class="o">-</span> <span class="n">T_i</span><span class="p">)))</span> <span class="o">**</span> <span class="p">(</span><span class="mf">3.0</span> <span class="o">/</span> <span class="mf">2.0</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="aromatic_mol_wt"><a class="viewcode-back" href="../../../../../../autoapi/opendrift/models/openoil/adios/util/estimations/index.html#opendrift.models.openoil.adios.util.estimations.aromatic_mol_wt">[docs]</a><span class="k">def</span> <span class="nf">aromatic_mol_wt</span><span class="p">(</span><span class="n">boiling_point</span><span class="p">):</span>
+    <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">        Source: Dr. M. R. Riazi,</span>
+<span class="sd">                Characterization and Properties of Petroleum Fractions</span>
+<span class="sd">                eq. 2.48 and table 2.6</span>
+
+<span class="sd">        Note: for this to actually work in every case, we need to limit</span>
+<span class="sd">              our temperature to:</span>
+<span class="sd">              - T_i &lt; 1015.0</span>
+<span class="sd">              - T_i &gt; 1015.0 - exp(6.911)  (roughly about == 11.76)</span>
+<span class="sd">    &#39;&#39;&#39;</span>
+    <span class="n">T_i</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">clip</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">boiling_point</span><span class="p">),</span>
+                  <span class="mf">1015.0</span> <span class="o">-</span> <span class="n">np</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="mf">6.911</span><span class="p">)</span> <span class="o">+</span> <span class="mf">0.00001</span><span class="p">,</span>
+                  <span class="mf">1015.0</span> <span class="o">-</span> <span class="mf">0.00001</span><span class="p">)</span>
+    <span class="k">return</span> <span class="p">(</span><span class="mf">44.504</span> <span class="o">*</span> <span class="p">(</span><span class="mf">6.911</span> <span class="o">-</span> <span class="n">np</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="mf">1015.0</span> <span class="o">-</span> <span class="n">T_i</span><span class="p">)))</span> <span class="o">**</span> <span class="p">(</span><span class="mf">3.0</span> <span class="o">/</span> <span class="mf">2.0</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="resin_mol_wt"><a class="viewcode-back" href="../../../../../../autoapi/opendrift/models/openoil/adios/util/estimations/index.html#opendrift.models.openoil.adios.util.estimations.resin_mol_wt">[docs]</a><span class="k">def</span> <span class="nf">resin_mol_wt</span><span class="p">(</span><span class="n">_boiling_point</span><span class="p">):</span>
+    <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">        Source: Recommendation from Bill Lehr</span>
+
+<span class="sd">        Note: We pass in a boiling point to remain consistent with the other</span>
+<span class="sd">              molecular weight functions, even though it is not used.</span>
+<span class="sd">        Note: We return a scalar in all cases.  This should still work with</span>
+<span class="sd">              numpy array operations, but probably not with regular Python</span>
+<span class="sd">              sequence types.</span>
+<span class="sd">              We can fix this if the need arises.</span>
+<span class="sd">    &#39;&#39;&#39;</span>
+    <span class="k">return</span> <span class="mf">800.0</span></div>
+
+
+<div class="viewcode-block" id="asphaltene_mol_wt"><a class="viewcode-back" href="../../../../../../autoapi/opendrift/models/openoil/adios/util/estimations/index.html#opendrift.models.openoil.adios.util.estimations.asphaltene_mol_wt">[docs]</a><span class="k">def</span> <span class="nf">asphaltene_mol_wt</span><span class="p">(</span><span class="n">_boiling_point</span><span class="p">):</span>
+    <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">        Source: Recommendation from Bill Lehr</span>
+
+<span class="sd">        Note: We pass in a boiling point to remain consistent with the other</span>
+<span class="sd">              molecular weight functions, even though it is not used.</span>
+<span class="sd">        Note: We return a scalar in all cases.  This should still work with</span>
+<span class="sd">              numpy array operations, but probably not with regular Python</span>
+<span class="sd">              sequence types.</span>
+<span class="sd">              We can fix this if the need arises.</span>
+<span class="sd">    &#39;&#39;&#39;</span>
+    <span class="k">return</span> <span class="mf">1000.0</span></div>
+
+
+<div class="viewcode-block" id="trial_densities"><a class="viewcode-back" href="../../../../../../autoapi/opendrift/models/openoil/adios/util/estimations/index.html#opendrift.models.openoil.adios.util.estimations.trial_densities">[docs]</a><span class="k">def</span> <span class="nf">trial_densities</span><span class="p">(</span><span class="n">boiling_points</span><span class="p">,</span> <span class="n">watson_factor</span><span class="p">):</span>
+    <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">        Source: Dr. M. R. Riazi,</span>
+<span class="sd">                Characterization and Properties of Petroleum Fractions</span>
+<span class="sd">                eq. 2.13 and table 9.6</span>
+
+<span class="sd">        Generate an initial estimate of volatile oil components based</span>
+<span class="sd">        on boiling points and the Watson Characterization Factor.</span>
+<span class="sd">        This is only good for estimating Aromatics &amp; Saturates.</span>
+<span class="sd">    &#39;&#39;&#39;</span>
+    <span class="n">boiling_points</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">boiling_points</span><span class="p">)</span>
+    <span class="k">return</span> <span class="mf">1000.0</span> <span class="o">*</span> <span class="p">(</span><span class="mf">1.8</span> <span class="o">*</span> <span class="n">boiling_points</span><span class="p">)</span> <span class="o">**</span> <span class="p">(</span><span class="mf">1.0</span> <span class="o">/</span> <span class="mf">3.0</span><span class="p">)</span> <span class="o">/</span> <span class="n">watson_factor</span></div>
+
+
+<div class="viewcode-block" id="saturate_densities"><a class="viewcode-back" href="../../../../../../autoapi/opendrift/models/openoil/adios/util/estimations/index.html#opendrift.models.openoil.adios.util.estimations.saturate_densities">[docs]</a><span class="k">def</span> <span class="nf">saturate_densities</span><span class="p">(</span><span class="n">boiling_points</span><span class="p">):</span>
+    <span class="n">K_w_sat</span> <span class="o">=</span> <span class="mf">12.0</span>
+
+    <span class="k">return</span> <span class="n">trial_densities</span><span class="p">(</span><span class="n">boiling_points</span><span class="p">,</span> <span class="n">K_w_sat</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="aromatic_densities"><a class="viewcode-back" href="../../../../../../autoapi/opendrift/models/openoil/adios/util/estimations/index.html#opendrift.models.openoil.adios.util.estimations.aromatic_densities">[docs]</a><span class="k">def</span> <span class="nf">aromatic_densities</span><span class="p">(</span><span class="n">boiling_points</span><span class="p">):</span>
+    <span class="n">K_w_arom</span> <span class="o">=</span> <span class="mf">10.0</span>
+
+    <span class="k">return</span> <span class="n">trial_densities</span><span class="p">(</span><span class="n">boiling_points</span><span class="p">,</span> <span class="n">K_w_arom</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="resin_densities"><a class="viewcode-back" href="../../../../../../autoapi/opendrift/models/openoil/adios/util/estimations/index.html#opendrift.models.openoil.adios.util.estimations.resin_densities">[docs]</a><span class="k">def</span> <span class="nf">resin_densities</span><span class="p">(</span><span class="n">_boiling_points</span><span class="p">):</span>
+    <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">        Note: We pass in a boiling point to remain consistent with the other</span>
+<span class="sd">              molecular weight functions, even though it is not used.</span>
+<span class="sd">        Note: We return a scalar in all cases.  This should still work with</span>
+<span class="sd">              numpy array operations, but probably not with regular Python</span>
+<span class="sd">              sequence types.</span>
+<span class="sd">              We can fix this if the need arises.</span>
+<span class="sd">    &#39;&#39;&#39;</span>
+    <span class="k">return</span> <span class="mf">1100.0</span></div>
+
+
+<div class="viewcode-block" id="asphaltene_densities"><a class="viewcode-back" href="../../../../../../autoapi/opendrift/models/openoil/adios/util/estimations/index.html#opendrift.models.openoil.adios.util.estimations.asphaltene_densities">[docs]</a><span class="k">def</span> <span class="nf">asphaltene_densities</span><span class="p">(</span><span class="n">_boiling_points</span><span class="p">):</span>
+    <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">        Note: We pass in a boiling point to remain consistent with the other</span>
+<span class="sd">              molecular weight functions, even though it is not used.</span>
+<span class="sd">        Note: We return a scalar in all cases.  This should still work with</span>
+<span class="sd">              numpy array operations, but probably not with regular Python</span>
+<span class="sd">              sequence types.</span>
+<span class="sd">              We can fix this if the need arises.</span>
+<span class="sd">    &#39;&#39;&#39;</span>
+    <span class="k">return</span> <span class="mf">1100.0</span></div>
+
+
+<div class="viewcode-block" id="_hydrocarbon_characterization_param"><a class="viewcode-back" href="../../../../../../autoapi/opendrift/models/openoil/adios/util/estimations/index.html#opendrift.models.openoil.adios.util.estimations._hydrocarbon_characterization_param">[docs]</a><span class="k">def</span> <span class="nf">_hydrocarbon_characterization_param</span><span class="p">(</span><span class="n">specific_gravity</span><span class="p">,</span> <span class="n">temp_k</span><span class="p">):</span>
+    <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">        Source: Dr. M. R. Riazi,</span>
+<span class="sd">                Characterization and Properties of Petroleum Fractions</span>
+<span class="sd">                eq. 2.115</span>
+
+<span class="sd">        Source: Huang, P. K. (1977),</span>
+<span class="sd">                Characterization and Thermodynamic Correlations for</span>
+<span class="sd">                Undefined Hydrocarbon Mixtures,</span>
+<span class="sd">                Ph.D. Dissertation</span>
+<span class="sd">                Pennsylvania State University,</span>
+<span class="sd">                University Park, PA,</span>
+
+<span class="sd">        This is a characterization parameter, designated as I, that</span>
+<span class="sd">        was first used by Huang to correlate hydrocarbon properties</span>
+<span class="sd">    &#39;&#39;&#39;</span>
+    <span class="n">T_i</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">temp_k</span><span class="p">)</span>
+    <span class="n">SG_i</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">specific_gravity</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="mf">0.3773</span> <span class="o">*</span> <span class="n">T_i</span> <span class="o">**</span> <span class="p">(</span><span class="o">-</span><span class="mf">0.02269</span><span class="p">)</span> <span class="o">*</span> <span class="n">SG_i</span> <span class="o">**</span> <span class="p">(</span><span class="mf">0.9182</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="refractive_index"><a class="viewcode-back" href="../../../../../../autoapi/opendrift/models/openoil/adios/util/estimations/index.html#opendrift.models.openoil.adios.util.estimations.refractive_index">[docs]</a><span class="k">def</span> <span class="nf">refractive_index</span><span class="p">(</span><span class="n">hc_char_param</span><span class="p">):</span>
+    <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">        Source: Dr. M. R. Riazi,</span>
+<span class="sd">                Characterization and Properties of Petroleum Fractions</span>
+<span class="sd">                eq. 2.114</span>
+
+<span class="sd">        This is the refractive index of liquid hydrocarbons at 20C,</span>
+<span class="sd">        correlated through parameter I</span>
+<span class="sd">    &#39;&#39;&#39;</span>
+    <span class="n">i</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">hc_char_param</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="p">((</span><span class="mi">1</span> <span class="o">+</span> <span class="mi">2</span> <span class="o">*</span> <span class="n">i</span><span class="p">)</span> <span class="o">/</span> <span class="p">(</span><span class="mi">1</span> <span class="o">-</span> <span class="n">i</span><span class="p">))</span> <span class="o">**</span> <span class="p">(</span><span class="mf">1.0</span> <span class="o">/</span> <span class="mf">2.0</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="_hydrocarbon_grouping_param"><a class="viewcode-back" href="../../../../../../autoapi/opendrift/models/openoil/adios/util/estimations/index.html#opendrift.models.openoil.adios.util.estimations._hydrocarbon_grouping_param">[docs]</a><span class="k">def</span> <span class="nf">_hydrocarbon_grouping_param</span><span class="p">(</span><span class="n">mol_wt</span><span class="p">,</span> <span class="n">specific_gravity</span><span class="p">,</span> <span class="n">temp_k</span><span class="p">):</span>
+    <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">        Source: Dr. M. R. Riazi,</span>
+<span class="sd">                Characterization and Properties of Petroleum Fractions</span>
+<span class="sd">                eq. 3.50</span>
+
+<span class="sd">        This is a hydrocarbon grouping parameter correlated through</span>
+<span class="sd">        the molecular weight and the refractive index.  Riazi claims</span>
+<span class="sd">        that it:</span>
+<span class="sd">        - separates paraffins and aromatics</span>
+<span class="sd">        - identifies various hydrocarbon types</span>
+<span class="sd">    &#39;&#39;&#39;</span>
+    <span class="n">i</span> <span class="o">=</span> <span class="n">_hydrocarbon_characterization_param</span><span class="p">(</span><span class="n">specific_gravity</span><span class="p">,</span> <span class="n">temp_k</span><span class="p">)</span>
+    <span class="n">n</span> <span class="o">=</span> <span class="n">refractive_index</span><span class="p">(</span><span class="n">i</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">mol_wt</span> <span class="o">*</span> <span class="p">(</span><span class="n">n</span> <span class="o">-</span> <span class="mf">1.475</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="saturate_mass_fraction"><a class="viewcode-back" href="../../../../../../autoapi/opendrift/models/openoil/adios/util/estimations/index.html#opendrift.models.openoil.adios.util.estimations.saturate_mass_fraction">[docs]</a><span class="k">def</span> <span class="nf">saturate_mass_fraction</span><span class="p">(</span><span class="n">fmass_i</span><span class="p">,</span> <span class="n">mol_wt</span><span class="p">,</span> <span class="n">specific_gravity</span><span class="p">,</span> <span class="n">temp_k</span><span class="p">):</span>
+    <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">        Source: Dr. M. R. Riazi,</span>
+<span class="sd">                Characterization and Properties of Petroleum Fractions</span>
+<span class="sd">                eqs. 3.77 and 3.78</span>
+
+<span class="sd">        For a petroleum hydrocarbon fraction in which the molecular</span>
+<span class="sd">        weight, specific gravity, and boiling point are known, we can</span>
+<span class="sd">        estimate the fraction of that substance which contains</span>
+<span class="sd">        saturate compounds.</span>
+<span class="sd">        When forming his equations, Riazi deals with the PNA composition,</span>
+<span class="sd">        which essentially means Paraffins, Naphthenes, and Aromatics.</span>
+<span class="sd">        And for our purposes, the saturates include the paraffins and</span>
+<span class="sd">        naphthenes.</span>
+<span class="sd">    &#39;&#39;&#39;</span>
+    <span class="n">SG_sat_i</span> <span class="o">=</span> <span class="n">specific_gravity</span>
+    <span class="n">m</span> <span class="o">=</span> <span class="n">_hydrocarbon_grouping_param</span><span class="p">(</span><span class="n">mol_wt</span><span class="p">,</span> <span class="n">SG_sat_i</span><span class="p">,</span> <span class="n">temp_k</span><span class="p">)</span>
+
+    <span class="n">X_P</span> <span class="o">=</span> <span class="mf">3.7387</span> <span class="o">-</span> <span class="mf">4.0829</span> <span class="o">*</span> <span class="n">SG_sat_i</span> <span class="o">+</span> <span class="mf">0.014772</span> <span class="o">*</span> <span class="n">m</span>
+    <span class="n">X_N</span> <span class="o">=</span> <span class="o">-</span><span class="mf">1.5027</span> <span class="o">+</span> <span class="mf">2.10152</span> <span class="o">*</span> <span class="n">SG_sat_i</span> <span class="o">-</span> <span class="mf">0.02388</span> <span class="o">*</span> <span class="n">m</span>
+
+    <span class="n">f_sat_i</span> <span class="o">=</span> <span class="n">fmass_i</span> <span class="o">*</span> <span class="p">(</span><span class="n">X_P</span> <span class="o">+</span> <span class="n">X_N</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">clip</span><span class="p">(</span><span class="n">f_sat_i</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">,</span> <span class="n">fmass_i</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="oil_water_surface_tension_from_api"><a class="viewcode-back" href="../../../../../../autoapi/opendrift/models/openoil/adios/util/estimations/index.html#opendrift.models.openoil.adios.util.estimations.oil_water_surface_tension_from_api">[docs]</a><span class="k">def</span> <span class="nf">oil_water_surface_tension_from_api</span><span class="p">(</span><span class="n">api</span><span class="p">):</span>
+    <span class="k">return</span> <span class="mf">0.001</span> <span class="o">*</span> <span class="p">(</span><span class="mf">39.0</span> <span class="o">-</span> <span class="mf">0.2571</span> <span class="o">*</span> <span class="n">api</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="pour_point_from_kvis"><a class="viewcode-back" href="../../../../../../autoapi/opendrift/models/openoil/adios/util/estimations/index.html#opendrift.models.openoil.adios.util.estimations.pour_point_from_kvis">[docs]</a><span class="k">def</span> <span class="nf">pour_point_from_kvis</span><span class="p">(</span><span class="n">ref_kvis</span><span class="p">,</span> <span class="n">ref_temp_k</span><span class="p">):</span>
+    <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">        Source: Adios2</span>
+
+<span class="sd">        If we have an oil kinematic viscosity at a reference temperature,</span>
+<span class="sd">        then we can estimate what its pour point might be.</span>
+<span class="sd">    &#39;&#39;&#39;</span>
+    <span class="n">c_v1</span> <span class="o">=</span> <span class="mf">5000.0</span>
+    <span class="n">ref_kvis</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">ref_kvis</span><span class="p">)</span>
+    <span class="n">ref_temp_k</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">ref_temp_k</span><span class="p">)</span>
+
+    <span class="n">T_pp</span> <span class="o">=</span> <span class="p">(</span><span class="n">c_v1</span> <span class="o">*</span> <span class="n">ref_temp_k</span><span class="p">)</span> <span class="o">/</span> <span class="p">(</span><span class="n">c_v1</span> <span class="o">-</span> <span class="n">ref_temp_k</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="n">ref_kvis</span><span class="p">))</span>
+
+    <span class="k">return</span> <span class="n">T_pp</span></div>
+
+
+<div class="viewcode-block" id="pour_point_from_sg_mw_kvis"><a class="viewcode-back" href="../../../../../../autoapi/opendrift/models/openoil/adios/util/estimations/index.html#opendrift.models.openoil.adios.util.estimations.pour_point_from_sg_mw_kvis">[docs]</a><span class="k">def</span> <span class="nf">pour_point_from_sg_mw_kvis</span><span class="p">(</span><span class="n">specific_gravity</span><span class="p">,</span> <span class="n">mol_wt</span><span class="p">,</span> <span class="n">kvis</span><span class="p">):</span>
+    <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">        Source: Dr. M. R. Riazi,</span>
+<span class="sd">                Characterization and Properties of Petroleum Fractions</span>
+<span class="sd">                eq. 3.119</span>
+
+<span class="sd">        Another way of estimating pour point.</span>
+<span class="sd">        These inputs may not be available for most imported oil records.</span>
+<span class="sd">    &#39;&#39;&#39;</span>
+    <span class="n">SG</span> <span class="o">=</span> <span class="n">specific_gravity</span>
+
+    <span class="k">return</span> <span class="p">(</span><span class="mf">130.47</span> <span class="o">*</span>
+            <span class="n">SG</span> <span class="o">**</span> <span class="mf">2.970566</span> <span class="o">*</span>
+            <span class="n">mol_wt</span> <span class="o">**</span> <span class="p">(</span><span class="mf">0.61235</span> <span class="o">-</span> <span class="mf">0.47357</span> <span class="o">*</span> <span class="n">SG</span><span class="p">)</span> <span class="o">*</span>
+            <span class="n">kvis</span> <span class="o">*</span> <span class="p">(</span><span class="mf">0.310331</span> <span class="o">-</span> <span class="mf">0.32834</span> <span class="o">*</span> <span class="n">SG</span><span class="p">))</span></div>
+
+
+<div class="viewcode-block" id="flash_point_from_bp"><a class="viewcode-back" href="../../../../../../autoapi/opendrift/models/openoil/adios/util/estimations/index.html#opendrift.models.openoil.adios.util.estimations.flash_point_from_bp">[docs]</a><span class="k">def</span> <span class="nf">flash_point_from_bp</span><span class="p">(</span><span class="n">temp_k</span><span class="p">):</span>
+    <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">        Source: Reference: Chang A., K. Pashakanti, and Y. Liu (2012),</span>
+<span class="sd">                           Integrated Process Modeling and Optimization,</span>
+<span class="sd">                           Wiley Verlag.</span>
+
+<span class="sd">    &#39;&#39;&#39;</span>
+    <span class="n">temp_k</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">temp_k</span><span class="p">)</span>
+    <span class="k">return</span> <span class="mf">117.0</span> <span class="o">+</span> <span class="mf">0.69</span> <span class="o">*</span> <span class="n">temp_k</span></div>
+
+
+<div class="viewcode-block" id="flash_point_from_api"><a class="viewcode-back" href="../../../../../../autoapi/opendrift/models/openoil/adios/util/estimations/index.html#opendrift.models.openoil.adios.util.estimations.flash_point_from_api">[docs]</a><span class="k">def</span> <span class="nf">flash_point_from_api</span><span class="p">(</span><span class="n">api</span><span class="p">):</span>
+    <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">        Source: Reference: Chang A., K. Pashakanti, and Y. Liu (2012),</span>
+<span class="sd">                           Integrated Process Modeling and Optimization,</span>
+<span class="sd">                           Wiley Verlag.</span>
+
+<span class="sd">    &#39;&#39;&#39;</span>
+    <span class="n">api</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">api</span><span class="p">)</span>
+    <span class="k">return</span> <span class="mf">457.0</span> <span class="o">-</span> <span class="mf">3.34</span> <span class="o">*</span> <span class="n">api</span></div>
+
+
+<div class="viewcode-block" id="bullwinkle_fraction_from_asph"><a class="viewcode-back" href="../../../../../../autoapi/opendrift/models/openoil/adios/util/estimations/index.html#opendrift.models.openoil.adios.util.estimations.bullwinkle_fraction_from_asph">[docs]</a><span class="k">def</span> <span class="nf">bullwinkle_fraction_from_asph</span><span class="p">(</span><span class="n">f_asph</span><span class="p">):</span>
+    <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">        Source: Adios2</span>
+<span class="sd">    &#39;&#39;&#39;</span>
+    <span class="k">return</span> <span class="mf">0.32</span> <span class="o">-</span> <span class="mf">3.59</span> <span class="o">*</span> <span class="n">f_asph</span></div>
+
+
+<div class="viewcode-block" id="bullwinkle_fraction_from_api"><a class="viewcode-back" href="../../../../../../autoapi/opendrift/models/openoil/adios/util/estimations/index.html#opendrift.models.openoil.adios.util.estimations.bullwinkle_fraction_from_api">[docs]</a><span class="k">def</span> <span class="nf">bullwinkle_fraction_from_api</span><span class="p">(</span><span class="n">api</span><span class="p">):</span>
+    <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">        Source: Adios2</span>
+<span class="sd">    &#39;&#39;&#39;</span>
+    <span class="k">return</span> <span class="mf">0.5762</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">log10</span><span class="p">(</span><span class="n">api</span><span class="p">)</span> <span class="o">-</span> <span class="mf">0.6353</span></div>
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2020, Knut-Frode Dagestad (knutfd@met.no) and Gaute Hope (gauteh@met.no)..</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

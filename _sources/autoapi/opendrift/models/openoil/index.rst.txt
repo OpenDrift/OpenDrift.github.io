@@ -3,65 +3,47 @@
 
 .. py:module:: opendrift.models.openoil
 
-.. autoapi-nested-parse::
 
-   OpenOil is a 3D oil drift module bundled within the OpenDrift framework.
+Subpackages
+-----------
+.. toctree::
+   :titlesonly:
+   :maxdepth: 3
 
-   The oil weathering calculations is based on the NOAA-ERR-ERD OilLibrary
-   package, which is installed as a dependency. The code for evaporation and
-   emulsification in OpenOil is borrowed from the NOAA PyGnome code, and adapted
-   to the OpenDrift architecture.
-
-   Example of ship leaking oil along the coast of Northern Norway
-   ##############################################################
-
-   .. image:: https://dl.dropboxusercontent.com/s/ty6dmqf0oohewky/oilspill_tromsoe.gif?dl=0
-
-   Simulation of Deepwater Horizon (Macondo) accident, initiated from satellite images
-   ###################################################################################
-
-   .. image:: https://dl.dropboxusercontent.com/s/ghi7crtmwpyjgto/macondo_simulation.gif?dl=0
-
-   Satellite images provided by Prof. Chuanmin Hu, and ocean model output provided by Prof. Vassiliki Kourafalou
-
-   Example oil budget for a simulation
-   ###################################
-
-   .. image:: https://dl.dropboxusercontent.com/s/pb0h6tlev9pnoh3/oil_budget_draugen.png?dl=0
-
-   Oil properties affecting the drift
-   ***********************************
-   The vertical (and thus indirectly also the horizontal) motion of oil (droplets) is affected by oil density and droplet diameters.
-
-   When using the NOAA oil weathering model (``o = OpenOil(weathering_model='noaa')``), which is the default, the density is obtained from the NOAA database according to the oiltype selected when seeding. This value can not be overridden by the user, and it will also change during the simulation due to oil weathering processes (evaporation and emulsification).
-
-   The droplet diameter may be given explicitly when seeding, e.g.::
-
-       o.seed_elements(4, 60, number=100, time=datetime.now(), diameter=1e-5)
-
-   In this case, the diameter will not change during the simulation, which is useful e.g. for sensitivity tests. The same diameter will be used for all elements for this example, but an array of the same length as the number of elements may also be provided.
-
-   If a constant droplet diameter is not given by the user, it will be chosen randomly within given config limits for a subsea spill ('blowout'), and modified after any later wave breaking event. Oil droplets seeded under sea surface (z<0) will be assigned initial diameters between the following limits, typical for a subsea blowout (Johansen, 2000)::
-
-       o.set_config('seed:droplet_diameter_min_subsea', 0.0005)  # 0.5 mm
-       o.set_config('seed:droplet_diameter_max_subsea', 0.005)   # 5 mm
-
-   Note that these config settings must be adjusted before the seeding call.
-   After each wave breaking event, a new droplet diameter will be chosen based on the config setting for droplet size distribution.
+   adios/index.rst
 
 
+Submodules
+----------
+.. toctree::
+   :titlesonly:
+   :maxdepth: 1
 
-Module Contents
----------------
+   noaa_oil_weathering/index.rst
+   openoil/index.rst
+
+
+Package Contents
+----------------
 
 Classes
 ~~~~~~~
 
 .. autoapisummary::
 
+   opendrift.models.openoil.OceanDrift
+   opendrift.models.openoil.Lagrangian3DArray
    opendrift.models.openoil.Oil
    opendrift.models.openoil.OpenOil
 
+
+
+Functions
+~~~~~~~~~
+
+.. autoapisummary::
+
+   opendrift.models.openoil.oil_wave_entrainment_rate_li2017
 
 
 
@@ -77,6 +59,182 @@ Attributes
    
 
    
+
+.. py:class:: OceanDrift(*args, **kwargs)
+
+   Bases: :py:obj:`opendrift.models.basemodel.OpenDriftSimulation`
+
+   Open source buoyant particle trajectory model based on OpenDrift.
+
+   Developed at MET Norway
+
+   Generic module for particles that move in 3 dimensions
+   and may be to vertical turbulent mixing
+   with the possibility for positive or negative buoyancy
+
+   Particles could be e.g. oil droplets, plankton, nutrients or sediments,
+   Model may be subclassed for more specific behaviour.
+
+
+   Initialise OpenDriftSimulation
+
+   Args:
+       seed: integer or None. A given integer will yield identical
+           random numbers drawn each simulation. Random numbers are
+           e.g. used to distribute particles spatially when seeding,
+           and may be used by modules (subclasses) for e.g. diffusion.
+           Specifying a fixed value (default: 0) is useful for sensitivity
+           tests. With seed = None, different random numbers will be drawn
+           for subsequent runs, even with identical configuration/input.
+       iomodule: name of module used to export data
+           default: netcdf, see :py:mod:`opendrift.io` for more alternatives.
+           `iomodule` is module/filename without preceeding `io_`
+       loglevel: set to 0 (default) to retrieve all debug information.
+           Provide a higher value (e.g. 20) to receive less output.
+           Use the string 'custom' to configure logging from outside.
+       logtime: if True, a time stamp is given for each logging line.
+                logtime can also be given as a python time specifier
+                (e.g. '%H:%M:%S')
+
+   .. py:attribute:: ElementType
+      
+
+      
+
+   .. py:attribute:: max_speed
+      :annotation: = 1
+
+      
+
+   .. py:attribute:: required_variables
+      
+
+      
+
+   .. py:attribute:: required_profiles_z_range
+      
+
+      
+
+   .. py:method:: update(self)
+
+      Update positions and properties of elements.
+
+
+   .. py:method:: machine_learning_correction(self)
+
+
+   .. py:method:: disable_vertical_motion(self)
+
+      Deactivate any vertical processes/advection
+
+
+   .. py:method:: update_terminal_velocity(self, Tprofiles=None, Sprofiles=None, z_index=None)
+
+      Calculate terminal velocity due to bouyancy from own properties
+      and environmental variables. Sub-modules should overload
+      this method for particle-specific behaviour
+
+
+   .. py:method:: prepare_vertical_mixing(self)
+
+
+   .. py:method:: vertical_advection(self)
+
+      Move particles vertically according to vertical ocean current
+
+      Vertical advection by ocean currents is normally small
+      compared to termical velocity
+
+
+   .. py:method:: vertical_buoyancy(self)
+
+      Move particles vertically according to their buoyancy
+
+
+   .. py:method:: surface_stick(self)
+
+      To be overloaded by subclasses, e.g. downward mixing of oil
+
+
+   .. py:method:: bottom_interaction(self, Zmin=None)
+
+      To be overloaded by subclasses, e.g. radionuclides in sediments
+
+
+   .. py:method:: surface_wave_mixing(self, time_step_seconds)
+
+      To be overloaded by subclasses, e.g. downward mixing of oil
+
+
+   .. py:method:: get_diffusivity_profile(self, model)
+
+
+   .. py:method:: vertical_mixing(self, store_depths=False)
+
+      Mix particles vertically according to eddy diffusivity and buoyancy
+
+      Buoyancy is expressed as terminal velocity, which is the
+      steady-state vertical velocity due to positive or negative
+      buoyant behaviour. It is usually a function of particle density,
+      diameter, and shape.
+
+      Vertical particle displacemend du to turbulent mixing is
+      calculated using a random walk scheme" (Visser et al. 1996)
+
+
+   .. py:method:: animate_vertical_distribution(self, depths=None, maxdepth=None, bins=50, filename=None, subsamplingstep=1)
+
+      Function to animate vertical distribution of particles
+      bins:            number of bins in the histogram
+      maxdepth:        maximum depth
+      subsamplingstep: speed-up the generation of the animation reducing the number of output frames
+      fasterwriter:    speed-up the writing to outpute file
+
+
+   .. py:method:: plot_vertical_distribution(self, maxdepth=None, bins=None, maxnum=None)
+
+      Function to plot vertical distribution of particles
+
+      maxdepth: maximum depth considered for the profile
+      bins:     number of bins between surface and maxdepth
+      maxnum:   range of bars in histogram is [0,maxnum]
+
+
+   .. py:method:: plotter_vertical_distribution_time(self, ax=None, mask=None, dz=1.0, maxrange=-100, bins=None, step=1)
+
+      Function to plot vertical distribution of particles.
+
+      Use mask to plot any selection of particles.
+
+
+
+.. py:class:: Lagrangian3DArray(**kwargs)
+
+   Bases: :py:obj:`opendrift.elements.LagrangianArray`
+
+   Extending LagrangianArray for elements moving in 3 dimensions
+   The Particle may be buoyant and/or subject to vertical mixing
+   buoyant bahaviour is described by terminal velocity
+
+   Initialises a LagrangianArray with given properties.
+
+   Args:
+       Keyword arguments (kwargs) with names corresponding to the
+       OrderedDict 'variables' of the class, and corresponding values.
+       The values must be ndarrays of equal length, or scalars.
+       All (or none) variables must be given, unless a default value
+       is specified in the OrderedDict 'variables'
+       An empty object may be created by giving no input.
+
+   .. py:attribute:: variables
+      
+
+      
+
+
+.. py:function:: oil_wave_entrainment_rate_li2017(dynamic_viscosity, oil_density, interfacial_tension, significant_wave_height=None, wave_breaking_fraction=None, wind_speed=None, sea_water_density=1028.0)
+
 
 .. py:class:: Oil(**kwargs)
 
@@ -157,7 +315,7 @@ Attributes
       
 
    .. py:attribute:: duplicate_oils
-      :annotation: = ['ALVHEIM BLEND, STATOIL', 'DRAUGEN, STATOIL', 'EKOFISK BLEND, STATOIL', 'EKOFISK, CITGO',...
+      :annotation: = ['ALVHEIM BLEND, STATOIL', 'DRAUGEN, STATOIL', 'EKOFISK BLEND 2000', 'EKOFISK BLEND, STATOIL',...
 
       
 
@@ -306,6 +464,15 @@ Attributes
 
 
    .. py:method:: set_oiltype(self, oiltype)
+
+
+   .. py:method:: set_oiltype_by_id(self, oiltypeid)
+
+
+   .. py:method:: set_oiltype_by_json(self, json)
+
+
+   .. py:method:: set_oiltype_from_file(self, path)
 
 
    .. py:method:: store_oil_seed_metadata(self, **kwargs)

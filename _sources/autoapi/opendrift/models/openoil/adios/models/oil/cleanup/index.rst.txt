@@ -1,0 +1,153 @@
+:py:mod:`opendrift.models.openoil.adios.models.oil.cleanup`
+===========================================================
+
+.. py:module:: opendrift.models.openoil.adios.models.oil.cleanup
+
+.. autoapi-nested-parse::
+
+   cleanup modules
+
+   all cleanup classes are registered here
+
+   so far:
+    - compute density from API
+
+   possible things to cleanup:
+
+   * normalizing units for various things
+
+   * putting distillation cuts in order
+
+
+
+Submodules
+----------
+.. toctree::
+   :titlesonly:
+   :maxdepth: 1
+
+   add_labels/index.rst
+   cleanup/index.rst
+   density/index.rst
+   distillation/index.rst
+
+
+Package Contents
+----------------
+
+Classes
+~~~~~~~
+
+.. autoapisummary::
+
+   opendrift.models.openoil.adios.models.oil.cleanup.Cleanup
+   opendrift.models.openoil.adios.models.oil.cleanup.FixAPI
+
+
+
+
+Attributes
+~~~~~~~~~~
+
+.. autoapisummary::
+
+   opendrift.models.openoil.adios.models.oil.cleanup.ALL_CLEANUPS
+   opendrift.models.openoil.adios.models.oil.cleanup.CLEANUP_MAPPING
+
+
+.. py:class:: Cleanup(oil)
+
+   
+   initialize a Cleanup object with an oil object
+
+   :param oil: the oil object you want to clean up
+   :type oil: adios_db.models.oil.oil.OIl
+
+   .. py:attribute:: ID
+      
+
+      
+
+   .. py:method:: cleanup(self, oil, do_it=False)
+      :abstractmethod:
+
+      run this particular cleanup option
+
+      :param oil: an Oil object to act on
+
+      :param do_it=False: flag to tell the cleanup to do its thing. If False,
+                          the method returns a message. If True, the action is
+                          taken, and the Oil object is altered.
+
+      :returns: a message of what could be done, or what was done.
+
+
+
+.. py:class:: FixAPI(oil)
+
+   Bases: :py:obj:`opendrift.models.openoil.adios.models.oil.cleanup.cleanup.Cleanup`
+
+   adds (or replaces) the API value, from the density measurements
+
+   NOTE: this could be extended to interpolate, but it that actually needed?
+         There is code in the computation.physical_properties package to help, if needed.
+
+   initialize a Cleanup object with an oil object
+
+   :param oil: the oil object you want to clean up
+   :type oil: adios_db.models.oil.oil.OIl
+
+   .. py:attribute:: ID
+      :annotation: = 001
+
+      
+
+   .. py:method:: check(self)
+
+      checks to see if there is something to fix
+
+      returns: flag, msg
+
+      if nothing is needed, flag is None
+      if something can be cleaned up, flag is True
+      if something is wrong, but can not be cleaned up, flag is False
+
+      fixme: -- maybe cleanup and validation should be better integrated?
+
+
+   .. py:method:: cleanup(self)
+
+      run this particular cleanup option
+
+      :param oil: an Oil object to act on
+
+      :param do_it=False: flag to tell the cleanup to do its thing. If False,
+                          the method returns a message. If True, the action is
+                          taken, and the Oil object is altered.
+
+      :returns: a message of what could be done, or what was done.
+
+
+   .. py:method:: check_for_valid_api(self)
+
+      check is the API value is already valid
+
+
+   .. py:method:: find_density_near_15C(self)
+
+      Returns the density (in kg/m3)
+
+      It will interpolate and extrapolate as needed
+
+
+
+.. py:data:: ALL_CLEANUPS
+   :annotation: = []
+
+   
+
+.. py:data:: CLEANUP_MAPPING
+   
+
+   
+

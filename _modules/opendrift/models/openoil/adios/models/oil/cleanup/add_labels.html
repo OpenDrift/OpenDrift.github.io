@@ -1,0 +1,613 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>opendrift.models.openoil.adios.models.oil.cleanup.add_labels &mdash; OpenDrift  documentation</title>
+      <link rel="stylesheet" href="../../../../../../../../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../../../../../../../../_static/css/theme.css" type="text/css" />
+      <link rel="stylesheet" href="../../../../../../../../_static/graphviz.css" type="text/css" />
+      <link rel="stylesheet" href="../../../../../../../../_static/plot_directive.css" type="text/css" />
+      <link rel="stylesheet" href="../../../../../../../../_static/sg_gallery.css" type="text/css" />
+      <link rel="stylesheet" href="../../../../../../../../_static/sg_gallery-binder.css" type="text/css" />
+      <link rel="stylesheet" href="../../../../../../../../_static/sg_gallery-dataframe.css" type="text/css" />
+      <link rel="stylesheet" href="../../../../../../../../_static/sg_gallery-rendered-html.css" type="text/css" />
+      <link rel="stylesheet" href="../../../../../../../../_static/theme_overrides.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="../../../../../../../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="../../../../../../../../" id="documentation_options" src="../../../../../../../../_static/documentation_options.js"></script>
+        <script src="../../../../../../../../_static/jquery.js"></script>
+        <script src="../../../../../../../../_static/underscore.js"></script>
+        <script src="../../../../../../../../_static/doctools.js"></script>
+    <script src="../../../../../../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../../../../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../../../../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+            <a href="../../../../../../../../index.html" class="icon icon-home"> OpenDrift
+            <img src="../../../../../../../../_static/opendrift_logo.png" class="logo" alt="Logo"/>
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../../../../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../../../../index.html">Introduction to OpenDrift</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../../../../history_link.html">History</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../../../../install.html">Installing OpenDrift</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../../../../performance.html">Performance in OpenDrift</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../../../../tutorial.html">Tutorial</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../../../../theory/index.html">Theory</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../../../../theory/index.html#drift-in-the-ocean">Drift in the Ocean</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../../../../choosing_a_model.html">How to choose which model to use</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../../../../writing_a_new_model.html">How to write a new module</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../../../../gallery/index.html">Gallery</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../../../../oil_types.html">Oil types</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../../../../interaction_with_coastline.html">Interaction with coastline</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../../../../docker.html">Using OpenDrift in a container</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../../../../gui.html">Graphical User Interface</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../../../../references.html">Publications</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../../../../services.html">Services using OpenDrift</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../../../../autoapi/index.html">API Reference</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../../../../../../index.html">OpenDrift</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../../../../../../index.html" class="icon icon-home"></a> &raquo;</li>
+          <li><a href="../../../../../../../index.html">Module code</a> &raquo;</li>
+          <li><a href="../../../../../../../opendrift.html">opendrift</a> &raquo;</li>
+      <li>opendrift.models.openoil.adios.models.oil.cleanup.add_labels</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for opendrift.models.openoil.adios.models.oil.cleanup.add_labels</h1><div class="highlight"><pre>
+<span></span><span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">Add labels to a record -- for those that we can use some automatic criteria for</span>
+
+<span class="sd">For a given product type:</span>
+<span class="sd">    some labels can be determined from API and/or Viscosity ranges.</span>
+
+<span class="sd">The criteria follows the ASTM (and others) standards, where we can</span>
+<span class="sd">&#39;&#39;&#39;</span>
+<span class="kn">from</span> <span class="nn">math</span> <span class="kn">import</span> <span class="n">inf</span>
+
+<span class="kn">from</span> <span class="nn">..product_type</span> <span class="kn">import</span> <span class="n">types_to_labels</span>
+<span class="kn">from</span> <span class="nn">....computation.physical_properties</span> <span class="kn">import</span> <span class="n">KinematicViscosity</span>
+
+<span class="c1"># # Here are all the Product Types:</span>
+<span class="c1"># (&#39;Crude Oil NOS&#39;,</span>
+<span class="c1">#  &#39;Tight Oil&#39;,</span>
+<span class="c1">#  &#39;Condensate&#39;,</span>
+<span class="c1">#  &#39;Bitumen Blend&#39;,</span>
+<span class="c1">#  &#39;Refined Product NOS&#39;,</span>
+<span class="c1">#  &#39;Fuel Oil NOS&#39;,</span>
+<span class="c1">#  &#39;Distillate Fuel Oil&#39;,</span>
+<span class="c1">#  &#39;Residual Fuel Oil&#39;,</span>
+<span class="c1">#  &#39;Refinery Intermediate&#39;,</span>
+<span class="c1">#  &#39;Solvent&#39;,</span>
+<span class="c1">#  &#39;Bio-fuel Oil&#39;,</span>
+<span class="c1">#  &#39;Bio-Petro Fuel Oil&#39;,</span>
+<span class="c1">#  &#39;Natural Plant Oil&#39;,</span>
+<span class="c1">#  &#39;Lube Oil&#39;,</span>
+<span class="c1">#  &#39;Dielectric Oil&#39;,</span>
+<span class="c1">#  &#39;Other&#39;)</span>
+
+<span class="c1"># # These are the current labels that aren&#39;t mapped yet:</span>
+
+<span class="c1"># &#39;MDO&#39;, &#39;Vacuum Gas Oil&#39;</span>
+
+<span class="c1"># these are the labels with no criteria for density or viscosity</span>
+<span class="c1"># e.g, if it&#39;s a &quot;Crude Oil NOS&quot;, it&#39;s a &#39;Crude Oil&#39;</span>
+<span class="n">synonyms_for_product_types</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s1">&#39;Crude Oil&#39;</span><span class="p">,</span> <span class="s1">&#39;Shale Oil&#39;</span><span class="p">,</span> <span class="s1">&#39;Fracking Oil&#39;</span><span class="p">,</span> <span class="s1">&#39;Fuel Oil&#39;</span><span class="p">,</span> <span class="s1">&#39;Residual Fuel&#39;</span><span class="p">,</span> <span class="s1">&#39;Distillate Fuel&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;Refined Product&#39;</span><span class="p">,</span> <span class="s1">&#39;Condensate&#39;</span><span class="p">,</span> <span class="s1">&#39;Transformer Oil&#39;</span>
+<span class="p">}</span>
+<span class="c1"># If it&#39;s an exact match, then it&#39;s definitely a synonym</span>
+<span class="k">for</span> <span class="n">pt</span><span class="p">,</span> <span class="n">labels</span> <span class="ow">in</span> <span class="n">types_to_labels</span><span class="o">.</span><span class="n">labels</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+    <span class="k">for</span> <span class="n">label</span> <span class="ow">in</span> <span class="n">labels</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">label</span> <span class="o">==</span> <span class="n">pt</span><span class="p">:</span>
+            <span class="c1"># print(f&quot;adding: {label}&quot;)</span>
+            <span class="n">synonyms_for_product_types</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">label</span><span class="p">)</span>
+
+<span class="c1"># these are labels that are synonymous to other labels</span>
+<span class="n">synonyms_for_labels</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s1">&#39;Heavy Fuel Oil&#39;</span><span class="p">:</span> <span class="p">[</span><span class="s1">&#39;HFO&#39;</span><span class="p">,</span> <span class="s1">&#39;No. 6 Fuel Oil&#39;</span><span class="p">,</span> <span class="s1">&#39;Bunker C&#39;</span><span class="p">],</span>
+    <span class="s1">&#39;Kerosene&#39;</span><span class="p">:</span> <span class="p">[</span><span class="s1">&#39;Jet Fuel&#39;</span><span class="p">],</span>
+    <span class="s1">&#39;No. 2 Fuel Oil&#39;</span><span class="p">:</span> <span class="p">[</span><span class="s1">&#39;Diesel&#39;</span><span class="p">,</span> <span class="s1">&#39;Home Heating Oil&#39;</span><span class="p">],</span>
+<span class="p">}</span>
+
+<span class="n">no_criteria</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s2">&quot;api_min&quot;</span><span class="p">:</span> <span class="o">-</span><span class="n">inf</span><span class="p">,</span>
+    <span class="s2">&quot;api_max&quot;</span><span class="p">:</span> <span class="n">inf</span><span class="p">,</span>
+    <span class="s2">&quot;kvis_min&quot;</span><span class="p">:</span> <span class="o">-</span><span class="n">inf</span><span class="p">,</span>
+    <span class="s2">&quot;kvis_max&quot;</span><span class="p">:</span> <span class="n">inf</span><span class="p">,</span>
+    <span class="s1">&#39;kvis_temp&#39;</span><span class="p">:</span> <span class="mi">15</span>
+<span class="p">}</span>
+<span class="n">label_map</span> <span class="o">=</span> <span class="p">{</span><span class="n">label</span><span class="p">:</span> <span class="n">no_criteria</span> <span class="k">for</span> <span class="n">label</span> <span class="ow">in</span> <span class="n">synonyms_for_product_types</span><span class="p">}</span>
+
+<span class="c1"># this maps the labels according to API and kinematic viscosity (cSt at given temp in C) ranges.</span>
+<span class="n">label_map</span><span class="o">.</span><span class="n">update</span><span class="p">({</span>
+    <span class="c1"># &#39;example_label&#39;: {&quot;api_min&quot;: -inf, &quot;api_max&quot;: inf, &quot;kvis_min&quot;: -inf, &quot;kvis_max&quot;: inf, &#39;kvis_temp&#39;: None},</span>
+    <span class="s1">&#39;Condensate&#39;</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s2">&quot;api_min&quot;</span><span class="p">:</span> <span class="mi">50</span><span class="p">,</span>
+        <span class="s2">&quot;api_max&quot;</span><span class="p">:</span> <span class="n">inf</span><span class="p">,</span>
+        <span class="s2">&quot;kvis_min&quot;</span><span class="p">:</span> <span class="o">-</span><span class="n">inf</span><span class="p">,</span>
+        <span class="s2">&quot;kvis_max&quot;</span><span class="p">:</span> <span class="n">inf</span><span class="p">,</span>
+        <span class="s1">&#39;kvis_temp&#39;</span><span class="p">:</span> <span class="mi">15</span>
+    <span class="p">},</span>
+    <span class="s1">&#39;Light Crude&#39;</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s2">&quot;api_min&quot;</span><span class="p">:</span> <span class="mi">35</span><span class="p">,</span>
+        <span class="s2">&quot;api_max&quot;</span><span class="p">:</span> <span class="mi">50</span><span class="p">,</span>
+        <span class="s2">&quot;kvis_min&quot;</span><span class="p">:</span> <span class="o">-</span><span class="n">inf</span><span class="p">,</span>
+        <span class="s2">&quot;kvis_max&quot;</span><span class="p">:</span> <span class="n">inf</span><span class="p">,</span>
+        <span class="s1">&#39;kvis_temp&#39;</span><span class="p">:</span> <span class="mi">15</span>
+    <span class="p">},</span>
+    <span class="s1">&#39;Medium Crude&#39;</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s2">&quot;api_min&quot;</span><span class="p">:</span> <span class="mi">20</span><span class="p">,</span>
+        <span class="s2">&quot;api_max&quot;</span><span class="p">:</span> <span class="mi">35</span><span class="p">,</span>
+        <span class="s2">&quot;kvis_min&quot;</span><span class="p">:</span> <span class="o">-</span><span class="n">inf</span><span class="p">,</span>
+        <span class="s2">&quot;kvis_max&quot;</span><span class="p">:</span> <span class="n">inf</span><span class="p">,</span>
+        <span class="s1">&#39;kvis_temp&#39;</span><span class="p">:</span> <span class="mi">15</span>
+    <span class="p">},</span>
+    <span class="s1">&#39;Heavy Crude&#39;</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s2">&quot;api_min&quot;</span><span class="p">:</span> <span class="o">-</span><span class="n">inf</span><span class="p">,</span>
+        <span class="s2">&quot;api_max&quot;</span><span class="p">:</span> <span class="mi">20</span><span class="p">,</span>
+        <span class="s2">&quot;kvis_min&quot;</span><span class="p">:</span> <span class="o">-</span><span class="n">inf</span><span class="p">,</span>
+        <span class="s2">&quot;kvis_max&quot;</span><span class="p">:</span> <span class="n">inf</span><span class="p">,</span>
+        <span class="s1">&#39;kvis_temp&#39;</span><span class="p">:</span> <span class="mi">15</span>
+    <span class="p">},</span>
+    <span class="s1">&#39;Group V&#39;</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s2">&quot;api_min&quot;</span><span class="p">:</span> <span class="o">-</span><span class="n">inf</span><span class="p">,</span>
+        <span class="s2">&quot;api_max&quot;</span><span class="p">:</span> <span class="mf">10.0</span><span class="p">,</span>
+        <span class="s2">&quot;kvis_min&quot;</span><span class="p">:</span> <span class="o">-</span><span class="n">inf</span><span class="p">,</span>
+        <span class="s2">&quot;kvis_max&quot;</span><span class="p">:</span> <span class="n">inf</span><span class="p">,</span>
+        <span class="s1">&#39;kvis_temp&#39;</span><span class="p">:</span> <span class="mi">15</span>
+    <span class="p">},</span>
+    <span class="s1">&#39;Heavy Fuel Oil&#39;</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s2">&quot;api_min&quot;</span><span class="p">:</span> <span class="o">-</span><span class="n">inf</span><span class="p">,</span>
+        <span class="s2">&quot;api_max&quot;</span><span class="p">:</span> <span class="mf">15.0</span><span class="p">,</span>
+        <span class="s2">&quot;kvis_min&quot;</span><span class="p">:</span> <span class="mi">200</span><span class="p">,</span>
+        <span class="s2">&quot;kvis_max&quot;</span><span class="p">:</span> <span class="n">inf</span><span class="p">,</span>
+        <span class="s1">&#39;kvis_temp&#39;</span><span class="p">:</span> <span class="mi">50</span>
+    <span class="p">},</span>
+
+    <span class="c1"># pretty much made this up ... non-newtonian</span>
+    <span class="s1">&#39;Bitumen&#39;</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s2">&quot;api_min&quot;</span><span class="p">:</span> <span class="o">-</span><span class="n">inf</span><span class="p">,</span>
+        <span class="s2">&quot;api_max&quot;</span><span class="p">:</span> <span class="mi">10</span><span class="p">,</span>
+        <span class="s2">&quot;kvis_min&quot;</span><span class="p">:</span> <span class="mi">1000</span><span class="p">,</span>
+        <span class="s2">&quot;kvis_max&quot;</span><span class="p">:</span> <span class="n">inf</span><span class="p">,</span>
+        <span class="s1">&#39;kvis_temp&#39;</span><span class="p">:</span> <span class="mi">40</span>
+    <span class="p">},</span>
+    <span class="c1"># I went through all the bitumen records that we have, and most of them do not have</span>
+    <span class="c1"># kinematic viscosity measurements. However, they all have dynamic viscosity</span>
+    <span class="c1"># measurements which were &gt; 10^6 cP at 0C and &gt; 10^5 cP at 15C.</span>
+    <span class="c1"># I propose changing the criteria to reflect these measurements.</span>
+
+    <span class="c1">#***** The following need more verification</span>
+    <span class="c1"># Refined light products</span>
+    <span class="s1">&#39;No. 2 Fuel Oil&#39;</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s2">&quot;api_min&quot;</span><span class="p">:</span> <span class="mi">30</span><span class="p">,</span>
+        <span class="s2">&quot;api_max&quot;</span><span class="p">:</span> <span class="mi">39</span><span class="p">,</span>
+        <span class="s2">&quot;kvis_min&quot;</span><span class="p">:</span> <span class="mf">2.5</span><span class="p">,</span>
+        <span class="s2">&quot;kvis_max&quot;</span><span class="p">:</span> <span class="mi">4</span><span class="p">,</span>
+        <span class="s1">&#39;kvis_temp&#39;</span><span class="p">:</span> <span class="mi">38</span>
+    <span class="p">},</span>
+    <span class="s1">&#39;Kerosene&#39;</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s2">&quot;api_min&quot;</span><span class="p">:</span> <span class="mf">47.6</span><span class="p">,</span>
+        <span class="s2">&quot;api_max&quot;</span><span class="p">:</span> <span class="mf">67.8</span><span class="p">,</span>
+        <span class="s2">&quot;kvis_min&quot;</span><span class="p">:</span> <span class="o">-</span><span class="n">inf</span><span class="p">,</span>
+        <span class="s2">&quot;kvis_max&quot;</span><span class="p">:</span> <span class="n">inf</span><span class="p">,</span>
+        <span class="s1">&#39;kvis_temp&#39;</span><span class="p">:</span> <span class="mi">38</span>
+    <span class="p">},</span>
+    <span class="s1">&#39;Aviation Gas&#39;</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s2">&quot;api_min&quot;</span><span class="p">:</span> <span class="mf">47.6</span><span class="p">,</span>
+        <span class="s2">&quot;api_max&quot;</span><span class="p">:</span> <span class="mf">70.8</span><span class="p">,</span>
+        <span class="s2">&quot;kvis_min&quot;</span><span class="p">:</span> <span class="o">-</span><span class="n">inf</span><span class="p">,</span>
+        <span class="s2">&quot;kvis_max&quot;</span><span class="p">:</span> <span class="n">inf</span><span class="p">,</span>
+        <span class="s1">&#39;kvis_temp&#39;</span><span class="p">:</span> <span class="mi">38</span>
+    <span class="p">},</span>
+    <span class="s1">&#39;Gasoline&#39;</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s2">&quot;api_min&quot;</span><span class="p">:</span> <span class="mf">59.7</span><span class="p">,</span>
+        <span class="s2">&quot;api_max&quot;</span><span class="p">:</span> <span class="mf">76.6</span><span class="p">,</span>
+        <span class="s2">&quot;kvis_min&quot;</span><span class="p">:</span> <span class="o">-</span><span class="n">inf</span><span class="p">,</span>
+        <span class="s2">&quot;kvis_max&quot;</span><span class="p">:</span> <span class="mf">2.5</span><span class="p">,</span>
+        <span class="s1">&#39;kvis_temp&#39;</span><span class="p">:</span> <span class="mi">38</span>
+    <span class="p">},</span>
+
+    <span class="c1"># Intermediate Fuel Oils</span>
+    <span class="s1">&#39;MDO&#39;</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s2">&quot;api_min&quot;</span><span class="p">:</span> <span class="mi">30</span><span class="p">,</span>
+        <span class="s2">&quot;api_max&quot;</span><span class="p">:</span> <span class="mi">42</span><span class="p">,</span>
+        <span class="s2">&quot;kvis_min&quot;</span><span class="p">:</span> <span class="o">-</span><span class="n">inf</span><span class="p">,</span>
+        <span class="s2">&quot;kvis_max&quot;</span><span class="p">:</span> <span class="mi">11</span><span class="p">,</span>
+        <span class="s1">&#39;kvis_temp&#39;</span><span class="p">:</span> <span class="mi">40</span>
+    <span class="p">},</span>
+    <span class="s1">&#39;IFO&#39;</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s2">&quot;api_min&quot;</span><span class="p">:</span> <span class="mi">15</span><span class="p">,</span>
+        <span class="s2">&quot;api_max&quot;</span><span class="p">:</span> <span class="mi">30</span><span class="p">,</span>
+        <span class="s2">&quot;kvis_min&quot;</span><span class="p">:</span> <span class="mi">4</span><span class="p">,</span>
+        <span class="s2">&quot;kvis_max&quot;</span><span class="p">:</span> <span class="mi">200</span><span class="p">,</span>
+        <span class="s1">&#39;kvis_temp&#39;</span><span class="p">:</span> <span class="mi">38</span>
+    <span class="p">},</span>
+    <span class="c1">#IFO needs an additional limitation to not be tied to biodiesel</span>
+<span class="p">})</span>
+
+<span class="k">for</span> <span class="n">label</span><span class="p">,</span> <span class="n">synonyms</span> <span class="ow">in</span> <span class="n">synonyms_for_labels</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+    <span class="n">label_map</span><span class="o">.</span><span class="n">update</span><span class="p">({</span><span class="n">syn</span><span class="p">:</span> <span class="n">label_map</span><span class="p">[</span><span class="n">label</span><span class="p">]</span> <span class="k">for</span> <span class="n">syn</span> <span class="ow">in</span> <span class="n">synonyms</span><span class="p">})</span>
+
+
+<div class="viewcode-block" id="get_suggested_labels"><a class="viewcode-back" href="../../../../../../../../autoapi/opendrift/models/openoil/adios/models/oil/cleanup/add_labels/index.html#opendrift.models.openoil.adios.models.oil.cleanup.add_labels.get_suggested_labels">[docs]</a><span class="k">def</span> <span class="nf">get_suggested_labels</span><span class="p">(</span><span class="n">oil</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    get the labels suggested for this oil</span>
+
+<span class="sd">    :param oil: the oil object to get the labels for</span>
+<span class="sd">    :type oil: Oil object</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">labels</span> <span class="o">=</span> <span class="nb">set</span><span class="p">()</span>
+    <span class="n">pt</span> <span class="o">=</span> <span class="n">oil</span><span class="o">.</span><span class="n">metadata</span><span class="o">.</span><span class="n">product_type</span>
+    <span class="c1"># everything gets its product type as a label as well</span>
+    <span class="c1"># unless it has no product type</span>
+    <span class="c1"># if pt:</span>
+    <span class="c1">#     labels.add(pt)</span>
+    <span class="k">if</span> <span class="n">pt</span> <span class="o">==</span> <span class="s2">&quot;Other&quot;</span><span class="p">:</span>  <span class="c1"># we don&#39;t want any labels auto added for Other</span>
+        <span class="k">return</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">labels</span><span class="p">)</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="k">for</span> <span class="n">label</span> <span class="ow">in</span> <span class="n">types_to_labels</span><span class="o">.</span><span class="n">left</span><span class="p">[</span><span class="n">oil</span><span class="o">.</span><span class="n">metadata</span><span class="o">.</span><span class="n">product_type</span><span class="p">]:</span>
+            <span class="k">if</span> <span class="n">is_label</span><span class="p">(</span><span class="n">oil</span><span class="p">,</span> <span class="n">label</span><span class="p">):</span>
+                <span class="n">labels</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">label</span><span class="p">)</span>
+    <span class="k">except</span> <span class="ne">KeyError</span><span class="p">:</span>
+        <span class="k">pass</span>
+
+    <span class="c1"># sorting so they&#39;ll be in consistent order</span>
+    <span class="k">return</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">labels</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="add_labels_to_oil"><a class="viewcode-back" href="../../../../../../../../autoapi/opendrift/models/openoil/adios/models/oil/cleanup/add_labels/index.html#opendrift.models.openoil.adios.models.oil.cleanup.add_labels.add_labels_to_oil">[docs]</a><span class="k">def</span> <span class="nf">add_labels_to_oil</span><span class="p">(</span><span class="n">oil</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    add labels to the passed in oil.</span>
+
+<span class="sd">    this adds labels, but does not remove any existing ones</span>
+
+<span class="sd">    :param oil: the oil object to add labels to</span>
+<span class="sd">    :type oil: Oil object</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">labels</span> <span class="o">=</span> <span class="nb">set</span><span class="p">(</span><span class="n">oil</span><span class="o">.</span><span class="n">metadata</span><span class="o">.</span><span class="n">labels</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">label</span> <span class="ow">in</span> <span class="n">types_to_labels</span><span class="o">.</span><span class="n">left</span><span class="p">[</span><span class="s1">&#39;oil.metadata.product_type&#39;</span><span class="p">]:</span>
+        <span class="k">if</span> <span class="n">is_label</span><span class="p">(</span><span class="n">oil</span><span class="p">,</span> <span class="n">label</span><span class="p">):</span>
+            <span class="n">labels</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">label</span><span class="p">)</span>
+    <span class="n">oil</span><span class="o">.</span><span class="n">metadata</span><span class="o">.</span><span class="n">labels</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">labels</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="is_label"><a class="viewcode-back" href="../../../../../../../../autoapi/opendrift/models/openoil/adios/models/oil/cleanup/add_labels/index.html#opendrift.models.openoil.adios.models.oil.cleanup.add_labels.is_label">[docs]</a><span class="k">def</span> <span class="nf">is_label</span><span class="p">(</span><span class="n">oil</span><span class="p">,</span> <span class="n">label</span><span class="p">):</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">data</span> <span class="o">=</span> <span class="n">label_map</span><span class="p">[</span><span class="n">label</span><span class="p">]</span>
+    <span class="k">except</span> <span class="ne">KeyError</span><span class="p">:</span>
+        <span class="k">return</span> <span class="kc">False</span>
+
+    <span class="n">api</span> <span class="o">=</span> <span class="n">oil</span><span class="o">.</span><span class="n">metadata</span><span class="o">.</span><span class="n">API</span>
+
+    <span class="c1"># check API:</span>
+    <span class="k">if</span> <span class="p">((</span><span class="n">data</span><span class="p">[</span><span class="s1">&#39;api_min&#39;</span><span class="p">]</span> <span class="o">!=</span> <span class="o">-</span><span class="n">inf</span><span class="p">)</span> <span class="ow">or</span> <span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="s1">&#39;api_max&#39;</span><span class="p">]</span> <span class="o">!=</span> <span class="n">inf</span><span class="p">)):</span>
+        <span class="k">if</span> <span class="n">api</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">is_label</span> <span class="o">=</span> <span class="kc">False</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">is_label</span> <span class="o">=</span> <span class="kc">True</span> <span class="k">if</span> <span class="n">data</span><span class="p">[</span><span class="s1">&#39;api_min&#39;</span><span class="p">]</span> <span class="o">&lt;=</span> <span class="n">api</span> <span class="o">&lt;</span> <span class="n">data</span><span class="p">[</span><span class="s1">&#39;api_max&#39;</span><span class="p">]</span> <span class="k">else</span> <span class="kc">False</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">is_label</span> <span class="o">=</span> <span class="kc">True</span>
+
+    <span class="k">if</span> <span class="n">is_label</span> <span class="ow">and</span> <span class="p">((</span><span class="n">data</span><span class="p">[</span><span class="s1">&#39;kvis_min&#39;</span><span class="p">]</span> <span class="o">!=</span> <span class="o">-</span><span class="n">inf</span><span class="p">)</span> <span class="ow">or</span>
+                     <span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="s1">&#39;kvis_max&#39;</span><span class="p">]</span> <span class="o">!=</span> <span class="n">inf</span><span class="p">)):</span>  <span class="c1"># check viscosity limits</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">KV</span> <span class="o">=</span> <span class="n">KinematicViscosity</span><span class="p">(</span><span class="n">oil</span><span class="p">)</span>
+            <span class="n">kvis</span> <span class="o">=</span> <span class="n">KV</span><span class="o">.</span><span class="n">at_temp</span><span class="p">(</span><span class="n">temp</span><span class="o">=</span><span class="n">data</span><span class="p">[</span><span class="s1">&#39;kvis_temp&#39;</span><span class="p">],</span> <span class="n">kvis_units</span><span class="o">=</span><span class="s1">&#39;cSt&#39;</span><span class="p">,</span> <span class="n">temp_units</span><span class="o">=</span><span class="s1">&#39;C&#39;</span><span class="p">)</span>
+            <span class="n">is_label</span> <span class="o">=</span> <span class="kc">True</span> <span class="k">if</span> <span class="n">data</span><span class="p">[</span><span class="s1">&#39;kvis_min&#39;</span><span class="p">]</span> <span class="o">&lt;=</span> <span class="n">kvis</span> <span class="o">&lt;</span> <span class="n">data</span><span class="p">[</span><span class="s1">&#39;kvis_max&#39;</span><span class="p">]</span> <span class="k">else</span> <span class="kc">False</span>
+        <span class="k">except</span> <span class="p">(</span><span class="ne">ZeroDivisionError</span><span class="p">,</span>
+                <span class="ne">ValueError</span><span class="p">):</span>  <span class="c1"># if it can&#39;t do this, we don&#39;t apply the label</span>
+            <span class="n">is_label</span> <span class="o">=</span> <span class="kc">True</span>
+
+    <span class="k">return</span> <span class="n">is_label</span></div>
+
+
+<span class="c1"># def link_oil_to_labels(oil):</span>
+<span class="c1">#     &#39;&#39;&#39;</span>
+<span class="c1">#         Here, we have a single oil and we would like to link it to one or more</span>
+<span class="c1">#         labels based on its properties.</span>
+<span class="c1">#     &#39;&#39;&#39;</span>
+<span class="c1">#     try:</span>
+<span class="c1">#         labels = oil[&#39;metadata&#39;][&#39;labels&#39;]</span>
+<span class="c1">#     except TypeError:</span>
+<span class="c1">#         labels = oil.metadata.labels</span>
+<span class="c1">#     except KeyError:</span>
+<span class="c1">#         labels = []</span>
+
+<span class="c1">#     sample = OilEstimation(oil).get_sample()</span>
+
+<span class="c1">#     if sample is None:</span>
+<span class="c1">#         logger.warn(&#39;oil: {} has no fresh sample.  Skipping Categorization.&#39;</span>
+<span class="c1">#                     .format(oil[&#39;oil_id&#39;]))</span>
+<span class="c1">#         return</span>
+
+<span class="c1">#     if is_crude_light(oil):</span>
+<span class="c1">#         labels.extend([&#39;Crude Oil&#39;, &#39;Light Crude&#39;])</span>
+
+<span class="c1">#     if is_crude_medium(oil):</span>
+<span class="c1">#         labels.extend([&#39;Crude Oil&#39;, &#39;Medium Crude&#39;])</span>
+
+<span class="c1">#     if is_crude_heavy(oil):</span>
+<span class="c1">#         labels.extend([&#39;Crude Oil&#39;, &#39;Heavy Crude&#39;])</span>
+
+<span class="c1">#     if is_refined_fuel_oil_1(oil, sample):</span>
+<span class="c1">#         labels.extend([&#39;Refined Product&#39;,</span>
+<span class="c1">#                        &#39;Light&#39;,</span>
+<span class="c1">#                        &#39;No. 1 Fuel Oil&#39;,</span>
+<span class="c1">#                        &#39;Gasoline&#39;,</span>
+<span class="c1">#                        &#39;Kerosene&#39;])</span>
+
+<span class="c1">#     if is_refined_fuel_oil_2(oil, sample):</span>
+<span class="c1">#         labels.extend([&#39;Refined Product&#39;,</span>
+<span class="c1">#                        &#39;No. 2 Fuel Oil&#39;,</span>
+<span class="c1">#                        &#39;Diesel&#39;,</span>
+<span class="c1">#                        &#39;Heating Oil&#39;])</span>
+
+<span class="c1">#     if is_refined_ifo(oil, sample):</span>
+<span class="c1">#         labels.extend([&#39;Refined Product&#39;,</span>
+<span class="c1">#                        &#39;Intermediate&#39;,</span>
+<span class="c1">#                        &#39;Fuel Oil&#39;])</span>
+
+<span class="c1">#     if is_refined_fuel_oil_6(oil, sample):</span>
+<span class="c1">#         labels.extend([&#39;Refined Product&#39;,</span>
+<span class="c1">#                        &#39;Heavy&#39;,</span>
+<span class="c1">#                        &#39;Fuel Oil 6&#39;,</span>
+<span class="c1">#                        &#39;HFO&#39;,</span>
+<span class="c1">#                        &#39;Bunker&#39;,</span>
+<span class="c1">#                        &#39;Group V&#39;])</span>
+
+<span class="c1">#     if is_generic(oil):</span>
+<span class="c1">#         labels.extend([&#39;Other&#39;, &#39;Generic&#39;])</span>
+
+<span class="c1">#     if len(labels) == 0:</span>
+<span class="c1">#         labels.extend([&#39;Other&#39;])</span>
+
+<span class="c1">#     try:</span>
+<span class="c1">#         oil[&#39;metadata&#39;][&#39;labels&#39;] = labels</span>
+<span class="c1">#     except TypeError:</span>
+<span class="c1">#         oil.metadata.labels = labels</span>
+
+<span class="c1"># def is_crude(oil):</span>
+<span class="c1">#     try:</span>
+<span class="c1">#         return (&#39;product_type&#39; in oil[&#39;metadata&#39;] and</span>
+<span class="c1">#                 oil[&#39;metadata&#39;][&#39;product_type&#39;] is not None and</span>
+<span class="c1">#                 oil[&#39;metadata&#39;][&#39;product_type&#39;].lower() == &#39;crude&#39;)</span>
+<span class="c1">#     except KeyError:</span>
+<span class="c1">#         return (hasattr(oil.metadata, &#39;product_type&#39;) and</span>
+<span class="c1">#                 oil.metadata.product_type is not None and</span>
+<span class="c1">#                 oil.metadata.product_type.lower() == &#39;crude&#39;)</span>
+
+<span class="c1"># def is_refined(oil):</span>
+<span class="c1">#     try:</span>
+<span class="c1">#         return (&#39;product_type&#39; in oil[&#39;metadata&#39;] and</span>
+<span class="c1">#                 oil[&#39;metadata&#39;][&#39;product_type&#39;] is not None and</span>
+<span class="c1">#                 oil[&#39;metadata&#39;][&#39;product_type&#39;].lower() == &#39;refined&#39;)</span>
+<span class="c1">#     except KeyError:</span>
+<span class="c1">#         return (hasattr(oil.metadata, &#39;product_type&#39;) and</span>
+<span class="c1">#                 oil.metadata.product_type is not None and</span>
+<span class="c1">#                 oil.metadata.product_type.lower() == &#39;refined&#39;)</span>
+
+<span class="c1"># def api_min(oil, oil_api):</span>
+<span class="c1">#     api = oil[&#39;metadata&#39;].get(&#39;API&#39;, None)</span>
+
+<span class="c1">#     return api is not None and api &gt; oil_api</span>
+
+<span class="c1"># def api_max(oil, oil_api):</span>
+<span class="c1">#     api = oil[&#39;metadata&#39;].get(&#39;API&#39;, None)</span>
+
+<span class="c1">#     return api is not None and api &lt; oil_api</span>
+
+<span class="c1"># def is_crude_light(oil):</span>
+<span class="c1">#     return is_crude(oil) and api_min(oil, 31.1)</span>
+
+<span class="c1"># def is_crude_medium(oil):</span>
+<span class="c1">#     return is_crude(oil) and api_max(oil, 31.1) and api_min(oil, 22.3)</span>
+
+<span class="c1"># def is_crude_heavy(oil):</span>
+<span class="c1">#     return is_crude(oil) and api_max(oil, 22.3)</span>
+
+<span class="c1"># def is_refined_light_products(oil):</span>
+<span class="c1">#     &#39;&#39;&#39;</span>
+<span class="c1">#        Category Name:</span>
+<span class="c1">#        - Light Products</span>
+<span class="c1">#        Parent:</span>
+<span class="c1">#        - Refined</span>
+<span class="c1">#        Sample Oils:</span>
+<span class="c1">#        - Cooper Basin Light Naphtha</span>
+<span class="c1">#        - kerosene</span>
+<span class="c1">#        - JP-4</span>
+<span class="c1">#        - avgas</span>
+<span class="c1">#        Density Criteria:</span>
+<span class="c1">#        - API &gt;= 35</span>
+<span class="c1">#        Kinematic Viscosity Criteria:</span>
+<span class="c1">#        - v &gt; 0.0 cSt @ 38 degrees Celcius</span>
+<span class="c1">#     &#39;&#39;&#39;</span>
+<span class="c1">#     raise NotImplementedError</span>
+
+<span class="c1"># def is_refined_fuel_oil_1(oil, sample):</span>
+<span class="c1">#     &#39;&#39;&#39;</span>
+<span class="c1">#        Category Name:</span>
+<span class="c1">#        - Fuel oil #1/gasoline/kerosene</span>
+<span class="c1">#        Sample Oils:</span>
+<span class="c1">#        - gasoline</span>
+<span class="c1">#        - kerosene</span>
+<span class="c1">#        - JP-4</span>
+<span class="c1">#        - avgas</span>
+<span class="c1">#        Density Criteria:</span>
+<span class="c1">#        - API &gt;= 35</span>
+<span class="c1">#        Kinematic Viscosity Criteria:</span>
+<span class="c1">#        - v &lt;= 2.5 cSt @ 38 degrees Celcius</span>
+<span class="c1">#     &#39;&#39;&#39;</span>
+<span class="c1">#     return (is_refined(oil) and</span>
+<span class="c1">#             api_min(oil, 35.0) and</span>
+<span class="c1">#             is_within_viscosity_range(sample, kvis_max=2.5))</span>
+
+<span class="c1"># def is_refined_fuel_oil_2(oil, sample):</span>
+<span class="c1">#     &#39;&#39;&#39;</span>
+<span class="c1">#        Category Name:</span>
+<span class="c1">#        - Fuel oil #2/Diesel/Heating Oil</span>
+<span class="c1">#        Sample Oils:</span>
+<span class="c1">#        - Diesel</span>
+<span class="c1">#        - Heating Oil</span>
+<span class="c1">#        - No. 2 Distillate</span>
+<span class="c1">#        Density Criteria:</span>
+<span class="c1">#        - 30 &lt;= API &lt; 39</span>
+<span class="c1">#        Kinematic Viscosity Criteria:</span>
+<span class="c1">#        - 2.5 &lt; v &lt;= 4.0 cSt @ 38 degrees Celcius</span>
+<span class="c1">#     &#39;&#39;&#39;</span>
+<span class="c1">#     return (is_refined(oil) and</span>
+<span class="c1">#             api_min(oil, 30.0) and</span>
+<span class="c1">#             api_max(oil, 39.0) and</span>
+<span class="c1">#             is_within_viscosity_range(sample, kvis_min=2.5, kvis_max=4.0))</span>
+
+<span class="c1"># def is_refined_ifo(oil, sample):</span>
+<span class="c1">#     &#39;&#39;&#39;</span>
+<span class="c1">#        Category Name:</span>
+<span class="c1">#        - Intermediate Fuel Oil</span>
+<span class="c1">#        Sample Oils:</span>
+<span class="c1">#        - IFO 180</span>
+<span class="c1">#        - Fuel Oil #4</span>
+<span class="c1">#        - Marine Diesel</span>
+<span class="c1">#        Density Criteria:</span>
+<span class="c1">#        - 15 &lt;= API &lt; 30</span>
+<span class="c1">#        Kinematic Viscosity Criteria:</span>
+<span class="c1">#        - 4.0 &lt; v &lt; 200.0 cSt @ 38 degrees Celcius</span>
+<span class="c1">#     &#39;&#39;&#39;</span>
+<span class="c1">#     return (is_refined(oil) and</span>
+<span class="c1">#             api_min(oil, 15.0) and</span>
+<span class="c1">#             api_max(oil, 30.0) and</span>
+<span class="c1">#             is_within_viscosity_range(sample, kvis_min=4.0, kvis_max=200.0))</span>
+
+<span class="c1"># def is_refined_fuel_oil_6(oil, sample):</span>
+<span class="c1">#     &#39;&#39;&#39;</span>
+<span class="c1">#        Category Name:</span>
+<span class="c1">#        - Fuel Oil #6/Bunker/Heavy Fuel Oil/Group V</span>
+<span class="c1">#        Sample Oils:</span>
+<span class="c1">#        - Bunker C</span>
+<span class="c1">#        - Residual Oil</span>
+<span class="c1">#        Density Criteria:</span>
+<span class="c1">#        - API &lt; 15</span>
+<span class="c1">#        Kinematic Viscosity Criteria:</span>
+<span class="c1">#        - 200.0 &lt;= v cSt @ 50 degrees Celcius</span>
+<span class="c1">#     &#39;&#39;&#39;</span>
+<span class="c1">#     return (is_refined(oil) and</span>
+<span class="c1">#             api_max(oil, 15.0) and</span>
+<span class="c1">#             is_within_viscosity_range(sample, kvis_min=200.0))</span>
+
+<span class="c1"># def is_generic(oil):</span>
+<span class="c1">#     &#39;&#39;&#39;</span>
+<span class="c1">#         Category Name:</span>
+<span class="c1">#         - Other-&gt;Generic</span>
+<span class="c1">#         Criteria:</span>
+<span class="c1">#         - Any oils that have been generically generated.  These are found</span>
+<span class="c1">#           in the OilLibTest data file.  Basically these oils have a name</span>
+<span class="c1">#           that is prefixed with &#39;*GENERIC&#39;.</span>
+<span class="c1">#     &#39;&#39;&#39;</span>
+<span class="c1">#     try:</span>
+<span class="c1">#         ret = oil[&#39;metadata&#39;].get(&#39;name&#39;, None)</span>
+<span class="c1">#     except AttributeError:</span>
+<span class="c1">#         ret = oil.metadata.name</span>
+
+<span class="c1">#     if ret is not None:</span>
+<span class="c1">#         return ret.startswith(&#39;*GENERIC&#39;)</span>
+<span class="c1">#     else:</span>
+<span class="c1">#         return None</span>
+
+<span class="c1"># def is_within_viscosity_range(oil_sample, kvis_min=None, kvis_max=None):</span>
+<span class="c1">#     category_temp = 273.15 + 38</span>
+
+<span class="c1">#     viscosity = oil_sample.kvis_at_temp(category_temp)</span>
+
+<span class="c1">#     if viscosity is None:</span>
+<span class="c1">#         return False</span>
+
+<span class="c1">#     if kvis_min is not None and kvis_max is not None:</span>
+<span class="c1">#         return (viscosity &gt; kvis_min) and (viscosity &lt;= kvis_max)</span>
+<span class="c1">#     elif kvis_min is not None:</span>
+<span class="c1">#         return viscosity &gt; kvis_min</span>
+<span class="c1">#     elif kvis_max is not None:</span>
+<span class="c1">#         return viscosity &lt;= kvis_max</span>
+<span class="c1">#     else:</span>
+<span class="c1">#         return True</span>
+
+<span class="c1"># Data from: https://www.sigma2c.com/16api_gravity.html</span>
+
+<span class="c1">#                Specific Gravity  API</span>
+<span class="c1"># Naphtha light       0.66-0.70</span>
+<span class="c1"># Naphtha medium      0.70-0.75</span>
+<span class="c1"># Naphtha heavy       0.75-0.80</span>
+<span class="c1"># Crude oil           0.80-0.97</span>
+<span class="c1"># Aviation gasoline   0.70-0.78....47.6--70.6</span>
+<span class="c1"># Kerosene            0.71-0.79    47.6--67.8</span>
+<span class="c1"># Gasoline            0.68-0.74    59.7--76.6</span>
+<span class="c1"># Gas oil             0.78-0.86    33.0--49.9</span>
+<span class="c1"># Diesel oil          0.82-0.90    25.7--41.1</span>
+<span class="c1"># Lubricating oil     0.82-0.92</span>
+<span class="c1"># Fuel oil            0.92-0.99</span>
+<span class="c1"># Asphaslitc bitumen  1.00-1.10</span>
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2020, Knut-Frode Dagestad (knutfd@met.no) and Gaute Hope (gauteh@met.no)..</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

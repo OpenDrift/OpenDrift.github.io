@@ -1,0 +1,230 @@
+:py:mod:`opendrift.models.openoil.adios.computation.physical_properties`
+========================================================================
+
+.. py:module:: opendrift.models.openoil.adios.computation.physical_properties
+
+.. autoapi-nested-parse::
+
+   utilities for doing computation on the physical properties of an
+   oil record
+
+
+
+Module Contents
+---------------
+
+Classes
+~~~~~~~
+
+.. autoapisummary::
+
+   opendrift.models.openoil.adios.computation.physical_properties.Density
+   opendrift.models.openoil.adios.computation.physical_properties.KinematicViscosity
+
+
+
+Functions
+~~~~~~~~~
+
+.. autoapisummary::
+
+   opendrift.models.openoil.adios.computation.physical_properties.get_density_data
+   opendrift.models.openoil.adios.computation.physical_properties.get_kinematic_viscosity_data
+   opendrift.models.openoil.adios.computation.physical_properties.get_dynamic_viscosity_data
+   opendrift.models.openoil.adios.computation.physical_properties.convert_dvisc_to_kvisc
+   opendrift.models.openoil.adios.computation.physical_properties.get_pour_point
+   opendrift.models.openoil.adios.computation.physical_properties.get_distillation_cuts
+   opendrift.models.openoil.adios.computation.physical_properties.max_water_fraction_emulsion
+   opendrift.models.openoil.adios.computation.physical_properties.emul_water
+   opendrift.models.openoil.adios.computation.physical_properties.bullwinkle_fraction
+   opendrift.models.openoil.adios.computation.physical_properties._adios2_new_bull_calc
+
+
+
+.. py:class:: Density(oil)
+
+   class to hold and do calculations on density
+
+   data is stored internally in standard units:
+   temperature in Kelvin
+   density in kg/m^3
+
+   Initialize a density calculator
+
+   :param oil: an Oil object -- the density data will be extracted
+
+   or
+
+   :param oil: Sequence of density/temperature pairs:
+               ``[(980.0, 288.15), (990.0, 273.15)])``
+
+   If data pairs, units must be kg/m^3 and K
+
+   .. py:method:: initialize(self)
+
+      Initialize the expansion coefficient
+
+      For outside the measured range
+
+
+   .. py:method:: at_temp(self, temp, unit='K')
+
+      density(s) at the provided temperature(s)
+
+      :param temp: scalar or sequence of temp in K
+
+      :param unit='K': unit of temperature
+
+      densities will be returned as kg/m^3
+
+
+
+.. py:class:: KinematicViscosity(oil)
+
+   class to hold and do calculations on kinematic viscosity
+
+   data is stored internally in standard units:
+   temperature in Kelvin
+   viscosity in m^2/s
+
+   initialize from an oil object
+
+   .. py:method:: at_temp(self, temp, kvis_units='m^2/s', temp_units='K')
+
+      Compute the kinematic viscosity of the oil as a function of temperature
+
+      :param temp_k: temperatures to compute at: can be scalar or array
+                     of values.  Should be in Kelvin
+
+      viscosity as a function of temp is given by:
+      v = A exp(k_v2 / T)
+
+      with constants determined from measured data
+
+
+   .. py:method:: initialize(self)
+
+      viscosity as a function of temp is given by:
+
+      v = A exp(k_v2 / T)
+
+      The constants, A and k_v2 are determined from the viscosity data:
+
+      If only one data point, a default value for k_vs is used:
+         2100 K, based on analysis of data in the ADIOS database as of 2018
+
+      If two data points, the two constants are directly computed
+
+      If three or more, the constants are computed by a least squares fit.
+
+
+
+.. py:function:: get_density_data(oil, units='kg/m^3', temp_units='K')
+
+   Return a table of density data:
+
+   list of (density, temp) pairs
+
+   :param oil: the oil object to get data from
+
+   :param units="kg/m^3": units you want the density in
+
+   :param temp_units="K": units you want the density in
+
+
+
+.. py:function:: get_kinematic_viscosity_data(oil, units='m^2/s', temp_units='K')
+
+   Return a table of kinematic viscosity data:
+
+   list of (viscosity, temp) pairs
+
+   :param oil: the oil object to get data from
+
+   :param units="cSt": units you want the viscosity in
+
+   :param temp_units="K": units you want the viscosity in
+
+
+
+.. py:function:: get_dynamic_viscosity_data(oil, units='Pas', temp_units='K')
+
+   Return a table of kinematic viscosity data:
+
+   list of (viscosity, temp) pairs
+
+   :param oil: the oil object to get data from
+
+   :param units="cSt": units you want the viscosity in
+
+   :param temp_units="K": units you want the viscosity in
+
+
+
+.. py:function:: convert_dvisc_to_kvisc(dvisc, density)
+
+   convert dynamic viscosity to kinematic viscosity
+
+   :param density: an initialized Density object
+
+   dvisc and densities are tables as returned from:
+
+    - ``get_dynamic_viscosity_data``
+    - ``get_density_data``
+
+   units: viscosity: Pas or kg/(m s)
+          density: kg/m^3
+
+
+.. py:function:: get_pour_point(oil)
+
+   Return oil's pour point or None
+
+
+.. py:function:: get_distillation_cuts(oil, units='fraction', temp_units='K')
+
+   Return a table of distillation data:
+
+   list of (cut fraction, temp) pairs
+
+   :param oil: the oil object to get data from
+
+   :param units="fraction": units you want the fraction in
+
+   :param temp_units="K": units you want the temperature in
+
+
+
+.. py:function:: max_water_fraction_emulsion(oil)
+
+
+.. py:function:: emul_water(oil)
+
+   This function computes two terms used in emulsification.
+   Ymax is the maximum water fraction of a stable emulsion.
+   Smax is the maximum surface area of the water droplets inside
+   the emulsion. (from ADIOS2)
+
+
+.. py:function:: bullwinkle_fraction(oil)
+
+
+.. py:function:: _adios2_new_bull_calc(bullwinkle_fraction, oil_api)
+
+   From the Adios2 c++ file OilInitialize.cpp, there is functionality
+   inside the function CAdiosData::Bullwinkle() which is annotated
+   in the code as 'new bull calc'.
+
+   It uses the following definitions:
+   - TG, Documented as the value 'dT/df - evaporation'.
+         I can only assume this is the initial fractional rate of
+         evaporation.
+   - TBP, Documented as the 'ADIOS 1 liquid boiling point
+         (bubble pt)'.
+   - BullAdios1, which appears to be used to scale-average the
+                 initially computed bullwinkle fraction.
+     get_density_data
+   Regardless, in order to approximate what Adios2 is doing, we
+   need this modification of our bullwinkle fraction.
+
+
