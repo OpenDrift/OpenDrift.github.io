@@ -24,8 +24,8 @@
     <script src="../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
-    <link rel="next" title="Drift at different depths" href="example_depth.html" />
-    <link rel="prev" title="Initialising reader from JSON string" href="example_long_cmems_json.html" /> 
+    <link rel="next" title="Static 2D current field" href="example_static_2d_current.html" />
+    <link rel="prev" title="Ensemble" href="example_ensemble.html" /> 
 </head>
 
 <body class="wy-body-for-nav"> 
@@ -61,7 +61,6 @@
 <li class="toctree-l2"><a class="reference internal" href="example_constant_current.html">Constant current</a></li>
 <li class="toctree-l2"><a class="reference internal" href="example_roms_native.html">ROMS native reader</a></li>
 <li class="toctree-l2"><a class="reference internal" href="example_long_cmems_json.html">Initialising reader from JSON string</a></li>
-<li class="toctree-l2 current"><a class="current reference internal" href="#">Thredds resources for GUI</a></li>
 <li class="toctree-l2"><a class="reference internal" href="example_depth.html">Drift at different depths</a></li>
 <li class="toctree-l2"><a class="reference internal" href="example_long_global_thredds.html">Thredds (global)</a></li>
 <li class="toctree-l2"><a class="reference internal" href="example_seed_from_shapefile.html">Seeding from shapefile</a></li>
@@ -69,6 +68,7 @@
 <li class="toctree-l2"><a class="reference internal" href="example_double_gyre.html">Double gyre</a></li>
 <li class="toctree-l2"><a class="reference internal" href="example_coastline_options.html">Coastline interaction</a></li>
 <li class="toctree-l2"><a class="reference internal" href="example_ensemble.html">Ensemble</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">Thredds resources for GUI</a></li>
 <li class="toctree-l2"><a class="reference internal" href="example_static_2d_current.html">Static 2D current field</a></li>
 <li class="toctree-l2"><a class="reference internal" href="example_2d.html">2D simulation profile</a></li>
 <li class="toctree-l2"><a class="reference internal" href="example_windblow.html">Wind blow model</a></li>
@@ -191,17 +191,17 @@ to download the full example code</p>
 </pre></div>
 </div>
 <p class="sphx-glr-script-out">Out:</p>
-<div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>13:38:38 DEBUG   opendrift.models.basemodel: Adding 17 config items from basemodel
-13:38:38 DEBUG   opendrift.models.basemodel: Adding 5 config items from basemodel
-13:38:38 DEBUG   opendrift.models.basemodel: Adding 36 config items from basemodel
-13:38:38 INFO    opendrift.models.basemodel: OpenDriftSimulation initialised (version 1.7.3 / v1.7.3-157-g4a95fca)
-13:38:38 DEBUG   opendrift.models.basemodel: Adding 14 config items from oceandrift
-13:38:38 DEBUG   opendrift.models.basemodel:   Overwriting config item seed:z
+<div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>13:06:33 DEBUG   opendrift.models.basemodel: Adding 17 config items from basemodel
+13:06:33 DEBUG   opendrift.models.basemodel: Adding 5 config items from basemodel
+13:06:33 DEBUG   opendrift.models.basemodel: Adding 36 config items from basemodel
+13:06:33 INFO    opendrift.models.basemodel: OpenDriftSimulation initialised (version 1.7.3 / v1.7.3-167-g8e660b7)
+13:06:33 DEBUG   opendrift.models.basemodel: Adding 14 config items from oceandrift
+13:06:33 DEBUG   opendrift.models.basemodel:   Overwriting config item seed:z
 </pre></div>
 </div>
 <p>Open each thredds dataset to check contents and spatial coverage</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="k">for</span> <span class="n">t</span> <span class="ow">in</span> <span class="n">thredds_resources</span><span class="p">:</span>
-    <span class="k">if</span> <span class="n">t</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s1">&#39;http&#39;</span><span class="p">)</span> <span class="ow">and</span> <span class="s1">&#39;cmems&#39;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">t</span><span class="p">:</span>
+    <span class="k">if</span> <span class="n">t</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s1">&#39;http&#39;</span><span class="p">)</span> <span class="ow">and</span> <span class="s1">&#39;nrt.cmems&#39;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">t</span><span class="p">:</span>
         <span class="n">start</span> <span class="o">=</span> <span class="n">datetime</span><span class="o">.</span><span class="n">now</span><span class="p">()</span>
         <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;</span><span class="se">\n</span><span class="s1">#</span><span class="si">%%</span><span class="se">\n</span><span class="si">%s</span><span class="se">\n</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="n">t</span><span class="p">)</span>
         <span class="n">r</span> <span class="o">=</span> <span class="n">Reader</span><span class="p">(</span><span class="n">t</span><span class="p">)</span>
@@ -209,30 +209,36 @@ to download the full example code</p>
         <span class="n">ts</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">datetime</span><span class="o">.</span><span class="n">now</span><span class="p">()</span> <span class="o">-</span> <span class="n">start</span><span class="p">)</span>
         <span class="n">times</span><span class="p">[</span><span class="n">t</span><span class="p">]</span> <span class="o">=</span> <span class="n">ts</span>
         <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Time to open reader: &#39;</span><span class="p">,</span> <span class="n">ts</span><span class="p">)</span>
-        <span class="n">r</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">lscale</span><span class="o">=</span><span class="s1">&#39;intermediate&#39;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">r</span><span class="o">.</span><span class="n">global_coverage</span><span class="p">():</span>
+            <span class="n">lscale</span> <span class="o">=</span> <span class="s1">&#39;coarse&#39;</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">lscale</span> <span class="o">=</span> <span class="s1">&#39;intermediate&#39;</span>
+        <span class="n">r</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">lscale</span><span class="o">=</span><span class="n">lscale</span><span class="p">)</span>
 </pre></div>
 </div>
 <ul class="sphx-glr-horizontal">
 <li><img src="../_images/sphx_glr_example_thredds_resources_001.png" srcset="../_images/sphx_glr_example_thredds_resources_001.png" alt="https://thredds.met.no/thredds/dodsC/sea/norkyst800m/1h/aggregate_be" class = "sphx-glr-multi-img"/></li>
 <li><img src="../_images/sphx_glr_example_thredds_resources_002.png" srcset="../_images/sphx_glr_example_thredds_resources_002.png" alt="https://thredds.met.no/thredds/dodsC/mepslatest/meps_lagged_6_h_latest_2_5km_latest.nc" class = "sphx-glr-multi-img"/></li>
 <li><img src="../_images/sphx_glr_example_thredds_resources_003.png" srcset="../_images/sphx_glr_example_thredds_resources_003.png" alt="https://thredds.met.no/thredds/dodsC/barents25km_agg" class = "sphx-glr-multi-img"/></li>
-<li><img src="../_images/sphx_glr_example_thredds_resources_004.png" srcset="../_images/sphx_glr_example_thredds_resources_004.png" alt="https://thredds.met.no/thredds/dodsC/aromearcticlatest/arome_arctic_extracted_2_5km_latest.nc" class = "sphx-glr-multi-img"/></li>
-<li><img src="../_images/sphx_glr_example_thredds_resources_005.png" srcset="../_images/sphx_glr_example_thredds_resources_005.png" alt="https://pae-paha.pacioos.hawaii.edu/thredds/dodsC/ncep_global/NCEP_Global_Atmospheric_Model_best.ncd" class = "sphx-glr-multi-img"/></li>
-<li><img src="../_images/sphx_glr_example_thredds_resources_006.png" srcset="../_images/sphx_glr_example_thredds_resources_006.png" alt="https://tds.hycom.org/thredds/dodsC/GLBy0.08/latest" class = "sphx-glr-multi-img"/></li>
-<li><img src="../_images/sphx_glr_example_thredds_resources_007.png" srcset="../_images/sphx_glr_example_thredds_resources_007.png" alt="https://tds.hycom.org/thredds/dodsC/GLBy0.08/expt_93.0/uv3z" class = "sphx-glr-multi-img"/></li>
+<li><img src="../_images/sphx_glr_example_thredds_resources_004.png" srcset="../_images/sphx_glr_example_thredds_resources_004.png" alt="https://thredds.met.no/thredds/dodsC/cmems/mywavewam3km/dataset-wam-arctic-1hr3km-be.ncml" class = "sphx-glr-multi-img"/></li>
+<li><img src="../_images/sphx_glr_example_thredds_resources_005.png" srcset="../_images/sphx_glr_example_thredds_resources_005.png" alt="https://thredds.met.no/thredds/dodsC/cmems/topaz6/dataset-topaz6-arc-15min-3km-be.ncml" class = "sphx-glr-multi-img"/></li>
+<li><img src="../_images/sphx_glr_example_thredds_resources_006.png" srcset="../_images/sphx_glr_example_thredds_resources_006.png" alt="https://thredds.met.no/thredds/dodsC/aromearcticlatest/arome_arctic_extracted_2_5km_latest.nc" class = "sphx-glr-multi-img"/></li>
+<li><img src="../_images/sphx_glr_example_thredds_resources_007.png" srcset="../_images/sphx_glr_example_thredds_resources_007.png" alt="https://pae-paha.pacioos.hawaii.edu/thredds/dodsC/ncep_global/NCEP_Global_Atmospheric_Model_best.ncd" class = "sphx-glr-multi-img"/></li>
+<li><img src="../_images/sphx_glr_example_thredds_resources_008.png" srcset="../_images/sphx_glr_example_thredds_resources_008.png" alt="https://tds.hycom.org/thredds/dodsC/GLBy0.08/latest" class = "sphx-glr-multi-img"/></li>
+<li><img src="../_images/sphx_glr_example_thredds_resources_009.png" srcset="../_images/sphx_glr_example_thredds_resources_009.png" alt="https://tds.hycom.org/thredds/dodsC/GLBy0.08/expt_93.0/uv3z" class = "sphx-glr-multi-img"/></li>
 </ul>
 <p class="sphx-glr-script-out">Out:</p>
 <div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>#%
 https://thredds.met.no/thredds/dodsC/sea/norkyst800m/1h/aggregate_be
 
 
-13:38:38 INFO    opendrift.readers.reader_netCDF_CF_generic: Opening dataset: https://thredds.met.no/thredds/dodsC/sea/norkyst800m/1h/aggregate_be
+13:06:33 INFO    opendrift.readers.reader_netCDF_CF_generic: Opening dataset: https://thredds.met.no/thredds/dodsC/sea/norkyst800m/1h/aggregate_be
 
-13:38:40 DEBUG   opendrift.readers.reader_netCDF_CF_generic: Finding coordinate variables.
-13:38:40 DEBUG   opendrift.readers.reader_netCDF_CF_generic: Skipped variables without standard_name: [&#39;angle&#39;, &#39;tke&#39;, &#39;ubar&#39;, &#39;vbar&#39;]
-13:38:40 DEBUG   opendrift.readers.basereader.variables: Setting buffer size 25 for reader https://thredds.met.no/thredds/dodsC/sea/norkyst800m/1h/aggregate_be
+13:06:36 DEBUG   opendrift.readers.reader_netCDF_CF_generic: Finding coordinate variables.
+13:06:36 DEBUG   opendrift.readers.reader_netCDF_CF_generic: Skipped variables without standard_name: [&#39;angle&#39;, &#39;tke&#39;, &#39;ubar&#39;, &#39;vbar&#39;]
+13:06:36 DEBUG   opendrift.readers.basereader.variables: Setting buffer size 25 for reader https://thredds.met.no/thredds/dodsC/sea/norkyst800m/1h/aggregate_be
 , assuming a maximum average speed of 5 m/s and time span of 1:00:00
-13:38:40 DEBUG   opendrift.readers.basereader: Variable mapping: [&#39;sea_floor_depth_below_sea_level&#39;] -&gt; [&#39;land_binary_mask&#39;] is not activated
+13:06:36 DEBUG   opendrift.readers.basereader: Variable mapping: [&#39;sea_floor_depth_below_sea_level&#39;] -&gt; [&#39;land_binary_mask&#39;] is not activated
 ===========================
 Reader: https://thredds.met.no/thredds/dodsC/sea/norkyst800m/1h/aggregate_be
 
@@ -248,8 +254,8 @@ Vertical levels [m]:
   [   -0.    -3.   -10.   -15.   -25.   -50.   -75.  -100.  -150.  -200.
   -250.  -300.  -500. -1000. -2000. -3000.]
 Available time range:
-  start: 2017-02-20 00:00:00   end: 2022-01-06 18:00:00   step: 1:00:00
-    42763 times (3144 missing)
+  start: 2017-02-20 00:00:00   end: 2022-01-08 18:00:00   step: 1:00:00
+    42811 times (3144 missing)
 Variables:
   sea_floor_depth_below_sea_level
   latitude
@@ -266,7 +272,7 @@ Variables:
   sea_surface_elevation
 ===========================
 
-Time to open reader:  0:00:01.719222
+Time to open reader:  0:00:03.014884
 /opt/conda/envs/opendrift/lib/python3.9/site-packages/shapefile.py:391: UserWarning: Shapefile shape has invalid polygon: no exterior rings found (must have clockwise orientation); interpreting holes as exteriors.
   warnings.warn(&#39;Shapefile shape has invalid polygon: no exterior rings found (must have clockwise orientation); interpreting holes as exteriors.&#39;)
 
@@ -274,14 +280,14 @@ Time to open reader:  0:00:01.719222
 https://thredds.met.no/thredds/dodsC/mepslatest/meps_lagged_6_h_latest_2_5km_latest.nc
 
 
-13:38:42 INFO    opendrift.readers.reader_netCDF_CF_generic: Opening dataset: https://thredds.met.no/thredds/dodsC/mepslatest/meps_lagged_6_h_latest_2_5km_latest.nc
+13:06:38 INFO    opendrift.readers.reader_netCDF_CF_generic: Opening dataset: https://thredds.met.no/thredds/dodsC/mepslatest/meps_lagged_6_h_latest_2_5km_latest.nc
 
-13:38:43 DEBUG   opendrift.readers.reader_netCDF_CF_generic: Finding coordinate variables.
-13:38:43 DEBUG   opendrift.readers.reader_netCDF_CF_generic: 30 ensemble members available
-13:38:43 DEBUG   opendrift.readers.reader_netCDF_CF_generic: Skipped variables without standard_name: [&#39;fog_area_fraction&#39;]
-13:38:43 DEBUG   opendrift.readers.basereader.variables: Setting buffer size 10 for reader https://thredds.met.no/thredds/dodsC/mepslatest/meps_lagged_6_h_latest_2_5km_latest.nc
+13:06:38 DEBUG   opendrift.readers.reader_netCDF_CF_generic: Finding coordinate variables.
+13:06:38 DEBUG   opendrift.readers.reader_netCDF_CF_generic: 30 ensemble members available
+13:06:38 DEBUG   opendrift.readers.reader_netCDF_CF_generic: Skipped variables without standard_name: [&#39;fog_area_fraction&#39;]
+13:06:38 DEBUG   opendrift.readers.basereader.variables: Setting buffer size 10 for reader https://thredds.met.no/thredds/dodsC/mepslatest/meps_lagged_6_h_latest_2_5km_latest.nc
 , assuming a maximum average speed of 5 m/s and time span of 1:00:00
-13:38:43 DEBUG   opendrift.readers.basereader: Variable mapping: [&#39;sea_floor_depth_below_sea_level&#39;] -&gt; [&#39;land_binary_mask&#39;] is not activated
+13:06:38 DEBUG   opendrift.readers.basereader: Variable mapping: [&#39;sea_floor_depth_below_sea_level&#39;] -&gt; [&#39;land_binary_mask&#39;] is not activated
 ===========================
 Reader: https://thredds.met.no/thredds/dodsC/mepslatest/meps_lagged_6_h_latest_2_5km_latest.nc
 
@@ -296,7 +302,7 @@ Coverage: [degrees]
 Vertical levels [m]:
   Not specified
 Available time range:
-  start: 2022-01-04 10:00:00   end: 2022-01-06 23:00:00   step: 1:00:00
+  start: 2022-01-06 10:00:00   end: 2022-01-08 23:00:00   step: 1:00:00
     62 times (0 missing)
 Variables (30 ensemble members):
   longitude
@@ -312,19 +318,19 @@ Variables (30 ensemble members):
   wind_speed_of_gust
 ===========================
 
-Time to open reader:  0:00:00.819074
+Time to open reader:  0:00:00.743603
 
 #%
 https://thredds.met.no/thredds/dodsC/barents25km_agg
 
 
-13:38:43 INFO    opendrift.readers.reader_netCDF_CF_generic: Opening dataset: https://thredds.met.no/thredds/dodsC/barents25km_agg
+13:06:38 INFO    opendrift.readers.reader_netCDF_CF_generic: Opening dataset: https://thredds.met.no/thredds/dodsC/barents25km_agg
 
-13:38:48 DEBUG   opendrift.readers.reader_netCDF_CF_generic: Finding coordinate variables.
-13:38:48 DEBUG   opendrift.readers.reader_netCDF_CF_generic: Skipped variables without standard_name: [&#39;angle&#39;]
-13:38:48 DEBUG   opendrift.readers.basereader.variables: Setting buffer size 10 for reader https://thredds.met.no/thredds/dodsC/barents25km_agg
+13:06:40 DEBUG   opendrift.readers.reader_netCDF_CF_generic: Finding coordinate variables.
+13:06:40 DEBUG   opendrift.readers.reader_netCDF_CF_generic: Skipped variables without standard_name: [&#39;angle&#39;]
+13:06:40 DEBUG   opendrift.readers.basereader.variables: Setting buffer size 10 for reader https://thredds.met.no/thredds/dodsC/barents25km_agg
 , assuming a maximum average speed of 5 m/s and time span of 1:00:00
-13:38:48 DEBUG   opendrift.readers.basereader: Variable mapping: [&#39;sea_floor_depth_below_sea_level&#39;] -&gt; [&#39;land_binary_mask&#39;] is not activated
+13:06:40 DEBUG   opendrift.readers.basereader: Variable mapping: [&#39;sea_floor_depth_below_sea_level&#39;] -&gt; [&#39;land_binary_mask&#39;] is not activated
 ===========================
 Reader: https://thredds.met.no/thredds/dodsC/barents25km_agg
 
@@ -362,21 +368,113 @@ Variables:
   sea_surface_elevation
 ===========================
 
-Time to open reader:  0:00:05.640201
+Time to open reader:  0:00:01.946740
+
+#%
+https://thredds.met.no/thredds/dodsC/cmems/mywavewam3km/dataset-wam-arctic-1hr3km-be.ncml
+
+
+13:06:40 INFO    opendrift.readers.reader_netCDF_CF_generic: Opening dataset: https://thredds.met.no/thredds/dodsC/cmems/mywavewam3km/dataset-wam-arctic-1hr3km-be.ncml
+
+13:06:44 DEBUG   opendrift.readers.reader_netCDF_CF_generic: Finding coordinate variables.
+13:06:45 DEBUG   opendrift.readers.basereader.variables: Setting buffer size 8 for reader https://thredds.met.no/thredds/dodsC/cmems/mywavewam3km/dataset-wam-arctic-1hr3km-be.ncml
+, assuming a maximum average speed of 5 m/s and time span of 1:00:00
+13:06:45 DEBUG   opendrift.readers.basereader: Variable mapping: [&#39;sea_floor_depth_below_sea_level&#39;] -&gt; [&#39;land_binary_mask&#39;] is not activated
+===========================
+Reader: https://thredds.met.no/thredds/dodsC/cmems/mywavewam3km/dataset-wam-arctic-1hr3km-be.ncml
+
+Projection:
+  +proj=stere +lon_0=-45 +lat_0=90 +k=1 +R=6371000 +no_defs
+Coverage: [degrees]
+  xmin: -3600000.000000   xmax: 3798000.000000   step: 3000   numx: 2467
+  ymin: -4300000.000000   ymax: 2798000.000000   step: 3000   numy: 2367
+  Corners (lon, lat):
+    (-172.86,  50.62)  ( 81.38,  49.37)
+    (-84.94,  42.49)  ( -3.55,  41.52)
+Vertical levels [m]:
+  Not specified
+Available time range:
+  start: 2017-11-01 00:00:00   end: 2022-01-15 12:00:00   step: 1:00:00
+    36877 times (0 missing)
+Variables:
+  sea_floor_depth_below_sea_level
+  longitude
+  latitude
+  sea_water_speed
+  sea_water_to_direction
+  sea_surface_wave_significant_height
+  sea_surface_wave_period_at_variance_spectral_density_maximum
+  sea_surface_wave_mean_period_from_variance_spectral_density_inverse_frequency_moment
+  sea_surface_wave_mean_period_from_variance_spectral_density_second_frequency_moment
+  sea_surface_wave_from_direction
+  sea_surface_wind_wave_significant_height
+  sea_surface_wind_wave_mean_period
+  sea_surface_wind_wave_from_direction
+  sea_ice_area_fraction
+  sea_surface_primary_swell_wave_significant_height
+  sea_surface_primary_swell_wave_mean_period
+  sea_surface_primary_swell_wave_from_direction
+  sea_surface_secondary_swell_wave_significant_height
+  sea_surface_secondary_swell_wave_mean_period
+  sea_surface_secondary_swell_wave_from_direction
+  sea_ice_thickness
+  sea_surface_wave_from_direction_at_variance_spectral_density_maximum
+  sea_surface_wave_stokes_drift_x_velocity
+  sea_surface_wave_stokes_drift_y_velocity
+===========================
+
+Time to open reader:  0:00:04.248072
+
+#%
+https://thredds.met.no/thredds/dodsC/cmems/topaz6/dataset-topaz6-arc-15min-3km-be.ncml
+
+
+13:06:45 INFO    opendrift.readers.reader_netCDF_CF_generic: Opening dataset: https://thredds.met.no/thredds/dodsC/cmems/topaz6/dataset-topaz6-arc-15min-3km-be.ncml
+
+13:06:48 DEBUG   opendrift.readers.reader_netCDF_CF_generic: Finding coordinate variables.
+13:06:50 DEBUG   opendrift.readers.basereader.variables: Setting buffer size 4 for reader https://thredds.met.no/thredds/dodsC/cmems/topaz6/dataset-topaz6-arc-15min-3km-be.ncml
+, assuming a maximum average speed of 5 m/s and time span of 0:15:00
+13:06:50 DEBUG   opendrift.readers.basereader: Variable mapping: [&#39;sea_floor_depth_below_sea_level&#39;] -&gt; [&#39;land_binary_mask&#39;] is not activated
+===========================
+Reader: https://thredds.met.no/thredds/dodsC/cmems/topaz6/dataset-topaz6-arc-15min-3km-be.ncml
+
+Projection:
+  +proj=stere +lon_0=-45 +lat_0=90 +k=1 +R=6378273 +no_defs
+Coverage: [degrees]
+  xmin: -3600000.000000   xmax: 3797999.954224   step: 2999.88   numx: 2467
+  ymin: -4300000.000000   ymax: 2797999.954224   step: 2999.88   numy: 2367
+  Corners (lon, lat):
+    (-172.86,  50.66)  ( 81.38,  49.41)
+    (-84.94,  42.54)  ( -3.55,  41.57)
+Vertical levels [m]:
+  Not specified
+Available time range:
+  start: 2018-01-01 00:00:00   end: 2022-01-14 23:45:00   step: 0:15:00
+    141600 times (0 missing)
+Variables:
+  longitude
+  latitude
+  sea_floor_depth_below_sea_level
+  x_sea_water_velocity
+  y_sea_water_velocity
+  sea_surface_height_above_geoid
+===========================
+
+Time to open reader:  0:00:05.368054
 
 #%
 https://thredds.met.no/thredds/dodsC/aromearcticlatest/arome_arctic_extracted_2_5km_latest.nc
 
 
-13:38:48 INFO    opendrift.readers.reader_netCDF_CF_generic: Opening dataset: https://thredds.met.no/thredds/dodsC/aromearcticlatest/arome_arctic_extracted_2_5km_latest.nc
+13:06:50 INFO    opendrift.readers.reader_netCDF_CF_generic: Opening dataset: https://thredds.met.no/thredds/dodsC/aromearcticlatest/arome_arctic_extracted_2_5km_latest.nc
 
-13:38:50 DEBUG   opendrift.readers.reader_netCDF_CF_generic: Finding coordinate variables.
-13:38:50 DEBUG   opendrift.readers.reader_netCDF_CF_generic: Skipped variables without standard_name: [&#39;altitude_of_0_degree_isotherm&#39;, &#39;integral_of_surface_downward_latent_heat_evaporation_flux_wrt_time&#39;, &#39;integral_of_surface_downward_latent_heat_sublimation_flux_wrt_time&#39;, &#39;ga_11_253_251_7&#39;, &#39;ga_8_253_251_4&#39;, &#39;ga_1_253_251_7&#39;, &#39;turbulent_kinetic_energy_pl&#39;, &#39;altitude_of_isoTprimW_equal_0&#39;, &#39;x_wind_gust_10m&#39;, &#39;y_wind_gust_10m&#39;, &#39;atmosphere_level_of_neutral_buoyancy&#39;, &#39;fog_area_fraction&#39;]
-13:38:50 DEBUG   opendrift.readers.basereader.variables: Setting buffer size 10 for reader https://thredds.met.no/thredds/dodsC/aromearcticlatest/arome_arctic_extracted_2_5km_latest.nc
+13:06:51 DEBUG   opendrift.readers.reader_netCDF_CF_generic: Finding coordinate variables.
+13:06:51 DEBUG   opendrift.readers.reader_netCDF_CF_generic: Skipped variables without standard_name: [&#39;altitude_of_0_degree_isotherm&#39;, &#39;integral_of_surface_downward_latent_heat_evaporation_flux_wrt_time&#39;, &#39;integral_of_surface_downward_latent_heat_sublimation_flux_wrt_time&#39;, &#39;ga_11_253_251_7&#39;, &#39;ga_8_253_251_4&#39;, &#39;ga_1_253_251_7&#39;, &#39;turbulent_kinetic_energy_pl&#39;, &#39;altitude_of_isoTprimW_equal_0&#39;, &#39;x_wind_gust_10m&#39;, &#39;y_wind_gust_10m&#39;, &#39;atmosphere_level_of_neutral_buoyancy&#39;, &#39;fog_area_fraction&#39;]
+13:06:51 DEBUG   opendrift.readers.basereader.variables: Setting buffer size 10 for reader https://thredds.met.no/thredds/dodsC/aromearcticlatest/arome_arctic_extracted_2_5km_latest.nc
 , assuming a maximum average speed of 5 m/s and time span of 1:00:00
-13:38:50 DEBUG   opendrift.readers.basereader.variables: Adding variable mapping: [&#39;wind_speed&#39;, &#39;wind_from_direction&#39;] -&gt; x_wind
-13:38:50 DEBUG   opendrift.readers.basereader.variables: Adding variable mapping: [&#39;wind_speed&#39;, &#39;wind_from_direction&#39;] -&gt; y_wind
-13:38:50 DEBUG   opendrift.readers.basereader: Variable mapping: [&#39;sea_floor_depth_below_sea_level&#39;] -&gt; [&#39;land_binary_mask&#39;] is not activated
+13:06:51 DEBUG   opendrift.readers.basereader.variables: Adding variable mapping: [&#39;wind_speed&#39;, &#39;wind_from_direction&#39;] -&gt; x_wind
+13:06:51 DEBUG   opendrift.readers.basereader.variables: Adding variable mapping: [&#39;wind_speed&#39;, &#39;wind_from_direction&#39;] -&gt; y_wind
+13:06:51 DEBUG   opendrift.readers.basereader: Variable mapping: [&#39;sea_floor_depth_below_sea_level&#39;] -&gt; [&#39;land_binary_mask&#39;] is not activated
 ===========================
 Reader: https://thredds.met.no/thredds/dodsC/aromearcticlatest/arome_arctic_extracted_2_5km_latest.nc
 
@@ -391,7 +489,7 @@ Coverage: [degrees]
 Vertical levels [m]:
   Not specified
 Available time range:
-  start: 2022-01-04 09:00:00   end: 2022-01-07 03:00:00   step: 1:00:00
+  start: 2022-01-06 09:00:00   end: 2022-01-09 03:00:00   step: 1:00:00
     67 times (0 missing)
 Variables:
   longitude
@@ -445,21 +543,21 @@ Variables:
   y_wind - derived from [&#39;wind_speed&#39;, &#39;wind_from_direction&#39;]
 ===========================
 
-Time to open reader:  0:00:01.063929
+Time to open reader:  0:00:01.105476
 
 #%
 https://pae-paha.pacioos.hawaii.edu/thredds/dodsC/ncep_global/NCEP_Global_Atmospheric_Model_best.ncd
 
 
-13:38:50 INFO    opendrift.readers.reader_netCDF_CF_generic: Opening dataset: https://pae-paha.pacioos.hawaii.edu/thredds/dodsC/ncep_global/NCEP_Global_Atmospheric_Model_best.ncd
+13:06:51 INFO    opendrift.readers.reader_netCDF_CF_generic: Opening dataset: https://pae-paha.pacioos.hawaii.edu/thredds/dodsC/ncep_global/NCEP_Global_Atmospheric_Model_best.ncd
 
-13:38:52 DEBUG   opendrift.readers.reader_netCDF_CF_generic: Finding coordinate variables.
-13:38:52 DEBUG   opendrift.readers.reader_netCDF_CF_generic: Lon and lat are 1D arrays - using as projection coordinates
-13:38:52 DEBUG   opendrift.readers.basereader.variables: Setting buffer size 3 for reader https://pae-paha.pacioos.hawaii.edu/thredds/dodsC/ncep_global/NCEP_Global_Atmospheric_Model_best.ncd
+13:06:53 DEBUG   opendrift.readers.reader_netCDF_CF_generic: Finding coordinate variables.
+13:06:53 DEBUG   opendrift.readers.reader_netCDF_CF_generic: Lon and lat are 1D arrays - using as projection coordinates
+13:06:53 DEBUG   opendrift.readers.basereader.variables: Setting buffer size 3 for reader https://pae-paha.pacioos.hawaii.edu/thredds/dodsC/ncep_global/NCEP_Global_Atmospheric_Model_best.ncd
 , assuming a maximum average speed of 5 m/s and time span of 3:00:00
-13:38:52 INFO    opendrift.readers.basereader: Variable x_wind will be rotated from eastward_wind
-13:38:52 INFO    opendrift.readers.basereader: Variable y_wind will be rotated from northward_wind
-13:38:52 DEBUG   opendrift.readers.basereader: Variable mapping: [&#39;sea_floor_depth_below_sea_level&#39;] -&gt; [&#39;land_binary_mask&#39;] is not activated
+13:06:53 INFO    opendrift.readers.basereader: Variable x_wind will be rotated from eastward_wind
+13:06:53 INFO    opendrift.readers.basereader: Variable y_wind will be rotated from northward_wind
+13:06:53 DEBUG   opendrift.readers.basereader: Variable mapping: [&#39;sea_floor_depth_below_sea_level&#39;] -&gt; [&#39;land_binary_mask&#39;] is not activated
 ===========================
 Reader: https://pae-paha.pacioos.hawaii.edu/thredds/dodsC/ncep_global/NCEP_Global_Atmospheric_Model_best.ncd
 
@@ -475,7 +573,7 @@ Vertical levels [m]:
   Not specified
 Available time range:
   start: 2011-05-06 12:00:00   end: 2022-03-03 05:00:00   step: 3:00:00
-    31630 times (600 missing)
+    31630 times (584 missing)
 Variables:
   air_pressure_at_sea_level
   surface_net_downward_longwave_flux
@@ -490,21 +588,23 @@ Variables:
   y_wind
 ===========================
 
-Time to open reader:  0:00:02.319358
+Time to open reader:  0:00:01.811543
+/opt/conda/envs/opendrift/lib/python3.9/site-packages/shapefile.py:391: UserWarning: Shapefile shape has invalid polygon: no exterior rings found (must have clockwise orientation); interpreting holes as exteriors.
+  warnings.warn(&#39;Shapefile shape has invalid polygon: no exterior rings found (must have clockwise orientation); interpreting holes as exteriors.&#39;)
 
 #%
 https://tds.hycom.org/thredds/dodsC/GLBy0.08/latest
 
 
-13:38:52 INFO    opendrift.readers.reader_netCDF_CF_generic: Opening dataset: https://tds.hycom.org/thredds/dodsC/GLBy0.08/latest
+13:06:53 INFO    opendrift.readers.reader_netCDF_CF_generic: Opening dataset: https://tds.hycom.org/thredds/dodsC/GLBy0.08/latest
 
-13:38:53 DEBUG   opendrift.readers.reader_netCDF_CF_generic: Finding coordinate variables.
-13:38:53 INFO    opendrift.readers.reader_netCDF_CF_generic: Grid coordinates are detected, but proj4 string not given: assuming latlong
-13:38:53 DEBUG   opendrift.readers.basereader.variables: Setting buffer size 9 for reader https://tds.hycom.org/thredds/dodsC/GLBy0.08/latest
+13:06:54 DEBUG   opendrift.readers.reader_netCDF_CF_generic: Finding coordinate variables.
+13:06:54 INFO    opendrift.readers.reader_netCDF_CF_generic: Grid coordinates are detected, but proj4 string not given: assuming latlong
+13:06:54 DEBUG   opendrift.readers.basereader.variables: Setting buffer size 9 for reader https://tds.hycom.org/thredds/dodsC/GLBy0.08/latest
 , assuming a maximum average speed of 5 m/s and time span of 3:00:00
-13:38:53 INFO    opendrift.readers.basereader: Variable x_sea_water_velocity will be rotated from eastward_sea_water_velocity
-13:38:53 INFO    opendrift.readers.basereader: Variable y_sea_water_velocity will be rotated from northward_sea_water_velocity
-13:38:53 DEBUG   opendrift.readers.basereader: Variable mapping: [&#39;sea_floor_depth_below_sea_level&#39;] -&gt; [&#39;land_binary_mask&#39;] is not activated
+13:06:54 INFO    opendrift.readers.basereader: Variable x_sea_water_velocity will be rotated from eastward_sea_water_velocity
+13:06:54 INFO    opendrift.readers.basereader: Variable y_sea_water_velocity will be rotated from northward_sea_water_velocity
+13:06:54 DEBUG   opendrift.readers.basereader: Variable mapping: [&#39;sea_floor_depth_below_sea_level&#39;] -&gt; [&#39;land_binary_mask&#39;] is not activated
 ===========================
 Reader: https://tds.hycom.org/thredds/dodsC/GLBy0.08/latest
 
@@ -522,7 +622,7 @@ Vertical levels [m]:
   -125.  -150.  -200.  -250.  -300.  -350.  -400.  -500.  -600.  -700.
   -800.  -900. -1000. -1250. -1500. -2000. -2500. -3000. -4000. -5000.]
 Available time range:
-  start: 2021-12-29 12:00:00   end: 2022-01-11 00:00:00   step: 3:00:00
+  start: 2021-12-31 12:00:00   end: 2022-01-13 00:00:00   step: 3:00:00
     101 times (0 missing)
 Variables:
   eastward_sea_water_velocity
@@ -538,21 +638,21 @@ Variables:
   y_sea_water_velocity
 ===========================
 
-Time to open reader:  0:00:00.847786
+Time to open reader:  0:00:00.594999
 
 #%
 https://tds.hycom.org/thredds/dodsC/GLBy0.08/expt_93.0/uv3z
 
 
-13:38:53 INFO    opendrift.readers.reader_netCDF_CF_generic: Opening dataset: https://tds.hycom.org/thredds/dodsC/GLBy0.08/expt_93.0/uv3z
+13:06:54 INFO    opendrift.readers.reader_netCDF_CF_generic: Opening dataset: https://tds.hycom.org/thredds/dodsC/GLBy0.08/expt_93.0/uv3z
 
-13:38:54 DEBUG   opendrift.readers.reader_netCDF_CF_generic: Finding coordinate variables.
-13:38:54 INFO    opendrift.readers.reader_netCDF_CF_generic: Grid coordinates are detected, but proj4 string not given: assuming latlong
-13:38:54 DEBUG   opendrift.readers.basereader.variables: Setting buffer size 9 for reader https://tds.hycom.org/thredds/dodsC/GLBy0.08/expt_93.0/uv3z
+13:07:25 DEBUG   opendrift.readers.reader_netCDF_CF_generic: Finding coordinate variables.
+13:07:26 INFO    opendrift.readers.reader_netCDF_CF_generic: Grid coordinates are detected, but proj4 string not given: assuming latlong
+13:07:26 DEBUG   opendrift.readers.basereader.variables: Setting buffer size 9 for reader https://tds.hycom.org/thredds/dodsC/GLBy0.08/expt_93.0/uv3z
 , assuming a maximum average speed of 5 m/s and time span of 3:00:00
-13:38:54 INFO    opendrift.readers.basereader: Variable x_sea_water_velocity will be rotated from eastward_sea_water_velocity
-13:38:54 INFO    opendrift.readers.basereader: Variable y_sea_water_velocity will be rotated from northward_sea_water_velocity
-13:38:54 DEBUG   opendrift.readers.basereader: Variable mapping: [&#39;sea_floor_depth_below_sea_level&#39;] -&gt; [&#39;land_binary_mask&#39;] is not activated
+13:07:26 INFO    opendrift.readers.basereader: Variable x_sea_water_velocity will be rotated from eastward_sea_water_velocity
+13:07:26 INFO    opendrift.readers.basereader: Variable y_sea_water_velocity will be rotated from northward_sea_water_velocity
+13:07:26 DEBUG   opendrift.readers.basereader: Variable mapping: [&#39;sea_floor_depth_below_sea_level&#39;] -&gt; [&#39;land_binary_mask&#39;] is not activated
 ===========================
 Reader: https://tds.hycom.org/thredds/dodsC/GLBy0.08/expt_93.0/uv3z
 
@@ -570,8 +670,8 @@ Vertical levels [m]:
   -125.  -150.  -200.  -250.  -300.  -350.  -400.  -500.  -600.  -700.
   -800.  -900. -1000. -1250. -1500. -2000. -2500. -3000. -4000. -5000.]
 Available time range:
-  start: 2018-12-04 12:00:00   end: 2022-01-04 09:00:00   step: 3:00:00
-    9016 times (7 missing)
+  start: 2018-12-04 12:00:00   end: 2022-01-06 09:00:00   step: 3:00:00
+    9032 times (7 missing)
 Variables:
   eastward_sea_water_velocity
   eastward_sea_water_velocity_at_bottom
@@ -581,7 +681,7 @@ Variables:
   y_sea_water_velocity
 ===========================
 
-Time to open reader:  0:00:01.010891
+Time to open reader:  0:00:32.041307
 </pre></div>
 </div>
 <p>Summary of times to open each dataset:</p>
@@ -590,22 +690,26 @@ Time to open reader:  0:00:01.010891
 </pre></div>
 </div>
 <p class="sphx-glr-script-out">Out:</p>
-<div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>0:00:01.719222 https://thredds.met.no/thredds/dodsC/sea/norkyst800m/1h/aggregate_be
+<div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>0:00:03.014884 https://thredds.met.no/thredds/dodsC/sea/norkyst800m/1h/aggregate_be
 
-0:00:00.819074 https://thredds.met.no/thredds/dodsC/mepslatest/meps_lagged_6_h_latest_2_5km_latest.nc
+0:00:00.743603 https://thredds.met.no/thredds/dodsC/mepslatest/meps_lagged_6_h_latest_2_5km_latest.nc
 
-0:00:05.640201 https://thredds.met.no/thredds/dodsC/barents25km_agg
+0:00:01.946740 https://thredds.met.no/thredds/dodsC/barents25km_agg
 
-0:00:01.063929 https://thredds.met.no/thredds/dodsC/aromearcticlatest/arome_arctic_extracted_2_5km_latest.nc
+0:00:04.248072 https://thredds.met.no/thredds/dodsC/cmems/mywavewam3km/dataset-wam-arctic-1hr3km-be.ncml
 
-0:00:02.319358 https://pae-paha.pacioos.hawaii.edu/thredds/dodsC/ncep_global/NCEP_Global_Atmospheric_Model_best.ncd
+0:00:05.368054 https://thredds.met.no/thredds/dodsC/cmems/topaz6/dataset-topaz6-arc-15min-3km-be.ncml
 
-0:00:00.847786 https://tds.hycom.org/thredds/dodsC/GLBy0.08/latest
+0:00:01.105476 https://thredds.met.no/thredds/dodsC/aromearcticlatest/arome_arctic_extracted_2_5km_latest.nc
 
-0:00:01.010891 https://tds.hycom.org/thredds/dodsC/GLBy0.08/expt_93.0/uv3z
+0:00:01.811543 https://pae-paha.pacioos.hawaii.edu/thredds/dodsC/ncep_global/NCEP_Global_Atmospheric_Model_best.ncd
+
+0:00:00.594999 https://tds.hycom.org/thredds/dodsC/GLBy0.08/latest
+
+0:00:32.041307 https://tds.hycom.org/thredds/dodsC/GLBy0.08/expt_93.0/uv3z
 </pre></div>
 </div>
-<p class="sphx-glr-timing"><strong>Total running time of the script:</strong> ( 1 minutes  4.092 seconds)</p>
+<p class="sphx-glr-timing"><strong>Total running time of the script:</strong> ( 1 minutes  41.092 seconds)</p>
 <div class="sphx-glr-footer class sphx-glr-footer-example docutils container" id="sphx-glr-download-gallery-example-thredds-resources-py">
 <div class="sphx-glr-download sphx-glr-download-python docutils container">
 <p><a class="reference download internal" download="" href="../_downloads/243d8798ac78e1eeb0ab1af35cfe974a/example_thredds_resources.py"><code class="xref download docutils literal notranslate"><span class="pre">Download</span> <span class="pre">Python</span> <span class="pre">source</span> <span class="pre">code:</span> <span class="pre">example_thredds_resources.py</span></code></a></p>
@@ -621,8 +725,8 @@ Time to open reader:  0:00:01.010891
            </div>
           </div>
           <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
-        <a href="example_long_cmems_json.html" class="btn btn-neutral float-left" title="Initialising reader from JSON string" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
-        <a href="example_depth.html" class="btn btn-neutral float-right" title="Drift at different depths" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+        <a href="example_ensemble.html" class="btn btn-neutral float-left" title="Ensemble" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="example_static_2d_current.html" class="btn btn-neutral float-right" title="Static 2D current field" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
     </div>
 
   <hr/>
