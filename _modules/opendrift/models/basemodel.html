@@ -3507,17 +3507,21 @@
 
         <span class="k">def</span> <span class="nf">plot_timestep</span><span class="p">(</span><span class="n">i</span><span class="p">):</span>
             <span class="sd">&quot;&quot;&quot;Sub function needed for matplotlib animation.&quot;&quot;&quot;</span>
+
+            <span class="n">ret</span> <span class="o">=</span> <span class="p">[</span><span class="n">points</span><span class="p">,</span> <span class="n">points_deactivated</span><span class="p">]</span>  <span class="c1"># list of elements to return for blitting</span>
             <span class="n">ax</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="s1">&#39;</span><span class="si">%s</span><span class="se">\n</span><span class="si">%s</span><span class="s1"> UTC&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_figure_title</span><span class="p">(),</span> <span class="n">times</span><span class="p">[</span><span class="n">i</span><span class="p">]))</span>
             <span class="k">if</span> <span class="n">background</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="n">ret</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">bg</span><span class="p">)</span>
                 <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">background</span><span class="p">,</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">):</span>
                     <span class="n">scalar</span> <span class="o">=</span> <span class="n">background</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="p">:,</span> <span class="p">:]</span><span class="o">.</span><span class="n">values</span>
                 <span class="k">else</span><span class="p">:</span>
-                    <span class="n">map_x</span><span class="p">,</span> <span class="n">map_y</span><span class="p">,</span> <span class="n">scalar</span><span class="p">,</span> <span class="n">u_component</span><span class="p">,</span> <span class="n">v_component</span><span class="p">,</span> <span class="n">qmap_x</span><span class="p">,</span> <span class="n">qmap_y</span> <span class="o">=</span> \
+                    <span class="n">map_x</span><span class="p">,</span> <span class="n">map_y</span><span class="p">,</span> <span class="n">scalar</span><span class="p">,</span> <span class="n">u_component</span><span class="p">,</span> <span class="n">v_component</span> <span class="o">=</span> \
                         <span class="bp">self</span><span class="o">.</span><span class="n">get_map_background</span><span class="p">(</span><span class="n">ax</span><span class="p">,</span> <span class="n">background</span><span class="p">,</span>
                                                 <span class="n">time</span><span class="o">=</span><span class="n">times</span><span class="p">[</span><span class="n">i</span><span class="p">])</span>
                 <span class="c1"># https://stackoverflow.com/questions/18797175/animation-with-pcolormesh-routine-in-matplotlib-how-do-i-initialize-the-data</span>
                 <span class="n">bg</span><span class="o">.</span><span class="n">set_array</span><span class="p">(</span><span class="n">scalar</span><span class="p">[:</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="p">:</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">ravel</span><span class="p">())</span>
                 <span class="k">if</span> <span class="nb">type</span><span class="p">(</span><span class="n">background</span><span class="p">)</span> <span class="ow">is</span> <span class="nb">list</span><span class="p">:</span>
+                    <span class="n">ret</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">bg_quiv</span><span class="p">)</span>
                     <span class="n">bg_quiv</span><span class="o">.</span><span class="n">set_UVC</span><span class="p">(</span><span class="n">u_component</span><span class="p">[::</span><span class="n">skip</span><span class="p">,</span> <span class="p">::</span><span class="n">skip</span><span class="p">],</span>
                                     <span class="n">v_component</span><span class="p">[::</span><span class="n">skip</span><span class="p">,</span> <span class="p">::</span><span class="n">skip</span><span class="p">])</span>
 
@@ -3534,6 +3538,7 @@
             <span class="k">if</span> <span class="n">density</span> <span class="ow">is</span> <span class="kc">True</span><span class="p">:</span>
                 <span class="c1"># Update density plot</span>
                 <span class="n">pm</span><span class="o">.</span><span class="n">set_array</span><span class="p">(</span><span class="n">H</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="p">:,</span> <span class="p">:]</span><span class="o">.</span><span class="n">ravel</span><span class="p">())</span>
+                <span class="n">ret</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">pm</span><span class="p">)</span>
 
             <span class="c1"># Move points</span>
             <span class="k">if</span> <span class="n">show_elements</span> <span class="ow">is</span> <span class="kc">True</span><span class="p">:</span>
@@ -3562,6 +3567,7 @@
             <span class="k">if</span> <span class="n">drifter</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
                 <span class="n">drifter_pos</span><span class="o">.</span><span class="n">set_offsets</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">c_</span><span class="p">[</span><span class="n">drifter</span><span class="p">[</span><span class="s1">&#39;x&#39;</span><span class="p">][</span><span class="n">i</span><span class="p">],</span>
                                               <span class="n">drifter</span><span class="p">[</span><span class="s1">&#39;y&#39;</span><span class="p">][</span><span class="n">i</span><span class="p">]])</span>
+                <span class="n">ret</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">drifter_pos</span><span class="p">)</span>
 
             <span class="k">if</span> <span class="n">show_elements</span> <span class="ow">is</span> <span class="kc">True</span><span class="p">:</span>
                 <span class="k">if</span> <span class="n">compare</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
@@ -3576,9 +3582,10 @@
                                 <span class="n">cd</span><span class="p">[</span><span class="s1">&#39;index_of_last_deactivated_other&#39;</span><span class="p">]</span> <span class="o">&lt;</span> <span class="n">i</span><span class="p">],</span>
                             <span class="n">cd</span><span class="p">[</span><span class="s1">&#39;y_other_deactive&#39;</span><span class="p">][</span>
                                 <span class="n">cd</span><span class="p">[</span><span class="s1">&#39;index_of_last_deactivated_other&#39;</span><span class="p">]</span> <span class="o">&lt;</span> <span class="n">i</span><span class="p">]])</span>
-                    <span class="k">return</span> <span class="n">points</span><span class="p">,</span> <span class="n">points_deactivated</span><span class="p">,</span> <span class="n">cd</span><span class="p">[</span><span class="s1">&#39;points_other&#39;</span><span class="p">],</span>
-                <span class="k">else</span><span class="p">:</span>
-                    <span class="k">return</span> <span class="n">points</span><span class="p">,</span> <span class="n">points_deactivated</span><span class="p">,</span>
+                        <span class="n">ret</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">cd</span><span class="p">[</span><span class="s1">&#39;points_other&#39;</span><span class="p">])</span>
+                        <span class="n">ret</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">cd</span><span class="p">[</span><span class="s1">&#39;points_other_deactivated&#39;</span><span class="p">])</span>
+
+            <span class="k">return</span> <span class="n">ret</span>
 
         <span class="c1"># Find map coordinates and plot points with empty data</span>
         <span class="n">fig</span><span class="p">,</span> <span class="n">ax</span><span class="p">,</span> <span class="n">crs</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">index_of_first</span><span class="p">,</span> <span class="n">index_of_last</span> <span class="o">=</span> \
@@ -3619,7 +3626,7 @@
                 <span class="n">scalar</span> <span class="o">=</span> <span class="n">background</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="p">:,</span> <span class="p">:]</span>
                 <span class="n">map_y</span><span class="p">,</span> <span class="n">map_x</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">meshgrid</span><span class="p">(</span><span class="n">map_y</span><span class="p">,</span> <span class="n">map_x</span><span class="p">)</span>
             <span class="k">else</span><span class="p">:</span>
-                <span class="n">map_x</span><span class="p">,</span> <span class="n">map_y</span><span class="p">,</span> <span class="n">scalar</span><span class="p">,</span> <span class="n">u_component</span><span class="p">,</span> <span class="n">v_component</span><span class="p">,</span> <span class="n">qmap_x</span><span class="p">,</span> <span class="n">qmap_y</span> <span class="o">=</span> \
+                <span class="n">map_x</span><span class="p">,</span> <span class="n">map_y</span><span class="p">,</span> <span class="n">scalar</span><span class="p">,</span> <span class="n">u_component</span><span class="p">,</span> <span class="n">v_component</span> <span class="o">=</span> \
                     <span class="bp">self</span><span class="o">.</span><span class="n">get_map_background</span><span class="p">(</span><span class="n">ax</span><span class="p">,</span> <span class="n">background</span><span class="p">,</span>
                                             <span class="n">time</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">start_time</span><span class="p">)</span>
             <span class="n">bg</span> <span class="o">=</span> <span class="n">ax</span><span class="o">.</span><span class="n">pcolormesh</span><span class="p">(</span><span class="n">map_x</span><span class="p">,</span>
@@ -3634,8 +3641,8 @@
                                <span class="n">cmap</span><span class="o">=</span><span class="n">cmap</span><span class="p">,</span>
                                <span class="n">transform</span><span class="o">=</span><span class="n">gcrs</span><span class="p">)</span>
             <span class="k">if</span> <span class="nb">type</span><span class="p">(</span><span class="n">background</span><span class="p">)</span> <span class="ow">is</span> <span class="nb">list</span><span class="p">:</span>
-                <span class="n">bg_quiv</span> <span class="o">=</span> <span class="n">ax</span><span class="o">.</span><span class="n">quiver</span><span class="p">(</span><span class="n">qmap_x</span><span class="p">[::</span><span class="n">skip</span><span class="p">,</span> <span class="p">::</span><span class="n">skip</span><span class="p">],</span>
-                                    <span class="n">qmap_y</span><span class="p">[::</span><span class="n">skip</span><span class="p">,</span> <span class="p">::</span><span class="n">skip</span><span class="p">],</span>
+                <span class="n">bg_quiv</span> <span class="o">=</span> <span class="n">ax</span><span class="o">.</span><span class="n">quiver</span><span class="p">(</span><span class="n">map_x</span><span class="p">[::</span><span class="n">skip</span><span class="p">,</span> <span class="p">::</span><span class="n">skip</span><span class="p">],</span>
+                                    <span class="n">map_y</span><span class="p">[::</span><span class="n">skip</span><span class="p">,</span> <span class="p">::</span><span class="n">skip</span><span class="p">],</span>
                                     <span class="n">u_component</span><span class="p">[::</span><span class="n">skip</span><span class="p">,</span> <span class="p">::</span><span class="n">skip</span><span class="p">],</span>
                                     <span class="n">v_component</span><span class="p">[::</span><span class="n">skip</span><span class="p">,</span> <span class="p">::</span><span class="n">skip</span><span class="p">],</span>
                                     <span class="n">scale</span><span class="o">=</span><span class="n">scale</span><span class="p">,</span>
@@ -4414,7 +4421,7 @@
                 <span class="n">lat_res</span> <span class="o">=</span> <span class="n">lat_res</span><span class="o">.</span><span class="n">T</span>
                 <span class="n">map_x</span><span class="p">,</span> <span class="n">map_y</span> <span class="o">=</span> <span class="p">(</span><span class="n">lon_res</span><span class="p">,</span> <span class="n">lat_res</span><span class="p">)</span>
             <span class="k">else</span><span class="p">:</span>
-                <span class="n">map_x</span><span class="p">,</span> <span class="n">map_y</span><span class="p">,</span> <span class="n">scalar</span><span class="p">,</span> <span class="n">u_component</span><span class="p">,</span> <span class="n">v_component</span><span class="p">,</span> <span class="n">qmap_x</span><span class="p">,</span> <span class="n">qmap_y</span> <span class="o">=</span> \
+                <span class="n">map_x</span><span class="p">,</span> <span class="n">map_y</span><span class="p">,</span> <span class="n">scalar</span><span class="p">,</span> <span class="n">u_component</span><span class="p">,</span> <span class="n">v_component</span> <span class="o">=</span> \
                     <span class="bp">self</span><span class="o">.</span><span class="n">get_map_background</span><span class="p">(</span><span class="n">ax</span><span class="p">,</span> <span class="n">background</span><span class="p">,</span> <span class="n">time</span><span class="o">=</span><span class="n">time</span><span class="p">)</span>
                 <span class="c1">#self.time_step_output)</span>
 
@@ -4465,10 +4472,8 @@
                     <span class="n">cb</span><span class="o">.</span><span class="n">set_label</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">background</span><span class="p">))</span>
 
         <span class="k">if</span> <span class="nb">type</span><span class="p">(</span><span class="n">background</span><span class="p">)</span> <span class="ow">is</span> <span class="nb">list</span><span class="p">:</span>
-            <span class="n">delta_x</span> <span class="o">=</span> <span class="p">(</span><span class="n">map_x</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">]</span> <span class="o">-</span> <span class="n">map_x</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">])</span> <span class="o">/</span> <span class="mf">2.</span>
-            <span class="n">delta_y</span> <span class="o">=</span> <span class="p">(</span><span class="n">map_y</span><span class="p">[</span><span class="mi">2</span><span class="p">,</span> <span class="mi">1</span><span class="p">]</span> <span class="o">-</span> <span class="n">map_y</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">])</span> <span class="o">/</span> <span class="mf">2.</span>
-            <span class="n">ax</span><span class="o">.</span><span class="n">quiver</span><span class="p">(</span><span class="n">qmap_x</span><span class="p">[::</span><span class="n">skip</span><span class="p">,</span> <span class="p">::</span><span class="n">skip</span><span class="p">]</span> <span class="o">+</span> <span class="n">delta_x</span><span class="p">,</span>
-                      <span class="n">qmap_y</span><span class="p">[::</span><span class="n">skip</span><span class="p">,</span> <span class="p">::</span><span class="n">skip</span><span class="p">]</span> <span class="o">+</span> <span class="n">delta_y</span><span class="p">,</span>
+            <span class="n">ax</span><span class="o">.</span><span class="n">quiver</span><span class="p">(</span><span class="n">map_x</span><span class="p">[::</span><span class="n">skip</span><span class="p">,</span> <span class="p">::</span><span class="n">skip</span><span class="p">],</span>
+                      <span class="n">map_y</span><span class="p">[::</span><span class="n">skip</span><span class="p">,</span> <span class="p">::</span><span class="n">skip</span><span class="p">],</span>
                       <span class="n">u_component</span><span class="p">[::</span><span class="n">skip</span><span class="p">,</span> <span class="p">::</span><span class="n">skip</span><span class="p">],</span>
                       <span class="n">v_component</span><span class="p">[::</span><span class="n">skip</span><span class="p">,</span> <span class="p">::</span><span class="n">skip</span><span class="p">],</span>
                       <span class="n">scale</span><span class="o">=</span><span class="n">scale</span><span class="p">,</span>
@@ -4610,25 +4615,18 @@
                 <span class="n">scalar</span> <span class="o">=</span> <span class="n">scalar</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
             <span class="n">u_component</span> <span class="o">=</span> <span class="n">v_component</span> <span class="o">=</span> <span class="kc">None</span>
 
-        <span class="c1"># Shift one pixel for correct plotting</span>
-        <span class="n">reader_x</span> <span class="o">=</span> <span class="n">reader_x</span> <span class="o">-</span> <span class="n">reader</span><span class="o">.</span><span class="n">delta_x</span>
-        <span class="n">reader_y</span> <span class="o">=</span> <span class="n">reader_y</span> <span class="o">-</span> <span class="n">reader</span><span class="o">.</span><span class="n">delta_y</span>
         <span class="k">if</span> <span class="n">reader</span><span class="o">.</span><span class="n">projected</span> <span class="ow">is</span> <span class="kc">False</span><span class="p">:</span>
             <span class="n">reader_y</span><span class="p">[</span><span class="n">reader_y</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="mi">0</span>
             <span class="n">reader_x</span><span class="p">[</span><span class="n">reader_x</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="mi">0</span>
 
         <span class="n">rlons</span><span class="p">,</span> <span class="n">rlats</span> <span class="o">=</span> <span class="n">reader</span><span class="o">.</span><span class="n">xy2lonlat</span><span class="p">(</span><span class="n">reader_x</span><span class="p">,</span> <span class="n">reader_y</span><span class="p">)</span>
-        <span class="n">qrlons</span><span class="p">,</span> <span class="n">qrlats</span> <span class="o">=</span> <span class="n">reader</span><span class="o">.</span><span class="n">xy2lonlat</span><span class="p">(</span><span class="n">reader_x</span> <span class="o">+</span> <span class="n">reader</span><span class="o">.</span><span class="n">delta_x</span> <span class="o">/</span> <span class="mi">2</span><span class="p">,</span>
-                                          <span class="n">reader_y</span> <span class="o">+</span> <span class="n">reader</span><span class="o">.</span><span class="n">delta_y</span> <span class="o">/</span> <span class="mi">2</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">rlons</span><span class="o">.</span><span class="n">max</span><span class="p">()</span> <span class="o">&gt;</span> <span class="mi">360</span><span class="p">:</span>
             <span class="n">rlons</span> <span class="o">=</span> <span class="n">rlons</span> <span class="o">-</span> <span class="mi">360</span>
-            <span class="n">qrlons</span> <span class="o">=</span> <span class="n">qrlons</span> <span class="o">-</span> <span class="mi">360</span>
         <span class="n">map_x</span><span class="p">,</span> <span class="n">map_y</span> <span class="o">=</span> <span class="p">(</span><span class="n">rlons</span><span class="p">,</span> <span class="n">rlats</span><span class="p">)</span>
-        <span class="n">qmap_x</span><span class="p">,</span> <span class="n">qmap_y</span> <span class="o">=</span> <span class="p">(</span><span class="n">qrlons</span><span class="p">,</span> <span class="n">qrlats</span><span class="p">)</span>
 
         <span class="n">scalar</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">ma</span><span class="o">.</span><span class="n">masked_invalid</span><span class="p">(</span><span class="n">scalar</span><span class="p">)</span>
 
-        <span class="k">return</span> <span class="n">map_x</span><span class="p">,</span> <span class="n">map_y</span><span class="p">,</span> <span class="n">scalar</span><span class="p">,</span> <span class="n">u_component</span><span class="p">,</span> <span class="n">v_component</span><span class="p">,</span> <span class="n">qmap_x</span><span class="p">,</span> <span class="n">qmap_y</span></div>
+        <span class="k">return</span> <span class="n">map_x</span><span class="p">,</span> <span class="n">map_y</span><span class="p">,</span> <span class="n">scalar</span><span class="p">,</span> <span class="n">u_component</span><span class="p">,</span> <span class="n">v_component</span></div>
 
 <div class="viewcode-block" id="OpenDriftSimulation.get_lonlat_bins"><a class="viewcode-back" href="../../../autoapi/opendrift/models/basemodel/index.html#opendrift.models.basemodel.OpenDriftSimulation.get_lonlat_bins">[docs]</a>    <span class="k">def</span> <span class="nf">get_lonlat_bins</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">pixelsize_m</span><span class="p">):</span>
         <span class="n">latmin</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">latmin</span>
