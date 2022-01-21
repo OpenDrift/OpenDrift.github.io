@@ -31,7 +31,7 @@ Retieving wind drift factor from trajectory
     import matplotlib.pyplot as plt
     import cmocean
     from opendrift.models.oceandrift import OceanDrift
-    from opendrift.models.physics_methods import wind_drift_factor_from_trajectory, distance_between_trajectories
+    from opendrift.models.physics_methods import wind_drift_factor_from_trajectory, distance_between_trajectories, skillscore_liu_weissberg
 
 
 
@@ -108,13 +108,15 @@ Adding some horizontal diffusivity as "noise"
 
 Secondly, calculating the wind_drift_factor which reproduces the "observed" trajectory with minimal difference
 
-.. GENERATED FROM PYTHON SOURCE LINES 40-56
+.. GENERATED FROM PYTHON SOURCE LINES 40-58
 
 .. code-block:: default
 
     drifter_lons = ot.history['lon'][0]
     drifter_lats = ot.history['lat'][0]
     drifter_times = ot.get_time_array()[0]
+    trajectory_dict={'lon': drifter_lons, 'lat': drifter_lats,
+            'time': drifter_times, 'linestyle': 'b--', 'label': 'Synthetic drifter'}
 
     o = OceanDrift(loglevel=50)
     o.add_readers_from_list([o.test_data_folder() +
@@ -135,37 +137,17 @@ Secondly, calculating the wind_drift_factor which reproduces the "observed" traj
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 57-58
+.. GENERATED FROM PYTHON SOURCE LINES 59-60
 
 New simulation, this time without diffusivity/noise
 
-.. GENERATED FROM PYTHON SOURCE LINES 58-60
+.. GENERATED FROM PYTHON SOURCE LINES 60-64
 
 .. code-block:: default
 
     o.run(duration=timedelta(hours=12), time_step=600)
 
-
-
-
-
-
-
-
-.. GENERATED FROM PYTHON SOURCE LINES 61-62
-
-Calculate distances (meters) between simulation and synthetic drifter at each time step
-
-.. GENERATED FROM PYTHON SOURCE LINES 62-69
-
-.. code-block:: default
-
-    distances = distance_between_trajectories(o.history['lon'][0], o.history['lat'][0],
-                                              drifter_lons, drifter_lats)
-    print(distances)
-
-    o.plot(fast=True, legend=True, trajectory_dict={'lon': drifter_lons, 'lat': drifter_lats,
-            'time': drifter_times, 'linestyle': 'b--', 'label': 'Synthetic drifter'})
+    o.plot(fast=True, legend=True, trajectory_dict=trajectory_dict)
 
 
 
@@ -182,34 +164,19 @@ Calculate distances (meters) between simulation and synthetic drifter at each ti
 
  .. code-block:: none
 
-    [   0.          198.23333315  417.50078863  532.26327164  624.00504307
-      623.74534057  700.4714585   772.5640744   825.54965591  955.72756482
-      947.09322653  692.91135028  746.54075057  970.89965385  979.46836053
-     1150.07666045 1169.80651893 1079.09373976 1026.5094282  1145.3998271
-     1095.96460474  977.54900406  815.72651558  748.60265455  626.30550862
-      437.58989068  354.11220059  254.37670852  275.21740728  332.32963544
-      295.33723678  230.93817081   39.78574948   63.75329065  124.4218301
-      222.05460255  140.41958587   91.05632877  171.50541499  240.70886042
-      245.88091123  252.9855333   329.07232604   75.32335621  162.98902685
-       21.64391169  153.5111606   257.68264903  334.15102667  525.37165814
-      567.52834043  489.75387854  537.3508742   740.87659466  669.24024069
-      855.17768547 1013.16678878 1185.89566758 1268.18714485 1273.08702306
-     1370.68396267 1230.87160165 1354.76221795 1311.02188125 1509.48971843
-     1568.85675672 1642.21283261 1667.10054756 1773.41106041 1782.76801759
-     1694.10196547 1784.63122265 1883.28436459]
 
     (<GeoAxesSubplot:title={'center':'OpenDrift - OceanDrift\n2015-11-16 00:00 to 2015-11-16 12:00 UTC (73 steps)'}>, <module 'matplotlib.pyplot' from '/opt/conda/envs/opendrift/lib/python3.9/site-packages/matplotlib/pyplot.py'>)
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 70-74
+.. GENERATED FROM PYTHON SOURCE LINES 65-69
 
 The mean retrieved wind_drift_factor is 0.036, slichtly higher than the value 0.033 used for the simulation.
 The difference is due to the "noise" added by horizontal diffusion.
 Note that the retieved wind_drift_factor is linked to the wind and current used for the retrieval,
 other forcing datasets will yeld different value of the wind_drift_factor.
 
-.. GENERATED FROM PYTHON SOURCE LINES 74-85
+.. GENERATED FROM PYTHON SOURCE LINES 69-80
 
 .. code-block:: default
 
@@ -244,11 +211,11 @@ other forcing datasets will yeld different value of the wind_drift_factor.
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 86-87
+.. GENERATED FROM PYTHON SOURCE LINES 81-82
 
 A polar 2D histogram showing also the azimuth offset direction of the retrieced wind drift factor
 
-.. GENERATED FROM PYTHON SOURCE LINES 87-101
+.. GENERATED FROM PYTHON SOURCE LINES 82-97
 
 .. code-block:: default
 
@@ -269,6 +236,7 @@ A polar 2D histogram showing also the azimuth offset direction of the retrieced 
 
 
 
+
 .. image-sg:: /gallery/images/sphx_glr_example_wind_drift_coefficient_from_trajectory_003.png
    :alt: example wind drift coefficient from trajectory
    :srcset: /gallery/images/sphx_glr_example_wind_drift_coefficient_from_trajectory_003.png
@@ -281,8 +249,84 @@ A polar 2D histogram showing also the azimuth offset direction of the retrieced 
 
  .. code-block:: none
 
-    /root/project/examples/example_wind_drift_coefficient_from_trajectory.py:95: MatplotlibDeprecationWarning: Auto-removal of grids by pcolor() and pcolormesh() is deprecated since 3.5 and will be removed two minor releases later; please call grid(False) first.
+    /root/project/examples/example_wind_drift_coefficient_from_trajectory.py:90: MatplotlibDeprecationWarning: Auto-removal of grids by pcolor() and pcolormesh() is deprecated since 3.5 and will be removed two minor releases later; please call grid(False) first.
       pc = ax.pcolormesh(np.radians(A), W, hist.T, cmap=cmocean.cm.dense)
+
+
+
+
+.. GENERATED FROM PYTHON SOURCE LINES 98-104
+
+Alternative method, using skillscore
+====================================
+
+Here we calculate trajectories for a range of wind_drift_factors,
+and calculate the Liu-Weissberg skillscore for each.
+The optimized wind_drift_factor corresponds to the maximum skillscore.
+
+.. GENERATED FROM PYTHON SOURCE LINES 104-110
+
+.. code-block:: default
+
+
+    o = OceanDrift(loglevel=50)
+    o.add_readers_from_list([o.test_data_folder() +
+        '16Nov2015_NorKyst_z_surface/norkyst800_subset_16Nov2015.nc',
+        o.test_data_folder() + '16Nov2015_NorKyst_z_surface/arome_subset_16Nov2015.nc'], lazy=False)
+
+
+
+
+
+
+
+
+.. GENERATED FROM PYTHON SOURCE LINES 111-112
+
+We test 100 different wind_drift_factors between 0 and 0.05
+
+.. GENERATED FROM PYTHON SOURCE LINES 112-127
+
+.. code-block:: default
+
+    wdf = np.linspace(0.0, 0.05, 100)
+
+    o.seed_elements(lon=4, lat=60, time=ot.readers[list(ot.readers)[0]].start_time,
+                    wind_drift_factor=wdf, number=len(wdf))
+    o.run(duration=timedelta(hours=12), time_step=600)
+
+    o.plot(linecolor='wind_drift_factor', trajectory_dict=trajectory_dict)
+    skillscore = o.skillscore_trajectory(drifter_lons, drifter_lats, drifter_times, tolerance_threshold=1)
+    ind = np.argmax(skillscore)
+    plt.plot(wdf, skillscore)
+    plt.xlabel('Wind drift factor  [fraction]')
+    plt.ylabel('Liu-Weissberg skillscore')
+    plt.title('Maximum skillscore %.3f for wdf=%.3f' % (skillscore[ind], wdf[ind]))
+    plt.show()
+
+
+
+
+.. image-sg:: /gallery/images/sphx_glr_example_wind_drift_coefficient_from_trajectory_004.png
+   :alt: Maximum skillscore 0.962 for wdf=0.034
+   :srcset: /gallery/images/sphx_glr_example_wind_drift_coefficient_from_trajectory_004.png
+   :class: sphx-glr-single-img
+
+
+.. rst-class:: sphx-glr-script-out
+
+ Out:
+
+ .. code-block:: none
+
+    /opt/conda/envs/opendrift/lib/python3.9/site-packages/shapefile.py:391: UserWarning: Shapefile shape has invalid polygon: no exterior rings found (must have clockwise orientation); interpreting holes as exteriors.
+      warnings.warn('Shapefile shape has invalid polygon: no exterior rings found (must have clockwise orientation); interpreting holes as exteriors.')
+    /opt/conda/envs/opendrift/lib/python3.9/site-packages/cartopy/crs.py:228: ShapelyDeprecationWarning: __len__ for multi-part geometries is deprecated and will be removed in Shapely 2.0. Check the length of the `geoms` property instead to get the  number of parts of a multi-part geometry.
+      if len(multi_line_string) > 1:
+    /opt/conda/envs/opendrift/lib/python3.9/site-packages/cartopy/crs.py:280: ShapelyDeprecationWarning: Iteration over multi-part geometries is deprecated and will be removed in Shapely 2.0. Use the `geoms` property to access the constituent parts of a multi-part geometry.
+      for line in multi_line_string:
+    /opt/conda/envs/opendrift/lib/python3.9/site-packages/cartopy/crs.py:347: ShapelyDeprecationWarning: __len__ for multi-part geometries is deprecated and will be removed in Shapely 2.0. Check the length of the `geoms` property instead to get the  number of parts of a multi-part geometry.
+      if len(p_mline) > 0:
 
 
 
@@ -290,7 +334,7 @@ A polar 2D histogram showing also the azimuth offset direction of the retrieced 
 
 .. rst-class:: sphx-glr-timing
 
-   **Total running time of the script:** ( 0 minutes  17.561 seconds)
+   **Total running time of the script:** ( 0 minutes  29.356 seconds)
 
 
 .. _sphx_glr_download_gallery_example_wind_drift_coefficient_from_trajectory.py:
