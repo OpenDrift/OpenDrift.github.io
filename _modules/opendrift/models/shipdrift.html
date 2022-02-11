@@ -240,8 +240,10 @@
             <span class="s1">&#39;description&#39;</span><span class="p">:</span> <span class="s1">&#39;If ships are oriented to the left or right of the downwind direction,&#39;</span>
                 <span class="s1">&#39;or whether this is unknown. Left/right means that wind will hit ship from backboard/steerboard&#39;</span><span class="p">}})</span>
 
-        <span class="bp">self</span><span class="o">.</span><span class="n">_set_config_default</span><span class="p">(</span><span class="s1">&#39;drift:current_uncertainty&#39;</span><span class="p">,</span> <span class="mf">.05</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_set_config_default</span><span class="p">(</span><span class="s1">&#39;drift:wind_uncertainty&#39;</span><span class="p">,</span> <span class="mf">.5</span><span class="p">)</span>
+        <span class="c1"># Since the ShipDrift model is deterministic for given ship size,</span>
+        <span class="c1"># (in contrast to the Leeway model), we use a default diffusivity</span>
+        <span class="c1"># to yield some variability.</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_set_config_default</span><span class="p">(</span><span class="s1">&#39;drift:horizontal_diffusivity&#39;</span><span class="p">,</span> <span class="mi">100</span><span class="p">)</span>
 
 <div class="viewcode-block" id="ShipDrift.seed_elements"><a class="viewcode-back" href="../../../autoapi/opendrift/models/shipdrift/index.html#opendrift.models.shipdrift.ShipDrift.seed_elements">[docs]</a>    <span class="k">def</span> <span class="nf">seed_elements</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
 
@@ -388,7 +390,8 @@
         <span class="n">beta1</span> <span class="o">=</span> <span class="mf">0.5</span><span class="o">*</span><span class="n">rho_water</span><span class="o">*</span><span class="bp">self</span><span class="o">.</span><span class="n">elements</span><span class="o">.</span><span class="n">water_drag_coeff</span><span class="o">*</span><span class="n">area_wet</span>
 
         <span class="c1"># Wave direction is taken as wind direction plus offset +/- 20 degrees</span>
-        <span class="n">offset</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">winwav_angle</span><span class="o">*</span><span class="mi">2</span><span class="o">*</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">elements</span><span class="o">.</span><span class="n">orientation</span> <span class="o">-</span> <span class="mf">0.5</span><span class="p">)</span>
+        <span class="c1"># Using minus, since angles are here defined counter-clockwise from x-axis</span>
+        <span class="n">offset</span> <span class="o">=</span> <span class="o">-</span><span class="bp">self</span><span class="o">.</span><span class="n">winwav_angle</span><span class="o">*</span><span class="mi">2</span><span class="o">*</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">elements</span><span class="o">.</span><span class="n">orientation</span> <span class="o">-</span> <span class="mf">0.5</span><span class="p">)</span>
         <span class="k">if</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">environment</span><span class="o">.</span><span class="n">sea_surface_wave_stokes_drift_x_velocity</span><span class="o">.</span><span class="n">max</span><span class="p">()</span> <span class="o">==</span> <span class="mi">0</span> <span class="ow">and</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">environment</span><span class="o">.</span><span class="n">sea_surface_wave_stokes_drift_y_velocity</span><span class="o">.</span><span class="n">max</span><span class="p">()</span> <span class="o">==</span> <span class="mi">0</span><span class="p">):</span>
                 <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s1">&#39;Using wind direction as wave direction&#39;</span><span class="p">)</span>
