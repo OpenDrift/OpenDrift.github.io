@@ -141,6 +141,7 @@
 
 <span class="kn">import</span> <span class="nn">opendrift</span>
 <span class="kn">from</span> <span class="nn">opendrift.timer</span> <span class="kn">import</span> <span class="n">Timeable</span>
+<span class="kn">from</span> <span class="nn">opendrift.errors</span> <span class="kn">import</span> <span class="n">NotCoveredError</span>
 <span class="kn">from</span> <span class="nn">opendrift.readers.basereader</span> <span class="kn">import</span> <span class="n">BaseReader</span><span class="p">,</span> <span class="n">standard_names</span>
 <span class="kn">from</span> <span class="nn">opendrift.readers</span> <span class="kn">import</span> <span class="n">reader_from_url</span><span class="p">,</span> <span class="n">reader_global_landmask</span>
 <span class="kn">from</span> <span class="nn">opendrift.models.physics_methods</span> <span class="kn">import</span> <span class="n">PhysicsMethods</span>
@@ -1351,10 +1352,26 @@
                             <span class="n">lon</span><span class="p">[</span><span class="n">missing_indices</span><span class="p">],</span> <span class="n">lat</span><span class="p">[</span><span class="n">missing_indices</span><span class="p">],</span>
                             <span class="n">z</span><span class="p">[</span><span class="n">missing_indices</span><span class="p">],</span> <span class="bp">self</span><span class="o">.</span><span class="n">proj_latlon</span><span class="p">)</span>
 
-                <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
-                    <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s1">&#39;========================&#39;</span><span class="p">)</span>
-                    <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s1">&#39;Exception:&#39;</span><span class="p">)</span>
+                <span class="k">except</span> <span class="n">NotCoveredError</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
                     <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="n">e</span><span class="p">)</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">timer_end</span><span class="p">(</span><span class="s1">&#39;main loop:readers:&#39;</span> <span class="o">+</span>
+                                   <span class="n">reader_name</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s1">&#39;:&#39;</span><span class="p">,</span> <span class="s1">&#39;&lt;colon&gt;&#39;</span><span class="p">))</span>
+                    <span class="k">if</span> <span class="n">reader_name</span> <span class="o">==</span> <span class="n">reader_group</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]:</span>
+                        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_initialise_next_lazy_reader</span><span class="p">()</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                            <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span>
+                                <span class="s1">&#39;Missing variables: calling get_environment recursively&#39;</span>
+                            <span class="p">)</span>
+                            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_environment</span><span class="p">(</span>
+                                <span class="n">variables</span><span class="p">,</span> <span class="n">time</span><span class="p">,</span> <span class="n">lon</span><span class="p">,</span> <span class="n">lat</span><span class="p">,</span> <span class="n">z</span><span class="p">,</span> <span class="n">profiles</span><span class="p">)</span>
+                    <span class="k">continue</span>
+
+                <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>  <span class="c1"># Unknown error</span>
+                    <span class="c1"># TODO:</span>
+                    <span class="c1"># This could e.g. be due to corrupted files or</span>
+                    <span class="c1"># hangig thredds-servers. A reader could be discarded</span>
+                    <span class="c1"># after e.g. 3 such failed attempts</span>
+                    <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s1">&#39;========================&#39;</span><span class="p">)</span>
+                    <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="n">e</span><span class="p">)</span>
                     <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="n">traceback</span><span class="o">.</span><span class="n">format_exc</span><span class="p">())</span>
                     <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s1">&#39;========================&#39;</span><span class="p">)</span>
                     <span class="bp">self</span><span class="o">.</span><span class="n">timer_end</span><span class="p">(</span><span class="s1">&#39;main loop:readers:&#39;</span> <span class="o">+</span>
