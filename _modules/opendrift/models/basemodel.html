@@ -3296,6 +3296,8 @@
             <span class="n">latmin</span> <span class="o">=</span> <span class="n">latmin</span> <span class="o">-</span> <span class="n">buffer</span>
             <span class="n">latmax</span> <span class="o">=</span> <span class="n">latmax</span> <span class="o">+</span> <span class="n">buffer</span>
 
+        <span class="n">globe</span> <span class="o">=</span> <span class="kc">None</span>
+
         <span class="k">if</span> <span class="n">fast</span> <span class="ow">is</span> <span class="kc">True</span><span class="p">:</span>
             <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span>
                 <span class="s1">&#39;Plotting fast. This will make your plots less accurate.&#39;</span><span class="p">)</span>
@@ -3326,7 +3328,7 @@
             <span class="n">fig</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">(</span><span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mf">11.</span><span class="p">,</span> <span class="mf">11.</span> <span class="o">*</span> <span class="n">aspect_ratio</span><span class="p">))</span>
 
         <span class="n">ax</span> <span class="o">=</span> <span class="n">fig</span><span class="o">.</span><span class="n">add_subplot</span><span class="p">(</span><span class="mi">111</span><span class="p">,</span> <span class="n">projection</span><span class="o">=</span><span class="n">crs</span><span class="p">)</span>  <span class="c1"># need &#39;111&#39; for Python 2</span>
-        <span class="n">ax</span><span class="o">.</span><span class="n">set_extent</span><span class="p">([</span><span class="n">lonmin</span><span class="p">,</span> <span class="n">lonmax</span><span class="p">,</span> <span class="n">latmin</span><span class="p">,</span> <span class="n">latmax</span><span class="p">],</span> <span class="n">crs</span><span class="o">=</span><span class="n">ccrs</span><span class="o">.</span><span class="n">PlateCarree</span><span class="p">())</span>
+        <span class="n">ax</span><span class="o">.</span><span class="n">set_extent</span><span class="p">([</span><span class="n">lonmin</span><span class="p">,</span> <span class="n">lonmax</span><span class="p">,</span> <span class="n">latmin</span><span class="p">,</span> <span class="n">latmax</span><span class="p">],</span> <span class="n">crs</span><span class="o">=</span><span class="n">ccrs</span><span class="o">.</span><span class="n">PlateCarree</span><span class="p">(</span><span class="n">globe</span><span class="o">=</span><span class="n">globe</span><span class="p">))</span>
 
         <span class="k">if</span> <span class="s1">&#39;ocean_color&#39;</span> <span class="ow">in</span> <span class="n">kwargs</span><span class="p">:</span>
             <span class="n">ax</span><span class="o">.</span><span class="n">patch</span><span class="o">.</span><span class="n">set_facecolor</span><span class="p">(</span><span class="n">kwargs</span><span class="p">[</span><span class="s1">&#39;ocean_color&#39;</span><span class="p">])</span>
@@ -3380,19 +3382,16 @@
                     <span class="s1">&#39;land_binary_mask&#39;</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="s1">&#39;shape&#39;</span><span class="p">:</span>
                 <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;Using custom shapes for plotting land..&#39;</span><span class="p">)</span>
                 <span class="n">ax</span><span class="o">.</span><span class="n">add_geometries</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">readers</span><span class="p">[</span><span class="s1">&#39;shape&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">polys</span><span class="p">,</span>
-                                  <span class="n">ccrs</span><span class="o">.</span><span class="n">PlateCarree</span><span class="p">(),</span>
+                                  <span class="n">ccrs</span><span class="o">.</span><span class="n">PlateCarree</span><span class="p">(</span><span class="n">globe</span><span class="o">=</span><span class="n">globe</span><span class="p">),</span>
                                   <span class="n">facecolor</span><span class="o">=</span><span class="n">land_color</span><span class="p">,</span>
                                   <span class="n">edgecolor</span><span class="o">=</span><span class="s1">&#39;black&#39;</span><span class="p">)</span>
             <span class="k">else</span><span class="p">:</span>
                 <span class="n">reader_global_landmask</span><span class="o">.</span><span class="n">plot_land</span><span class="p">(</span><span class="n">ax</span><span class="p">,</span> <span class="n">lonmin</span><span class="p">,</span> <span class="n">latmin</span><span class="p">,</span> <span class="n">lonmax</span><span class="p">,</span>
                                                  <span class="n">latmax</span><span class="p">,</span> <span class="n">fast</span><span class="p">,</span> <span class="n">ocean_color</span><span class="p">,</span>
-                                                 <span class="n">land_color</span><span class="p">,</span> <span class="n">lscale</span><span class="p">)</span>
+                                                 <span class="n">land_color</span><span class="p">,</span> <span class="n">lscale</span><span class="p">,</span> <span class="n">globe</span><span class="p">)</span>
 
-        <span class="n">gl</span> <span class="o">=</span> <span class="n">ax</span><span class="o">.</span><span class="n">gridlines</span><span class="p">(</span><span class="n">ccrs</span><span class="o">.</span><span class="n">PlateCarree</span><span class="p">(),</span> <span class="n">draw_labels</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
-        <span class="k">if</span> <span class="n">cartopy</span><span class="o">.</span><span class="n">__version__</span> <span class="o">&lt;</span> <span class="s1">&#39;0.18.0&#39;</span><span class="p">:</span>
-            <span class="n">gl</span><span class="o">.</span><span class="n">xlabels_top</span> <span class="o">=</span> <span class="kc">False</span>  <span class="c1"># Cartopy &lt; 0.18</span>
-        <span class="k">else</span><span class="p">:</span>
-            <span class="n">gl</span><span class="o">.</span><span class="n">top_labels</span> <span class="o">=</span> <span class="kc">None</span>  <span class="c1"># Cartopy &gt;= 0.18</span>
+        <span class="n">gl</span> <span class="o">=</span> <span class="n">ax</span><span class="o">.</span><span class="n">gridlines</span><span class="p">(</span><span class="n">ccrs</span><span class="o">.</span><span class="n">PlateCarree</span><span class="p">(</span><span class="n">globe</span><span class="o">=</span><span class="n">globe</span><span class="p">),</span> <span class="n">draw_labels</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="n">gl</span><span class="o">.</span><span class="n">top_labels</span> <span class="o">=</span> <span class="kc">None</span>
 
         <span class="n">fig</span><span class="o">.</span><span class="n">canvas</span><span class="o">.</span><span class="n">draw</span><span class="p">()</span>
         <span class="n">fig</span><span class="o">.</span><span class="n">set_tight_layout</span><span class="p">(</span><span class="kc">True</span><span class="p">)</span>
@@ -3534,8 +3533,12 @@
                                            <span class="n">weight</span><span class="o">=</span><span class="n">density_weight</span><span class="p">)</span>
                 <span class="n">H</span> <span class="o">=</span> <span class="n">H</span> <span class="o">+</span> <span class="n">H_submerged</span> <span class="o">+</span> <span class="n">H_stranded</span>
 
-        <span class="c1"># x, y are longitude, latitude -&gt; i.e. in a PlateCarree CRS</span>
-        <span class="n">gcrs</span> <span class="o">=</span> <span class="n">ccrs</span><span class="o">.</span><span class="n">PlateCarree</span><span class="p">()</span>
+        <span class="c1"># Find map coordinates and plot points with empty data</span>
+        <span class="n">fig</span><span class="p">,</span> <span class="n">ax</span><span class="p">,</span> <span class="n">crs</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">index_of_first</span><span class="p">,</span> <span class="n">index_of_last</span> <span class="o">=</span> \
+            <span class="bp">self</span><span class="o">.</span><span class="n">set_up_map</span><span class="p">(</span><span class="n">buffer</span><span class="o">=</span><span class="n">buffer</span><span class="p">,</span> <span class="n">corners</span><span class="o">=</span><span class="n">corners</span><span class="p">,</span> <span class="n">lscale</span><span class="o">=</span><span class="n">lscale</span><span class="p">,</span>
+                            <span class="n">fast</span><span class="o">=</span><span class="n">fast</span><span class="p">,</span> <span class="n">hide_landmask</span><span class="o">=</span><span class="n">hide_landmask</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+
+        <span class="n">gcrs</span> <span class="o">=</span> <span class="n">ccrs</span><span class="o">.</span><span class="n">PlateCarree</span><span class="p">(</span><span class="n">globe</span><span class="o">=</span><span class="n">crs</span><span class="o">.</span><span class="n">globe</span><span class="p">)</span>
 
         <span class="k">def</span> <span class="nf">plot_timestep</span><span class="p">(</span><span class="n">i</span><span class="p">):</span>
             <span class="sd">&quot;&quot;&quot;Sub function needed for matplotlib animation.&quot;&quot;&quot;</span>
@@ -3548,7 +3551,7 @@
                     <span class="n">scalar</span> <span class="o">=</span> <span class="n">background</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="p">:,</span> <span class="p">:]</span><span class="o">.</span><span class="n">values</span>
                 <span class="k">else</span><span class="p">:</span>
                     <span class="n">map_x</span><span class="p">,</span> <span class="n">map_y</span><span class="p">,</span> <span class="n">scalar</span><span class="p">,</span> <span class="n">u_component</span><span class="p">,</span> <span class="n">v_component</span> <span class="o">=</span> \
-                        <span class="bp">self</span><span class="o">.</span><span class="n">get_map_background</span><span class="p">(</span><span class="n">ax</span><span class="p">,</span> <span class="n">background</span><span class="p">,</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">get_map_background</span><span class="p">(</span><span class="n">ax</span><span class="p">,</span> <span class="n">background</span><span class="p">,</span> <span class="n">crs</span><span class="p">,</span>
                                                 <span class="n">time</span><span class="o">=</span><span class="n">times</span><span class="p">[</span><span class="n">i</span><span class="p">])</span>
                 <span class="c1"># https://stackoverflow.com/questions/18797175/animation-with-pcolormesh-routine-in-matplotlib-how-do-i-initialize-the-data</span>
                 <span class="n">bg</span><span class="o">.</span><span class="n">set_array</span><span class="p">(</span><span class="n">scalar</span><span class="p">[:</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="p">:</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">ravel</span><span class="p">())</span>
@@ -3619,11 +3622,6 @@
 
             <span class="k">return</span> <span class="n">ret</span>
 
-        <span class="c1"># Find map coordinates and plot points with empty data</span>
-        <span class="n">fig</span><span class="p">,</span> <span class="n">ax</span><span class="p">,</span> <span class="n">crs</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">index_of_first</span><span class="p">,</span> <span class="n">index_of_last</span> <span class="o">=</span> \
-            <span class="bp">self</span><span class="o">.</span><span class="n">set_up_map</span><span class="p">(</span><span class="n">buffer</span><span class="o">=</span><span class="n">buffer</span><span class="p">,</span> <span class="n">corners</span><span class="o">=</span><span class="n">corners</span><span class="p">,</span> <span class="n">lscale</span><span class="o">=</span><span class="n">lscale</span><span class="p">,</span>
-                            <span class="n">fast</span><span class="o">=</span><span class="n">fast</span><span class="p">,</span> <span class="n">hide_landmask</span><span class="o">=</span><span class="n">hide_landmask</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
-
         <span class="k">if</span> <span class="n">surface_only</span> <span class="ow">is</span> <span class="kc">True</span><span class="p">:</span>
             <span class="n">z</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_property</span><span class="p">(</span><span class="s1">&#39;z&#39;</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
             <span class="n">x</span><span class="p">[</span><span class="n">z</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span>
@@ -3659,7 +3657,7 @@
                 <span class="n">map_y</span><span class="p">,</span> <span class="n">map_x</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">meshgrid</span><span class="p">(</span><span class="n">map_y</span><span class="p">,</span> <span class="n">map_x</span><span class="p">)</span>
             <span class="k">else</span><span class="p">:</span>
                 <span class="n">map_x</span><span class="p">,</span> <span class="n">map_y</span><span class="p">,</span> <span class="n">scalar</span><span class="p">,</span> <span class="n">u_component</span><span class="p">,</span> <span class="n">v_component</span> <span class="o">=</span> \
-                    <span class="bp">self</span><span class="o">.</span><span class="n">get_map_background</span><span class="p">(</span><span class="n">ax</span><span class="p">,</span> <span class="n">background</span><span class="p">,</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">get_map_background</span><span class="p">(</span><span class="n">ax</span><span class="p">,</span> <span class="n">background</span><span class="p">,</span> <span class="n">crs</span><span class="p">,</span>
                                             <span class="n">time</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">start_time</span><span class="p">)</span>
             <span class="n">bg</span> <span class="o">=</span> <span class="n">ax</span><span class="o">.</span><span class="n">pcolormesh</span><span class="p">(</span><span class="n">map_x</span><span class="p">,</span>
                                <span class="n">map_y</span><span class="p">,</span>
@@ -4198,9 +4196,6 @@
 
         <span class="n">start_time</span> <span class="o">=</span> <span class="n">datetime</span><span class="o">.</span><span class="n">now</span><span class="p">()</span>
 
-        <span class="c1"># x, y are longitude, latitude -&gt; i.e. in a PlateCarree CRS</span>
-        <span class="n">gcrs</span> <span class="o">=</span> <span class="n">ccrs</span><span class="o">.</span><span class="n">PlateCarree</span><span class="p">()</span>
-
         <span class="k">if</span> <span class="n">compare</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
             <span class="c1"># Extend map coverage to cover comparison simulations</span>
             <span class="n">cd</span><span class="p">,</span> <span class="n">compare_args</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_comparison_xy_for_plots</span><span class="p">(</span><span class="n">compare</span><span class="p">)</span>
@@ -4233,6 +4228,9 @@
 
         <span class="n">fig</span><span class="p">,</span> <span class="n">ax</span><span class="p">,</span> <span class="n">crs</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">index_of_first</span><span class="p">,</span> <span class="n">index_of_last</span> <span class="o">=</span> \
             <span class="bp">self</span><span class="o">.</span><span class="n">set_up_map</span><span class="p">(</span><span class="n">buffer</span><span class="o">=</span><span class="n">buffer</span><span class="p">,</span> <span class="n">corners</span><span class="o">=</span><span class="n">corners</span><span class="p">,</span> <span class="n">lscale</span><span class="o">=</span><span class="n">lscale</span><span class="p">,</span> <span class="n">fast</span><span class="o">=</span><span class="n">fast</span><span class="p">,</span> <span class="n">hide_landmask</span><span class="o">=</span><span class="n">hide_landmask</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+
+        <span class="c1"># x, y are longitude, latitude -&gt; i.e. in a PlateCarree CRS</span>
+        <span class="n">gcrs</span> <span class="o">=</span> <span class="n">ccrs</span><span class="o">.</span><span class="n">PlateCarree</span><span class="p">(</span><span class="n">globe</span><span class="o">=</span><span class="n">crs</span><span class="o">.</span><span class="n">globe</span><span class="p">)</span>
 
         <span class="n">markercolor</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">plot_comparison_colors</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
 
@@ -4457,7 +4455,7 @@
                 <span class="n">map_x</span><span class="p">,</span> <span class="n">map_y</span> <span class="o">=</span> <span class="p">(</span><span class="n">lon_res</span><span class="p">,</span> <span class="n">lat_res</span><span class="p">)</span>
             <span class="k">else</span><span class="p">:</span>
                 <span class="n">map_x</span><span class="p">,</span> <span class="n">map_y</span><span class="p">,</span> <span class="n">scalar</span><span class="p">,</span> <span class="n">u_component</span><span class="p">,</span> <span class="n">v_component</span> <span class="o">=</span> \
-                    <span class="bp">self</span><span class="o">.</span><span class="n">get_map_background</span><span class="p">(</span><span class="n">ax</span><span class="p">,</span> <span class="n">background</span><span class="p">,</span> <span class="n">time</span><span class="o">=</span><span class="n">time</span><span class="p">)</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">get_map_background</span><span class="p">(</span><span class="n">ax</span><span class="p">,</span> <span class="n">background</span><span class="p">,</span> <span class="n">crs</span><span class="p">,</span> <span class="n">time</span><span class="o">=</span><span class="n">time</span><span class="p">)</span>
                 <span class="c1">#self.time_step_output)</span>
 
             <span class="k">if</span> <span class="n">show_scalar</span> <span class="ow">is</span> <span class="kc">True</span><span class="p">:</span>
@@ -4597,7 +4595,7 @@
         <span class="n">ax</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">x</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">y</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="s1">&#39;ok&#39;</span><span class="p">,</span> <span class="n">transform</span><span class="o">=</span><span class="n">gcrs</span><span class="p">)</span>
         <span class="n">ax</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">x</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">],</span> <span class="n">y</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">],</span> <span class="s1">&#39;xk&#39;</span><span class="p">,</span> <span class="n">transform</span><span class="o">=</span><span class="n">gcrs</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="OpenDriftSimulation.get_map_background"><a class="viewcode-back" href="../../../autoapi/opendrift/models/basemodel/index.html#opendrift.models.basemodel.OpenDriftSimulation.get_map_background">[docs]</a>    <span class="k">def</span> <span class="nf">get_map_background</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ax</span><span class="p">,</span> <span class="n">background</span><span class="p">,</span> <span class="n">time</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<div class="viewcode-block" id="OpenDriftSimulation.get_map_background"><a class="viewcode-back" href="../../../autoapi/opendrift/models/basemodel/index.html#opendrift.models.basemodel.OpenDriftSimulation.get_map_background">[docs]</a>    <span class="k">def</span> <span class="nf">get_map_background</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ax</span><span class="p">,</span> <span class="n">background</span><span class="p">,</span> <span class="n">crs</span><span class="p">,</span> <span class="n">time</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
         <span class="c1"># Get background field for plotting on map or animation</span>
         <span class="c1"># TODO: this method should be made more robust</span>
         <span class="k">if</span> <span class="nb">type</span><span class="p">(</span><span class="n">background</span><span class="p">)</span> <span class="ow">is</span> <span class="nb">list</span><span class="p">:</span>
@@ -4618,7 +4616,7 @@
 
         <span class="c1"># Get reader coordinates covering given map area</span>
         <span class="n">axisproj</span> <span class="o">=</span> <span class="n">pyproj</span><span class="o">.</span><span class="n">Proj</span><span class="p">(</span><span class="n">ax</span><span class="o">.</span><span class="n">projection</span><span class="o">.</span><span class="n">proj4_params</span><span class="p">)</span>
-        <span class="n">xmin</span><span class="p">,</span> <span class="n">xmax</span><span class="p">,</span> <span class="n">ymin</span><span class="p">,</span> <span class="n">ymax</span> <span class="o">=</span> <span class="n">ax</span><span class="o">.</span><span class="n">get_extent</span><span class="p">(</span><span class="n">ccrs</span><span class="o">.</span><span class="n">PlateCarree</span><span class="p">())</span>
+        <span class="n">xmin</span><span class="p">,</span> <span class="n">xmax</span><span class="p">,</span> <span class="n">ymin</span><span class="p">,</span> <span class="n">ymax</span> <span class="o">=</span> <span class="n">ax</span><span class="o">.</span><span class="n">get_extent</span><span class="p">(</span><span class="n">ccrs</span><span class="o">.</span><span class="n">PlateCarree</span><span class="p">(</span><span class="n">globe</span><span class="o">=</span><span class="n">crs</span><span class="o">.</span><span class="n">globe</span><span class="p">))</span>
         <span class="n">cornerlons</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">xmin</span><span class="p">,</span> <span class="n">xmin</span><span class="p">,</span> <span class="n">xmax</span><span class="p">,</span> <span class="n">xmax</span><span class="p">])</span>
         <span class="n">cornerlats</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">ymin</span><span class="p">,</span> <span class="n">ymax</span><span class="p">,</span> <span class="n">ymin</span><span class="p">,</span> <span class="n">ymax</span><span class="p">])</span>
         <span class="n">reader_x</span><span class="p">,</span> <span class="n">reader_y</span> <span class="o">=</span> <span class="n">reader</span><span class="o">.</span><span class="n">lonlat2xy</span><span class="p">(</span><span class="n">cornerlons</span><span class="p">,</span> <span class="n">cornerlats</span><span class="p">)</span>
