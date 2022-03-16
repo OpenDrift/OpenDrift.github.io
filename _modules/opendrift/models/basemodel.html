@@ -3296,7 +3296,6 @@
             <span class="n">latmin</span> <span class="o">=</span> <span class="n">latmin</span> <span class="o">-</span> <span class="n">buffer</span>
             <span class="n">latmax</span> <span class="o">=</span> <span class="n">latmax</span> <span class="o">+</span> <span class="n">buffer</span>
 
-        <span class="n">globe</span> <span class="o">=</span> <span class="kc">None</span>
 
         <span class="k">if</span> <span class="n">fast</span> <span class="ow">is</span> <span class="kc">True</span><span class="p">:</span>
             <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span>
@@ -3318,6 +3317,8 @@
             <span class="n">crs</span> <span class="o">=</span> <span class="n">ccrs</span><span class="o">.</span><span class="n">Mercator</span><span class="p">()</span>
             <span class="k">if</span> <span class="n">lscale</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
                 <span class="n">lscale</span> <span class="o">=</span> <span class="s1">&#39;auto&#39;</span>
+
+        <span class="n">globe</span> <span class="o">=</span> <span class="n">crs</span><span class="o">.</span><span class="n">globe</span>
 
         <span class="n">meanlat</span> <span class="o">=</span> <span class="p">(</span><span class="n">latmin</span> <span class="o">+</span> <span class="n">latmax</span><span class="p">)</span> <span class="o">/</span> <span class="mi">2</span>
         <span class="n">aspect_ratio</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">latmax</span> <span class="o">-</span> <span class="n">latmin</span><span class="p">)</span> <span class="o">/</span> <span class="p">(</span><span class="nb">float</span><span class="p">(</span><span class="n">lonmax</span> <span class="o">-</span> <span class="n">lonmin</span><span class="p">))</span>
@@ -3349,7 +3350,7 @@
             <span class="k">else</span><span class="p">:</span>
                 <span class="n">text</span> <span class="o">=</span> <span class="n">kwargs</span><span class="p">[</span><span class="s1">&#39;text&#39;</span><span class="p">]</span>
             <span class="k">for</span> <span class="n">te</span> <span class="ow">in</span> <span class="n">text</span><span class="p">:</span>
-                <span class="n">plt</span><span class="o">.</span><span class="n">text</span><span class="p">(</span><span class="n">transform</span><span class="o">=</span><span class="n">ccrs</span><span class="o">.</span><span class="n">Geodetic</span><span class="p">(),</span> <span class="o">**</span><span class="n">te</span><span class="p">)</span>
+                <span class="n">plt</span><span class="o">.</span><span class="n">text</span><span class="p">(</span><span class="n">transform</span><span class="o">=</span><span class="n">ccrs</span><span class="o">.</span><span class="n">Geodetic</span><span class="p">(</span><span class="n">globe</span><span class="o">=</span><span class="n">globe</span><span class="p">),</span> <span class="o">**</span><span class="n">te</span><span class="p">)</span>
 
         <span class="k">if</span> <span class="s1">&#39;box&#39;</span> <span class="ow">in</span> <span class="n">kwargs</span><span class="p">:</span>
             <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">kwargs</span><span class="p">[</span><span class="s1">&#39;box&#39;</span><span class="p">],</span> <span class="nb">list</span><span class="p">):</span>
@@ -3367,12 +3368,12 @@
                     <span class="n">plt</span><span class="o">.</span><span class="n">text</span><span class="p">(</span><span class="n">x</span><span class="o">=</span><span class="n">lonmn</span><span class="p">,</span>
                              <span class="n">y</span><span class="o">=</span><span class="n">latmx</span><span class="p">,</span>
                              <span class="n">s</span><span class="o">=</span><span class="n">bx</span><span class="p">[</span><span class="s1">&#39;text&#39;</span><span class="p">],</span>
-                             <span class="n">transform</span><span class="o">=</span><span class="n">ccrs</span><span class="o">.</span><span class="n">Geodetic</span><span class="p">())</span>
+                             <span class="n">transform</span><span class="o">=</span><span class="n">ccrs</span><span class="o">.</span><span class="n">Geodetic</span><span class="p">(</span><span class="n">globe</span><span class="o">=</span><span class="n">globe</span><span class="p">))</span>
                     <span class="k">del</span> <span class="n">bx</span><span class="p">[</span><span class="s1">&#39;text&#39;</span><span class="p">]</span>
                 <span class="n">patch</span> <span class="o">=</span> <span class="n">matplotlib</span><span class="o">.</span><span class="n">patches</span><span class="o">.</span><span class="n">Rectangle</span><span class="p">(</span><span class="n">xy</span><span class="o">=</span><span class="p">[</span><span class="n">lonmn</span><span class="p">,</span> <span class="n">latmn</span><span class="p">],</span>
                                                      <span class="n">width</span><span class="o">=</span><span class="n">lonmx</span> <span class="o">-</span> <span class="n">lonmn</span><span class="p">,</span>
                                                      <span class="n">height</span><span class="o">=</span><span class="n">latmx</span> <span class="o">-</span> <span class="n">latmn</span><span class="p">,</span>
-                                                     <span class="n">transform</span><span class="o">=</span><span class="n">ccrs</span><span class="o">.</span><span class="n">Geodetic</span><span class="p">(),</span>
+                                                     <span class="n">transform</span><span class="o">=</span><span class="n">ccrs</span><span class="o">.</span><span class="n">Geodetic</span><span class="p">(</span><span class="n">globe</span><span class="o">=</span><span class="n">globe</span><span class="p">),</span>
                                                      <span class="n">zorder</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span>
                                                      <span class="o">**</span><span class="n">bx</span><span class="p">)</span>
                 <span class="n">ax</span><span class="o">.</span><span class="n">add_patch</span><span class="p">(</span><span class="n">patch</span><span class="p">)</span>
@@ -4543,7 +4544,7 @@
                 <span class="n">plt</span><span class="o">.</span><span class="n">title</span><span class="p">(</span><span class="n">title</span><span class="p">)</span>
 
         <span class="k">if</span> <span class="n">trajectory_dict</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">_plot_trajectory_dict</span><span class="p">(</span><span class="n">ax</span><span class="p">,</span> <span class="n">trajectory_dict</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_plot_trajectory_dict</span><span class="p">(</span><span class="n">ax</span><span class="p">,</span> <span class="n">gcrs</span><span class="p">,</span> <span class="n">trajectory_dict</span><span class="p">)</span>
 
         <span class="k">try</span><span class="p">:</span>
             <span class="n">handles</span><span class="p">,</span> <span class="n">labels</span> <span class="o">=</span> <span class="n">ax</span><span class="o">.</span><span class="n">get_legend_handles_labels</span><span class="p">()</span>
@@ -4577,7 +4578,7 @@
             <span class="k">return</span> <span class="s1">&#39;OpenDrift - &#39;</span> <span class="o">+</span> <span class="nb">type</span><span class="p">(</span>
                 <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="vm">__name__</span> <span class="o">+</span> <span class="s1">&#39; (</span><span class="si">%s</span><span class="s1">)&#39;</span> <span class="o">%</span> <span class="bp">self</span><span class="o">.</span><span class="n">_substance_name</span><span class="p">()</span></div>
 
-<div class="viewcode-block" id="OpenDriftSimulation._plot_trajectory_dict"><a class="viewcode-back" href="../../../autoapi/opendrift/models/basemodel/index.html#opendrift.models.basemodel.OpenDriftSimulation._plot_trajectory_dict">[docs]</a>    <span class="k">def</span> <span class="nf">_plot_trajectory_dict</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ax</span><span class="p">,</span> <span class="n">trajectory_dict</span><span class="p">):</span>
+<div class="viewcode-block" id="OpenDriftSimulation._plot_trajectory_dict"><a class="viewcode-back" href="../../../autoapi/opendrift/models/basemodel/index.html#opendrift.models.basemodel.OpenDriftSimulation._plot_trajectory_dict">[docs]</a>    <span class="k">def</span> <span class="nf">_plot_trajectory_dict</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ax</span><span class="p">,</span> <span class="n">gcrs</span><span class="p">,</span> <span class="n">trajectory_dict</span><span class="p">):</span>
         <span class="sd">&#39;&#39;&#39;Plot provided trajectory along with simulated&#39;&#39;&#39;</span>
         <span class="n">time</span> <span class="o">=</span> <span class="n">trajectory_dict</span><span class="p">[</span><span class="s1">&#39;time&#39;</span><span class="p">]</span>
         <span class="n">time</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">time</span><span class="p">)</span>
@@ -4589,7 +4590,6 @@
             <span class="n">label</span> <span class="o">=</span> <span class="n">trajectory_dict</span><span class="p">[</span><span class="s1">&#39;label&#39;</span><span class="p">]</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="n">label</span> <span class="o">=</span> <span class="kc">None</span>
-        <span class="n">gcrs</span> <span class="o">=</span> <span class="n">ccrs</span><span class="o">.</span><span class="n">PlateCarree</span><span class="p">()</span>
 
         <span class="n">ax</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">ls</span><span class="p">,</span> <span class="n">linewidth</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">transform</span><span class="o">=</span><span class="n">gcrs</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="n">label</span><span class="p">)</span>
         <span class="n">ax</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">x</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">y</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="s1">&#39;ok&#39;</span><span class="p">,</span> <span class="n">transform</span><span class="o">=</span><span class="n">gcrs</span><span class="p">)</span>
