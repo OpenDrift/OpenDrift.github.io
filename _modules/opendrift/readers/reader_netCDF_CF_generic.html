@@ -207,8 +207,7 @@
 
 <span class="sd">    &quot;&quot;&quot;</span>
 
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">filename</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">proj4</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">standard_name_mapping</span><span class="o">=</span><span class="p">{}):</span>
-
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">filename</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">proj4</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">standard_name_mapping</span><span class="o">=</span><span class="p">{},</span> <span class="n">ensemble_member</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
         <span class="k">if</span> <span class="n">filename</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;Need filename as argument to constructor&#39;</span><span class="p">)</span>
 
@@ -225,6 +224,8 @@
                 <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s1">&#39;Opening files with MFDataset&#39;</span><span class="p">)</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">Dataset</span> <span class="o">=</span> <span class="n">xr</span><span class="o">.</span><span class="n">open_mfdataset</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="n">data_vars</span><span class="o">=</span><span class="s1">&#39;minimal&#39;</span><span class="p">,</span> <span class="n">coords</span><span class="o">=</span><span class="s1">&#39;minimal&#39;</span><span class="p">,</span>
                                                  <span class="n">chunks</span><span class="o">=</span><span class="p">{</span><span class="s1">&#39;time&#39;</span><span class="p">:</span> <span class="mi">1</span><span class="p">},</span> <span class="n">decode_times</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+            <span class="k">elif</span> <span class="n">ensemble_member</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">Dataset</span> <span class="o">=</span> <span class="n">xr</span><span class="o">.</span><span class="n">open_dataset</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="n">decode_times</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span><span class="o">.</span><span class="n">isel</span><span class="p">(</span><span class="n">ensemble_member</span><span class="o">=</span><span class="n">ensemble_member</span><span class="p">)</span>
             <span class="k">else</span><span class="p">:</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">Dataset</span> <span class="o">=</span> <span class="n">xr</span><span class="o">.</span><span class="n">open_dataset</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="n">decode_times</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
         <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
@@ -324,10 +325,11 @@
                 <span class="k">else</span><span class="p">:</span>
                     <span class="bp">self</span><span class="o">.</span><span class="n">time_step</span> <span class="o">=</span> <span class="kc">None</span>
             <span class="k">if</span> <span class="n">standard_name</span> <span class="o">==</span> <span class="s1">&#39;realization&#39;</span><span class="p">:</span>
-                <span class="n">var_data</span> <span class="o">=</span> <span class="n">var</span><span class="o">.</span><span class="n">values</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">realizations</span> <span class="o">=</span> <span class="n">var_data</span>
-                <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;</span><span class="si">%i</span><span class="s1"> ensemble members available&#39;</span>
-                              <span class="o">%</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">realizations</span><span class="p">))</span>
+                <span class="k">if</span> <span class="n">ensemble_member</span> <span class="o">==</span> <span class="kc">None</span><span class="p">:</span>
+                    <span class="n">var_data</span> <span class="o">=</span> <span class="n">var</span><span class="o">.</span><span class="n">values</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">realizations</span> <span class="o">=</span> <span class="n">var_data</span>
+                    <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;</span><span class="si">%i</span><span class="s1"> ensemble members available&#39;</span>
+                                <span class="o">%</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">realizations</span><span class="p">))</span>
 
         <span class="c1"># Temporary workaround for Barents EPS model</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">realizations</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">and</span> <span class="s1">&#39;ensemble_member&#39;</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">Dataset</span><span class="o">.</span><span class="n">dims</span><span class="p">:</span>
