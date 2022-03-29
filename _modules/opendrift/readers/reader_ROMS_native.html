@@ -316,6 +316,17 @@
             <span class="k">if</span> <span class="n">var_name</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">ROMS_variable_mapping</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">variables</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">ROMS_variable_mapping</span><span class="p">[</span><span class="n">var_name</span><span class="p">])</span>
 
+        <span class="c1"># A bit hackish solution:</span>
+        <span class="c1"># If variable names or their standard_name contain &quot;east&quot; or &quot;north&quot;, </span>
+        <span class="c1"># these should not be rotated from xi-direction to east-direction</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">do_not_rotate</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">var</span><span class="p">,</span> <span class="n">stdname</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">ROMS_variable_mapping</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="k">if</span> <span class="s1">&#39;east&#39;</span> <span class="ow">in</span> <span class="n">var</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="ow">or</span> <span class="s1">&#39;east&#39;</span> <span class="ow">in</span> <span class="n">stdname</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="ow">or</span> \
+                    <span class="s1">&#39;north&#39;</span> <span class="ow">in</span> <span class="n">var</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="ow">or</span> <span class="s1">&#39;north&#39;</span> <span class="ow">in</span> <span class="n">stdname</span><span class="o">.</span><span class="n">lower</span><span class="p">():</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">do_not_rotate</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">stdname</span><span class="p">)</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">do_not_rotate</span><span class="p">)</span><span class="o">&gt;</span><span class="mi">0</span><span class="p">:</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;The following ROMS vectors are considered east-north, and will not be rotated </span><span class="si">%s</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="bp">self</span><span class="o">.</span><span class="n">do_not_rotate</span><span class="p">)</span>
+
         <span class="c1"># Run constructor of parent Reader class</span>
         <span class="nb">super</span><span class="p">(</span><span class="n">Reader</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
 
@@ -435,7 +446,7 @@
                 <span class="n">indxgrid</span> <span class="o">=</span> <span class="n">indx</span>
                 <span class="n">indygrid</span> <span class="o">=</span> <span class="n">indy</span>
                 <span class="k">if</span> <span class="n">par</span> <span class="ow">in</span> <span class="p">[</span><span class="s1">&#39;x_sea_water_velocity&#39;</span><span class="p">,</span> <span class="s1">&#39;sea_water_x_velocity&#39;</span><span class="p">,</span>
-                           <span class="s1">&#39;east_sea_water_velocity&#39;</span><span class="p">]:</span>
+                           <span class="s1">&#39;eastward_sea_water_velocity&#39;</span><span class="p">]:</span>
                     <span class="k">if</span> <span class="ow">not</span> <span class="nb">hasattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s1">&#39;mask_u&#39;</span><span class="p">):</span>
                         <span class="k">if</span> <span class="s1">&#39;mask_u&#39;</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">Dataset</span><span class="o">.</span><span class="n">variables</span><span class="p">:</span>
                             <span class="bp">self</span><span class="o">.</span><span class="n">mask_u</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">Dataset</span><span class="o">.</span><span class="n">variables</span><span class="p">[</span><span class="s1">&#39;mask_u&#39;</span><span class="p">][:]</span>
@@ -445,7 +456,7 @@
                             <span class="k">continue</span>
                     <span class="n">mask</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">mask_u</span><span class="p">[</span><span class="n">indygrid</span><span class="p">,</span> <span class="n">indxgrid</span><span class="p">]</span>
                 <span class="k">elif</span> <span class="n">par</span> <span class="ow">in</span> <span class="p">[</span><span class="s1">&#39;y_sea_water_velocity&#39;</span><span class="p">,</span> <span class="s1">&#39;sea_water_y_velocity&#39;</span><span class="p">,</span>
-                             <span class="s1">&#39;north_sea_water_velocity&#39;</span><span class="p">]:</span>
+                             <span class="s1">&#39;northward_sea_water_velocity&#39;</span><span class="p">]:</span>
                     <span class="k">if</span> <span class="ow">not</span> <span class="nb">hasattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s1">&#39;mask_v&#39;</span><span class="p">):</span>
                         <span class="k">if</span> <span class="s1">&#39;mask_v&#39;</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">Dataset</span><span class="o">.</span><span class="n">variables</span><span class="p">:</span>
                             <span class="bp">self</span><span class="o">.</span><span class="n">mask_v</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">Dataset</span><span class="o">.</span><span class="n">variables</span><span class="p">[</span><span class="s1">&#39;mask_v&#39;</span><span class="p">][:]</span>
@@ -606,17 +617,20 @@
             <span class="k">else</span><span class="p">:</span>
                 <span class="n">rad</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">angle_xi_east</span><span class="p">[</span><span class="n">indy</span><span class="p">,</span> <span class="n">indx</span><span class="p">]</span>
                 <span class="n">rad</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">ma</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">rad</span><span class="p">)</span>
-            <span class="k">if</span> <span class="s1">&#39;x_sea_water_velocity&#39;</span> <span class="ow">in</span> <span class="n">variables</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+            <span class="k">if</span> <span class="s1">&#39;x_sea_water_velocity&#39;</span> <span class="ow">in</span> <span class="n">variables</span><span class="o">.</span><span class="n">keys</span><span class="p">()</span> <span class="ow">and</span> \
+                    <span class="s1">&#39;x_sea_water_velocity&#39;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">do_not_rotate</span><span class="p">:</span>
                 <span class="n">variables</span><span class="p">[</span><span class="s1">&#39;x_sea_water_velocity&#39;</span><span class="p">],</span> \
                     <span class="n">variables</span><span class="p">[</span><span class="s1">&#39;y_sea_water_velocity&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">rotate_vectors_angle</span><span class="p">(</span>
                         <span class="n">variables</span><span class="p">[</span><span class="s1">&#39;x_sea_water_velocity&#39;</span><span class="p">],</span>
                         <span class="n">variables</span><span class="p">[</span><span class="s1">&#39;y_sea_water_velocity&#39;</span><span class="p">],</span> <span class="n">rad</span><span class="p">)</span>
-            <span class="k">if</span> <span class="s1">&#39;sea_ice_x_velocity&#39;</span> <span class="ow">in</span> <span class="n">variables</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+            <span class="k">if</span> <span class="s1">&#39;sea_ice_x_velocity&#39;</span> <span class="ow">in</span> <span class="n">variables</span><span class="o">.</span><span class="n">keys</span><span class="p">()</span> <span class="ow">and</span> \
+                    <span class="s1">&#39;sea_ice_x_velocity&#39;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">do_not_rotate</span><span class="p">:</span>
                 <span class="n">variables</span><span class="p">[</span><span class="s1">&#39;sea_ice_x_velocity&#39;</span><span class="p">],</span> \
                     <span class="n">variables</span><span class="p">[</span><span class="s1">&#39;sea_ice_y_velocity&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">rotate_vectors_angle</span><span class="p">(</span>
                         <span class="n">variables</span><span class="p">[</span><span class="s1">&#39;sea_ice_x_velocity&#39;</span><span class="p">],</span>
                         <span class="n">variables</span><span class="p">[</span><span class="s1">&#39;sea_ice_y_velocity&#39;</span><span class="p">],</span> <span class="n">rad</span><span class="p">)</span>
-            <span class="k">if</span> <span class="s1">&#39;x_wind&#39;</span> <span class="ow">in</span> <span class="n">variables</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+            <span class="k">if</span> <span class="s1">&#39;x_wind&#39;</span> <span class="ow">in</span> <span class="n">variables</span><span class="o">.</span><span class="n">keys</span><span class="p">()</span> <span class="ow">and</span> \
+                    <span class="s1">&#39;x_wind&#39;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">do_not_rotate</span><span class="p">:</span>
                 <span class="n">variables</span><span class="p">[</span><span class="s1">&#39;x_wind&#39;</span><span class="p">],</span> \
                     <span class="n">variables</span><span class="p">[</span><span class="s1">&#39;y_wind&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">rotate_vectors_angle</span><span class="p">(</span>
                         <span class="n">variables</span><span class="p">[</span><span class="s1">&#39;x_wind&#39;</span><span class="p">],</span>
