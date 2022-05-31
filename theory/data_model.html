@@ -1,7 +1,8 @@
 <!DOCTYPE html>
 <html class="writer-html5" lang="en" >
 <head>
-  <meta charset="utf-8" />
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Data model &mdash; OpenDrift  documentation</title>
       <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
@@ -20,6 +21,7 @@
         <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
         <script src="../_static/jquery.js"></script>
         <script src="../_static/underscore.js"></script>
+        <script src="../_static/_sphinx_javascript_frameworks_compat.js"></script>
         <script src="../_static/doctools.js"></script>
     <script src="../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../genindex.html" />
@@ -102,8 +104,8 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
              
-  <div class="section" id="data-model">
-<h1>Data model<a class="headerlink" href="#data-model" title="Permalink to this headline"></a></h1>
+  <section id="data-model">
+<h1>Data model<a class="headerlink" href="#data-model" title="Permalink to this heading"></a></h1>
 <p>The OpenDrift framework is programmed in Python, and is based on four classes.
 All classes are generic, and designed for specialisation by subclassing - ensuring flexibility, modularity and reusability.</p>
 <ul class="simple">
@@ -140,8 +142,8 @@ All classes are generic, and designed for specialisation by subclassing - ensuri
 <p>A subclass of OpenDriftSimulation defines (or imports/reuses) a particle type, and specifies a method to update particle properties based on environment variables (wind, waves, currents…). This function will focus only on the physical/chemical processes, and does not need to account for technical issues related to import, export, map projections etc.</p>
 <p>A class diagram and a more detailed description of the classes is given below.</p>
 <img alt="https://github.com/OpenDrift/opendrift/blob/master/docs/opendrift_UML.png?raw=true" src="https://github.com/OpenDrift/opendrift/blob/master/docs/opendrift_UML.png?raw=true" />
-<div class="section" id="reader">
-<h2>Reader<a class="headerlink" href="#reader" title="Permalink to this headline"></a></h2>
+<section id="reader">
+<h2>Reader<a class="headerlink" href="#reader" title="Permalink to this heading"></a></h2>
 <p>A “Reader” is a class to read/retrieve input/driver data from a particular source, or file format. This can be e.g. CF compliant NetCDF files, a specific model (ROMS) or source of observations (HF-radar, scatterometer…), with a specific file format/type, stored locally or retrieved through web protocols (e.g. OPeNDAP).
 A Reader object must provide the following information, as reader by the class constructor (<code class="docutils literal notranslate"><span class="pre">`__init__`</span></code>):</p>
 <ul class="simple">
@@ -195,14 +197,14 @@ A Reader object must provide the following information, as reader by the class c
 </li>
 </ul>
 <p>A few Readers are contained within the core OpenDrift repository, but (expert) users may make their own Readers for (local) data sources of interest. Therefore Readers class is defined to take care of only the very specific task of retrieving requested variables for requested position and time. More complex tasks such as reprojection and interpolation in time and space is taken care of centrally, preventing duplication of code.</p>
-</div>
-<div class="section" id="lagrangianarray">
-<h2>LagrangianArray<a class="headerlink" href="#lagrangianarray" title="Permalink to this headline"></a></h2>
+</section>
+<section id="lagrangianarray">
+<h2>LagrangianArray<a class="headerlink" href="#lagrangianarray" title="Permalink to this heading"></a></h2>
 <p>A “LagrangianArray” is the base class for any types of drifting elements. A LagrangianArray has a number of variables stored in an OrderedDict, with properties such as <strong>dtype, unit, standard_name</strong> and <strong>default value</strong>. The base class has only variables <strong>lon, lat, depth</strong>
 Subclasses of LagrangianArray will add more properties, such as e.g. density and viscosity for oil elements, and mass and size (length/radius) for fish eggs, larvae or rigid objects. All properties of a LagrangianElements are arrays, representing a number of elements. Properties may also be 1D arrays, meaning that the same value represents all particles.</p>
-</div>
-<div class="section" id="model-subclass-of-opendriftsimulation">
-<h2>Model (subclass of OpenDriftSimulation)<a class="headerlink" href="#model-subclass-of-opendriftsimulation" title="Permalink to this headline"></a></h2>
+</section>
+<section id="model-subclass-of-opendriftsimulation">
+<h2>Model (subclass of OpenDriftSimulation)<a class="headerlink" href="#model-subclass-of-opendriftsimulation" title="Permalink to this heading"></a></h2>
 <p>A Model within the OpenDrift framework corresponds to the physics/chemistry/biology of a trajectory model in the classical sense (e.g. OD3D, Leeway, Ladim…). Any non-physical (technical) tasks are “outsourced” to other classes (Readers and Writers) and inherited/reused from classes LagrangianArray and OpenDriftSimulation.
 A Model takes care of the processes affecting the particles (LagrangianArray) at each time step, such as:</p>
 <ul class="simple">
@@ -213,8 +215,8 @@ A Model takes care of the processes affecting the particles (LagrangianArray) at
 <p>All models must have a function update() which will be called each iteration of the trajectory simulation.
 This method will use environment data (self.environment.x_sea_water_velocity, self.environment.y_sea_water_velocity, self.environment.x_wind, self.environment.sea_water_potential_temperature…) to update particle properties (self.elements.x, self.elements.depth, self.elements.mass…). The x-y coordinate frame is general, and the update function shall not “worry” about map projections and orientations etc.</p>
 <p>Reader, LagrangianElement and OpenDriftSimulation are all <a class="reference external" href="https://docs.python.org/2/library/abc.html">Abstract Base Classes</a>, meaning that they have to be subclassed/specialised to be used, and have to fulfil the mentioned capabilities.</p>
-</div>
-</div>
+</section>
+</section>
 
 
            </div>

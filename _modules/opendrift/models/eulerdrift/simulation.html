@@ -1,0 +1,406 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>opendrift.models.eulerdrift.simulation &mdash; OpenDrift  documentation</title>
+      <link rel="stylesheet" href="../../../../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../../../../_static/css/theme.css" type="text/css" />
+      <link rel="stylesheet" href="../../../../_static/graphviz.css" type="text/css" />
+      <link rel="stylesheet" href="../../../../_static/plot_directive.css" type="text/css" />
+      <link rel="stylesheet" href="../../../../_static/sg_gallery.css" type="text/css" />
+      <link rel="stylesheet" href="../../../../_static/sg_gallery-binder.css" type="text/css" />
+      <link rel="stylesheet" href="../../../../_static/sg_gallery-dataframe.css" type="text/css" />
+      <link rel="stylesheet" href="../../../../_static/sg_gallery-rendered-html.css" type="text/css" />
+      <link rel="stylesheet" href="../../../../_static/theme_overrides.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="../../../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="../../../../" id="documentation_options" src="../../../../_static/documentation_options.js"></script>
+        <script src="../../../../_static/jquery.js"></script>
+        <script src="../../../../_static/underscore.js"></script>
+        <script src="../../../../_static/_sphinx_javascript_frameworks_compat.js"></script>
+        <script src="../../../../_static/doctools.js"></script>
+    <script src="../../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+            <a href="../../../../index.html" class="icon icon-home"> OpenDrift
+            <img src="../../../../_static/opendrift_logo.png" class="logo" alt="Logo"/>
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../index.html">Introduction to OpenDrift</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../history_link.html">History</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../install.html">Installing OpenDrift</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../performance.html">Performance in OpenDrift</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../tutorial.html">Tutorial</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../theory/index.html">Theory</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../theory/index.html#drift-in-the-ocean">Drift in the Ocean</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../choosing_a_model.html">How to choose which model to use</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../writing_a_new_model.html">How to write a new module</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../gallery/index.html">Gallery</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../oil_types.html">Oil types</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../interaction_with_coastline.html">Interaction with coastline</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../docker.html">Using OpenDrift in a container</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../gui.html">Graphical User Interface</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../references.html">Publications</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../services.html">Services using OpenDrift</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../autoapi/index.html">API Reference</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../../index.html">OpenDrift</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../../index.html" class="icon icon-home"></a> &raquo;</li>
+          <li><a href="../../../index.html">Module code</a> &raquo;</li>
+          <li><a href="../../../opendrift.html">opendrift</a> &raquo;</li>
+          <li><a href="../eulerdrift.html">opendrift.models.eulerdrift</a> &raquo;</li>
+      <li>opendrift.models.eulerdrift.simulation</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for opendrift.models.eulerdrift.simulation</h1><div class="highlight"><pre>
+<span></span><span class="kn">import</span> <span class="nn">logging</span>
+<span class="n">logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span>
+<span class="kn">from</span> <span class="nn">.grid</span> <span class="kn">import</span> <span class="n">RegularGrid</span>
+<span class="kn">from</span> <span class="nn">.</span> <span class="kn">import</span> <span class="n">srs</span>
+<span class="kn">from</span> <span class="nn">.interp</span> <span class="kn">import</span> <span class="n">vec_nearest</span>
+<span class="kn">from</span> <span class="nn">abc</span> <span class="kn">import</span> <span class="n">abstractmethod</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">from</span> <span class="nn">datetime</span> <span class="kn">import</span> <span class="n">timedelta</span><span class="p">,</span> <span class="n">datetime</span>
+
+
+<div class="viewcode-block" id="Simulation"><a class="viewcode-back" href="../../../../autoapi/opendrift/models/eulerdrift/simulation/index.html#opendrift.models.eulerdrift.Simulation">[docs]</a><span class="k">class</span> <span class="nc">Simulation</span><span class="p">:</span>
+    <span class="sa">r</span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    The simulation.</span>
+
+<span class="sd">    It contains the problem to be simulated, means to read necessary input</span>
+<span class="sd">    variables, and the physics for modeling the convection of the initial</span>
+<span class="sd">    conditions.</span>
+
+<span class="sd">    Convection:</span>
+
+<span class="sd">      Convection consists of advection and diffusion.</span>
+
+<span class="sd">      Diffusion is given by:</span>
+
+<span class="sd">      .. math::</span>
+
+<span class="sd">        \frac{\partial U}{\partial t} = D \left( \frac{\partial^2 U}{\partial x^2} + \frac{\partial^2 U}{\partial y^2} \right)</span>
+
+
+<span class="sd">      The convection equation is (`wiki</span>
+<span class="sd">      &lt;https://en.wikipedia.org/wiki/Convection%E2%80%93diffusion_equation&gt;`_):</span>
+
+<span class="sd">      .. math::</span>
+
+<span class="sd">        \frac{\partial c}{\partial t} = ...</span>
+
+<span class="sd">      with the assumptions that:</span>
+
+<span class="sd">        * the diffusion constant `D` is constant for the field,</span>
+<span class="sd">        * and that the flow `u` is incompressible (i.e. has *no divergence*).</span>
+
+<span class="sd">      the equation simplifies to:</span>
+
+<span class="sd">      .. math::</span>
+
+<span class="sd">        \frac{\partial c}{\partial t} = D \nabla^2 c - \mathbf{v} \cdot \nabla T</span>
+
+<span class="sd">      where :math:`\nabla^2 = \triangle` is the Laplacian.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="sd">&quot;&quot;&quot;The model grid.&quot;&quot;&quot;</span>
+    <span class="n">grid</span> <span class="o">=</span> <span class="kc">None</span>
+
+    <span class="sd">&quot;&quot;&quot;Reference time `datetime.Datetime`&quot;&quot;&quot;</span>
+    <span class="n">t0</span> <span class="o">=</span> <span class="kc">None</span>
+
+    <span class="sd">&quot;&quot;&quot;Current time offset after `t0`&quot;&quot;&quot;</span>
+    <span class="n">t</span> <span class="o">=</span> <span class="mf">0.</span>
+
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Diffusivity (:math:`m^2/s`). E.g. between 0.01 and 0.1 for oil on the</span>
+<span class="sd">    surface of the ocean (`Matsuzakia et. al., 2017</span>
+<span class="sd">    &lt;https://www.sciencedirect.com/science/article/pii/S0025326X16308426&gt;`_).</span>
+
+<span class="sd">    Decreasing diffusivity places stricter stability criteria on time step.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">D</span> <span class="o">=</span> <span class="mf">0.1</span>
+
+    <span class="sd">&quot;&quot;&quot;Porosity, rate of liquid volume to total volume (fraction of flux)&quot;&quot;&quot;</span>
+    <span class="n">rho</span> <span class="o">=</span> <span class="mf">1.</span>
+
+    <span class="sd">&quot;&quot;&quot;List of readers&quot;&quot;&quot;</span>
+    <span class="n">readers</span> <span class="o">=</span> <span class="kc">None</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">grid</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">grid</span> <span class="o">=</span> <span class="n">grid</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">readers</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">t0</span> <span class="o">=</span> <span class="n">datetime</span><span class="o">.</span><span class="n">utcnow</span><span class="p">()</span>
+
+<div class="viewcode-block" id="Simulation.new"><a class="viewcode-back" href="../../../../autoapi/opendrift/models/eulerdrift/simulation/index.html#opendrift.models.eulerdrift.Simulation.new">[docs]</a>    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">new</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">lon0</span> <span class="o">=</span> <span class="mf">10.</span><span class="p">,</span> <span class="n">lat0</span> <span class="o">=</span> <span class="mf">65.</span><span class="p">,</span> <span class="n">res</span> <span class="o">=</span> <span class="mf">10.</span><span class="p">,</span> <span class="n">shape</span><span class="o">=</span><span class="p">(</span><span class="mi">100</span><span class="p">,</span> <span class="mi">100</span><span class="p">)):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        New simulation on a :class:`.grid.RegularGrid`.</span>
+
+<span class="sd">        Args:</span>
+
+<span class="sd">            lon0: lower-left corner longitude</span>
+
+<span class="sd">            lat0: lower-left corner latitude</span>
+
+<span class="sd">            res: resolution (dx and dy)</span>
+
+<span class="sd">            shape: shape (size) of grid</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">s</span> <span class="o">=</span> <span class="bp">cls</span><span class="p">(</span><span class="n">grid</span><span class="o">=</span><span class="n">RegularGrid</span><span class="o">.</span><span class="n">new</span><span class="p">(</span><span class="n">lon0</span><span class="p">,</span> <span class="n">lat0</span><span class="p">,</span> <span class="n">res</span><span class="p">,</span> <span class="n">shape</span><span class="p">))</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;New </span><span class="si">%s</span><span class="s2"> with Regular Grid&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="bp">cls</span><span class="o">.</span><span class="vm">__name__</span><span class="p">))</span>
+
+        <span class="k">return</span> <span class="n">s</span></div>
+
+<div class="viewcode-block" id="Simulation.source"><a class="viewcode-back" href="../../../../autoapi/opendrift/models/eulerdrift/simulation/index.html#opendrift.models.eulerdrift.Simulation.source">[docs]</a>    <span class="k">def</span> <span class="nf">source</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">lon</span><span class="p">,</span> <span class="n">lat</span><span class="p">,</span> <span class="n">X</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Source `X` onto grid with lower-left corner `lon`, `lat`.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">x0</span><span class="p">,</span> <span class="n">y0</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">grid</span><span class="o">.</span><span class="n">srs</span><span class="p">(</span><span class="n">lon</span><span class="p">,</span> <span class="n">lat</span><span class="p">)</span>
+        <span class="k">assert</span> <span class="bp">self</span><span class="o">.</span><span class="n">grid</span><span class="o">.</span><span class="n">contains</span><span class="p">(</span><span class="n">x0</span><span class="p">,</span> <span class="n">y0</span><span class="p">)</span>
+
+        <span class="n">ix0</span> <span class="o">=</span> <span class="n">vec_nearest</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">grid</span><span class="o">.</span><span class="n">x</span><span class="p">,</span> <span class="n">x0</span><span class="p">)</span>
+        <span class="n">iy0</span> <span class="o">=</span> <span class="n">vec_nearest</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">grid</span><span class="o">.</span><span class="n">y</span><span class="p">,</span> <span class="n">y0</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="n">ix0</span><span class="p">)</span>
+        <span class="n">ix1</span> <span class="o">=</span> <span class="n">ix0</span> <span class="o">+</span> <span class="n">X</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="n">iy1</span> <span class="o">=</span> <span class="n">iy0</span> <span class="o">+</span> <span class="n">X</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+
+        <span class="k">assert</span> <span class="n">ix1</span> <span class="o">&lt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">grid</span><span class="o">.</span><span class="n">grid</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="k">assert</span> <span class="n">iy1</span> <span class="o">&lt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">grid</span><span class="o">.</span><span class="n">grid</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">grid</span><span class="o">.</span><span class="n">grid</span><span class="p">[</span><span class="n">ix0</span><span class="p">:</span><span class="n">ix1</span><span class="p">,</span> <span class="n">iy0</span><span class="p">:</span><span class="n">iy1</span><span class="p">]</span> <span class="o">=</span> <span class="n">X</span></div>
+
+<div class="viewcode-block" id="Simulation.source_gaussian_blob"><a class="viewcode-back" href="../../../../autoapi/opendrift/models/eulerdrift/simulation/index.html#opendrift.models.eulerdrift.Simulation.source_gaussian_blob">[docs]</a>    <span class="k">def</span> <span class="nf">source_gaussian_blob</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">lon</span><span class="p">,</span> <span class="n">lat</span><span class="p">,</span> <span class="n">A</span><span class="o">=</span><span class="mf">1.</span><span class="p">,</span> <span class="n">N</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span> <span class="n">sigma</span><span class="o">=</span><span class="mf">10.</span><span class="p">):</span>
+        <span class="sa">r</span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Source a Gaussian blob (2D normal distribution) at `lon` and `lat` with</span>
+<span class="sd">        `sigma` (standard deviation, meters) radius.</span>
+
+<span class="sd">        Args:</span>
+
+<span class="sd">          lon, lat: Center coordinates, or :math:`\bar \mu`.</span>
+
+<span class="sd">          A: Amplitude.</span>
+
+<span class="sd">          N: Kernel size.</span>
+
+<span class="sd">          sigma: standard deviation (:math:`\sigma`) in meters.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">def</span> <span class="nf">gaussian2d</span><span class="p">(</span><span class="n">n</span><span class="p">,</span> <span class="n">std</span><span class="p">):</span>
+            <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">            Gaussian 2D window with size `n` and standard deviation `std`.</span>
+<span class="sd">            &quot;&quot;&quot;</span>
+
+            <span class="kn">from</span> <span class="nn">scipy</span> <span class="kn">import</span> <span class="n">signal</span>
+            <span class="n">gk</span> <span class="o">=</span> <span class="n">signal</span><span class="o">.</span><span class="n">windows</span><span class="o">.</span><span class="n">gaussian</span><span class="p">(</span><span class="n">n</span><span class="p">,</span> <span class="n">std</span><span class="o">=</span><span class="n">std</span><span class="p">)</span>
+            <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">outer</span><span class="p">(</span><span class="n">gk</span><span class="p">,</span> <span class="n">gk</span><span class="p">)</span>
+
+        <span class="c1"># center of kernel</span>
+        <span class="n">x</span><span class="p">,</span> <span class="n">y</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">grid</span><span class="o">.</span><span class="n">srs</span><span class="p">(</span><span class="n">lon</span><span class="p">,</span> <span class="n">lat</span><span class="p">)</span>
+        <span class="k">assert</span> <span class="bp">self</span><span class="o">.</span><span class="n">grid</span><span class="o">.</span><span class="n">contains</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">)</span>
+
+        <span class="n">ix0</span> <span class="o">=</span> <span class="n">vec_nearest</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">grid</span><span class="o">.</span><span class="n">x</span><span class="p">,</span> <span class="n">x</span><span class="p">)</span> <span class="o">-</span> <span class="n">N</span> <span class="o">//</span> <span class="mi">2</span>
+        <span class="n">iy0</span> <span class="o">=</span> <span class="n">vec_nearest</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">grid</span><span class="o">.</span><span class="n">y</span><span class="p">,</span> <span class="n">y</span><span class="p">)</span> <span class="o">-</span> <span class="n">N</span> <span class="o">//</span> <span class="mi">2</span>
+        <span class="n">ix1</span> <span class="o">=</span> <span class="n">ix0</span> <span class="o">+</span> <span class="n">N</span>
+        <span class="n">iy1</span> <span class="o">=</span> <span class="n">iy0</span> <span class="o">+</span> <span class="n">N</span>
+
+        <span class="k">assert</span> <span class="n">ix0</span> <span class="o">&gt;</span> <span class="mi">0</span> <span class="ow">and</span> <span class="n">iy0</span> <span class="o">&gt;</span> <span class="mi">0</span>
+
+        <span class="n">S</span> <span class="o">=</span> <span class="n">gaussian2d</span><span class="p">(</span><span class="n">N</span><span class="p">,</span> <span class="n">sigma</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">grid</span><span class="o">.</span><span class="n">res</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">grid</span><span class="o">.</span><span class="n">grid</span><span class="p">[</span><span class="n">ix0</span><span class="p">:</span><span class="n">ix1</span><span class="p">,</span> <span class="n">iy0</span><span class="p">:</span><span class="n">iy1</span><span class="p">]</span> <span class="o">=</span> <span class="n">S</span></div>
+
+<div class="viewcode-block" id="Simulation.U"><a class="viewcode-back" href="../../../../autoapi/opendrift/models/eulerdrift/simulation/index.html#opendrift.models.eulerdrift.Simulation.U">[docs]</a>    <span class="k">def</span> <span class="nf">U</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">t</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Get U (ocean current) for t0 + t</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">Ux</span><span class="p">,</span> <span class="n">Uy</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span>
+        <span class="n">t</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">t0</span> <span class="o">+</span> <span class="n">timedelta</span><span class="p">(</span><span class="n">seconds</span> <span class="o">=</span> <span class="n">t</span><span class="p">)</span>
+
+        <span class="k">for</span> <span class="n">r</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">readers</span><span class="p">:</span>
+            <span class="n">vv</span> <span class="o">=</span> <span class="n">r</span><span class="o">.</span><span class="n">variables</span><span class="p">()</span>
+            <span class="k">if</span> <span class="s1">&#39;x_sea_water_velocity&#39;</span> <span class="ow">in</span> <span class="n">vv</span> <span class="ow">and</span> <span class="s1">&#39;y_sea_water_velocity&#39;</span> <span class="ow">in</span> <span class="n">vv</span><span class="p">:</span>
+                <span class="n">Ux</span><span class="p">,</span> <span class="n">Uy</span> <span class="o">=</span> <span class="n">r</span><span class="o">.</span><span class="n">read_grid</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">grid</span><span class="p">,</span> <span class="p">[</span><span class="s1">&#39;x_sea_water_velocity&#39;</span><span class="p">,</span> <span class="s1">&#39;y_sea_water_velocity&#39;</span><span class="p">],</span> <span class="n">t</span><span class="p">)</span>
+
+            <span class="k">if</span> <span class="n">Ux</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">Uy</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="k">break</span>
+
+        <span class="k">return</span> <span class="n">Ux</span><span class="p">,</span> <span class="n">Uy</span></div>
+
+<div class="viewcode-block" id="Simulation.step"><a class="viewcode-back" href="../../../../autoapi/opendrift/models/eulerdrift/simulation/index.html#opendrift.models.eulerdrift.Simulation.step">[docs]</a>    <span class="nd">@abstractmethod</span>
+    <span class="k">def</span> <span class="nf">step</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dt</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Step the simulation.</span>
+
+<span class="sd">        Stepping the simulation involves applying diffusion and advection to the field.</span>
+
+<span class="sd">        Args:</span>
+
+<span class="sd">          dt: time delta (or use automatic).</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">pass</span></div>
+
+<div class="viewcode-block" id="Simulation.integrate"><a class="viewcode-back" href="../../../../autoapi/opendrift/models/eulerdrift/simulation/index.html#opendrift.models.eulerdrift.Simulation.integrate">[docs]</a>    <span class="nd">@abstractmethod</span>
+    <span class="k">def</span> <span class="nf">integrate</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dt</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">max_t</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">max_steps</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">observer</span> <span class="o">=</span> <span class="kc">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Run simulation until termination condition is met.</span>
+
+<span class="sd">        Args:</span>
+
+<span class="sd">          dt: override time step</span>
+
+<span class="sd">          observer: function to call after each step taking simulation object as first argument. the function may return False to stop the integration.</span>
+
+<span class="sd">          Termination conditions:</span>
+
+<span class="sd">          max_t: max time</span>
+<span class="sd">          max_steps: max iterations</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="k">if</span> <span class="n">max_t</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">max_steps</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span>
+                <span class="s2">&quot;no termination condition supplied, using max_steps = 1000&quot;</span><span class="p">)</span>
+            <span class="n">max_steps</span> <span class="o">=</span> <span class="mi">1000</span>
+
+        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;integrating.. (dt = </span><span class="si">%s</span><span class="s2">)&quot;</span><span class="p">,</span> <span class="n">dt</span><span class="p">)</span>
+
+        <span class="n">n</span> <span class="o">=</span> <span class="mi">0</span>
+
+        <span class="k">while</span> <span class="kc">True</span><span class="p">:</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;step: n = </span><span class="si">%d</span><span class="s2">, t = </span><span class="si">%s</span><span class="s2"> (dt = </span><span class="si">%s</span><span class="s2">)&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">n</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">t</span><span class="p">,</span> <span class="n">dt</span><span class="p">))</span>
+
+            <span class="k">if</span> <span class="n">max_t</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">t</span> <span class="o">&gt;=</span> <span class="n">max_t</span><span class="p">:</span>
+                <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;max_t reached.&quot;</span><span class="p">)</span>
+                <span class="k">break</span>
+
+            <span class="k">if</span> <span class="n">max_steps</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">n</span> <span class="o">&gt;=</span> <span class="n">max_steps</span><span class="p">:</span>
+                <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;max_steps reached.&quot;</span><span class="p">)</span>
+                <span class="k">break</span>
+
+            <span class="bp">self</span><span class="o">.</span><span class="n">step</span><span class="p">(</span><span class="n">dt</span><span class="o">=</span><span class="n">dt</span><span class="p">)</span>
+
+            <span class="n">n</span> <span class="o">+=</span> <span class="mi">1</span></div></div>
+
+
+<div class="viewcode-block" id="ExplSimulation"><a class="viewcode-back" href="../../../../autoapi/opendrift/models/eulerdrift/simulation/index.html#opendrift.models.eulerdrift.ExplSimulation">[docs]</a><span class="k">class</span> <span class="nc">ExplSimulation</span><span class="p">(</span><span class="n">Simulation</span><span class="p">):</span>
+    <span class="sa">r</span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    A simple explicit scheme for integrating the convection-equation.</span>
+
+<span class="sd">    * Forward difference in time</span>
+<span class="sd">    * `ndimage.laplace` and `np.gradient` for spatial differences.</span>
+
+<span class="sd">    https://en.wikipedia.org/wiki/Numerical_solution_of_the_convection%E2%80%93diffusion_equation#Solving_the_convection%E2%80%93diffusion_equation_using_the_finite_difference_method</span>
+
+<span class="sd">    .. seealso::</span>
+
+<span class="sd">      :class:`Simulation`.</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+<div class="viewcode-block" id="ExplSimulation.stability"><a class="viewcode-back" href="../../../../autoapi/opendrift/models/eulerdrift/simulation/index.html#opendrift.models.eulerdrift.ExplSimulation.stability">[docs]</a>    <span class="k">def</span> <span class="nf">stability</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dx</span><span class="p">,</span> <span class="n">D</span><span class="p">,</span> <span class="n">umax</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        https://en.wikipedia.org/wiki/Numerical_solution_of_the_convection%E2%80%93diffusion_equation#Solving_the_convection%E2%80%93diffusion_equation_using_the_finite_difference_method</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">h</span> <span class="o">=</span> <span class="mi">2</span> <span class="o">*</span> <span class="n">D</span> <span class="o">/</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">rho</span> <span class="o">*</span> <span class="n">umax</span><span class="p">)</span>
+        <span class="n">dt</span> <span class="o">=</span> <span class="n">dx</span><span class="o">**</span><span class="mi">2</span> <span class="o">/</span> <span class="p">(</span><span class="mi">2</span> <span class="o">*</span> <span class="n">D</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">h</span><span class="p">,</span> <span class="n">dt</span></div>
+
+<div class="viewcode-block" id="ExplSimulation.step"><a class="viewcode-back" href="../../../../autoapi/opendrift/models/eulerdrift/simulation/index.html#opendrift.models.eulerdrift.ExplSimulation.step">[docs]</a>    <span class="k">def</span> <span class="nf">step</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dt</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="kn">from</span> <span class="nn">scipy</span> <span class="kn">import</span> <span class="n">ndimage</span>
+
+        <span class="n">dx</span><span class="p">,</span> <span class="n">dy</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">grid</span><span class="o">.</span><span class="n">res</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">grid</span><span class="o">.</span><span class="n">res</span>
+        <span class="n">D</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">D</span>
+        <span class="c1"># Ux = np.sqrt(50 * 1.) * np.ones(self.grid.grid.shape)</span>
+        <span class="c1"># Uy = Ux</span>
+        <span class="n">Ux</span><span class="p">,</span> <span class="n">Uy</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">U</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">t</span><span class="p">)</span>
+        <span class="n">maxu</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">Ux</span><span class="o">**</span><span class="mi">2</span> <span class="o">+</span> <span class="n">Uy</span><span class="o">**</span><span class="mi">2</span><span class="p">)</span><span class="o">.</span><span class="n">ravel</span><span class="p">())</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;maxu = </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">maxu</span><span class="p">)</span>
+
+        <span class="n">h</span><span class="p">,</span> <span class="n">ddt</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">stability</span><span class="p">(</span><span class="n">dx</span><span class="p">,</span> <span class="n">D</span><span class="p">,</span> <span class="n">maxu</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">h</span> <span class="o">&lt;</span> <span class="n">dx</span><span class="p">:</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="s2">&quot;dx too big, dx = </span><span class="si">%s</span><span class="s2"> &gt; h = </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">dx</span><span class="p">,</span> <span class="n">h</span><span class="p">))</span>
+
+        <span class="k">if</span> <span class="n">dt</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">dt</span> <span class="o">=</span> <span class="n">ddt</span>
+        <span class="k">elif</span> <span class="n">ddt</span> <span class="o">&lt;</span> <span class="n">dt</span><span class="p">:</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="s2">&quot;dt too big, dt = </span><span class="si">%s</span><span class="s2"> &gt; ddt = </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">dt</span><span class="p">,</span> <span class="n">ddt</span><span class="p">))</span>
+
+        <span class="c1"># diffusion</span>
+        <span class="n">diff</span> <span class="o">=</span> <span class="n">D</span> <span class="o">*</span> <span class="mf">1.</span> <span class="o">/</span> <span class="n">dx</span><span class="o">**</span><span class="mi">2</span> <span class="o">*</span> <span class="n">ndimage</span><span class="o">.</span><span class="n">laplace</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">grid</span><span class="o">.</span><span class="n">grid</span><span class="p">)</span>
+
+        <span class="c1"># advection</span>
+        <span class="n">gfx</span><span class="p">,</span> <span class="n">gfy</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">gradient</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">grid</span><span class="o">.</span><span class="n">grid</span><span class="p">,</span> <span class="n">dx</span><span class="p">,</span> <span class="n">dy</span><span class="p">)</span>
+        <span class="n">adv</span> <span class="o">=</span> <span class="o">-</span><span class="p">(</span><span class="n">gfx</span> <span class="o">*</span> <span class="n">Ux</span> <span class="o">+</span> <span class="n">gfy</span> <span class="o">*</span> <span class="n">Uy</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">grid</span><span class="o">.</span><span class="n">grid</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">grid</span><span class="o">.</span><span class="n">grid</span> <span class="o">+</span> <span class="n">dt</span> <span class="o">*</span> <span class="p">(</span><span class="n">diff</span> <span class="o">+</span> <span class="n">adv</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">t</span> <span class="o">+=</span> <span class="n">dt</span></div></div>
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2020, Knut-Frode Dagestad (knutfd@met.no) and Gaute Hope (gauteh@met.no)..</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

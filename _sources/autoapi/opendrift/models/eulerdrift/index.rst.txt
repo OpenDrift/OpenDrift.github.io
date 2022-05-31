@@ -1,0 +1,357 @@
+:py:mod:`opendrift.models.eulerdrift`
+=====================================
+
+.. py:module:: opendrift.models.eulerdrift
+
+.. autoapi-nested-parse::
+
+   The main entry point of Advent is the :class:`simulation.Simulation` class.
+
+
+
+Submodules
+----------
+.. toctree::
+   :titlesonly:
+   :maxdepth: 1
+
+   diff/index.rst
+   grid/index.rst
+   interp/index.rst
+   readers/index.rst
+   simulation/index.rst
+   srs/index.rst
+
+
+Package Contents
+----------------
+
+Classes
+~~~~~~~
+
+.. autoapisummary::
+
+   opendrift.models.eulerdrift.Simulation
+   opendrift.models.eulerdrift.ExplSimulation
+   opendrift.models.eulerdrift.Reader
+   opendrift.models.eulerdrift.OpendriftReader
+   opendrift.models.eulerdrift.ConstantReader
+
+
+
+Functions
+~~~~~~~~~
+
+.. autoapisummary::
+
+   opendrift.models.eulerdrift.install_logs
+
+
+
+Attributes
+~~~~~~~~~~
+
+.. autoapisummary::
+
+   opendrift.models.eulerdrift.logger
+
+
+.. py:data:: logger
+   
+
+   
+
+.. py:class:: Simulation(grid)
+
+   The simulation.
+
+   It contains the problem to be simulated, means to read necessary input
+   variables, and the physics for modeling the convection of the initial
+   conditions.
+
+   Convection:
+
+     Convection consists of advection and diffusion.
+
+     Diffusion is given by:
+
+     .. math::
+
+       \frac{\partial U}{\partial t} = D \left( \frac{\partial^2 U}{\partial x^2} + \frac{\partial^2 U}{\partial y^2} \right)
+
+
+     The convection equation is (`wiki
+     <https://en.wikipedia.org/wiki/Convection%E2%80%93diffusion_equation>`_):
+
+     .. math::
+
+       \frac{\partial c}{\partial t} = ...
+
+     with the assumptions that:
+
+       * the diffusion constant `D` is constant for the field,
+       * and that the flow `u` is incompressible (i.e. has *no divergence*).
+
+     the equation simplifies to:
+
+     .. math::
+
+       \frac{\partial c}{\partial t} = D \nabla^2 c - \mathbf{v} \cdot \nabla T
+
+     where :math:`\nabla^2 = \triangle` is the Laplacian.
+
+   .. py:attribute:: grid
+      
+
+      Reference time `datetime.Datetime`
+
+
+   .. py:attribute:: t0
+      
+
+      Current time offset after `t0`
+
+
+   .. py:attribute:: t
+      :annotation: = 0.0
+
+      Diffusivity (:math:`m^2/s`). E.g. between 0.01 and 0.1 for oil on the
+      surface of the ocean (`Matsuzakia et. al., 2017
+      <https://www.sciencedirect.com/science/article/pii/S0025326X16308426>`_).
+
+      Decreasing diffusivity places stricter stability criteria on time step.
+
+
+   .. py:attribute:: D
+      :annotation: = 0.1
+
+      Porosity, rate of liquid volume to total volume (fraction of flux)
+
+
+   .. py:attribute:: rho
+      :annotation: = 1.0
+
+      List of readers
+
+
+   .. py:attribute:: readers
+      
+
+      
+
+   .. py:method:: new(cls, lon0=10.0, lat0=65.0, res=10.0, shape=(100, 100))
+      :classmethod:
+
+      New simulation on a :class:`.grid.RegularGrid`.
+
+      Args:
+
+          lon0: lower-left corner longitude
+
+          lat0: lower-left corner latitude
+
+          res: resolution (dx and dy)
+
+          shape: shape (size) of grid
+
+
+   .. py:method:: source(self, lon, lat, X)
+
+      Source `X` onto grid with lower-left corner `lon`, `lat`.
+
+
+   .. py:method:: source_gaussian_blob(self, lon, lat, A=1.0, N=10, sigma=10.0)
+
+      Source a Gaussian blob (2D normal distribution) at `lon` and `lat` with
+      `sigma` (standard deviation, meters) radius.
+
+      Args:
+
+        lon, lat: Center coordinates, or :math:`\bar \mu`.
+
+        A: Amplitude.
+
+        N: Kernel size.
+
+        sigma: standard deviation (:math:`\sigma`) in meters.
+
+
+   .. py:method:: U(self, t)
+
+      Get U (ocean current) for t0 + t
+
+
+   .. py:method:: step(self, dt=None)
+      :abstractmethod:
+
+      Step the simulation.
+
+      Stepping the simulation involves applying diffusion and advection to the field.
+
+      Args:
+
+        dt: time delta (or use automatic).
+
+
+   .. py:method:: integrate(self, dt=None, max_t=None, max_steps=None, observer=None)
+      :abstractmethod:
+
+      Run simulation until termination condition is met.
+
+      Args:
+
+        dt: override time step
+
+        observer: function to call after each step taking simulation object as first argument. the function may return False to stop the integration.
+
+        Termination conditions:
+
+        max_t: max time
+        max_steps: max iterations
+
+
+
+.. py:class:: ExplSimulation(grid)
+
+   Bases: :py:obj:`Simulation`
+
+   A simple explicit scheme for integrating the convection-equation.
+
+   * Forward difference in time
+   * `ndimage.laplace` and `np.gradient` for spatial differences.
+
+   https://en.wikipedia.org/wiki/Numerical_solution_of_the_convection%E2%80%93diffusion_equation#Solving_the_convection%E2%80%93diffusion_equation_using_the_finite_difference_method
+
+   .. seealso::
+
+     :class:`Simulation`.
+
+
+   .. py:method:: stability(self, dx, D, umax)
+
+      https://en.wikipedia.org/wiki/Numerical_solution_of_the_convection%E2%80%93diffusion_equation#Solving_the_convection%E2%80%93diffusion_equation_using_the_finite_difference_method
+
+
+   .. py:method:: step(self, dt=None)
+
+      Step the simulation.
+
+      Stepping the simulation involves applying diffusion and advection to the field.
+
+      Args:
+
+        dt: time delta (or use automatic).
+
+
+
+.. py:class:: Reader
+
+   .. py:method:: variables(self)
+      :abstractmethod:
+
+      Get list of variables
+
+
+   .. py:method:: read_grid(self, grid, var, t)
+      :abstractmethod:
+
+      Read variable for grid.
+
+      Args:
+
+          grid: grid to read variable for
+
+          var: list of strs, name of variables to read
+
+          t: datetime (UTC)
+
+      Returns:
+
+          v0, v1, ...
+
+          tuple with each variables specified in var with same shape as `grid`.
+
+
+
+.. py:class:: OpendriftReader(reader)
+
+   Bases: :py:obj:`Reader`
+
+   Wrapper around an Opendrift reader.
+
+   Args:
+
+       reader: opendrift reader
+
+   .. py:method:: variables(self)
+
+      Get list of variables
+
+
+   .. py:method:: read_grid(self, grid, var, t)
+
+      Read variable for grid.
+
+      Args:
+
+          grid: grid to read variable for
+
+          var: list of strs, name of variables to read
+
+          t: datetime (UTC)
+
+      Returns:
+
+          v0, v1, ...
+
+          tuple with each variables specified in var with same shape as `grid`.
+
+
+
+.. py:class:: ConstantReader(consts)
+
+   Bases: :py:obj:`Reader`
+
+   
+   Args:
+
+       consts: dict, name of var: constant
+
+   .. py:method:: read_grid(self, grid, var, _)
+
+      Read variable for grid.
+
+      Args:
+
+          grid: grid to read variable for
+
+          var: list of strs, name of variables to read
+
+          t: datetime (UTC)
+
+      Returns:
+
+          v0, v1, ...
+
+          tuple with each variables specified in var with same shape as `grid`.
+
+
+   .. py:method:: variables(self)
+
+      Get list of variables
+
+
+   .. py:method:: new_xy(x=0.5, y=0.5)
+      :staticmethod:
+
+
+
+.. py:function:: install_logs(level=logging.DEBUG)
+
+   Set up fanzy, colorful, logging.
+
+   Args:
+
+     level: Log level
+
+
