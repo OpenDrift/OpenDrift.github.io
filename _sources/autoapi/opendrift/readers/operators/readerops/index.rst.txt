@@ -1,0 +1,107 @@
+:py:mod:`opendrift.readers.operators.readerops`
+===============================================
+
+.. py:module:: opendrift.readers.operators.readerops
+
+
+Module Contents
+---------------
+
+Classes
+~~~~~~~
+
+.. autoapisummary::
+
+   opendrift.readers.operators.readerops.Combined
+
+
+
+Functions
+~~~~~~~~~
+
+.. autoapisummary::
+
+   opendrift.readers.operators.readerops.none_or_cmp
+
+
+
+.. py:function:: none_or_cmp(a, b, cmp)
+
+
+.. py:class:: Combined(a, b, op)
+
+   Bases: :py:obj:`opendrift.readers.basereader.BaseReader`
+
+   A combination of two readers.
+
+   Common constructor for all readers
+
+   .. py:attribute:: a
+      :annotation: :opendrift.readers.basereader.BaseReader
+
+      
+
+   .. py:attribute:: b
+      :annotation: :opendrift.readers.basereader.BaseReader
+
+      
+
+   .. py:attribute:: op
+      :annotation: :types.LambdaType
+
+      
+
+   .. py:method:: covers_positions(lon, lat)
+
+      Return indices of input points covered by reader.
+
+
+   .. py:method:: covers_time(time)
+
+
+   .. py:method:: get_variables_interpolated(variables, *args, **kwargs)
+
+      `get_variables_interpolated` is the main interface to
+      :class:`opendrift.basemodel.OpenDriftSimulation`, and is responsible
+      for returning variables at the correct positions.
+
+      Readers should implement :meth:`_get_variables_interpolated_`.
+
+      Arguments:
+          variables: string, or list of strings (standard_name) of
+              requested variables. These must be provided by reader.
+
+          profiles: List of variable names that should be returned for the range in `profiles_depth`.
+
+          profiles_depth: A range [z-start, z-end] for which to return values for profile-variables. The exact z-depth are given by the reader and returned as `z` variable in `env_profiles`.
+
+          time: datetime or None, time at which data are requested.
+              Can be None (default) if reader/variable has no time
+              dimension (e.g. climatology or landmask).
+
+          lon: longitude, 1d array.
+
+          lat: latitude, 1d array, same length as lon.
+
+          z: float or ndarray; vertical position (in meters, positive up)
+              of requested points. either scalar or same length as lon, lat.
+              default: 0 m (unless otherwise documented by reader)
+
+          block: bool, see return below
+
+          rotate_to_proj: N/A
+
+        Returns:
+
+          (env, env_profiles)
+
+          Interpolated variables at x, y and z. `env` contains values at a fixed depth (`z`), while `env_profiles` contains depth-profiles in the range `profile_depth` for the variables listed in `profiles` for each element (in `x`, `y`). The exact depth is determined by the reader and specified in
+          `env_profiles['z']`. Thus variables in `env_profiles` are not interpolated in z-direction.
+
+      .. seealso::
+
+          :meth:`get_variables_interpolated_xy`.
+
+
+
+
