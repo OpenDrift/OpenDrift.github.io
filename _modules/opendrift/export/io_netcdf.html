@@ -22,6 +22,7 @@
         <script src="../../../_static/underscore.js"></script>
         <script src="../../../_static/_sphinx_javascript_frameworks_compat.js"></script>
         <script src="../../../_static/doctools.js"></script>
+        <script src="../../../_static/sphinx_highlight.js"></script>
     <script src="../../../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../../../genindex.html" />
     <link rel="search" title="Search" href="../../../search.html" /> 
@@ -403,6 +404,18 @@
     <span class="n">history_dtype</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">dtype</span><span class="p">(</span><span class="n">history_dtype_fields</span><span class="p">)</span>
 
     <span class="c1"># Import dataset (history)</span>
+    <span class="n">status</span> <span class="o">=</span> <span class="n">infile</span><span class="o">.</span><span class="n">variables</span><span class="p">[</span><span class="s1">&#39;status&#39;</span><span class="p">][</span><span class="n">elements</span><span class="p">,</span> <span class="n">times</span><span class="p">]</span>
+    <span class="n">firstlast</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">ma</span><span class="o">.</span><span class="n">notmasked_edges</span><span class="p">(</span><span class="n">status</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+    <span class="n">index_of_last</span> <span class="o">=</span> <span class="n">firstlast</span><span class="p">[</span><span class="mi">1</span><span class="p">][</span><span class="mi">1</span><span class="p">]</span>
+    <span class="n">actual_num_elements</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">index_of_last</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">actual_num_elements</span> <span class="o">&lt;</span> <span class="n">num_elements</span><span class="p">:</span>
+        <span class="n">num_elements</span> <span class="o">=</span> <span class="n">actual_num_elements</span>
+        <span class="n">elements</span> <span class="o">=</span> <span class="n">firstlast</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="s1">&#39;A subset is requested, and number of active elements is </span><span class="si">%d</span><span class="s1">&#39;</span>
+                       <span class="o">%</span> <span class="n">num_elements</span><span class="p">)</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">history</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">ma</span><span class="o">.</span><span class="n">array</span><span class="p">(</span>
+        <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">([</span><span class="n">num_elements</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">steps_output</span><span class="p">]),</span>
+        <span class="n">dtype</span><span class="o">=</span><span class="n">history_dtype</span><span class="p">,</span> <span class="n">mask</span><span class="o">=</span><span class="p">[</span><span class="kc">True</span><span class="p">])</span>
     <span class="k">if</span> <span class="n">load_history</span> <span class="ow">is</span> <span class="kc">True</span><span class="p">:</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">history</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">ma</span><span class="o">.</span><span class="n">array</span><span class="p">(</span>
             <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">([</span><span class="n">num_elements</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">steps_output</span><span class="p">]),</span>
@@ -423,8 +436,9 @@
         <span class="k">for</span> <span class="n">var</span> <span class="ow">in</span> <span class="n">infile</span><span class="o">.</span><span class="n">variables</span><span class="p">:</span>
             <span class="k">if</span> <span class="n">var</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">ElementType</span><span class="o">.</span><span class="n">variables</span><span class="p">:</span>
                 <span class="n">kwargs</span><span class="p">[</span><span class="n">var</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">history</span><span class="p">[</span><span class="n">var</span><span class="p">][</span>
-                    <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">index_of_last</span><span class="p">)),</span> <span class="n">index_of_last</span><span class="p">]</span>
-        <span class="n">kwargs</span><span class="p">[</span><span class="s1">&#39;ID&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">elements</span><span class="p">))</span> <span class="o">+</span> <span class="mi">1</span>
+                    <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="n">num_elements</span><span class="p">),</span> <span class="n">index_of_last</span><span class="p">]</span>
+        <span class="c1">#kwargs[&#39;ID&#39;] = np.arange(num_elements) + 1</span>
+        <span class="n">kwargs</span><span class="p">[</span><span class="s1">&#39;ID&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="n">elements</span><span class="p">))</span> <span class="o">+</span> <span class="mi">1</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">elements</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">ElementType</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">elements_deactivated</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">ElementType</span><span class="p">()</span>
     <span class="k">else</span><span class="p">:</span>

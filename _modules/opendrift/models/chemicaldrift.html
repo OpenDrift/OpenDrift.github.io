@@ -22,6 +22,7 @@
         <script src="../../../_static/underscore.js"></script>
         <script src="../../../_static/_sphinx_javascript_frameworks_compat.js"></script>
         <script src="../../../_static/doctools.js"></script>
+        <script src="../../../_static/sphinx_highlight.js"></script>
     <script src="../../../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../../../genindex.html" />
     <link rel="search" title="Search" href="../../../search.html" /> 
@@ -197,7 +198,10 @@
         <span class="s1">&#39;spm&#39;</span><span class="p">:</span> <span class="p">{</span><span class="s1">&#39;fallback&#39;</span><span class="p">:</span> <span class="mi">1</span><span class="p">},</span>
         <span class="s1">&#39;ocean_mixed_layer_thickness&#39;</span><span class="p">:</span> <span class="p">{</span><span class="s1">&#39;fallback&#39;</span><span class="p">:</span> <span class="mi">50</span><span class="p">},</span>
         <span class="s1">&#39;active_sediment_layer_thickness&#39;</span><span class="p">:</span> <span class="p">{</span><span class="s1">&#39;fallback&#39;</span><span class="p">:</span> <span class="mf">0.03</span><span class="p">},</span> <span class="c1"># TODO - currently not used, redundant with &#39;chemical:sediment:mixing_depth&#39;</span>
-        <span class="s1">&#39;doc&#39;</span><span class="p">:</span> <span class="p">{</span><span class="s1">&#39;fallback&#39;</span><span class="p">:</span> <span class="mf">0.0</span><span class="p">}</span>
+        <span class="s1">&#39;doc&#39;</span><span class="p">:</span> <span class="p">{</span><span class="s1">&#39;fallback&#39;</span><span class="p">:</span> <span class="mf">0.0</span><span class="p">},</span>
+        <span class="c1"># Variables for dissociation</span>
+        <span class="s1">&#39;sea_water_ph_reported_on_total_scale&#39;</span><span class="p">:{</span><span class="s1">&#39;fallback&#39;</span><span class="p">:</span> <span class="mf">8.1</span><span class="p">,</span> <span class="s1">&#39;profiles&#39;</span><span class="p">:</span> <span class="kc">True</span><span class="p">},</span> <span class="c1"># water_pH from CMENS with standard name #</span>
+        <span class="s1">&#39;pH_sediment&#39;</span><span class="p">:{</span><span class="s1">&#39;fallback&#39;</span><span class="p">:</span> <span class="mf">6.9</span><span class="p">,</span> <span class="s1">&#39;profiles&#39;</span><span class="p">:</span> <span class="kc">False</span><span class="p">},</span> <span class="c1"># supplied by the user, with pH_sediment as standard name #</span>
         <span class="p">}</span>
 
     <span class="c1"># The depth range (in m) which profiles shall cover</span>
@@ -219,7 +223,7 @@
         <span class="c1"># TODO: descriptions and units must be added in config setting below</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_add_config</span><span class="p">({</span>
             <span class="s1">&#39;chemical:transfer_setup&#39;</span><span class="p">:</span> <span class="p">{</span><span class="s1">&#39;type&#39;</span><span class="p">:</span> <span class="s1">&#39;enum&#39;</span><span class="p">,</span>
-                <span class="s1">&#39;enum&#39;</span><span class="p">:</span> <span class="p">[</span><span class="s1">&#39;Sandnesfj_Al&#39;</span><span class="p">,</span><span class="s1">&#39;Bokna_137Cs&#39;</span><span class="p">,</span> <span class="s1">&#39;137Cs_rev&#39;</span><span class="p">,</span> <span class="s1">&#39;custom&#39;</span><span class="p">,</span> <span class="s1">&#39;organics&#39;</span><span class="p">],</span> <span class="s1">&#39;default&#39;</span><span class="p">:</span> <span class="s1">&#39;custom&#39;</span><span class="p">,</span>
+                <span class="s1">&#39;enum&#39;</span><span class="p">:</span> <span class="p">[</span><span class="s1">&#39;Sandnesfj_Al&#39;</span><span class="p">,</span><span class="s1">&#39;metals&#39;</span><span class="p">,</span> <span class="s1">&#39;137Cs_rev&#39;</span><span class="p">,</span> <span class="s1">&#39;custom&#39;</span><span class="p">,</span> <span class="s1">&#39;organics&#39;</span><span class="p">],</span> <span class="s1">&#39;default&#39;</span><span class="p">:</span> <span class="s1">&#39;custom&#39;</span><span class="p">,</span>
                 <span class="s1">&#39;level&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">CONFIG_LEVEL_ESSENTIAL</span><span class="p">,</span> <span class="s1">&#39;description&#39;</span><span class="p">:</span> <span class="s1">&#39;&#39;</span><span class="p">},</span>
             <span class="s1">&#39;chemical:dynamic_partitioning&#39;</span><span class="p">:</span> <span class="p">{</span><span class="s1">&#39;type&#39;</span><span class="p">:</span> <span class="s1">&#39;bool&#39;</span><span class="p">,</span> <span class="s1">&#39;default&#39;</span><span class="p">:</span> <span class="kc">True</span><span class="p">,</span>
                 <span class="s1">&#39;level&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">CONFIG_LEVEL_BASIC</span><span class="p">,</span> <span class="s1">&#39;description&#39;</span><span class="p">:</span> <span class="s1">&#39;Toggle dynamic partitioning&#39;</span><span class="p">},</span>
@@ -290,11 +294,8 @@
                 <span class="s1">&#39;description&#39;</span><span class="p">:</span> <span class="s1">&#39;Chemical mass is degraded.&#39;</span><span class="p">,</span>
                 <span class="s1">&#39;level&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">CONFIG_LEVEL_BASIC</span><span class="p">},</span>
             <span class="s1">&#39;chemical:transformations:degradation_mode&#39;</span><span class="p">:</span> <span class="p">{</span><span class="s1">&#39;type&#39;</span><span class="p">:</span> <span class="s1">&#39;enum&#39;</span><span class="p">,</span>
-                <span class="s1">&#39;enum&#39;</span><span class="p">:</span> <span class="p">[</span><span class="s1">&#39;Test1&#39;</span><span class="p">,</span><span class="s1">&#39;Test2&#39;</span><span class="p">,</span><span class="s1">&#39;OverallRateConstants&#39;</span><span class="p">],</span> <span class="s1">&#39;default&#39;</span><span class="p">:</span> <span class="s1">&#39;Test1&#39;</span><span class="p">,</span>
+                <span class="s1">&#39;enum&#39;</span><span class="p">:</span> <span class="p">[</span><span class="s1">&#39;OverallRateConstants&#39;</span><span class="p">],</span> <span class="s1">&#39;default&#39;</span><span class="p">:</span> <span class="s1">&#39;OverallRateConstants&#39;</span><span class="p">,</span>
                 <span class="s1">&#39;level&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">CONFIG_LEVEL_ESSENTIAL</span><span class="p">,</span> <span class="s1">&#39;description&#39;</span><span class="p">:</span> <span class="s1">&#39;&#39;</span><span class="p">},</span>
-            <span class="s1">&#39;chemical:transformations:photodegradation&#39;</span><span class="p">:</span> <span class="p">{</span><span class="s1">&#39;type&#39;</span><span class="p">:</span> <span class="s1">&#39;bool&#39;</span><span class="p">,</span> <span class="s1">&#39;default&#39;</span><span class="p">:</span> <span class="kc">False</span><span class="p">,</span>
-                <span class="s1">&#39;description&#39;</span><span class="p">:</span> <span class="s1">&#39;Chemical mass is photodegraded.&#39;</span><span class="p">,</span>
-                <span class="s1">&#39;level&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">CONFIG_LEVEL_BASIC</span><span class="p">},</span>
             <span class="c1"># sorption/desorption</span>
             <span class="s1">&#39;chemical:transformations:dissociation&#39;</span><span class="p">:</span> <span class="p">{</span><span class="s1">&#39;type&#39;</span><span class="p">:</span> <span class="s1">&#39;enum&#39;</span><span class="p">,</span>
                 <span class="s1">&#39;enum&#39;</span><span class="p">:</span> <span class="p">[</span><span class="s1">&#39;nondiss&#39;</span><span class="p">,</span><span class="s1">&#39;acid&#39;</span><span class="p">,</span> <span class="s1">&#39;base&#39;</span><span class="p">,</span> <span class="s1">&#39;amphoter&#39;</span><span class="p">],</span> <span class="s1">&#39;default&#39;</span><span class="p">:</span> <span class="s1">&#39;nondiss&#39;</span><span class="p">,</span>
@@ -419,10 +420,13 @@
             <span class="s1">&#39;chemical:sediment:buried_leaking_rate&#39;</span><span class="p">:</span> <span class="p">{</span><span class="s1">&#39;type&#39;</span><span class="p">:</span> <span class="s1">&#39;float&#39;</span><span class="p">,</span> <span class="s1">&#39;default&#39;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>
                 <span class="s1">&#39;min&#39;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span> <span class="s1">&#39;max&#39;</span><span class="p">:</span> <span class="mi">10</span><span class="p">,</span> <span class="s1">&#39;units&#39;</span><span class="p">:</span> <span class="s1">&#39;m/year&#39;</span><span class="p">,</span>
                 <span class="s1">&#39;level&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">CONFIG_LEVEL_ADVANCED</span><span class="p">,</span> <span class="s1">&#39;description&#39;</span><span class="p">:</span> <span class="s1">&#39;&#39;</span><span class="p">},</span>
+            <span class="c1">#</span>
+            <span class="s1">&#39;chemical:compound&#39;</span><span class="p">:</span> <span class="p">{</span><span class="s1">&#39;type&#39;</span><span class="p">:</span> <span class="s1">&#39;enum&#39;</span><span class="p">,</span>
+                <span class="s1">&#39;enum&#39;</span><span class="p">:</span> <span class="p">[</span><span class="s1">&#39;Naphthalene&#39;</span><span class="p">,</span><span class="s1">&#39;Phenanthrene&#39;</span><span class="p">,</span><span class="s1">&#39;Fluoranthene&#39;</span><span class="p">,</span>
+                         <span class="s1">&#39;Benzo(a)anthracene&#39;</span><span class="p">,</span><span class="s1">&#39;Benzo(a)pyrene&#39;</span><span class="p">,</span><span class="s1">&#39;Dibenzo(a,h)anthracene&#39;</span><span class="p">,</span> <span class="kc">None</span><span class="p">],</span> 
+                <span class="s1">&#39;default&#39;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
+                <span class="s1">&#39;level&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">CONFIG_LEVEL_ESSENTIAL</span><span class="p">,</span> <span class="s1">&#39;description&#39;</span><span class="p">:</span> <span class="s1">&#39;&#39;</span><span class="p">},</span>
             <span class="p">})</span>
-
-
-
 
 
 <div class="viewcode-block" id="ChemicalDrift.prepare_run"><a class="viewcode-back" href="../../../autoapi/opendrift/models/chemicaldrift/index.html#opendrift.models.chemicaldrift.ChemicalDrift.prepare_run">[docs]</a>    <span class="k">def</span> <span class="nf">prepare_run</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
@@ -452,7 +456,7 @@
 
 <div class="viewcode-block" id="ChemicalDrift.init_species"><a class="viewcode-back" href="../../../autoapi/opendrift/models/chemicaldrift/index.html#opendrift.models.chemicaldrift.ChemicalDrift.init_species">[docs]</a>    <span class="k">def</span> <span class="nf">init_species</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="c1"># Initialize specie types</span>
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_config</span><span class="p">(</span><span class="s1">&#39;chemical:transfer_setup&#39;</span><span class="p">)</span><span class="o">==</span><span class="s1">&#39;Bokna_137Cs&#39;</span><span class="p">:</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_config</span><span class="p">(</span><span class="s1">&#39;chemical:transfer_setup&#39;</span><span class="p">)</span><span class="o">==</span><span class="s1">&#39;metals&#39;</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">set_config</span><span class="p">(</span><span class="s1">&#39;chemical:species:LMM&#39;</span><span class="p">,</span><span class="kc">True</span><span class="p">)</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">set_config</span><span class="p">(</span><span class="s1">&#39;chemical:species:Particle_reversible&#39;</span><span class="p">,</span> <span class="kc">True</span><span class="p">)</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">set_config</span><span class="p">(</span><span class="s1">&#39;chemical:species:Particle_slowly_reversible&#39;</span><span class="p">,</span> <span class="kc">True</span><span class="p">)</span>
@@ -639,6 +643,126 @@
 
         <span class="k">return</span> <span class="n">corr</span></div>
 
+<span class="c1">### Functions to update partitioning coefficients</span>
+
+<div class="viewcode-block" id="ChemicalDrift.calc_KOC_sedcorr"><a class="viewcode-back" href="../../../autoapi/opendrift/models/chemicaldrift/index.html#opendrift.models.chemicaldrift.ChemicalDrift.calc_KOC_sedcorr">[docs]</a>    <span class="k">def</span> <span class="nf">calc_KOC_sedcorr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">KOC_sed_initial</span><span class="p">,</span> <span class="n">KOC_sed_n</span><span class="p">,</span> <span class="n">pKa_acid</span><span class="p">,</span> <span class="n">pKa_base</span><span class="p">,</span> <span class="n">KOW</span><span class="p">,</span> <span class="n">pH_sed</span><span class="p">,</span> <span class="n">diss</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39; Calculate correction of KOC due to pH of sediments</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="c1"># Estimate KOC for dissociated forms from KOW</span>
+        <span class="n">KOC_sed_diss_acid</span> <span class="o">=</span> <span class="p">(</span><span class="mi">10</span><span class="o">**</span><span class="p">(</span><span class="mf">0.11</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">log10</span><span class="p">(</span><span class="n">KOW</span><span class="p">)</span><span class="o">+</span><span class="mf">1.54</span><span class="p">))</span> <span class="c1"># KOC for dissociated acid species (L/kg_OC), from  http://i-pie.org/wp-content/uploads/2019/12/ePiE_Technical_Manual-Final_Version_20191202.</span>
+        <span class="n">KOC_sed_diss_base</span> <span class="o">=</span> <span class="mi">10</span><span class="o">**</span><span class="p">(</span><span class="n">pKa_acid</span><span class="o">**</span><span class="p">(</span><span class="mf">0.65</span><span class="o">*</span><span class="p">((</span><span class="n">KOW</span><span class="o">/</span><span class="p">(</span><span class="n">KOW</span><span class="o">+</span><span class="mi">1</span><span class="p">))</span><span class="o">**</span><span class="mf">0.14</span><span class="p">)))</span> <span class="c1"># KOC for ionized form of base species (L/kg_OC) # from  http://i-pie.org/wp-content/uploads/2019/12/ePiE_Technical_Manual-Final_Version_20191202</span>
+        <span class="c1"># Updated values of KOC to calculate correction factor</span>
+        <span class="n">KOC_sed_updated</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">empty_like</span><span class="p">(</span><span class="n">pH_sed</span><span class="p">)</span>
+        <span class="n">KOC_sedcorr</span><span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">empty_like</span><span class="p">(</span><span class="n">pH_sed</span><span class="p">)</span>
+
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">pH_sed</span><span class="p">))):</span>
+            <span class="k">if</span> <span class="n">diss</span><span class="o">==</span><span class="s1">&#39;acid&#39;</span><span class="p">:</span>
+
+                <span class="n">Phi_n_sed</span>    <span class="o">=</span> <span class="mi">1</span><span class="o">/</span><span class="p">(</span><span class="mi">1</span> <span class="o">+</span> <span class="mi">10</span><span class="o">**</span><span class="p">(</span><span class="n">pH_sed</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">-</span><span class="n">pKa_acid</span><span class="p">))</span>
+                <span class="n">Phi_diss_sed</span> <span class="o">=</span> <span class="mi">1</span><span class="o">-</span><span class="n">Phi_n_sed</span>
+                <span class="n">KOC_sed_updated</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="n">KOC_sed_n</span> <span class="o">*</span> <span class="n">Phi_n_sed</span><span class="p">)</span> <span class="o">+</span> <span class="p">(</span><span class="n">Phi_diss_sed</span> <span class="o">*</span> <span class="n">KOC_sed_diss_acid</span><span class="p">)</span>
+                <span class="n">KOC_sedcorr</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">KOC_sed_updated</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">/</span><span class="n">KOC_sed_initial</span>
+
+            <span class="k">elif</span> <span class="n">diss</span><span class="o">==</span><span class="s1">&#39;base&#39;</span><span class="p">:</span>
+
+                <span class="n">Phi_n_sed</span>    <span class="o">=</span> <span class="mi">1</span><span class="o">/</span><span class="p">(</span><span class="mi">1</span> <span class="o">+</span> <span class="mi">10</span><span class="o">**</span><span class="p">(</span><span class="n">pH_sed</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">-</span><span class="n">pKa_base</span><span class="p">))</span>
+                <span class="n">Phi_diss_sed</span> <span class="o">=</span> <span class="mi">1</span><span class="o">-</span><span class="n">Phi_n_sed</span>
+                <span class="n">KOC_sed_updated</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="n">KOC_sed_n</span> <span class="o">*</span> <span class="n">Phi_n_sed</span><span class="p">)</span> <span class="o">+</span> <span class="p">(</span><span class="n">Phi_diss_sed</span> <span class="o">*</span> <span class="n">KOC_sed_diss_acid</span><span class="p">)</span>
+                <span class="n">KOC_sedcorr</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">KOC_sed_updated</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">/</span><span class="n">KOC_sed_initial</span>
+
+            <span class="k">elif</span> <span class="n">diss</span><span class="o">==</span><span class="s1">&#39;amphoter&#39;</span><span class="p">:</span>
+
+                <span class="n">Phi_n_sed</span>      <span class="o">=</span> <span class="mi">1</span><span class="o">/</span><span class="p">(</span><span class="mi">1</span> <span class="o">+</span> <span class="mi">10</span><span class="o">**</span><span class="p">(</span><span class="n">pH_sed</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">-</span><span class="n">pKa_acid</span><span class="p">)</span> <span class="o">+</span> <span class="mi">10</span><span class="o">**</span><span class="p">(</span><span class="n">pKa_base</span><span class="p">))</span>
+                <span class="n">Phi_anion_sed</span>  <span class="o">=</span> <span class="n">Phi_n_sed</span> <span class="o">*</span> <span class="mi">10</span><span class="o">**</span><span class="p">(</span><span class="n">pH_sed</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">-</span><span class="n">pKa_acid</span><span class="p">)</span>
+                <span class="n">Phi_cation_sed</span> <span class="o">=</span> <span class="n">Phi_n_sed</span> <span class="o">*</span> <span class="mi">10</span><span class="o">**</span><span class="p">(</span><span class="n">pKa_base</span><span class="o">-</span><span class="n">pH_sed</span><span class="p">[</span><span class="n">i</span><span class="p">])</span>
+
+                <span class="n">KOC_sed_updated</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="n">KOC_sed_n</span> <span class="o">*</span> <span class="n">Phi_n_sed</span><span class="p">)</span> <span class="o">+</span> <span class="p">(</span><span class="n">Phi_anion_sed</span> <span class="o">*</span> <span class="n">KOC_sed_diss_acid</span><span class="p">)</span> <span class="o">+</span> <span class="p">(</span><span class="n">Phi_cation_sed</span> <span class="o">*</span> <span class="n">KOC_sed_diss_base</span><span class="p">)</span>
+                <span class="n">KOC_sedcorr</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">=</span><span class="n">KOC_sed_updated</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">/</span><span class="n">KOC_sed_initial</span>
+
+            <span class="k">elif</span> <span class="n">diss</span><span class="o">==</span><span class="s1">&#39;undiss&#39;</span><span class="p">:</span>
+                <span class="n">KOC_sedcorr</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">=</span><span class="mi">1</span>
+
+        <span class="k">return</span> <span class="n">KOC_sedcorr</span></div>
+
+<div class="viewcode-block" id="ChemicalDrift.calc_KOC_watcorrSPM"><a class="viewcode-back" href="../../../autoapi/opendrift/models/chemicaldrift/index.html#opendrift.models.chemicaldrift.ChemicalDrift.calc_KOC_watcorrSPM">[docs]</a>    <span class="k">def</span> <span class="nf">calc_KOC_watcorrSPM</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">KOC_SPM_initial</span><span class="p">,</span> <span class="n">KOC_sed_n</span><span class="p">,</span> <span class="n">pKa_acid</span><span class="p">,</span> <span class="n">pKa_base</span><span class="p">,</span> <span class="n">KOW</span><span class="p">,</span> <span class="n">pH_water_SPM</span><span class="p">,</span> <span class="n">diss</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39; Calculate correction of KOC due to pH of water for SPM</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="c1"># Estimate KOC for dissociated forms from KOW</span>
+        <span class="n">KOC_sed_diss_acid</span> <span class="o">=</span> <span class="p">(</span><span class="mi">10</span><span class="o">**</span><span class="p">(</span><span class="mf">0.11</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">log10</span><span class="p">(</span><span class="n">KOW</span><span class="p">)</span><span class="o">+</span><span class="mf">1.54</span><span class="p">))</span> <span class="c1"># KOC for dissociated acid species (L/kg_OC), from  http://i-pie.org/wp-content/uploads/2019/12/ePiE_Technical_Manual-Final_Version_20191202.</span>
+
+        <span class="n">KOC_sed_diss_base</span> <span class="o">=</span> <span class="mi">10</span><span class="o">**</span><span class="p">(</span><span class="n">pKa_acid</span><span class="o">**</span><span class="p">(</span><span class="mf">0.65</span><span class="o">*</span><span class="p">((</span><span class="n">KOW</span><span class="o">/</span><span class="p">(</span><span class="n">KOW</span><span class="o">+</span><span class="mi">1</span><span class="p">))</span><span class="o">**</span><span class="mf">0.14</span><span class="p">)))</span> <span class="c1"># KOC for ionized form of base species (L/kg_OC) # from  http://i-pie.org/wp-content/uploads/2019/12/ePiE_Technical_Manual-Final_Version_20191202</span>
+
+        <span class="n">KOC_SPM_updated</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">empty_like</span><span class="p">(</span><span class="n">pH_water_SPM</span><span class="p">)</span>
+        <span class="n">KOC_SPMcorr</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">empty_like</span><span class="p">(</span><span class="n">pH_water_SPM</span><span class="p">)</span>
+
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">pH_water_SPM</span><span class="p">))):</span>
+            <span class="k">if</span> <span class="n">diss</span><span class="o">==</span><span class="s1">&#39;acid&#39;</span><span class="p">:</span>
+
+                <span class="n">Phi_n_SPM</span>    <span class="o">=</span> <span class="mi">1</span><span class="o">/</span><span class="p">(</span><span class="mi">1</span> <span class="o">+</span> <span class="mi">10</span><span class="o">**</span><span class="p">(</span><span class="n">pH_water_SPM</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">-</span><span class="n">pKa_acid</span><span class="p">))</span>
+                <span class="n">Phi_diss_SPM</span> <span class="o">=</span> <span class="mi">1</span><span class="o">-</span><span class="n">Phi_n_SPM</span>
+                <span class="n">KOC_SPM_updated</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="n">KOC_sed_n</span> <span class="o">*</span> <span class="n">Phi_n_SPM</span><span class="p">)</span> <span class="o">+</span> <span class="p">(</span><span class="n">Phi_diss_SPM</span> <span class="o">*</span> <span class="n">KOC_sed_diss_acid</span><span class="p">)</span>
+
+                <span class="n">KOC_SPMcorr</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">=</span><span class="n">KOC_SPM_updated</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">/</span><span class="n">KOC_SPM_initial</span>
+
+            <span class="k">elif</span> <span class="n">diss</span><span class="o">==</span><span class="s1">&#39;base&#39;</span><span class="p">:</span>
+
+                <span class="n">Phi_n_SPM</span>    <span class="o">=</span> <span class="mi">1</span><span class="o">/</span><span class="p">(</span><span class="mi">1</span> <span class="o">+</span> <span class="mi">10</span><span class="o">**</span><span class="p">(</span><span class="n">pH_water_SPM</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">-</span><span class="n">pKa_base</span><span class="p">))</span>
+                <span class="n">Phi_diss_SPM</span> <span class="o">=</span> <span class="mi">1</span><span class="o">-</span><span class="n">Phi_n_SPM</span>
+                <span class="n">KOC_SPM_updated</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="n">KOC_sed_n</span> <span class="o">*</span> <span class="n">Phi_n_SPM</span><span class="p">)</span> <span class="o">+</span> <span class="p">(</span><span class="n">Phi_diss_SPM</span> <span class="o">*</span> <span class="n">KOC_sed_diss_acid</span><span class="p">)</span>
+
+                <span class="n">KOC_SPMcorr</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">=</span><span class="n">KOC_SPM_updated</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">/</span><span class="n">KOC_SPM_initial</span>
+
+            <span class="k">elif</span> <span class="n">diss</span><span class="o">==</span><span class="s1">&#39;amphoter&#39;</span><span class="p">:</span>
+
+                <span class="n">Phi_n_SPM</span>      <span class="o">=</span> <span class="mi">1</span><span class="o">/</span><span class="p">(</span><span class="mi">1</span> <span class="o">+</span> <span class="mi">10</span><span class="o">**</span><span class="p">(</span><span class="n">pH_water_SPM</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">-</span><span class="n">pKa_acid</span><span class="p">)</span> <span class="o">+</span> <span class="mi">10</span><span class="o">**</span><span class="p">(</span><span class="n">pKa_base</span><span class="p">))</span>
+                <span class="n">Phi_anion_SPM</span>  <span class="o">=</span> <span class="n">Phi_n_SPM</span> <span class="o">*</span> <span class="mi">10</span><span class="o">**</span><span class="p">(</span><span class="n">pH_water_SPM</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">-</span><span class="n">pKa_acid</span><span class="p">)</span>
+                <span class="n">Phi_cation_SPM</span> <span class="o">=</span> <span class="n">Phi_n_SPM</span> <span class="o">*</span> <span class="mi">10</span><span class="o">**</span><span class="p">(</span><span class="n">pKa_base</span><span class="o">-</span><span class="n">pH_water_SPM</span><span class="p">[</span><span class="n">i</span><span class="p">])</span>
+                <span class="n">KOC_SPM_updated</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="n">KOC_sed_n</span> <span class="o">*</span> <span class="n">Phi_n_SPM</span><span class="p">)</span> <span class="o">+</span> <span class="p">(</span><span class="n">Phi_anion_SPM</span> <span class="o">*</span> <span class="n">KOC_sed_diss_acid</span><span class="p">)</span> <span class="o">+</span> <span class="p">(</span><span class="n">Phi_cation_SPM</span> <span class="o">*</span> <span class="n">KOC_sed_diss_base</span><span class="p">)</span>
+
+                <span class="n">KOC_SPMcorr</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">=</span><span class="n">KOC_SPM_updated</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">/</span><span class="n">KOC_SPM_initial</span>
+
+            <span class="k">elif</span> <span class="n">diss</span><span class="o">==</span><span class="s1">&#39;undiss&#39;</span><span class="p">:</span>
+                <span class="n">KOC_SPMcorr</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">=</span><span class="mi">1</span>
+
+        <span class="k">return</span> <span class="n">KOC_SPMcorr</span></div>
+
+<div class="viewcode-block" id="ChemicalDrift.calc_KOC_watcorrDOM"><a class="viewcode-back" href="../../../autoapi/opendrift/models/chemicaldrift/index.html#opendrift.models.chemicaldrift.ChemicalDrift.calc_KOC_watcorrDOM">[docs]</a>    <span class="k">def</span> <span class="nf">calc_KOC_watcorrDOM</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">KOC_DOM_initial</span><span class="p">,</span> <span class="n">KOC_DOM_n</span><span class="p">,</span> <span class="n">pKa_acid</span><span class="p">,</span> <span class="n">pKa_base</span><span class="p">,</span> <span class="n">KOW</span><span class="p">,</span> <span class="n">pH_water_DOM</span><span class="p">,</span> <span class="n">diss</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39; Calculate correction of KOC due to pH of water for DOM</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+
+        <span class="n">Phi_n_DOM</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">empty_like</span><span class="p">(</span><span class="n">pH_water_DOM</span><span class="p">)</span>
+        <span class="n">Phi_diss_DOM</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">empty_like</span><span class="p">(</span><span class="n">pH_water_DOM</span><span class="p">)</span>
+        <span class="n">KOC_DOM_updated</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">empty_like</span><span class="p">(</span><span class="n">pH_water_DOM</span><span class="p">)</span>
+        <span class="n">KOC_DOMcorr</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">empty_like</span><span class="p">(</span><span class="n">pH_water_DOM</span><span class="p">)</span>
+
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">pH_water_DOM</span><span class="p">))):</span>
+            <span class="k">if</span> <span class="n">diss</span><span class="o">==</span><span class="s1">&#39;acid&#39;</span><span class="p">:</span>
+
+                <span class="n">Phi_n_DOM</span>    <span class="o">=</span> <span class="mi">1</span><span class="o">/</span><span class="p">(</span><span class="mi">1</span> <span class="o">+</span> <span class="mi">10</span><span class="o">**</span><span class="p">(</span><span class="n">pH_water_DOM</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">-</span><span class="n">pKa_acid</span><span class="p">))</span>
+                <span class="n">Phi_diss_DOM</span>    <span class="o">=</span> <span class="mi">1</span><span class="o">-</span><span class="n">Phi_n_DOM</span>
+                <span class="n">KOC_DOM_updated</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="mf">0.08</span> <span class="o">*</span> <span class="p">((</span><span class="n">Phi_n_DOM</span><span class="o">*</span><span class="p">(</span><span class="n">KOC_DOM_n</span><span class="p">))</span> <span class="o">+</span> <span class="p">((</span><span class="mi">1</span> <span class="o">-</span> <span class="n">Phi_diss_DOM</span><span class="p">)</span><span class="o">*</span><span class="mi">10</span><span class="o">**</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">log10</span><span class="p">(</span><span class="n">KOW</span><span class="p">)</span><span class="o">-</span><span class="mf">3.5</span><span class="p">))))</span><span class="o">/</span><span class="mf">0.526</span> <span class="c1"># from  http://i-pie.org/wp-content/uploads/2019/12/ePiE_Technical_Manual-Final_Version_20191202</span>
+
+                <span class="n">KOC_DOMcorr</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">=</span><span class="n">KOC_DOM_updated</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">/</span><span class="n">KOC_DOM_initial</span>
+
+            <span class="k">elif</span> <span class="n">diss</span><span class="o">==</span><span class="s1">&#39;base&#39;</span><span class="p">:</span>
+
+                <span class="n">Phi_n_DOM</span>    <span class="o">=</span> <span class="mi">1</span><span class="o">/</span><span class="p">(</span><span class="mi">1</span> <span class="o">+</span> <span class="mi">10</span><span class="o">**</span><span class="p">(</span><span class="n">pH_water_DOM</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">-</span><span class="n">pKa_base</span><span class="p">))</span>
+                <span class="n">Phi_diss_DOM</span>    <span class="o">=</span> <span class="mi">1</span><span class="o">-</span><span class="n">Phi_n_DOM</span>
+                <span class="n">KOC_DOM_updated</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="mf">0.08</span> <span class="o">*</span> <span class="p">((</span><span class="n">Phi_n_DOM</span><span class="o">*</span><span class="p">(</span><span class="n">KOC_DOM_n</span><span class="p">))</span> <span class="o">+</span> <span class="p">((</span><span class="mi">1</span> <span class="o">-</span> <span class="n">Phi_diss_DOM</span><span class="p">)</span><span class="o">*</span><span class="mi">10</span><span class="o">**</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">log10</span><span class="p">(</span><span class="n">KOW</span><span class="p">)</span><span class="o">-</span><span class="mf">3.5</span><span class="p">))))</span><span class="o">/</span><span class="mf">0.526</span> <span class="c1"># from  http://i-pie.org/wp-content/uploads/2019/12/ePiE_Technical_Manual-Final_Version_20191202</span>
+
+                <span class="n">KOC_DOMcorr</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">=</span><span class="n">KOC_DOM_updated</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">/</span><span class="n">KOC_DOM_initial</span>
+
+            <span class="k">elif</span> <span class="n">diss</span><span class="o">==</span><span class="s1">&#39;amphoter&#39;</span><span class="p">:</span>
+
+                <span class="n">Phi_n_DOM</span>      <span class="o">=</span> <span class="mi">1</span><span class="o">/</span><span class="p">(</span><span class="mi">1</span> <span class="o">+</span> <span class="mi">10</span><span class="o">**</span><span class="p">(</span><span class="n">pH_water_DOM</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">-</span><span class="n">pKa_acid</span><span class="p">)</span> <span class="o">+</span> <span class="mi">10</span><span class="o">**</span><span class="p">(</span><span class="n">pKa_base</span><span class="p">))</span>
+                <span class="n">Phi_diss_DOM</span>   <span class="o">=</span> <span class="mi">1</span><span class="o">-</span><span class="n">Phi_n_DOM</span>
+                <span class="n">KOC_DOM_updated</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="mf">0.08</span> <span class="o">*</span> <span class="p">((</span><span class="n">Phi_n_DOM</span><span class="o">*</span><span class="p">(</span><span class="n">KOC_DOM_n</span><span class="p">))</span> <span class="o">+</span> <span class="p">((</span><span class="mi">1</span> <span class="o">-</span> <span class="n">Phi_diss_DOM</span><span class="p">)</span><span class="o">*</span><span class="mi">10</span><span class="o">**</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">log10</span><span class="p">(</span><span class="n">KOW</span><span class="p">)</span><span class="o">-</span><span class="mf">3.5</span><span class="p">))))</span><span class="o">/</span><span class="mf">0.526</span> <span class="c1"># from  http://i-pie.org/wp-content/uploads/2019/12/ePiE_Technical_Manual-Final_Version_20191202</span>
+                <span class="n">KOC_DOMcorr</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">=</span><span class="n">KOC_DOM_updated</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">/</span><span class="n">KOC_DOM_initial</span>
+
+            <span class="k">elif</span> <span class="n">diss</span><span class="o">==</span><span class="s1">&#39;undiss&#39;</span><span class="p">:</span>
+                    <span class="n">KOC_DOMcorr</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">=</span><span class="mi">1</span>
+
+        <span class="k">return</span> <span class="n">KOC_DOMcorr</span></div>
 
 
 <div class="viewcode-block" id="ChemicalDrift.init_transfer_rates"><a class="viewcode-back" href="../../../autoapi/opendrift/models/chemicaldrift/index.html#opendrift.models.chemicaldrift.ChemicalDrift.init_transfer_rates">[docs]</a>    <span class="k">def</span> <span class="nf">init_transfer_rates</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
@@ -674,13 +798,37 @@
 
             <span class="n">diss</span>       <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_config</span><span class="p">(</span><span class="s1">&#39;chemical:transformations:dissociation&#39;</span><span class="p">)</span>
             <span class="n">pKa_acid</span>   <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_config</span><span class="p">(</span><span class="s1">&#39;chemical:transformations:pKa_acid&#39;</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">pKa_acid</span> <span class="o">&lt;</span> <span class="mi">0</span> <span class="ow">and</span> <span class="n">diss</span><span class="o">!=</span><span class="s1">&#39;nondiss&#39;</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;pKa_acid must be positive&quot;</span><span class="p">)</span>
+                <span class="c1"># print(&quot;pKa_acid must be positive&quot;)</span>
+                <span class="c1"># UserWarning((&quot;pKa_acid must be positive&quot;))</span>
+
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">pass</span>
+
             <span class="n">pKa_base</span>   <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_config</span><span class="p">(</span><span class="s1">&#39;chemical:transformations:pKa_base&#39;</span><span class="p">)</span>
-            <span class="n">pH_water</span>   <span class="o">=</span> <span class="mf">8.1</span>
-            <span class="n">pH_sed</span>     <span class="o">=</span> <span class="mf">6.9</span>
-            <span class="n">fOC_SPM</span>    <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_config</span><span class="p">(</span><span class="s1">&#39;chemical:transformations:fOC_SPM&#39;</span><span class="p">)</span>
-            <span class="n">fOC_sed</span>    <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_config</span><span class="p">(</span><span class="s1">&#39;chemical:transformations:fOC_sed&#39;</span><span class="p">)</span>
-                                    <span class="c1"># Question</span>
-                                    <span class="c1"># Do we need separate fOC for SPM and Sed</span>
+            <span class="k">if</span> <span class="n">pKa_base</span> <span class="o">&lt;</span> <span class="mi">0</span> <span class="ow">and</span> <span class="n">diss</span><span class="o">!=</span><span class="s1">&#39;nondiss&#39;</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;pKa_base must be positive&quot;</span><span class="p">)</span>
+                <span class="c1"># print(&quot;pKa_base must be positive&quot;)</span>
+                <span class="c1"># UserWarning((&quot;pKa_base must be positive&quot;))</span>
+
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">pass</span>
+
+            <span class="k">if</span> <span class="n">diss</span> <span class="o">==</span> <span class="s1">&#39;amphoter&#39;</span> <span class="ow">and</span> <span class="nb">abs</span><span class="p">(</span><span class="n">pKa_acid</span> <span class="o">-</span> <span class="n">pKa_base</span><span class="p">)</span> <span class="o">&lt;</span> <span class="mi">2</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;pKa_base and pKa_acid must differ of at least two units&quot;</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">pass</span>
+
+            <span class="c1"># Read water pH to calculate dissociation</span>
+            <span class="c1"># pH_water = self.environment.sea_water_ph_reported_on_total_scale</span>
+            <span class="n">pH_water</span>   <span class="o">=</span> <span class="mf">8.1</span> <span class="c1"># 8.1</span>
+
+            <span class="n">pH_sed</span>     <span class="o">=</span> <span class="mf">6.9</span> <span class="c1"># 6.9</span>
+
+            <span class="n">fOC_SPM</span>    <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_config</span><span class="p">(</span><span class="s1">&#39;chemical:transformations:fOC_SPM&#39;</span><span class="p">)</span>       <span class="c1"># typical values from 0.01 to 0.1 gOC/g</span>
+            <span class="n">fOC_sed</span>    <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_config</span><span class="p">(</span><span class="s1">&#39;chemical:transformations:fOC_sed&#39;</span><span class="p">)</span>       <span class="c1"># typical values from 0.01 to 0.1 gOC/g</span>
+
             <span class="n">concDOM</span>   <span class="o">=</span> <span class="mf">1.e-3</span> <span class="o">/</span> <span class="n">Org2C</span>    <span class="c1"># concentration of available dissolved organic matter (kg/m3)</span>
                                          <span class="c1"># rough initial estimate for coastal waters, doi: 10.1002/lom3.10118</span>
             <span class="c1">#concDOM   = 50.e-3     # HIGHER VALUE FOR TESTING!!!!!!!!!!!!</span>
@@ -700,26 +848,105 @@
                 <span class="n">KOC_DOM</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_config</span><span class="p">(</span><span class="s1">&#39;chemical:transformations:KOC_DOM&#39;</span><span class="p">)</span>
                 <span class="k">if</span> <span class="n">KOC_DOM</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="p">:</span>
                     <span class="n">KOC_DOM</span> <span class="o">=</span> <span class="mf">2.88</span> <span class="o">*</span> <span class="n">KOW</span><span class="o">**</span><span class="mf">0.67</span>   <span class="c1"># (L/KgOC), Park and Clough, 2014</span>
+
                 <span class="n">KOC_sed</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_config</span><span class="p">(</span><span class="s1">&#39;chemical:transformations:KOC_sed&#39;</span><span class="p">)</span>
                 <span class="k">if</span> <span class="n">KOC_sed</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="p">:</span>
                     <span class="n">KOC_sed</span> <span class="o">=</span> <span class="mf">2.62</span> <span class="o">*</span> <span class="n">KOW</span><span class="o">**</span><span class="mf">0.82</span>   <span class="c1"># (L/KgOC), Park and Clough, 2014 (334)/Org2C</span>
                     <span class="c1">#KOC_Sed    = 1.26 * kOW**0.81   # (L/KgOC),Ragas et al., 2019</span>
+
                 <span class="n">KOC_SPM</span> <span class="o">=</span> <span class="n">KOC_sed</span>
+
             <span class="k">else</span><span class="p">:</span>
                 <span class="k">if</span> <span class="n">diss</span><span class="o">==</span><span class="s1">&#39;acid&#39;</span><span class="p">:</span>
-                    <span class="n">Phi_n</span>    <span class="o">=</span> <span class="mi">1</span><span class="o">/</span><span class="p">(</span><span class="mi">1</span> <span class="o">+</span> <span class="mi">10</span><span class="o">**</span><span class="p">(</span><span class="n">pH</span><span class="o">-</span><span class="n">pKa_acid</span><span class="p">))</span>
-                    <span class="n">Phi_diss</span> <span class="o">=</span> <span class="mi">1</span><span class="o">-</span><span class="n">Phi_n</span>
+                    <span class="c1"># Dissociation in water</span>
+                    <span class="n">Phi_n_water</span>    <span class="o">=</span> <span class="mi">1</span><span class="o">/</span><span class="p">(</span><span class="mi">1</span> <span class="o">+</span> <span class="mi">10</span><span class="o">**</span><span class="p">(</span><span class="n">pH_water</span><span class="o">-</span><span class="n">pKa_acid</span><span class="p">))</span>
+                    <span class="n">Phi_diss_water</span> <span class="o">=</span> <span class="mi">1</span><span class="o">-</span><span class="n">Phi_n_water</span>
+
+                    <span class="n">KOC_sed_n</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_config</span><span class="p">(</span><span class="s1">&#39;chemical:transformations:KOC_sed&#39;</span><span class="p">)</span>
+
+                    <span class="k">if</span> <span class="n">KOC_sed_n</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="p">:</span>
+                        <span class="n">KOC_sed_n</span>    <span class="o">=</span> <span class="mf">2.62</span> <span class="o">*</span> <span class="n">KOW</span><span class="o">**</span><span class="mf">0.82</span>   <span class="c1"># (L/KgOC), Park and Clough, 2014 (334)/Org2C TO DO Add if choice between input and estimation</span>
+                    <span class="k">else</span><span class="p">:</span>
+                        <span class="k">pass</span>
+
+                    <span class="n">KOC_sed_diss_acid</span> <span class="o">=</span> <span class="p">(</span><span class="mi">10</span><span class="o">**</span><span class="p">(</span><span class="mf">0.11</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">log10</span><span class="p">(</span><span class="n">KOW</span><span class="p">)</span><span class="o">+</span><span class="mf">1.54</span><span class="p">))</span> <span class="c1"># KOC for dissociated acid species (L/kg_OC), from  http://i-pie.org/wp-content/uploads/2019/12/ePiE_Technical_Manual-Final_Version_20191202.</span>
+
+                    <span class="n">KOC_SPM</span> <span class="o">=</span> <span class="p">(</span><span class="n">KOC_sed_n</span> <span class="o">*</span> <span class="n">Phi_n_water</span><span class="p">)</span> <span class="o">+</span> <span class="p">(</span><span class="n">Phi_diss_water</span> <span class="o">*</span> <span class="n">KOC_sed_diss_acid</span><span class="p">)</span>
+
+                    <span class="n">KOC_DOM_n</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_config</span><span class="p">(</span><span class="s1">&#39;chemical:transformations:KOC_DOM&#39;</span><span class="p">)</span>
+
+                    <span class="k">if</span> <span class="n">KOC_DOM_n</span> <span class="o">&lt;</span><span class="mi">0</span><span class="p">:</span>
+                        <span class="n">KOC_DOM_n</span>   <span class="o">=</span> <span class="mf">2.88</span> <span class="o">*</span> <span class="n">KOW</span><span class="o">**</span><span class="mf">0.67</span>   <span class="c1"># (L/KgOC), Park and Clough, 2014 TO DO Add if choice between input and estimation</span>
+                    <span class="k">else</span><span class="p">:</span>
+                        <span class="k">pass</span>
+
+                    <span class="n">KOC_DOM</span> <span class="o">=</span> <span class="p">(</span><span class="mf">0.08</span> <span class="o">*</span> <span class="p">((</span><span class="n">Phi_n_water</span><span class="o">*</span><span class="p">(</span><span class="n">KOC_DOM_n</span><span class="p">))</span> <span class="o">+</span> <span class="p">((</span><span class="mi">1</span> <span class="o">-</span> <span class="n">Phi_diss_water</span><span class="p">)</span><span class="o">*</span><span class="mi">10</span><span class="o">**</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">log10</span><span class="p">(</span><span class="n">KOW</span><span class="p">)</span><span class="o">-</span><span class="mf">3.5</span><span class="p">))))</span><span class="o">/</span><span class="mf">0.526</span> <span class="c1"># from  http://i-pie.org/wp-content/uploads/2019/12/ePiE_Technical_Manual-Final_Version_20191202</span>
+
+                    <span class="c1"># Dissociation in sediments</span>
+                    <span class="n">Phi_n_sed</span>    <span class="o">=</span> <span class="mi">1</span><span class="o">/</span><span class="p">(</span><span class="mi">1</span> <span class="o">+</span> <span class="mi">10</span><span class="o">**</span><span class="p">(</span><span class="n">pH_sed</span><span class="o">-</span><span class="n">pKa_acid</span><span class="p">))</span>
+                    <span class="n">Phi_diss_sed</span> <span class="o">=</span> <span class="mi">1</span><span class="o">-</span><span class="n">Phi_n_sed</span>
+                    <span class="n">KOC_sed</span> <span class="o">=</span> <span class="p">(</span><span class="n">KOC_sed_n</span> <span class="o">*</span> <span class="n">Phi_n_sed</span><span class="p">)</span> <span class="o">+</span> <span class="p">(</span><span class="n">Phi_diss_sed</span> <span class="o">*</span> <span class="n">KOC_sed_diss_acid</span><span class="p">)</span>
 
                 <span class="k">elif</span> <span class="n">diss</span><span class="o">==</span><span class="s1">&#39;base&#39;</span><span class="p">:</span>
-                    <span class="n">Phi_n</span>    <span class="o">=</span> <span class="mi">1</span><span class="o">/</span><span class="p">(</span><span class="mi">1</span> <span class="o">+</span> <span class="mi">10</span><span class="o">**</span><span class="p">(</span><span class="n">pH</span><span class="o">-</span><span class="n">pKa_base</span><span class="p">))</span>
-                    <span class="n">Phi_diss</span> <span class="o">=</span> <span class="mi">1</span><span class="o">-</span><span class="n">Phi_n</span>
+                    <span class="c1"># Dissociation in water</span>
+                    <span class="n">Phi_n_water</span>    <span class="o">=</span> <span class="mi">1</span><span class="o">/</span><span class="p">(</span><span class="mi">1</span> <span class="o">+</span> <span class="mi">10</span><span class="o">**</span><span class="p">(</span><span class="n">pH_water</span><span class="o">-</span><span class="n">pKa_base</span><span class="p">))</span>
+                    <span class="n">Phi_diss_water</span> <span class="o">=</span> <span class="mi">1</span><span class="o">-</span><span class="n">Phi_n_water</span>
+
+                    <span class="n">KOC_sed_n</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_config</span><span class="p">(</span><span class="s1">&#39;chemical:transformations:KOC_sed&#39;</span><span class="p">)</span>
+                    <span class="k">if</span> <span class="n">KOC_sed_n</span> <span class="o">&lt;</span><span class="mi">0</span><span class="p">:</span>
+                        <span class="n">KOC_sed_n</span>   <span class="o">=</span> <span class="mf">2.62</span> <span class="o">*</span> <span class="n">KOW</span><span class="o">**</span><span class="mf">0.82</span>   <span class="c1"># (L/KgOC), Park and Clough, 2014 (334)/Org2C TO DO Add if choice between input and estimation</span>
+                    <span class="k">else</span><span class="p">:</span>
+                        <span class="k">pass</span>
+
+                    <span class="n">KOC_sed_diss_base</span> <span class="o">=</span> <span class="mi">10</span><span class="o">**</span><span class="p">(</span><span class="n">pKa_acid</span><span class="o">**</span><span class="p">(</span><span class="mf">0.65</span><span class="o">*</span><span class="p">((</span><span class="n">KOW</span><span class="o">/</span><span class="p">(</span><span class="n">KOW</span><span class="o">+</span><span class="mi">1</span><span class="p">))</span><span class="o">**</span><span class="mf">0.14</span><span class="p">)))</span> <span class="c1"># KOC for ionized form of base species (L/kg_OC) # from  http://i-pie.org/wp-content/uploads/2019/12/ePiE_Technical_Manual-Final_Version_20191202</span>
+
+                    <span class="n">KOC_SPM</span> <span class="o">=</span> <span class="p">(</span><span class="n">KOC_sed_n</span> <span class="o">*</span> <span class="n">Phi_n_water</span><span class="p">)</span> <span class="o">+</span> <span class="p">(</span><span class="n">Phi_diss_water</span> <span class="o">*</span> <span class="n">KOC_sed_diss_base</span><span class="p">)</span>
+
+                    <span class="n">KOC_DOM_n</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_config</span><span class="p">(</span><span class="s1">&#39;chemical:transformations:KOC_DOM&#39;</span><span class="p">)</span>
+                    <span class="k">if</span>   <span class="n">KOC_DOM_n</span> <span class="o">&lt;</span><span class="mi">0</span><span class="p">:</span>
+                        <span class="n">KOC_DOM_n</span>   <span class="o">=</span> <span class="mf">2.88</span> <span class="o">*</span> <span class="n">KOW</span><span class="o">**</span><span class="mf">0.67</span>   <span class="c1"># (L/KgOC), Park and Clough, 2014 TO DO Add if choice between input and estimation</span>
+                    <span class="k">else</span><span class="p">:</span>
+                        <span class="k">pass</span>
+
+                    <span class="n">KOC_DOM</span> <span class="o">=</span> <span class="p">(</span><span class="mf">0.08</span> <span class="o">*</span> <span class="p">((</span><span class="n">Phi_n_water</span><span class="o">*</span><span class="p">(</span><span class="n">KOC_DOM_n</span><span class="p">))</span> <span class="o">+</span> <span class="p">((</span><span class="mi">1</span> <span class="o">-</span> <span class="n">Phi_diss_water</span><span class="p">)</span><span class="o">*</span><span class="mi">10</span><span class="o">**</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">log10</span><span class="p">(</span><span class="n">KOW</span><span class="p">)</span><span class="o">-</span><span class="mf">3.5</span><span class="p">))))</span><span class="o">/</span><span class="mf">0.526</span> <span class="c1"># from  http://i-pie.org/wp-content/uploads/2019/12/ePiE_Technical_Manual-Final_Version_20191202</span>
+
+                    <span class="c1"># Dissociation in sediments</span>
+                    <span class="n">Phi_n_sed</span>    <span class="o">=</span> <span class="mi">1</span><span class="o">/</span><span class="p">(</span><span class="mi">1</span> <span class="o">+</span> <span class="mi">10</span><span class="o">**</span><span class="p">(</span><span class="n">pH_sed</span><span class="o">-</span><span class="n">pKa_base</span><span class="p">))</span>
+                    <span class="n">Phi_diss_sed</span> <span class="o">=</span> <span class="mi">1</span><span class="o">-</span><span class="n">Phi_n_sed</span>
+                    <span class="n">KOC_sed</span> <span class="o">=</span> <span class="p">(</span><span class="n">KOC_sed_n</span> <span class="o">*</span> <span class="n">Phi_n_sed</span><span class="p">)</span> <span class="o">+</span> <span class="p">(</span><span class="n">Phi_diss_sed</span> <span class="o">*</span> <span class="n">KOC_sed_diss_base</span><span class="p">)</span>
 
                 <span class="k">elif</span> <span class="n">diss</span><span class="o">==</span><span class="s1">&#39;amphoter&#39;</span><span class="p">:</span>
-                    <span class="n">Phi_n</span>      <span class="o">=</span> <span class="mi">1</span><span class="o">/</span><span class="p">(</span><span class="mi">1</span> <span class="o">+</span> <span class="mi">10</span><span class="o">**</span><span class="p">(</span><span class="n">pH</span><span class="o">-</span><span class="n">pKa_acid</span><span class="p">)</span> <span class="o">+</span> <span class="mi">10</span><span class="o">**</span><span class="p">(</span><span class="n">pKa_base</span><span class="p">))</span>
-                    <span class="n">Phi_anion</span>  <span class="o">=</span> <span class="n">Phi_n</span> <span class="o">*</span> <span class="mi">10</span><span class="o">**</span><span class="p">(</span><span class="n">pH</span><span class="o">-</span><span class="n">pKa_acid</span><span class="p">)</span>
-                    <span class="n">Phi_cation</span> <span class="o">=</span> <span class="n">Phi_n</span> <span class="o">*</span> <span class="mi">10</span><span class="o">**</span><span class="p">(</span><span class="n">pKa_base</span><span class="o">-</span><span class="n">pH</span><span class="p">)</span>
 
-                <span class="c1">#TODO: calculation of KOC for ionic chemicals</span>
+                    <span class="c1"># Dissociation in water # This approach ignores the zwitterionic fraction. 10.1002/etc.115</span>
+                    <span class="n">Phi_n_water</span>      <span class="o">=</span> <span class="mi">1</span><span class="o">/</span><span class="p">(</span><span class="mi">1</span> <span class="o">+</span> <span class="mi">10</span><span class="o">**</span><span class="p">(</span><span class="n">pH_water</span><span class="o">-</span><span class="n">pKa_acid</span><span class="p">)</span> <span class="o">+</span> <span class="mi">10</span><span class="o">**</span><span class="p">(</span><span class="n">pKa_base</span><span class="p">))</span>
+                    <span class="n">Phi_anion_water</span>  <span class="o">=</span> <span class="n">Phi_n_water</span> <span class="o">*</span> <span class="mi">10</span><span class="o">**</span><span class="p">(</span><span class="n">pH_water</span><span class="o">-</span><span class="n">pKa_acid</span><span class="p">)</span>
+                    <span class="n">Phi_cation_water</span> <span class="o">=</span> <span class="n">Phi_n_water</span> <span class="o">*</span> <span class="mi">10</span><span class="o">**</span><span class="p">(</span><span class="n">pKa_base</span><span class="o">-</span><span class="n">pH_water</span><span class="p">)</span>
+                    <span class="n">Phi_diss_water</span>   <span class="o">=</span> <span class="mi">1</span> <span class="o">-</span> <span class="n">Phi_n_water</span>
+
+                    <span class="n">KOC_sed_n</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_config</span><span class="p">(</span><span class="s1">&#39;chemical:transformations:KOC_sed&#39;</span><span class="p">)</span>
+                    <span class="k">if</span> <span class="n">KOC_sed_n</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="p">:</span>
+                        <span class="n">KOC_sed_n</span> <span class="o">=</span>  <span class="n">KOC_sed_n</span>    <span class="o">=</span> <span class="mf">2.62</span> <span class="o">*</span> <span class="n">KOW</span><span class="o">**</span><span class="mf">0.82</span>   <span class="c1"># (L/KgOC), Park and Clough, 2014 (334)/Org2C TO DO Add if choice between input and estimation</span>
+                    <span class="k">else</span><span class="p">:</span>
+                        <span class="k">pass</span>
+
+                    <span class="n">KOC_sed_diss_base</span> <span class="o">=</span> <span class="mi">10</span><span class="o">**</span><span class="p">(</span><span class="n">pKa_acid</span><span class="o">**</span><span class="p">(</span><span class="mf">0.65</span><span class="o">*</span><span class="p">((</span><span class="n">KOW</span><span class="o">/</span><span class="p">(</span><span class="n">KOW</span><span class="o">+</span><span class="mi">1</span><span class="p">))</span><span class="o">**</span><span class="mf">0.14</span><span class="p">)))</span> <span class="c1"># KOC for ionized form of base species (L/kg_OC) # from  http://i-pie.org/wp-content/uploads/2019/12/ePiE_Technical_Manual-Final_Version_20191202</span>
+                    <span class="n">KOC_sed_diss_acid</span> <span class="o">=</span> <span class="p">(</span><span class="mi">10</span><span class="o">**</span><span class="p">(</span><span class="mf">0.11</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">log10</span><span class="p">(</span><span class="n">KOW</span><span class="p">)</span><span class="o">+</span><span class="mf">1.54</span><span class="p">))</span> <span class="c1"># KOC for dissociated acid species (L/kg_OC), from  http://i-pie.org/wp-content/uploads/2019/12/ePiE_Technical_Manual-Final_Version_20191202.</span>
+                    <span class="n">KOC_SPM</span> <span class="o">=</span> <span class="p">(</span><span class="n">KOC_sed_n</span> <span class="o">*</span> <span class="n">Phi_n_water</span><span class="p">)</span> <span class="o">+</span> <span class="p">(</span><span class="n">Phi_anion_water</span> <span class="o">*</span> <span class="n">KOC_sed_diss_acid</span><span class="p">)</span> <span class="o">+</span> <span class="p">(</span><span class="n">Phi_cation_water</span> <span class="o">*</span> <span class="n">KOC_sed_diss_base</span><span class="p">)</span>
+
+                    <span class="n">KOC_DOM_n</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_config</span><span class="p">(</span><span class="s1">&#39;chemical:transformations:KOC_DOM&#39;</span><span class="p">)</span>
+                    <span class="k">if</span> <span class="n">KOC_DOM_n</span> <span class="o">&lt;</span><span class="mi">0</span><span class="p">:</span>
+                        <span class="n">KOC_DOM_n</span>   <span class="o">=</span> <span class="mf">2.88</span> <span class="o">*</span> <span class="n">KOW</span><span class="o">**</span><span class="mf">0.67</span>   <span class="c1"># (L/KgOC), Park and Clough, 2014 TO DO Add if choice between input and estimation</span>
+                    <span class="k">else</span><span class="p">:</span>
+                        <span class="k">pass</span>
+
+                    <span class="n">KOC_DOM</span> <span class="o">=</span> <span class="p">(</span><span class="mf">0.08</span> <span class="o">*</span> <span class="p">((</span><span class="n">Phi_n_water</span><span class="o">*</span><span class="p">(</span><span class="n">KOC_DOM_n</span><span class="p">))</span> <span class="o">+</span> <span class="p">((</span><span class="mi">1</span> <span class="o">-</span> <span class="n">Phi_diss_water</span><span class="p">)</span><span class="o">*</span><span class="mi">10</span><span class="o">**</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">log10</span><span class="p">(</span><span class="n">KOW</span><span class="p">)</span><span class="o">-</span><span class="mf">3.5</span><span class="p">))))</span><span class="o">/</span><span class="mf">0.526</span> <span class="c1"># from  http://i-pie.org/wp-content/uploads/2019/12/ePiE_Technical_Manual-Final_Version_20191202</span>
+
+                    <span class="c1"># Dissociation in sediments</span>
+                    <span class="n">Phi_n_sed</span>      <span class="o">=</span> <span class="mi">1</span><span class="o">/</span><span class="p">(</span><span class="mi">1</span> <span class="o">+</span> <span class="mi">10</span><span class="o">**</span><span class="p">(</span><span class="n">pH_sed</span><span class="o">-</span><span class="n">pKa_acid</span><span class="p">)</span> <span class="o">+</span> <span class="mi">10</span><span class="o">**</span><span class="p">(</span><span class="n">pKa_base</span><span class="p">))</span>
+                    <span class="n">Phi_anion_sed</span>  <span class="o">=</span> <span class="n">Phi_n_sed</span> <span class="o">*</span> <span class="mi">10</span><span class="o">**</span><span class="p">(</span><span class="n">pH_sed</span><span class="o">-</span><span class="n">pKa_acid</span><span class="p">)</span>
+                    <span class="n">Phi_cation_sed</span> <span class="o">=</span> <span class="n">Phi_n_sed</span> <span class="o">*</span> <span class="mi">10</span><span class="o">**</span><span class="p">(</span><span class="n">pKa_base</span><span class="o">-</span><span class="n">pH_sed</span><span class="p">)</span>
+
+                    <span class="n">KOC_sed</span> <span class="o">=</span> <span class="p">(</span><span class="n">KOC_sed_n</span> <span class="o">*</span> <span class="n">Phi_n_sed</span><span class="p">)</span> <span class="o">+</span> <span class="p">(</span><span class="n">Phi_anion_sed</span> <span class="o">*</span> <span class="n">KOC_sed_diss_acid</span><span class="p">)</span> <span class="o">+</span> <span class="p">(</span><span class="n">Phi_cation_sed</span> <span class="o">*</span> <span class="n">KOC_sed_diss_base</span><span class="p">)</span>
 
             <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;Partitioning coefficients (Tref,freshwater)&#39;</span><span class="p">)</span>
             <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;KOC_sed: </span><span class="si">%s</span><span class="s1"> L/KgOC&#39;</span> <span class="o">%</span> <span class="n">KOC_sed</span><span class="p">)</span>
@@ -785,7 +1012,7 @@
             <span class="bp">self</span><span class="o">.</span><span class="n">transfer_rates</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">num_humcol</span><span class="p">,</span><span class="bp">self</span><span class="o">.</span><span class="n">num_prev</span><span class="p">]</span> <span class="o">=</span> <span class="mf">1.e-5</span>      <span class="c1"># k23, Salinity interval &gt;20 psu</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">transfer_rates</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">num_prev</span><span class="p">,</span><span class="bp">self</span><span class="o">.</span><span class="n">num_humcol</span><span class="p">]</span> <span class="o">=</span> <span class="mi">0</span>          <span class="c1"># TODO check if valid for organics</span>
 
-        <span class="k">elif</span> <span class="n">transfer_setup</span> <span class="o">==</span> <span class="s1">&#39;Bokna_137Cs&#39;</span><span class="p">:</span>
+        <span class="k">elif</span> <span class="n">transfer_setup</span> <span class="o">==</span> <span class="s1">&#39;metals&#39;</span><span class="p">:</span>                                <span class="c1"># renamed from radionuclides Bokna_137Cs</span>
 
             <span class="bp">self</span><span class="o">.</span><span class="n">num_lmm</span>    <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">specie_name2num</span><span class="p">(</span><span class="s1">&#39;LMM&#39;</span><span class="p">)</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">num_prev</span>   <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">specie_name2num</span><span class="p">(</span><span class="s1">&#39;Particle reversible&#39;</span><span class="p">)</span>
@@ -1034,13 +1261,16 @@
 <span class="sd">        transfer rates according to local environmental conditions &#39;&#39;&#39;</span>
 
         <span class="n">transfer_setup</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">get_config</span><span class="p">(</span><span class="s1">&#39;chemical:transfer_setup&#39;</span><span class="p">)</span>
-        <span class="k">if</span> <span class="n">transfer_setup</span> <span class="o">==</span> <span class="s1">&#39;Bokna_137Cs&#39;</span> <span class="ow">or</span> \
+        <span class="k">if</span> <span class="n">transfer_setup</span> <span class="o">==</span> <span class="s1">&#39;metals&#39;</span> <span class="ow">or</span> \
          <span class="n">transfer_setup</span><span class="o">==</span><span class="s1">&#39;custom&#39;</span> <span class="ow">or</span> \
          <span class="n">transfer_setup</span><span class="o">==</span><span class="s1">&#39;137Cs_rev&#39;</span><span class="ow">or</span> \
          <span class="n">transfer_setup</span><span class="o">==</span><span class="s1">&#39;organics&#39;</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">elements</span><span class="o">.</span><span class="n">transfer_rates1D</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">transfer_rates</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">elements</span><span class="o">.</span><span class="n">specie</span><span class="p">,:]</span>
+            <span class="n">diss</span>       <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_config</span><span class="p">(</span><span class="s1">&#39;chemical:transformations:dissociation&#39;</span><span class="p">)</span>
 
-            <span class="k">if</span> <span class="n">transfer_setup</span><span class="o">==</span><span class="s1">&#39;organics&#39;</span><span class="p">:</span>
+            <span class="c1"># Updating desorption rates according to local temperature, salinity, pH</span>
+
+            <span class="k">if</span> <span class="n">transfer_setup</span><span class="o">==</span><span class="s1">&#39;organics&#39;</span> <span class="ow">and</span> <span class="n">diss</span><span class="o">==</span><span class="s1">&#39;nondiss&#39;</span><span class="p">:</span>
                 <span class="c1"># filtering out zero values from temperature and salinity</span>
                 <span class="c1"># TODO: Find out if problem is in the reader or in the data</span>
                 <span class="n">temperature</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">environment</span><span class="o">.</span><span class="n">sea_water_temperature</span>
@@ -1069,11 +1299,106 @@
                 <span class="bp">self</span><span class="o">.</span><span class="n">elements</span><span class="o">.</span><span class="n">transfer_rates1D</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">elements</span><span class="o">.</span><span class="n">specie</span><span class="o">==</span><span class="bp">self</span><span class="o">.</span><span class="n">num_srev</span><span class="p">,</span><span class="bp">self</span><span class="o">.</span><span class="n">num_lmm</span><span class="p">]</span> <span class="o">=</span> \
                     <span class="bp">self</span><span class="o">.</span><span class="n">k41_0</span> <span class="o">/</span> <span class="n">tempcorrSed</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">elements</span><span class="o">.</span><span class="n">specie</span><span class="o">==</span><span class="bp">self</span><span class="o">.</span><span class="n">num_srev</span><span class="p">]</span> <span class="o">/</span> <span class="n">salinitycorr</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">elements</span><span class="o">.</span><span class="n">specie</span><span class="o">==</span><span class="bp">self</span><span class="o">.</span><span class="n">num_srev</span><span class="p">]</span>
 
-            <span class="k">if</span> <span class="n">transfer_setup</span><span class="o">==</span><span class="s1">&#39;organics&#39;</span> <span class="ow">or</span> <span class="n">transfer_setup</span> <span class="o">==</span> <span class="s1">&#39;Bokna_137Cs&#39;</span><span class="p">:</span>
+            <span class="k">elif</span> <span class="n">transfer_setup</span><span class="o">==</span><span class="s1">&#39;organics&#39;</span> <span class="ow">and</span> <span class="n">diss</span><span class="o">!=</span><span class="s1">&#39;nondiss&#39;</span><span class="p">:</span>
+                <span class="c1"># Select elements for updating trasfer rates in sediments, SPM, and DOM</span>
+
+                <span class="c1">#Sediments</span>
+                <span class="n">S</span> <span class="o">=</span>   <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">elements</span><span class="o">.</span><span class="n">specie</span> <span class="o">==</span> <span class="bp">self</span><span class="o">.</span><span class="n">num_srev</span><span class="p">)</span> \
+                    <span class="o">+</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">elements</span><span class="o">.</span><span class="n">specie</span> <span class="o">==</span> <span class="bp">self</span><span class="o">.</span><span class="n">num_ssrev</span><span class="p">)</span>
+
+                <span class="n">SPM</span> <span class="o">=</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">elements</span><span class="o">.</span><span class="n">specie</span> <span class="o">==</span> <span class="bp">self</span><span class="o">.</span><span class="n">num_prev</span><span class="p">)</span>
+
+                <span class="n">DOM</span> <span class="o">=</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">elements</span><span class="o">.</span><span class="n">specie</span> <span class="o">==</span> <span class="bp">self</span><span class="o">.</span><span class="n">num_humcol</span><span class="p">)</span>
+
+                <span class="n">pH_sed</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">environment</span><span class="o">.</span><span class="n">pH_sediment</span><span class="p">[</span><span class="n">S</span><span class="p">]</span>
+                <span class="c1"># pH_sed[pH_sed==0]=np.median(pH_sed)</span>
+
+                <span class="n">pH_water_SPM</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">environment</span><span class="o">.</span><span class="n">sea_water_ph_reported_on_total_scale</span><span class="p">[</span><span class="n">SPM</span><span class="p">]</span>
+                <span class="c1"># pH_water_SPM[pH_water_SPM==0]=np.median(TW)</span>
+
+                <span class="n">pH_water_DOM</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">environment</span><span class="o">.</span><span class="n">sea_water_ph_reported_on_total_scale</span><span class="p">[</span><span class="n">DOM</span><span class="p">]</span>
+                <span class="c1"># pH_water_DOM[pH_water_DOM==0]=np.median(pH_water_DOM)</span>
+
+                <span class="n">pKa_acid</span>   <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_config</span><span class="p">(</span><span class="s1">&#39;chemical:transformations:pKa_acid&#39;</span><span class="p">)</span>
+                <span class="k">if</span> <span class="n">pKa_acid</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="p">:</span>
+                    <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;pKa_acid must be positive&quot;</span><span class="p">)</span>
+                    <span class="c1"># print(&quot;pKa_acid must be positive&quot;)</span>
+                    <span class="c1"># UserWarning((&quot;pKa_acid must be positive&quot;))</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="k">pass</span>
+
+                <span class="n">pKa_base</span>   <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_config</span><span class="p">(</span><span class="s1">&#39;chemical:transformations:pKa_base&#39;</span><span class="p">)</span>
+                <span class="k">if</span> <span class="n">pKa_base</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="p">:</span>
+                    <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;pKa_base must be positive&quot;</span><span class="p">)</span>
+                    <span class="c1"># print(&quot;pKa_base must be positive&quot;)</span>
+                    <span class="c1"># UserWarning((&quot;pKa_base must be positive&quot;))</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="k">pass</span>
+
+                <span class="n">KOW</span> <span class="o">=</span> <span class="mi">10</span><span class="o">**</span><span class="bp">self</span><span class="o">.</span><span class="n">get_config</span><span class="p">(</span><span class="s1">&#39;chemical:transformations:LogKOW&#39;</span><span class="p">)</span>
+
+                <span class="n">KOC_sed_n</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_config</span><span class="p">(</span><span class="s1">&#39;chemical:transformations:KOC_sed&#39;</span><span class="p">)</span>
+                <span class="k">if</span> <span class="n">KOC_sed_n</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="p">:</span>
+                    <span class="n">KOC_sed_n</span> <span class="o">=</span> <span class="mf">2.62</span> <span class="o">*</span> <span class="n">KOW</span><span class="o">**</span><span class="mf">0.82</span>   <span class="c1"># (L/KgOC), Park and Clough, 2014 (334)/Org2C TO DO Add if choice between input and estimation</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="k">pass</span>
+
+                <span class="n">KOC_DOM_n</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_config</span><span class="p">(</span><span class="s1">&#39;chemical:transformations:KOC_DOM&#39;</span><span class="p">)</span>
+                <span class="k">if</span> <span class="n">KOC_DOM_n</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="p">:</span>
+                    <span class="n">KOC_DOM_n</span> <span class="o">=</span> <span class="mf">2.88</span> <span class="o">*</span> <span class="n">KOW</span><span class="o">**</span><span class="mf">0.67</span>   <span class="c1"># (L/KgOC), Park and Clough, 2014 TO DO Add if choice between input and estimation</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="k">pass</span>
+
+                <span class="n">fOC_SPM</span>    <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_config</span><span class="p">(</span><span class="s1">&#39;chemical:transformations:fOC_SPM&#39;</span><span class="p">)</span>       <span class="c1"># typical values from 0.01 to 0.1 gOC/g</span>
+                <span class="n">fOC_sed</span>    <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_config</span><span class="p">(</span><span class="s1">&#39;chemical:transformations:fOC_sed&#39;</span><span class="p">)</span>
+                <span class="n">Org2C</span>      <span class="o">=</span> <span class="mf">0.526</span>  <span class="c1"># kgOC/KgOM</span>
+
+                <span class="c1"># Calculate original KOC_Values</span>
+                <span class="c1"># TO DO: Store directly KOC values</span>
+
+                <span class="n">KOC_sed_initial</span> <span class="o">=</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">Kd_sed</span><span class="p">)</span><span class="o">/</span><span class="n">fOC_sed</span> <span class="c1"># L/Kg / KgOC/Kg = L/KgOC</span>
+                <span class="n">KOC_SPM_initial</span> <span class="o">=</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">Kd_SPM</span><span class="p">)</span><span class="o">/</span><span class="n">fOC_SPM</span> <span class="c1"># L/Kg / KgOC/Kg = L/KgOC</span>
+                <span class="n">KOC_DOM_initial</span> <span class="o">=</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">Kd_DOM</span><span class="p">)</span><span class="o">/</span><span class="n">Org2C</span>
+
+                <span class="n">temperature</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">environment</span><span class="o">.</span><span class="n">sea_water_temperature</span>
+                <span class="n">temperature</span><span class="p">[</span><span class="n">temperature</span><span class="o">==</span><span class="mi">0</span><span class="p">]</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">median</span><span class="p">(</span><span class="n">temperature</span><span class="p">)</span>
+
+                <span class="n">salinity</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">environment</span><span class="o">.</span><span class="n">sea_water_salinity</span>
+                <span class="n">salinity</span><span class="p">[</span><span class="n">salinity</span><span class="o">==</span><span class="mi">0</span><span class="p">]</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">median</span><span class="p">(</span><span class="n">salinity</span><span class="p">)</span>
+
+                <span class="n">KOWTref</span>    <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_config</span><span class="p">(</span><span class="s1">&#39;chemical:transformations:TrefKOW&#39;</span><span class="p">)</span>
+                <span class="n">DH_KOC_Sed</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_config</span><span class="p">(</span><span class="s1">&#39;chemical:transformations:DeltaH_KOC_Sed&#39;</span><span class="p">)</span>
+                <span class="n">DH_KOC_DOM</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_config</span><span class="p">(</span><span class="s1">&#39;chemical:transformations:DeltaH_KOC_DOM&#39;</span><span class="p">)</span>
+                <span class="n">Setchenow</span>  <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_config</span><span class="p">(</span><span class="s1">&#39;chemical:transformations:Setchenow&#39;</span><span class="p">)</span>
+
+                <span class="n">tempcorrSed</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">tempcorr</span><span class="p">(</span><span class="s2">&quot;Arrhenius&quot;</span><span class="p">,</span><span class="n">DH_KOC_Sed</span><span class="p">,</span><span class="n">temperature</span><span class="p">,</span><span class="n">KOWTref</span><span class="p">)</span>
+                <span class="n">tempcorrDOM</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">tempcorr</span><span class="p">(</span><span class="s2">&quot;Arrhenius&quot;</span><span class="p">,</span><span class="n">DH_KOC_DOM</span><span class="p">,</span><span class="n">temperature</span><span class="p">,</span><span class="n">KOWTref</span><span class="p">)</span>
+                <span class="n">salinitycorr</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">salinitycorr</span><span class="p">(</span><span class="n">Setchenow</span><span class="p">,</span><span class="n">temperature</span><span class="p">,</span><span class="n">salinity</span><span class="p">)</span>
+
+                <span class="n">KOC_sedcorr</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">calc_KOC_sedcorr</span><span class="p">(</span><span class="n">KOC_sed_initial</span><span class="p">,</span> <span class="n">KOC_sed_n</span><span class="p">,</span> <span class="n">pKa_acid</span><span class="p">,</span> <span class="n">pKa_base</span><span class="p">,</span> <span class="n">KOW</span><span class="p">,</span> <span class="n">pH_sed</span><span class="p">,</span> <span class="n">diss</span><span class="p">)</span>
+                <span class="n">KOC_watcorrSPM</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">calc_KOC_watcorrSPM</span><span class="p">(</span><span class="n">KOC_SPM_initial</span><span class="p">,</span> <span class="n">KOC_sed_n</span><span class="p">,</span> <span class="n">pKa_acid</span><span class="p">,</span> <span class="n">pKa_base</span><span class="p">,</span> <span class="n">KOW</span><span class="p">,</span> <span class="n">pH_water_SPM</span><span class="p">,</span> <span class="n">diss</span><span class="p">)</span>
+                <span class="n">KOC_watcorrDOM</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">calc_KOC_watcorrDOM</span><span class="p">(</span><span class="n">KOC_DOM_initial</span><span class="p">,</span> <span class="n">KOC_DOM_n</span><span class="p">,</span> <span class="n">pKa_acid</span><span class="p">,</span> <span class="n">pKa_base</span><span class="p">,</span> <span class="n">KOW</span><span class="p">,</span> <span class="n">pH_water_DOM</span><span class="p">,</span> <span class="n">diss</span><span class="p">)</span>
+
+                <span class="c1"># Temperature and salinity correction for desorption rates (inversely proportional to Kd)</span>
+
+                <span class="c1">####</span>
+
+                <span class="bp">self</span><span class="o">.</span><span class="n">elements</span><span class="o">.</span><span class="n">transfer_rates1D</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">elements</span><span class="o">.</span><span class="n">specie</span><span class="o">==</span><span class="bp">self</span><span class="o">.</span><span class="n">num_humcol</span><span class="p">,</span><span class="bp">self</span><span class="o">.</span><span class="n">num_lmm</span><span class="p">]</span> <span class="o">=</span> \
+                    <span class="bp">self</span><span class="o">.</span><span class="n">k21_0</span> <span class="o">*</span> <span class="n">KOC_watcorrDOM</span> <span class="o">/</span> <span class="n">tempcorrDOM</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">elements</span><span class="o">.</span><span class="n">specie</span><span class="o">==</span><span class="bp">self</span><span class="o">.</span><span class="n">num_humcol</span><span class="p">]</span> <span class="o">/</span> <span class="n">salinitycorr</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">elements</span><span class="o">.</span><span class="n">specie</span><span class="o">==</span><span class="bp">self</span><span class="o">.</span><span class="n">num_humcol</span><span class="p">]</span>
+
+                <span class="bp">self</span><span class="o">.</span><span class="n">elements</span><span class="o">.</span><span class="n">transfer_rates1D</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">elements</span><span class="o">.</span><span class="n">specie</span><span class="o">==</span><span class="bp">self</span><span class="o">.</span><span class="n">num_prev</span><span class="p">,</span><span class="bp">self</span><span class="o">.</span><span class="n">num_lmm</span><span class="p">]</span> <span class="o">=</span> \
+                    <span class="bp">self</span><span class="o">.</span><span class="n">k31_0</span> <span class="o">*</span> <span class="n">KOC_watcorrSPM</span> <span class="o">/</span> <span class="n">tempcorrSed</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">elements</span><span class="o">.</span><span class="n">specie</span><span class="o">==</span><span class="bp">self</span><span class="o">.</span><span class="n">num_prev</span><span class="p">]</span> <span class="o">/</span> <span class="n">salinitycorr</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">elements</span><span class="o">.</span><span class="n">specie</span><span class="o">==</span><span class="bp">self</span><span class="o">.</span><span class="n">num_prev</span><span class="p">]</span>
+
+                <span class="bp">self</span><span class="o">.</span><span class="n">elements</span><span class="o">.</span><span class="n">transfer_rates1D</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">elements</span><span class="o">.</span><span class="n">specie</span><span class="o">==</span><span class="bp">self</span><span class="o">.</span><span class="n">num_srev</span><span class="p">,</span><span class="bp">self</span><span class="o">.</span><span class="n">num_lmm</span><span class="p">]</span> <span class="o">=</span> \
+                    <span class="bp">self</span><span class="o">.</span><span class="n">k41_0</span> <span class="o">*</span> <span class="n">KOC_sedcorr</span> <span class="o">/</span> <span class="n">tempcorrSed</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">elements</span><span class="o">.</span><span class="n">specie</span><span class="o">==</span><span class="bp">self</span><span class="o">.</span><span class="n">num_srev</span><span class="p">]</span> <span class="o">/</span> <span class="n">salinitycorr</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">elements</span><span class="o">.</span><span class="n">specie</span><span class="o">==</span><span class="bp">self</span><span class="o">.</span><span class="n">num_srev</span><span class="p">]</span>
+
+            <span class="c1"># Updating sorption rates</span>
+
+            <span class="k">if</span> <span class="n">transfer_setup</span><span class="o">==</span><span class="s1">&#39;organics&#39;</span> <span class="ow">or</span> <span class="n">transfer_setup</span> <span class="o">==</span> <span class="s1">&#39;metals&#39;</span><span class="p">:</span>
 
                 <span class="c1"># Updating sorption rates according to local SPM concentration</span>
 
-                <span class="n">concSPM</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">environment</span><span class="o">.</span><span class="n">spm</span> <span class="o">*</span> <span class="mf">1e-6</span> <span class="c1"># (Kg/L) from (g/m3) </span>
+                <span class="n">concSPM</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">environment</span><span class="o">.</span><span class="n">spm</span> <span class="o">*</span> <span class="mf">1e-6</span> <span class="c1"># (Kg/L) from (g/m3)</span>
 
                 <span class="c1"># Apply SPM concentration profile if SPM reader has not depth coordinate</span>
                 <span class="c1"># SPM concentration is kept constant to surface value in the mixed layer</span>
@@ -1091,6 +1416,8 @@
 
             <span class="k">if</span> <span class="n">transfer_setup</span><span class="o">==</span><span class="s1">&#39;organics&#39;</span><span class="p">:</span>
 
+                <span class="c1"># Updating sorption rates according to local DOC concentration</span>
+
                 <span class="n">concDOM</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">environment</span><span class="o">.</span><span class="n">doc</span> <span class="o">*</span> <span class="mf">12e-6</span> <span class="o">/</span> <span class="mf">1.025</span> <span class="o">/</span> <span class="mf">0.526</span> <span class="o">*</span> <span class="mf">1e-3</span> <span class="c1"># (Kg[OM]/L) from (umol[C]/Kg)</span>
 
                 <span class="c1"># Apply DOC concentration profile if DOC reader has not depth coordinate</span>
@@ -1107,7 +1434,6 @@
 
                 <span class="bp">self</span><span class="o">.</span><span class="n">elements</span><span class="o">.</span><span class="n">transfer_rates1D</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">elements</span><span class="o">.</span><span class="n">specie</span><span class="o">==</span><span class="bp">self</span><span class="o">.</span><span class="n">num_lmm</span><span class="p">,</span><span class="bp">self</span><span class="o">.</span><span class="n">num_humcol</span><span class="p">]</span> <span class="o">=</span> \
                     <span class="bp">self</span><span class="o">.</span><span class="n">k_ads</span> <span class="o">*</span> <span class="n">concDOM</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">elements</span><span class="o">.</span><span class="n">specie</span><span class="o">==</span><span class="bp">self</span><span class="o">.</span><span class="n">num_lmm</span><span class="p">]</span>      <span class="c1"># k12</span>
-
 
             <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_config</span><span class="p">(</span><span class="s1">&#39;chemical:species:Sediment_reversible&#39;</span><span class="p">):</span>
                 <span class="c1"># Only LMM chemicals close to seabed are allowed to interact with sediments</span>
@@ -1369,39 +1695,10 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">update_chemical_diameter</span><span class="p">(</span><span class="n">specie_in</span><span class="p">,</span> <span class="n">specie_out</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="ChemicalDrift.degradation"><a class="viewcode-back" href="../../../autoapi/opendrift/models/chemicaldrift/index.html#opendrift.models.chemicaldrift.ChemicalDrift.degradation">[docs]</a>    <span class="k">def</span> <span class="nf">degradation</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&#39;&#39;&#39;degradation. Test implementations&#39;&#39;&#39;</span>
-
-        <span class="k">def</span> <span class="nf">degradation_factors</span><span class="p">():</span> <span class="c1"># NB Only used for testing</span>
-            <span class="sd">&#39;&#39;&#39;Factors for specie dependent degradation&#39;&#39;&#39;</span>
-
-            <span class="c1"># self.num_lmm    = self.specie_name2num(&#39;LMM&#39;)</span>
-            <span class="c1"># self.num_prev   = self.specie_name2num(&#39;Particle reversible&#39;)</span>
-            <span class="c1"># self.num_srev   = self.specie_name2num(&#39;Sediment reversible&#39;)</span>
-            <span class="c1"># self.num_psrev  = self.specie_name2num(&#39;Particle slowly reversible&#39;)</span>
-            <span class="c1"># self.num_ssrev  = self.specie_name2num(&#39;Sediment slowly reversible&#39;)</span>
-
-            <span class="n">factors</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">elements</span><span class="o">.</span><span class="n">specie</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span>    
-            <span class="n">factors</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">elements</span><span class="o">.</span><span class="n">specie</span><span class="o">==</span><span class="bp">self</span><span class="o">.</span><span class="n">num_lmm</span><span class="p">]</span><span class="o">=</span><span class="mi">3</span>
-            <span class="n">factors</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">elements</span><span class="o">.</span><span class="n">specie</span><span class="o">==</span><span class="bp">self</span><span class="o">.</span><span class="n">num_prev</span><span class="p">]</span><span class="o">=</span><span class="mi">1</span>
-            <span class="n">factors</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">elements</span><span class="o">.</span><span class="n">specie</span><span class="o">==</span><span class="bp">self</span><span class="o">.</span><span class="n">num_srev</span><span class="p">]</span><span class="o">=</span><span class="mf">.25</span>
-            <span class="c1">#factors[self.elements.specie==self.num_psrev]=.5</span>
-            <span class="n">factors</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">elements</span><span class="o">.</span><span class="n">specie</span><span class="o">==</span><span class="bp">self</span><span class="o">.</span><span class="n">num_ssrev</span><span class="p">]</span><span class="o">=</span><span class="mf">.125</span>
-            <span class="k">return</span> <span class="n">factors</span>
+        <span class="sd">&#39;&#39;&#39;degradation.&#39;&#39;&#39;</span>
         
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_config</span><span class="p">(</span><span class="s1">&#39;chemical:transformations:degradation&#39;</span><span class="p">)</span> <span class="ow">is</span> <span class="kc">True</span><span class="p">:</span>
-            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_config</span><span class="p">(</span><span class="s1">&#39;chemical:transformations:degradation_mode&#39;</span><span class="p">)</span><span class="o">==</span><span class="s1">&#39;Test1&#39;</span><span class="p">:</span>
-                <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;Calculating: degradation - mode Test1&#39;</span><span class="p">)</span>
-                
-                <span class="n">fraction_degraded</span> <span class="o">=</span> <span class="mf">.1</span>
-                <span class="n">degraded_now</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">elements</span><span class="o">.</span><span class="n">mass</span><span class="o">*</span><span class="n">fraction_degraded</span>
-    
-            <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_config</span><span class="p">(</span><span class="s1">&#39;chemical:transformations:degradation_mode&#39;</span><span class="p">)</span><span class="o">==</span><span class="s1">&#39;Test2&#39;</span><span class="p">:</span>
-                <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;Calculating: degradation - Mode Test2&#39;</span><span class="p">)</span>
-
-                <span class="n">fraction_degraded</span> <span class="o">=</span> <span class="mf">.01</span><span class="o">*</span><span class="n">degradation_factors</span><span class="p">()</span>
-                <span class="n">degraded_now</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">elements</span><span class="o">.</span><span class="n">mass</span><span class="o">*</span><span class="n">fraction_degraded</span>
-    
-            <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_config</span><span class="p">(</span><span class="s1">&#39;chemical:transformations:degradation_mode&#39;</span><span class="p">)</span><span class="o">==</span><span class="s1">&#39;OverallRateConstants&#39;</span><span class="p">:</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_config</span><span class="p">(</span><span class="s1">&#39;chemical:transformations:degradation_mode&#39;</span><span class="p">)</span><span class="o">==</span><span class="s1">&#39;OverallRateConstants&#39;</span><span class="p">:</span>
                 <span class="c1"># TODO: Rearrange code. Calculations here are for overall degradation including</span>
                 <span class="c1"># degradation, photodegradation, and hydrolysys</span>
 
@@ -1456,13 +1753,8 @@
 
         <span class="k">else</span><span class="p">:</span>
             <span class="k">pass</span></div>
-        
-<div class="viewcode-block" id="ChemicalDrift.photodegradation"><a class="viewcode-back" href="../../../autoapi/opendrift/models/chemicaldrift/index.html#opendrift.models.chemicaldrift.ChemicalDrift.photodegradation">[docs]</a>    <span class="k">def</span> <span class="nf">photodegradation</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_config</span><span class="p">(</span><span class="s1">&#39;chemical:transformations:photodegradation&#39;</span><span class="p">)</span> <span class="ow">is</span> <span class="kc">True</span><span class="p">:</span>
-            <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;Calculating: photodegradation&#39;</span><span class="p">)</span>        
-        <span class="k">else</span><span class="p">:</span>    
-            <span class="k">pass</span></div>
-    
+
+
 <div class="viewcode-block" id="ChemicalDrift.volatilization"><a class="viewcode-back" href="../../../autoapi/opendrift/models/chemicaldrift/index.html#opendrift.models.chemicaldrift.ChemicalDrift.volatilization">[docs]</a>    <span class="k">def</span> <span class="nf">volatilization</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_config</span><span class="p">(</span><span class="s1">&#39;chemical:transformations:volatilization&#39;</span><span class="p">)</span> <span class="ow">is</span> <span class="kc">True</span><span class="p">:</span>
             <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;Calculating: volatilization&#39;</span><span class="p">)</span>
@@ -1628,6 +1920,35 @@
 
 <span class="c1"># ################</span>
 <span class="c1"># POSTPROCESSING</span>
+<div class="viewcode-block" id="ChemicalDrift.simulation_summary"><a class="viewcode-back" href="../../../autoapi/opendrift/models/chemicaldrift/index.html#opendrift.models.chemicaldrift.ChemicalDrift.simulation_summary">[docs]</a>    <span class="k">def</span> <span class="nf">simulation_summary</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">chemical_compound</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;Print a summary of the simulation: number of elements, number of transformations</span>
+<span class="sd">        and final speciation</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+
+        <span class="nb">print</span><span class="p">(</span><span class="n">chemical_compound</span><span class="p">)</span>
+
+        <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Final speciation:&#39;</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">isp</span><span class="p">,</span><span class="n">sp</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">name_species</span><span class="p">):</span>
+            <span class="nb">print</span> <span class="p">(</span><span class="s1">&#39;</span><span class="si">{:32}</span><span class="s1">: </span><span class="si">{:&gt;6}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">sp</span><span class="p">,</span><span class="nb">sum</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">elements</span><span class="o">.</span><span class="n">specie</span><span class="o">==</span><span class="n">isp</span><span class="p">)))</span>
+
+        <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Number of transformations:&#39;</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">isp</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">nspecies</span><span class="p">):</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;</span><span class="si">{}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">([</span><span class="s1">&#39;</span><span class="si">{:&gt;9}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">int</span><span class="p">(</span><span class="n">item</span><span class="p">))</span> <span class="k">for</span> <span class="n">item</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">ntransformations</span><span class="p">[</span><span class="n">isp</span><span class="p">,:]])</span> <span class="p">)</span>
+
+        <span class="n">m_pre</span> <span class="o">=</span> <span class="nb">sum</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">elements</span><span class="o">.</span><span class="n">mass</span><span class="p">)</span><span class="o">+</span><span class="nb">sum</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">elements_deactivated</span><span class="o">.</span><span class="n">mass</span><span class="p">)</span>
+        <span class="n">m_deg</span> <span class="o">=</span> <span class="nb">sum</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">elements</span><span class="o">.</span><span class="n">mass_degraded</span><span class="p">)</span><span class="o">+</span><span class="nb">sum</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">elements_deactivated</span><span class="o">.</span><span class="n">mass_degraded</span><span class="p">)</span>
+        <span class="n">m_deg_w</span> <span class="o">=</span> <span class="nb">sum</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">elements</span><span class="o">.</span><span class="n">mass_degraded_water</span><span class="p">)</span><span class="o">+</span><span class="nb">sum</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">elements_deactivated</span><span class="o">.</span><span class="n">mass_degraded_water</span><span class="p">)</span>
+        <span class="n">m_deg_s</span> <span class="o">=</span> <span class="nb">sum</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">elements</span><span class="o">.</span><span class="n">mass_degraded_sediment</span><span class="p">)</span><span class="o">+</span><span class="nb">sum</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">elements_deactivated</span><span class="o">.</span><span class="n">mass_degraded_sediment</span><span class="p">)</span>
+        <span class="n">m_vol</span> <span class="o">=</span> <span class="nb">sum</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">elements</span><span class="o">.</span><span class="n">mass_volatilized</span><span class="p">)</span><span class="o">+</span><span class="nb">sum</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">elements_deactivated</span><span class="o">.</span><span class="n">mass_volatilized</span><span class="p">)</span>
+        <span class="n">m_tot</span> <span class="o">=</span> <span class="n">m_pre</span> <span class="o">+</span> <span class="n">m_deg</span> <span class="o">+</span> <span class="n">m_vol</span>
+
+        <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Mass balance:&#39;</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;mass preserved       :&#39;</span><span class="p">,</span> <span class="n">m_pre</span> <span class="o">*</span> <span class="mf">1e-6</span><span class="p">,</span><span class="s1">&#39; g   &#39;</span><span class="p">,</span><span class="n">m_pre</span><span class="o">/</span><span class="n">m_tot</span><span class="o">*</span><span class="mi">100</span><span class="p">,</span><span class="s1">&#39;%&#39;</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;mass degraded        :&#39;</span><span class="p">,</span> <span class="n">m_deg</span> <span class="o">*</span> <span class="mf">1e-6</span><span class="p">,</span><span class="s1">&#39; g   &#39;</span><span class="p">,</span><span class="n">m_deg</span><span class="o">/</span><span class="n">m_tot</span><span class="o">*</span><span class="mi">100</span><span class="p">,</span><span class="s1">&#39;%&#39;</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;     in water column :&#39;</span><span class="p">,</span> <span class="n">m_deg_w</span> <span class="o">*</span> <span class="mf">1e-6</span><span class="p">,</span><span class="s1">&#39; g   &#39;</span><span class="p">,</span><span class="n">m_deg_w</span><span class="o">/</span><span class="n">m_tot</span><span class="o">*</span><span class="mi">100</span><span class="p">,</span><span class="s1">&#39;%&#39;</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;     in sediments    :&#39;</span><span class="p">,</span> <span class="n">m_deg_s</span> <span class="o">*</span> <span class="mf">1e-6</span><span class="p">,</span><span class="s1">&#39; g   &#39;</span><span class="p">,</span><span class="n">m_deg_s</span><span class="o">/</span><span class="n">m_tot</span><span class="o">*</span><span class="mi">100</span><span class="p">,</span><span class="s1">&#39;%&#39;</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;mass volatilized     :&#39;</span><span class="p">,</span> <span class="n">m_vol</span> <span class="o">*</span> <span class="mf">1e-6</span><span class="p">,</span><span class="s1">&#39; g   &#39;</span><span class="p">,</span><span class="n">m_vol</span><span class="o">/</span><span class="n">m_tot</span><span class="o">*</span><span class="mi">100</span><span class="p">,</span><span class="s1">&#39;%&#39;</span><span class="p">)</span></div>
+
 
 <div class="viewcode-block" id="ChemicalDrift.write_netcdf_chemical_density_map"><a class="viewcode-back" href="../../../autoapi/opendrift/models/chemicaldrift/index.html#opendrift.models.chemicaldrift.ChemicalDrift.write_netcdf_chemical_density_map">[docs]</a>    <span class="k">def</span> <span class="nf">write_netcdf_chemical_density_map</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">filename</span><span class="p">,</span> <span class="n">pixelsize_m</span><span class="o">=</span><span class="s1">&#39;auto&#39;</span><span class="p">,</span> <span class="n">zlevels</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
                                               <span class="n">deltat</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
@@ -1646,7 +1967,7 @@
 
         <span class="k">if</span> <span class="s1">&#39;global_landmask&#39;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">readers</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
             <span class="kn">from</span> <span class="nn">opendrift.readers</span> <span class="kn">import</span> <span class="n">reader_global_landmask</span>
-            <span class="n">global_landmask</span> <span class="o">=</span> <span class="n">reader_global_landmask</span><span class="o">.</span><span class="n">Reader</span><span class="p">(</span><span class="n">extent</span><span class="o">=</span><span class="p">[</span><span class="n">llcrnrlon</span><span class="p">,</span><span class="n">urcrnrlon</span><span class="p">,</span><span class="n">llcrnrlat</span><span class="p">,</span><span class="n">urcrnrlat</span><span class="p">])</span>
+            <span class="n">global_landmask</span> <span class="o">=</span> <span class="n">reader_global_landmask</span><span class="o">.</span><span class="n">Reader</span><span class="p">()</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">add_reader</span><span class="p">(</span><span class="n">global_landmask</span><span class="p">)</span>
 
         <span class="k">if</span> <span class="n">reader_sea_depth</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
@@ -2082,7 +2403,87 @@
 <span class="c1">#        num_coarse = num_coarse*msk</span>
 
         <span class="k">return</span> <span class="n">num_coarse</span></div>
-    
+
+<div class="viewcode-block" id="ChemicalDrift.emission_factors"><a class="viewcode-back" href="../../../autoapi/opendrift/models/chemicaldrift/index.html#opendrift.models.chemicaldrift.ChemicalDrift.emission_factors">[docs]</a>    <span class="k">def</span> <span class="nf">emission_factors</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">scrubber_type</span><span class="p">,</span> <span class="n">chemical_compound</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Emission factors for heavy metals and PAHs in</span>
+<span class="sd">            open loop and closed loop scrubbers</span>
+
+<span class="sd">            Hermansson et al 2021</span>
+<span class="sd">            https://doi.org/10.1016/j.trd.2021.102912</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">emission_factors_open_loop</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="c1">#                           mean    +/-95%</span>
+            <span class="c1">#                           ug/L    ug/L</span>
+            <span class="s2">&quot;Arsenic&quot;</span><span class="p">:</span>                  <span class="p">[</span><span class="mf">6.8</span><span class="p">,</span>    <span class="mf">3.4</span><span class="p">],</span>
+            <span class="s2">&quot;Cadmium&quot;</span><span class="p">:</span>                  <span class="p">[</span><span class="mf">0.8</span><span class="p">,</span>    <span class="mf">0.3</span><span class="p">],</span>
+            <span class="s2">&quot;Chromium&quot;</span><span class="p">:</span>                 <span class="p">[</span><span class="mf">15.</span><span class="p">,</span>    <span class="mf">6.5</span><span class="p">],</span>
+            <span class="s2">&quot;Copper&quot;</span><span class="p">:</span>                   <span class="p">[</span><span class="mf">36.</span><span class="p">,</span>    <span class="mf">12.</span><span class="p">],</span>
+            <span class="s2">&quot;Iron&quot;</span><span class="p">:</span>                     <span class="p">[</span><span class="mf">260.</span><span class="p">,</span>   <span class="mf">250.</span><span class="p">],</span>
+            <span class="s2">&quot;Lead&quot;</span><span class="p">:</span>                     <span class="p">[</span><span class="mf">8.8</span><span class="p">,</span>    <span class="mf">4.4</span><span class="p">],</span>
+            <span class="s2">&quot;Mercury&quot;</span><span class="p">:</span>                  <span class="p">[</span><span class="mf">0.09</span><span class="p">,</span>   <span class="mf">0.01</span><span class="p">],</span>
+            <span class="s2">&quot;Nickel&quot;</span><span class="p">:</span>                   <span class="p">[</span><span class="mf">48.</span><span class="p">,</span>    <span class="mf">12.</span><span class="p">],</span>
+            <span class="s2">&quot;Vanadium&quot;</span><span class="p">:</span>                 <span class="p">[</span><span class="mf">170.</span><span class="p">,</span>   <span class="mf">49.</span><span class="p">],</span>
+            <span class="s2">&quot;Zinc&quot;</span><span class="p">:</span>                     <span class="p">[</span><span class="mf">110.</span><span class="p">,</span>   <span class="mf">59.</span><span class="p">],</span>
+            <span class="c1">#</span>
+            <span class="s2">&quot;Naphthalene&quot;</span><span class="p">:</span>              <span class="p">[</span><span class="mf">2.81</span><span class="p">,</span>   <span class="mf">0.77</span><span class="p">],</span>
+            <span class="s2">&quot;Phenanthrene&quot;</span><span class="p">:</span>             <span class="p">[</span><span class="mf">1.51</span><span class="p">,</span>   <span class="mf">0.29</span><span class="p">],</span>
+            <span class="s2">&quot;Fluoranthene&quot;</span><span class="p">:</span>             <span class="p">[</span><span class="mf">0.16</span><span class="p">,</span>   <span class="mf">0.04</span><span class="p">],</span>
+            <span class="s2">&quot;Benzo(a)anthracene&quot;</span><span class="p">:</span>       <span class="p">[</span><span class="mf">0.12</span><span class="p">,</span>   <span class="mf">0.05</span><span class="p">],</span>
+            <span class="s2">&quot;Benzo(a)pyrene&quot;</span><span class="p">:</span>           <span class="p">[</span><span class="mf">0.05</span><span class="p">,</span>   <span class="mf">0.02</span><span class="p">],</span>
+            <span class="s2">&quot;Dibenzo(a,h)anthracene&quot;</span><span class="p">:</span>   <span class="p">[</span><span class="mf">0.03</span><span class="p">,</span>   <span class="mf">0.01</span><span class="p">],</span>
+            <span class="c1">#</span>
+            <span class="s2">&quot;Acenaphthylene&quot;</span><span class="p">:</span>           <span class="p">[</span><span class="mf">0.12</span><span class="p">,</span>   <span class="mf">0.07</span><span class="p">],</span>
+            <span class="s2">&quot;Acenaphthene&quot;</span><span class="p">:</span>             <span class="p">[</span><span class="mf">0.19</span><span class="p">,</span>   <span class="mf">0.07</span><span class="p">],</span>
+            <span class="s2">&quot;Fluorene&quot;</span><span class="p">:</span>                 <span class="p">[</span><span class="mf">0.46</span><span class="p">,</span>   <span class="mf">0.10</span><span class="p">],</span>
+            <span class="s2">&quot;Anthracene&quot;</span><span class="p">:</span>               <span class="p">[</span><span class="mf">0.08</span><span class="p">,</span>   <span class="mf">0.04</span><span class="p">],</span>
+            <span class="s2">&quot;Pyrene&quot;</span><span class="p">:</span>                   <span class="p">[</span><span class="mf">0.31</span><span class="p">,</span>   <span class="mf">0.11</span><span class="p">],</span>
+            <span class="s2">&quot;Chrysene&quot;</span><span class="p">:</span>                 <span class="p">[</span><span class="mf">0.19</span><span class="p">,</span>   <span class="mf">0.07</span><span class="p">],</span>
+            <span class="s2">&quot;Benzo(b)fluoranthene&quot;</span><span class="p">:</span>     <span class="p">[</span><span class="mf">0.04</span><span class="p">,</span>   <span class="mf">0.02</span><span class="p">],</span>
+            <span class="s2">&quot;Benzo(k)fluoranthene&quot;</span><span class="p">:</span>     <span class="p">[</span><span class="mf">0.01</span><span class="p">,</span>   <span class="mf">0.01</span><span class="p">],</span>
+            <span class="s2">&quot;Indeno(1,2,3-cd)pyrene&quot;</span><span class="p">:</span>   <span class="p">[</span><span class="mf">0.07</span><span class="p">,</span>   <span class="mf">0.06</span><span class="p">],</span>
+            <span class="s2">&quot;Benzo(ghi)perylene&quot;</span><span class="p">:</span>       <span class="p">[</span><span class="mf">0.02</span><span class="p">,</span>   <span class="mf">0.01</span><span class="p">],</span>
+            <span class="p">}</span>
+
+        <span class="n">emission_factors_closed_loop</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="c1">#                           mean    +/-95%</span>
+            <span class="c1">#                           ug/L    ug/L</span>
+            <span class="s2">&quot;Arsenic&quot;</span><span class="p">:</span>                  <span class="p">[</span><span class="mf">22.</span><span class="p">,</span>    <span class="mf">9.4</span><span class="p">],</span>
+            <span class="s2">&quot;Cadmium&quot;</span><span class="p">:</span>                  <span class="p">[</span><span class="mf">0.55</span><span class="p">,</span>   <span class="mf">0.19</span><span class="p">],</span>
+            <span class="s2">&quot;Chromium&quot;</span><span class="p">:</span>                 <span class="p">[</span><span class="mf">1300.</span><span class="p">,</span>  <span class="mf">1700.</span><span class="p">],</span>
+            <span class="s2">&quot;Copper&quot;</span><span class="p">:</span>                   <span class="p">[</span><span class="mf">480.</span><span class="p">,</span>   <span class="mf">230.</span><span class="p">],</span>
+            <span class="s2">&quot;Iron&quot;</span><span class="p">:</span>                     <span class="p">[</span><span class="mf">490.</span><span class="p">,</span>   <span class="mf">82.</span><span class="p">],</span>
+            <span class="s2">&quot;Lead&quot;</span><span class="p">:</span>                     <span class="p">[</span><span class="mf">7.7</span><span class="p">,</span>    <span class="mf">3.1</span><span class="p">],</span>
+            <span class="s2">&quot;Mercury&quot;</span><span class="p">:</span>                  <span class="p">[</span><span class="mf">0.07</span><span class="p">,</span>   <span class="mf">0.02</span><span class="p">],</span>
+            <span class="s2">&quot;Nickel&quot;</span><span class="p">:</span>                   <span class="p">[</span><span class="mf">2700.</span><span class="p">,</span>  <span class="mf">860.</span><span class="p">],</span>
+            <span class="s2">&quot;Vanadium&quot;</span><span class="p">:</span>                 <span class="p">[</span><span class="mf">9100.</span><span class="p">,</span>  <span class="mf">3200.</span><span class="p">],</span>
+            <span class="s2">&quot;Zinc&quot;</span><span class="p">:</span>                     <span class="p">[</span><span class="mf">370.</span><span class="p">,</span>   <span class="mf">200.</span><span class="p">],</span>
+            <span class="c1">#</span>
+            <span class="s2">&quot;Naphthalene&quot;</span><span class="p">:</span>              <span class="p">[</span><span class="mf">2.08</span><span class="p">,</span>   <span class="mf">1.05</span><span class="p">],</span>
+            <span class="s2">&quot;Phenanthrene&quot;</span><span class="p">:</span>             <span class="p">[</span><span class="mf">5.00</span><span class="p">,</span>   <span class="mf">2.30</span><span class="p">],</span>
+            <span class="s2">&quot;Fluoranthene&quot;</span><span class="p">:</span>             <span class="p">[</span><span class="mf">0.63</span><span class="p">,</span>	 <span class="mf">0.41</span><span class="p">],</span>
+            <span class="s2">&quot;Benzo(a)anthracene&quot;</span><span class="p">:</span>       <span class="p">[</span><span class="mf">0.30</span><span class="p">,</span>	 <span class="mf">0.29</span><span class="p">],</span>
+            <span class="s2">&quot;Benzo(a)pyrene&quot;</span><span class="p">:</span>           <span class="p">[</span><span class="mf">0.06</span><span class="p">,</span>	 <span class="mf">0.05</span><span class="p">],</span>
+            <span class="s2">&quot;Dibenzo(a,h)anthracene&quot;</span><span class="p">:</span>   <span class="p">[</span><span class="mf">0.03</span><span class="p">,</span>	 <span class="mf">0.02</span><span class="p">],</span>
+            <span class="c1">#</span>
+            <span class="s2">&quot;Acenaphthylene&quot;</span><span class="p">:</span>           <span class="p">[</span><span class="mf">0.09</span><span class="p">,</span>   <span class="mf">0.06</span><span class="p">],</span>
+            <span class="s2">&quot;Acenaphthene&quot;</span><span class="p">:</span>             <span class="p">[</span><span class="mf">0.47</span><span class="p">,</span>   <span class="mf">0.31</span><span class="p">],</span>
+            <span class="s2">&quot;Fluorene&quot;</span><span class="p">:</span>                 <span class="p">[</span><span class="mf">1.32</span><span class="p">,</span>   <span class="mf">0.54</span><span class="p">],</span>
+            <span class="s2">&quot;Anthracene&quot;</span><span class="p">:</span>               <span class="p">[</span><span class="mf">1.55</span><span class="p">,</span>   <span class="mf">2.00</span><span class="p">],</span>
+            <span class="s2">&quot;Pyrene&quot;</span><span class="p">:</span>                   <span class="p">[</span><span class="mf">0.76</span><span class="p">,</span>   <span class="mf">0.59</span><span class="p">],</span>
+            <span class="s2">&quot;Chrysene&quot;</span><span class="p">:</span>                 <span class="p">[</span><span class="mf">0.50</span><span class="p">,</span>   <span class="mf">0.45</span><span class="p">],</span>
+            <span class="s2">&quot;Benzo(b)fluoranthene&quot;</span><span class="p">:</span>     <span class="p">[</span><span class="mf">0.14</span><span class="p">,</span>   <span class="mf">0.12</span><span class="p">],</span>
+            <span class="s2">&quot;Benzo(k)fluoranthene&quot;</span><span class="p">:</span>     <span class="p">[</span><span class="mf">0.02</span><span class="p">,</span>   <span class="mf">0.02</span><span class="p">],</span>
+            <span class="s2">&quot;Indeno(1,2,3-cd)pyrene&quot;</span><span class="p">:</span>   <span class="p">[</span><span class="mf">0.04</span><span class="p">,</span>   <span class="mf">0.03</span><span class="p">],</span>
+            <span class="s2">&quot;Benzo(ghi)perylene&quot;</span><span class="p">:</span>       <span class="p">[</span><span class="mf">0.07</span><span class="p">,</span>   <span class="mf">0.07</span><span class="p">],</span>
+            <span class="p">}</span>
+
+        <span class="k">if</span> <span class="n">scrubber_type</span><span class="o">==</span><span class="s2">&quot;open_loop&quot;</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">emission_factors_open_loop</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">chemical_compound</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="k">elif</span> <span class="n">scrubber_type</span><span class="o">==</span><span class="s2">&quot;closed_loop&quot;</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">emission_factors_closed_loop</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">chemical_compound</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span></div>
+
+        <span class="c1"># TODO: Add emission uncertainty based on 95% confidence interval</span>
+
 <div class="viewcode-block" id="ChemicalDrift.seed_from_STEAM"><a class="viewcode-back" href="../../../autoapi/opendrift/models/chemicaldrift/index.html#opendrift.models.chemicaldrift.ChemicalDrift.seed_from_STEAM">[docs]</a>    <span class="k">def</span> <span class="nf">seed_from_STEAM</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">steam</span><span class="p">,</span> <span class="n">lowerbound</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">higherbound</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">inf</span><span class="p">,</span> <span class="n">radius</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">scrubber_type</span><span class="o">=</span><span class="s2">&quot;open_loop&quot;</span><span class="p">,</span> <span class="n">chemical_compound</span><span class="o">=</span><span class="s2">&quot;Copper&quot;</span><span class="p">,</span> <span class="n">mass_element_ug</span><span class="o">=</span><span class="mf">100e3</span><span class="p">,</span> <span class="n">number_of_elements</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
             <span class="sd">&quot;&quot;&quot;Seed elements based on a dataarray with STEAM emission data</span>
 <span class="sd">    </span>
@@ -2097,89 +2498,13 @@
 <span class="sd">                lowerbound:  scalar, elements with lower values are discarded</span>
 <span class="sd">            &quot;&quot;&quot;</span>
 
+            <span class="k">if</span> <span class="n">chemical_compound</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="n">chemical_compound</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_config</span><span class="p">(</span><span class="s1">&#39;chemical:compound&#39;</span><span class="p">)</span>
+
             <span class="c1">#mass_element_ug=1e3      # 1e3 - 1 element is 1mg chemical</span>
             <span class="c1">#mass_element_ug=20e3      # 100e3 - 1 element is 100mg chemical</span>
             <span class="c1">#mass_element_ug=100e3      # 100e3 - 1 element is 100mg chemical</span>
             <span class="c1">#mass_element_ug=1e6     # 1e6 - 1 element is 1g chemical</span>
-
-            <span class="k">def</span> <span class="nf">emission_factors</span><span class="p">(</span><span class="n">scrubber_type</span><span class="p">,</span> <span class="n">chemical_compound</span><span class="p">):</span>
-                <span class="sd">&quot;&quot;&quot;Emission factors for heavy metals and PAHs in</span>
-<span class="sd">                    open loop and closed loop scrubbers</span>
-
-<span class="sd">                    Hermansson et al 2021</span>
-<span class="sd">                    https://doi.org/10.1016/j.trd.2021.102912</span>
-<span class="sd">                &quot;&quot;&quot;</span>
-                <span class="n">emission_factors_open_loop</span> <span class="o">=</span> <span class="p">{</span>
-                    <span class="c1">#                           mean    +/-95%</span>
-                    <span class="c1">#                           ug/L    ug/L</span>
-                    <span class="s2">&quot;Arsenic&quot;</span><span class="p">:</span>                  <span class="p">[</span><span class="mf">6.8</span><span class="p">,</span>    <span class="mf">3.4</span><span class="p">],</span>
-                    <span class="s2">&quot;Cadmium&quot;</span><span class="p">:</span>                  <span class="p">[</span><span class="mf">0.8</span><span class="p">,</span>    <span class="mf">0.3</span><span class="p">],</span>
-                    <span class="s2">&quot;Chromium&quot;</span><span class="p">:</span>                 <span class="p">[</span><span class="mf">15.</span><span class="p">,</span>    <span class="mf">6.5</span><span class="p">],</span>
-                    <span class="s2">&quot;Copper&quot;</span><span class="p">:</span>                   <span class="p">[</span><span class="mf">36.</span><span class="p">,</span>    <span class="mf">12.</span><span class="p">],</span>
-                    <span class="s2">&quot;Iron&quot;</span><span class="p">:</span>                     <span class="p">[</span><span class="mf">260.</span><span class="p">,</span>   <span class="mf">250.</span><span class="p">],</span>
-                    <span class="s2">&quot;Lead&quot;</span><span class="p">:</span>                     <span class="p">[</span><span class="mf">8.8</span><span class="p">,</span>    <span class="mf">4.4</span><span class="p">],</span>
-                    <span class="s2">&quot;Mercury&quot;</span><span class="p">:</span>                  <span class="p">[</span><span class="mf">0.09</span><span class="p">,</span>   <span class="mf">0.01</span><span class="p">],</span>
-                    <span class="s2">&quot;Nickel&quot;</span><span class="p">:</span>                   <span class="p">[</span><span class="mf">48.</span><span class="p">,</span>    <span class="mf">12.</span><span class="p">],</span>
-                    <span class="s2">&quot;Vanadium&quot;</span><span class="p">:</span>                 <span class="p">[</span><span class="mf">170.</span><span class="p">,</span>   <span class="mf">49.</span><span class="p">],</span>
-                    <span class="s2">&quot;Zinc&quot;</span><span class="p">:</span>                     <span class="p">[</span><span class="mf">110.</span><span class="p">,</span>   <span class="mf">59.</span><span class="p">],</span>
-                    <span class="c1">#</span>
-                    <span class="s2">&quot;Naphthalene&quot;</span><span class="p">:</span>              <span class="p">[</span><span class="mf">2.81</span><span class="p">,</span>   <span class="mf">0.77</span><span class="p">],</span>
-                    <span class="s2">&quot;Phenanthrene&quot;</span><span class="p">:</span>             <span class="p">[</span><span class="mf">1.51</span><span class="p">,</span>   <span class="mf">0.29</span><span class="p">],</span>
-                    <span class="s2">&quot;Fluoranthene&quot;</span><span class="p">:</span>             <span class="p">[</span><span class="mf">0.16</span><span class="p">,</span>   <span class="mf">0.04</span><span class="p">],</span>
-                    <span class="s2">&quot;Benzo(a)anthracene&quot;</span><span class="p">:</span>       <span class="p">[</span><span class="mf">0.12</span><span class="p">,</span>   <span class="mf">0.05</span><span class="p">],</span>
-                    <span class="s2">&quot;Benzo(a)pyrene&quot;</span><span class="p">:</span>           <span class="p">[</span><span class="mf">0.05</span><span class="p">,</span>   <span class="mf">0.02</span><span class="p">],</span>
-                    <span class="s2">&quot;Dibenzo(a,h)anthracene&quot;</span><span class="p">:</span>   <span class="p">[</span><span class="mf">0.03</span><span class="p">,</span>   <span class="mf">0.01</span><span class="p">],</span>
-                    <span class="c1">#</span>
-                    <span class="s2">&quot;Acenaphthylene&quot;</span><span class="p">:</span>           <span class="p">[</span><span class="mf">0.12</span><span class="p">,</span>   <span class="mf">0.07</span><span class="p">],</span>
-                    <span class="s2">&quot;Acenaphthene&quot;</span><span class="p">:</span>             <span class="p">[</span><span class="mf">0.19</span><span class="p">,</span>   <span class="mf">0.07</span><span class="p">],</span>
-                    <span class="s2">&quot;Fluorene&quot;</span><span class="p">:</span>                 <span class="p">[</span><span class="mf">0.46</span><span class="p">,</span>   <span class="mf">0.10</span><span class="p">],</span>
-                    <span class="s2">&quot;Anthracene&quot;</span><span class="p">:</span>               <span class="p">[</span><span class="mf">0.08</span><span class="p">,</span>   <span class="mf">0.04</span><span class="p">],</span>
-                    <span class="s2">&quot;Pyrene&quot;</span><span class="p">:</span>                   <span class="p">[</span><span class="mf">0.31</span><span class="p">,</span>   <span class="mf">0.11</span><span class="p">],</span>
-                    <span class="s2">&quot;Chrysene&quot;</span><span class="p">:</span>                 <span class="p">[</span><span class="mf">0.19</span><span class="p">,</span>   <span class="mf">0.07</span><span class="p">],</span>
-                    <span class="s2">&quot;Benzo(b)fluoranthene&quot;</span><span class="p">:</span>     <span class="p">[</span><span class="mf">0.04</span><span class="p">,</span>   <span class="mf">0.02</span><span class="p">],</span>
-                    <span class="s2">&quot;Benzo(k)fluoranthene&quot;</span><span class="p">:</span>     <span class="p">[</span><span class="mf">0.01</span><span class="p">,</span>   <span class="mf">0.01</span><span class="p">],</span>
-                    <span class="s2">&quot;Indeno(1,2,3-cd)pyrene&quot;</span><span class="p">:</span>   <span class="p">[</span><span class="mf">0.07</span><span class="p">,</span>   <span class="mf">0.06</span><span class="p">],</span>
-                    <span class="s2">&quot;Benzo(ghi)perylene&quot;</span><span class="p">:</span>       <span class="p">[</span><span class="mf">0.02</span><span class="p">,</span>   <span class="mf">0.01</span><span class="p">],</span>
-                    <span class="p">}</span>
-
-                <span class="n">emission_factors_closed_loop</span> <span class="o">=</span> <span class="p">{</span>
-                    <span class="c1">#                           mean    +/-95%</span>
-                    <span class="c1">#                           ug/L    ug/L</span>
-                    <span class="s2">&quot;Arsenic&quot;</span><span class="p">:</span>                  <span class="p">[</span><span class="mf">22.</span><span class="p">,</span>    <span class="mf">9.4</span><span class="p">],</span>
-                    <span class="s2">&quot;Cadmium&quot;</span><span class="p">:</span>                  <span class="p">[</span><span class="mf">0.55</span><span class="p">,</span>   <span class="mf">0.19</span><span class="p">],</span>
-                    <span class="s2">&quot;Chromium&quot;</span><span class="p">:</span>                 <span class="p">[</span><span class="mf">1300.</span><span class="p">,</span>  <span class="mf">1700.</span><span class="p">],</span>
-                    <span class="s2">&quot;Copper&quot;</span><span class="p">:</span>                   <span class="p">[</span><span class="mf">480.</span><span class="p">,</span>   <span class="mf">230.</span><span class="p">],</span>
-                    <span class="s2">&quot;Iron&quot;</span><span class="p">:</span>                     <span class="p">[</span><span class="mf">490.</span><span class="p">,</span>   <span class="mf">82.</span><span class="p">],</span>
-                    <span class="s2">&quot;Lead&quot;</span><span class="p">:</span>                     <span class="p">[</span><span class="mf">7.7</span><span class="p">,</span>    <span class="mf">3.1</span><span class="p">],</span>
-                    <span class="s2">&quot;Mercury&quot;</span><span class="p">:</span>                  <span class="p">[</span><span class="mf">0.07</span><span class="p">,</span>   <span class="mf">0.02</span><span class="p">],</span>
-                    <span class="s2">&quot;Nickel&quot;</span><span class="p">:</span>                   <span class="p">[</span><span class="mf">2700.</span><span class="p">,</span>  <span class="mf">860.</span><span class="p">],</span>
-                    <span class="s2">&quot;Vanadium&quot;</span><span class="p">:</span>                 <span class="p">[</span><span class="mf">9100.</span><span class="p">,</span>  <span class="mf">3200.</span><span class="p">],</span>
-                    <span class="s2">&quot;Zinc&quot;</span><span class="p">:</span>                     <span class="p">[</span><span class="mf">370.</span><span class="p">,</span>   <span class="mf">200.</span><span class="p">],</span>
-                    <span class="c1">#</span>
-                    <span class="s2">&quot;Naphthalene&quot;</span><span class="p">:</span>              <span class="p">[</span><span class="mf">2.08</span><span class="p">,</span>   <span class="mf">1.05</span><span class="p">],</span>
-                    <span class="s2">&quot;Phenanthrene&quot;</span><span class="p">:</span>             <span class="p">[</span><span class="mf">5.00</span><span class="p">,</span>   <span class="mf">2.30</span><span class="p">],</span>
-                    <span class="s2">&quot;Fluoranthene&quot;</span><span class="p">:</span>             <span class="p">[</span><span class="mf">0.63</span><span class="p">,</span>	 <span class="mf">0.41</span><span class="p">],</span>
-                    <span class="s2">&quot;Benzo(a)anthracene&quot;</span><span class="p">:</span>       <span class="p">[</span><span class="mf">0.30</span><span class="p">,</span>	 <span class="mf">0.29</span><span class="p">],</span>
-                    <span class="s2">&quot;Benzo(a)pyrene&quot;</span><span class="p">:</span>           <span class="p">[</span><span class="mf">0.06</span><span class="p">,</span>	 <span class="mf">0.05</span><span class="p">],</span>
-                    <span class="s2">&quot;Dibenzo(a,h)anthracene&quot;</span><span class="p">:</span>   <span class="p">[</span><span class="mf">0.03</span><span class="p">,</span>	 <span class="mf">0.02</span><span class="p">],</span>
-                    <span class="c1">#</span>
-                    <span class="s2">&quot;Acenaphthylene&quot;</span><span class="p">:</span>           <span class="p">[</span><span class="mf">0.09</span><span class="p">,</span>   <span class="mf">0.06</span><span class="p">],</span>
-                    <span class="s2">&quot;Acenaphthene&quot;</span><span class="p">:</span>             <span class="p">[</span><span class="mf">0.47</span><span class="p">,</span>   <span class="mf">0.31</span><span class="p">],</span>
-                    <span class="s2">&quot;Fluorene&quot;</span><span class="p">:</span>                 <span class="p">[</span><span class="mf">1.32</span><span class="p">,</span>   <span class="mf">0.54</span><span class="p">],</span>
-                    <span class="s2">&quot;Anthracene&quot;</span><span class="p">:</span>               <span class="p">[</span><span class="mf">1.55</span><span class="p">,</span>   <span class="mf">2.00</span><span class="p">],</span>
-                    <span class="s2">&quot;Pyrene&quot;</span><span class="p">:</span>                   <span class="p">[</span><span class="mf">0.76</span><span class="p">,</span>   <span class="mf">0.59</span><span class="p">],</span>
-                    <span class="s2">&quot;Chrysene&quot;</span><span class="p">:</span>                 <span class="p">[</span><span class="mf">0.50</span><span class="p">,</span>   <span class="mf">0.45</span><span class="p">],</span>
-                    <span class="s2">&quot;Benzo(b)fluoranthene&quot;</span><span class="p">:</span>     <span class="p">[</span><span class="mf">0.14</span><span class="p">,</span>   <span class="mf">0.12</span><span class="p">],</span>
-                    <span class="s2">&quot;Benzo(k)fluoranthene&quot;</span><span class="p">:</span>     <span class="p">[</span><span class="mf">0.02</span><span class="p">,</span>   <span class="mf">0.02</span><span class="p">],</span>
-                    <span class="s2">&quot;Indeno(1,2,3-cd)pyrene&quot;</span><span class="p">:</span>   <span class="p">[</span><span class="mf">0.04</span><span class="p">,</span>   <span class="mf">0.03</span><span class="p">],</span>
-                    <span class="s2">&quot;Benzo(ghi)perylene&quot;</span><span class="p">:</span>       <span class="p">[</span><span class="mf">0.07</span><span class="p">,</span>   <span class="mf">0.07</span><span class="p">],</span>
-                    <span class="p">}</span>
-
-                <span class="k">if</span> <span class="n">scrubber_type</span><span class="o">==</span><span class="s2">&quot;open_loop&quot;</span><span class="p">:</span>
-                    <span class="k">return</span> <span class="n">emission_factors_open_loop</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">chemical_compound</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
-                <span class="k">elif</span> <span class="n">scrubber_type</span><span class="o">==</span><span class="s2">&quot;closed_loop&quot;</span><span class="p">:</span>
-                    <span class="k">return</span> <span class="n">emission_factors_closed_loop</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">chemical_compound</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
-                    <span class="c1"># TODO: Add emission uncertainty based on 95% confidence interval</span>
 
             <span class="n">sel</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">((</span><span class="n">steam</span> <span class="o">&gt;</span> <span class="n">lowerbound</span><span class="p">)</span> <span class="o">&amp;</span> <span class="p">(</span><span class="n">steam</span> <span class="o">&lt;</span> <span class="n">higherbound</span><span class="p">))</span>
             <span class="n">t</span><span class="o">=</span><span class="n">steam</span><span class="o">.</span><span class="n">time</span><span class="p">[</span><span class="n">sel</span><span class="p">[</span><span class="mi">0</span><span class="p">]]</span><span class="o">.</span><span class="n">data</span>
@@ -2190,12 +2515,12 @@
 
             <span class="k">if</span> <span class="n">number_of_elements</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
                 <span class="n">total_volume</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="n">sel</span><span class="p">])</span>
-                <span class="n">total_mass</span> <span class="o">=</span> <span class="n">total_volume</span> <span class="o">*</span> <span class="n">emission_factors</span><span class="p">(</span><span class="n">scrubber_type</span><span class="p">,</span> <span class="n">chemical_compound</span><span class="p">)</span>
+                <span class="n">total_mass</span> <span class="o">=</span> <span class="n">total_volume</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">emission_factors</span><span class="p">(</span><span class="n">scrubber_type</span><span class="p">,</span> <span class="n">chemical_compound</span><span class="p">)</span>
                 <span class="n">mass_element_ug</span> <span class="o">=</span> <span class="n">total_mass</span> <span class="o">/</span> <span class="n">number_of_elements</span>
 
             <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="n">t</span><span class="o">.</span><span class="n">size</span><span class="p">):</span>
                 <span class="n">scrubberwater_vol_l</span><span class="o">=</span><span class="n">data</span><span class="p">[</span><span class="n">sel</span><span class="p">][</span><span class="n">i</span><span class="p">]</span>
-                <span class="n">mass_ug</span><span class="o">=</span><span class="n">scrubberwater_vol_l</span> <span class="o">*</span> <span class="n">emission_factors</span><span class="p">(</span><span class="n">scrubber_type</span><span class="p">,</span> <span class="n">chemical_compound</span><span class="p">)</span>
+                <span class="n">mass_ug</span><span class="o">=</span><span class="n">scrubberwater_vol_l</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">emission_factors</span><span class="p">(</span><span class="n">scrubber_type</span><span class="p">,</span> <span class="n">chemical_compound</span><span class="p">)</span>
 
                 <span class="k">if</span> <span class="n">number_of_elements</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
                     <span class="n">number</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">mass_ug</span> <span class="o">/</span> <span class="n">mass_element_ug</span><span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="s1">&#39;int&#39;</span><span class="p">)</span>
@@ -2218,7 +2543,7 @@
                                 <span class="n">radius</span><span class="o">=</span><span class="n">radius</span><span class="p">,</span> <span class="n">number</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">time</span><span class="o">=</span><span class="n">time</span><span class="p">,</span>
                                 <span class="n">mass</span><span class="o">=</span><span class="n">mass_residual</span><span class="p">,</span><span class="n">mass_degraded</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span><span class="n">mass_volatilized</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">z</span><span class="o">=</span><span class="n">z</span><span class="p">,</span> <span class="n">origin_marker</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="ChemicalDrift.init_chemical_compound"><a class="viewcode-back" href="../../../autoapi/opendrift/models/chemicaldrift/index.html#opendrift.models.chemicaldrift.ChemicalDrift.init_chemical_compound">[docs]</a>    <span class="k">def</span> <span class="nf">init_chemical_compound</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">chemical_compound</span><span class="p">):</span>
+<div class="viewcode-block" id="ChemicalDrift.init_chemical_compound"><a class="viewcode-back" href="../../../autoapi/opendrift/models/chemicaldrift/index.html#opendrift.models.chemicaldrift.ChemicalDrift.init_chemical_compound">[docs]</a>    <span class="k">def</span> <span class="nf">init_chemical_compound</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">chemical_compound</span> <span class="o">=</span> <span class="kc">None</span><span class="p">):</span>
         <span class="sd">&#39;&#39;&#39; Chemical parameters for a selection of PAHs:</span>
 <span class="sd">            Naphthalene, Phenanthrene, Fluorene,</span>
 <span class="sd">            Benzo(a)anthracene, Benzo(a)pyrene, Dibenzo(a,h)anthracene</span>
@@ -2229,7 +2554,13 @@
 <span class="sd">            Manuel Aghito (Norwegian Meteorological Institute / University of Bergen)</span>
 <span class="sd">        &#39;&#39;&#39;</span>
 
-        <span class="k">if</span>  <span class="n">chemical_compound</span><span class="o">==</span><span class="s2">&quot;Naphthalene&quot;</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">chemical_compound</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">set_config</span><span class="p">(</span><span class="s1">&#39;chemical:compound&#39;</span><span class="p">,</span><span class="n">chemical_compound</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_config</span><span class="p">(</span><span class="s1">&#39;chemical:compound&#39;</span><span class="p">)</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Chemical compound not defined&quot;</span><span class="p">)</span>
+
+        <span class="k">if</span>  <span class="bp">self</span><span class="o">.</span><span class="n">get_config</span><span class="p">(</span><span class="s1">&#39;chemical:compound&#39;</span><span class="p">)</span> <span class="o">==</span> <span class="s2">&quot;Naphthalene&quot;</span><span class="p">:</span>
 
             <span class="c1">#partitioning</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">set_config</span><span class="p">(</span><span class="s1">&#39;chemical:transfer_setup&#39;</span><span class="p">,</span><span class="s1">&#39;organics&#39;</span><span class="p">)</span>
@@ -2260,7 +2591,7 @@
             <span class="bp">self</span><span class="o">.</span><span class="n">set_config</span><span class="p">(</span><span class="s1">&#39;chemical:transformations:Tref_Solub&#39;</span><span class="p">,</span> <span class="mi">25</span><span class="p">)</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">set_config</span><span class="p">(</span><span class="s1">&#39;chemical:transformations:DeltaH_Solub&#39;</span><span class="p">,</span> <span class="mi">25300</span><span class="p">)</span>
 
-        <span class="k">elif</span>  <span class="n">chemical_compound</span><span class="o">==</span><span class="s2">&quot;Phenanthrene&quot;</span><span class="p">:</span>
+        <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_config</span><span class="p">(</span><span class="s1">&#39;chemical:compound&#39;</span><span class="p">)</span> <span class="o">==</span> <span class="s2">&quot;Phenanthrene&quot;</span><span class="p">:</span>
 
             <span class="c1">#partitioning</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">set_config</span><span class="p">(</span><span class="s1">&#39;chemical:transfer_setup&#39;</span><span class="p">,</span><span class="s1">&#39;organics&#39;</span><span class="p">)</span>
@@ -2291,7 +2622,7 @@
             <span class="bp">self</span><span class="o">.</span><span class="n">set_config</span><span class="p">(</span><span class="s1">&#39;chemical:transformations:Tref_Solub&#39;</span><span class="p">,</span> <span class="mi">25</span><span class="p">)</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">set_config</span><span class="p">(</span><span class="s1">&#39;chemical:transformations:DeltaH_Solub&#39;</span><span class="p">,</span> <span class="mi">34800</span><span class="p">)</span>
 
-        <span class="k">elif</span>  <span class="n">chemical_compound</span><span class="o">==</span><span class="s2">&quot;Fluoranthene&quot;</span><span class="p">:</span>
+        <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_config</span><span class="p">(</span><span class="s1">&#39;chemical:compound&#39;</span><span class="p">)</span> <span class="o">==</span> <span class="s2">&quot;Fluoranthene&quot;</span><span class="p">:</span>
 
             <span class="c1">#partitioning</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">set_config</span><span class="p">(</span><span class="s1">&#39;chemical:transfer_setup&#39;</span><span class="p">,</span><span class="s1">&#39;organics&#39;</span><span class="p">)</span>
@@ -2322,7 +2653,7 @@
             <span class="bp">self</span><span class="o">.</span><span class="n">set_config</span><span class="p">(</span><span class="s1">&#39;chemical:transformations:Tref_Solub&#39;</span><span class="p">,</span> <span class="mi">25</span><span class="p">)</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">set_config</span><span class="p">(</span><span class="s1">&#39;chemical:transformations:DeltaH_Solub&#39;</span><span class="p">,</span> <span class="mi">30315</span><span class="p">)</span>
 
-        <span class="k">elif</span>  <span class="n">chemical_compound</span><span class="o">==</span><span class="s2">&quot;Benzo(a)anthracene&quot;</span><span class="p">:</span>
+        <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_config</span><span class="p">(</span><span class="s1">&#39;chemical:compound&#39;</span><span class="p">)</span> <span class="o">==</span> <span class="s2">&quot;Benzo(a)anthracene&quot;</span><span class="p">:</span>
 
             <span class="c1">#partitioning</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">set_config</span><span class="p">(</span><span class="s1">&#39;chemical:transfer_setup&#39;</span><span class="p">,</span><span class="s1">&#39;organics&#39;</span><span class="p">)</span>
@@ -2353,7 +2684,7 @@
             <span class="bp">self</span><span class="o">.</span><span class="n">set_config</span><span class="p">(</span><span class="s1">&#39;chemical:transformations:Tref_Solub&#39;</span><span class="p">,</span> <span class="mi">25</span><span class="p">)</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">set_config</span><span class="p">(</span><span class="s1">&#39;chemical:transformations:DeltaH_Solub&#39;</span><span class="p">,</span> <span class="mi">46200</span><span class="p">)</span>
 
-        <span class="k">elif</span>  <span class="n">chemical_compound</span><span class="o">==</span><span class="s2">&quot;Benzo(a)pyrene&quot;</span><span class="p">:</span>
+        <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_config</span><span class="p">(</span><span class="s1">&#39;chemical:compound&#39;</span><span class="p">)</span> <span class="o">==</span> <span class="s2">&quot;Benzo(a)pyrene&quot;</span><span class="p">:</span>
 
             <span class="c1">#partitioning</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">set_config</span><span class="p">(</span><span class="s1">&#39;chemical:transfer_setup&#39;</span><span class="p">,</span><span class="s1">&#39;organics&#39;</span><span class="p">)</span>
@@ -2384,7 +2715,7 @@
             <span class="bp">self</span><span class="o">.</span><span class="n">set_config</span><span class="p">(</span><span class="s1">&#39;chemical:transformations:Tref_Solub&#39;</span><span class="p">,</span> <span class="mi">25</span><span class="p">)</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">set_config</span><span class="p">(</span><span class="s1">&#39;chemical:transformations:DeltaH_Solub&#39;</span><span class="p">,</span> <span class="mi">38000</span><span class="p">)</span>
 
-        <span class="k">elif</span>  <span class="n">chemical_compound</span><span class="o">==</span><span class="s2">&quot;Dibenzo(a,h)anthracene&quot;</span><span class="p">:</span>
+        <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_config</span><span class="p">(</span><span class="s1">&#39;chemical:compound&#39;</span><span class="p">)</span> <span class="o">==</span> <span class="s2">&quot;Dibenzo(a,h)anthracene&quot;</span><span class="p">:</span>
 
             <span class="c1">#partitioning</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">set_config</span><span class="p">(</span><span class="s1">&#39;chemical:transfer_setup&#39;</span><span class="p">,</span><span class="s1">&#39;organics&#39;</span><span class="p">)</span>

@@ -12,6 +12,7 @@ Classes
 
 .. autoapisummary::
 
+   opendrift.readers.reader_global_landmask.LandmaskFeature
    opendrift.readers.reader_global_landmask.Reader
 
 
@@ -21,7 +22,6 @@ Functions
 
 .. autoapisummary::
 
-   opendrift.readers.reader_global_landmask.get_mask_type
    opendrift.readers.reader_global_landmask.get_mask
    opendrift.readers.reader_global_landmask.plot_land
 
@@ -34,6 +34,7 @@ Attributes
 
    opendrift.readers.reader_global_landmask.logger
    opendrift.readers.reader_global_landmask.__roaring_mask__
+   opendrift.readers.reader_global_landmask.__polys__
 
 
 .. py:data:: logger
@@ -46,16 +47,55 @@ Attributes
 
    
 
-.. py:function:: get_mask_type()
+.. py:data:: __polys__
+   
 
-   Returns whether the landmask is provided by the opendrift_landmask_data
-   package (0), or the roaring-landmask package (1).
+   
 
-
-.. py:function:: get_mask(skippoly=False, extent=None)
+.. py:function:: get_mask()
 
    Returns an instance of the landmask type and landmask. The mask data is
    usually shared between threads.
+
+
+.. py:class:: LandmaskFeature(scale='auto', globe=None, **kwargs)
+
+   Bases: :py:obj:`cartopy.feature.GSHHSFeature`
+
+   An interface to the GSHHS dataset.
+
+   See https://www.ngdc.noaa.gov/mgg/shorelines/gshhs.html
+
+   Parameters
+   ----------
+   scale
+       The dataset scale. One of 'auto', 'coarse', 'low', 'intermediate',
+       'high, or 'full' (default is 'auto').
+   levels
+       A list of integers 1-6 corresponding to the desired GSHHS feature
+       levels to draw (default is [1] which corresponds to coastlines).
+
+   Other Parameters
+   ----------------
+   **kwargs
+       Keyword arguments to be used when drawing the feature. Defaults
+       are edgecolor='black' and facecolor='none'.
+
+
+   .. py:method:: geometries()
+
+      Return an iterator of (shapely) geometries for this feature.
+
+
+
+   .. py:method:: intersecting_geometries(extent)
+
+      Return an iterator of shapely geometries that intersect with
+      the given extent. The extent is assumed to be in the CRS of
+      the feature. If extent is None, the method returns all
+      geometries for this dataset.
+
+
 
 
 .. py:function:: plot_land(ax, lonmin, latmin, lonmax, latmax, fast, ocean_color='white', land_color=cfeature.COLORS['land'], lscale='auto', globe=None)
@@ -63,33 +103,13 @@ Attributes
    Plot the landmask or the shapes from GSHHG.
 
 
-.. py:class:: Reader(extent=None, llcrnrlon=None, llcrnrlat=None, urcrnrlon=None, urcrnrlat=None, skippoly=False)
+.. py:class:: Reader
 
    Bases: :py:obj:`opendrift.readers.basereader.BaseReader`, :py:obj:`opendrift.readers.basereader.ContinuousReader`
 
    The global landmask reader is based on the coastline data from
    GSHHG (https://www.ngdc.noaa.gov/mgg/shorelines/) optimized for
    checking against landmasks.
-
-   Args:
-       :param extent: minx, miny, maxx, maxy bounding box in source CRS for which to include
-           geometries. Default None (all geometries).
-       :type extent: array of floats, optional
-
-       :param llcrnrlon: minx.
-       :type llcrnrlon: float, optional, deprecated in favor of extent.
-
-       :param llcrnrlat: miny.
-       :type llcrnrlat: float, optional, deprecated in favor of extent.
-
-       :param urcrnrlon: maxx.
-       :type urcrnrlon: float, optional, deprecated in favor of extent.
-
-       :param urcrnrlat: maxy.
-       :type urcrnrlat: float, optional, deprecated in favor of extent.
-
-       :param skippoly: use only rasterized landmask to determine whether points are on land.
-       :type skippoly: bool, optional, default False.
 
    Common constructor for all readers
 
@@ -110,21 +130,6 @@ Attributes
 
    .. py:attribute:: crs
       
-
-      
-
-   .. py:attribute:: skippoly
-      :annotation: = False
-
-      
-
-   .. py:attribute:: extent
-      
-
-      
-
-   .. py:attribute:: mask_type
-      :annotation: = 0
 
       
 

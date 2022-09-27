@@ -22,6 +22,7 @@
         <script src="../../../_static/underscore.js"></script>
         <script src="../../../_static/_sphinx_javascript_frameworks_compat.js"></script>
         <script src="../../../_static/doctools.js"></script>
+        <script src="../../../_static/sphinx_highlight.js"></script>
     <script src="../../../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../../../genindex.html" />
     <link rel="search" title="Search" href="../../../search.html" /> 
@@ -303,7 +304,6 @@
 
             <span class="n">od_loggers</span> <span class="o">=</span> <span class="p">[</span>
                 <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="s1">&#39;opendrift&#39;</span><span class="p">),</span>
-                <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="s1">&#39;opendrift_landmask_data&#39;</span><span class="p">)</span>
             <span class="p">]</span>
 
             <span class="k">if</span> <span class="n">logfile</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
@@ -1772,16 +1772,7 @@
             <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s1">&#39;No land reader added, &#39;</span>
                         <span class="s1">&#39;making a temporary landmask reader&#39;</span><span class="p">)</span>
             <span class="kn">from</span> <span class="nn">opendrift.models.oceandrift</span> <span class="kn">import</span> <span class="n">OceanDrift</span>
-            <span class="n">reader_landmask</span> <span class="o">=</span> <span class="n">reader_global_landmask</span><span class="o">.</span><span class="n">Reader</span><span class="p">(</span><span class="n">extent</span><span class="o">=</span><span class="p">[</span>
-                <span class="n">np</span><span class="o">.</span><span class="n">maximum</span><span class="p">(</span><span class="o">-</span><span class="mi">360</span><span class="p">,</span>
-                           <span class="bp">self</span><span class="o">.</span><span class="n">elements_scheduled</span><span class="o">.</span><span class="n">lon</span><span class="o">.</span><span class="n">min</span><span class="p">()</span> <span class="o">-</span> <span class="n">deltalon</span><span class="p">),</span>
-                <span class="n">np</span><span class="o">.</span><span class="n">maximum</span><span class="p">(</span><span class="o">-</span><span class="mi">89</span><span class="p">,</span>
-                           <span class="bp">self</span><span class="o">.</span><span class="n">elements_scheduled</span><span class="o">.</span><span class="n">lat</span><span class="o">.</span><span class="n">min</span><span class="p">()</span> <span class="o">-</span> <span class="n">deltalat</span><span class="p">),</span>
-                <span class="n">np</span><span class="o">.</span><span class="n">minimum</span><span class="p">(</span><span class="mi">720</span><span class="p">,</span>
-                           <span class="bp">self</span><span class="o">.</span><span class="n">elements_scheduled</span><span class="o">.</span><span class="n">lon</span><span class="o">.</span><span class="n">max</span><span class="p">()</span> <span class="o">+</span> <span class="n">deltalon</span><span class="p">),</span>
-                <span class="n">np</span><span class="o">.</span><span class="n">minimum</span><span class="p">(</span><span class="mi">89</span><span class="p">,</span>
-                           <span class="bp">self</span><span class="o">.</span><span class="n">elements_scheduled</span><span class="o">.</span><span class="n">lat</span><span class="o">.</span><span class="n">max</span><span class="p">()</span> <span class="o">+</span> <span class="n">deltalat</span><span class="p">)</span>
-            <span class="p">])</span>
+            <span class="n">reader_landmask</span> <span class="o">=</span> <span class="n">reader_global_landmask</span><span class="o">.</span><span class="n">Reader</span><span class="p">()</span>
             <span class="n">seed_state</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">get_state</span><span class="p">()</span>  <span class="c1"># Do not alter current random number generator</span>
             <span class="n">o</span> <span class="o">=</span> <span class="n">OceanDrift</span><span class="p">(</span><span class="n">loglevel</span><span class="o">=</span><span class="s1">&#39;custom&#39;</span><span class="p">)</span>
             <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">set_state</span><span class="p">(</span><span class="n">seed_state</span><span class="p">)</span>
@@ -2292,12 +2283,15 @@
         <span class="c1"># NB: should also repeat some points, if too few</span>
         <span class="n">lonpoints</span> <span class="o">=</span> <span class="n">lonpoints</span><span class="p">[</span><span class="mi">0</span><span class="p">:</span><span class="n">number</span><span class="p">]</span>
         <span class="n">latpoints</span> <span class="o">=</span> <span class="n">latpoints</span><span class="p">[</span><span class="mi">0</span><span class="p">:</span><span class="n">number</span><span class="p">]</span>
-        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">lonpoints</span><span class="p">)</span> <span class="o">&lt;</span> <span class="n">number</span><span class="p">:</span>
-            <span class="c1"># If number of positions is smaller than requested,</span>
-            <span class="c1"># we duplicate the first ones</span>
-            <span class="n">missing</span> <span class="o">=</span> <span class="n">number</span> <span class="o">-</span> <span class="nb">len</span><span class="p">(</span><span class="n">lonpoints</span><span class="p">)</span>
-            <span class="n">lonpoints</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">lonpoints</span><span class="p">,</span> <span class="n">lonpoints</span><span class="p">[</span><span class="mi">0</span><span class="p">:</span><span class="n">missing</span><span class="p">])</span>
-            <span class="n">latpoints</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">latpoints</span><span class="p">,</span> <span class="n">latpoints</span><span class="p">[</span><span class="mi">0</span><span class="p">:</span><span class="n">missing</span><span class="p">])</span>
+        <span class="k">while</span> <span class="kc">True</span><span class="p">:</span>
+            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">lonpoints</span><span class="p">)</span> <span class="o">&lt;</span> <span class="n">number</span><span class="p">:</span>
+                <span class="c1"># If number of positions is smaller than requested,</span>
+                <span class="c1"># we duplicate the first ones</span>
+                <span class="n">missing</span> <span class="o">=</span> <span class="n">number</span> <span class="o">-</span> <span class="nb">len</span><span class="p">(</span><span class="n">lonpoints</span><span class="p">)</span>
+                <span class="n">lonpoints</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">lonpoints</span><span class="p">,</span> <span class="n">lonpoints</span><span class="p">[</span><span class="mi">0</span><span class="p">:</span><span class="n">missing</span><span class="p">])</span>
+                <span class="n">latpoints</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">latpoints</span><span class="p">,</span> <span class="n">latpoints</span><span class="p">[</span><span class="mi">0</span><span class="p">:</span><span class="n">missing</span><span class="p">])</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">break</span>
 
         <span class="c1"># Finally seed at calculated positions</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">seed_elements</span><span class="p">(</span><span class="n">lonpoints</span><span class="p">,</span> <span class="n">latpoints</span><span class="p">,</span> <span class="n">number</span><span class="o">=</span><span class="n">number</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span></div>
@@ -2840,8 +2834,7 @@
                 <span class="s1">&#39;Adding a customised landmask may be faster...&#39;</span> <span class="o">%</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">max_speed</span><span class="p">)</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">timer_start</span><span class="p">(</span><span class="s1">&#39;preparing main loop:making dynamical landmask&#39;</span><span class="p">)</span>
-            <span class="n">reader_landmask</span> <span class="o">=</span> <span class="n">reader_global_landmask</span><span class="o">.</span><span class="n">Reader</span><span class="p">(</span>
-                <span class="n">extent</span><span class="o">=</span><span class="n">simulation_extent</span><span class="p">)</span>
+            <span class="n">reader_landmask</span> <span class="o">=</span> <span class="n">reader_global_landmask</span><span class="o">.</span><span class="n">Reader</span><span class="p">()</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">add_reader</span><span class="p">(</span><span class="n">reader_landmask</span><span class="p">)</span>
 
             <span class="bp">self</span><span class="o">.</span><span class="n">timer_end</span><span class="p">(</span><span class="s1">&#39;preparing main loop:making dynamical landmask&#39;</span><span class="p">)</span>
@@ -3262,6 +3255,7 @@
 
 <span class="sd">        provide corners=[lonmin, lonmax, latmin, latmax] for specific map selection</span>
 <span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Setting up map: </span><span class="si">{</span><span class="n">corners</span><span class="si">=}</span><span class="s2">, </span><span class="si">{</span><span class="n">fast</span><span class="si">=}</span><span class="s2">, </span><span class="si">{</span><span class="n">lscale</span><span class="si">=}</span><span class="s2">&quot;</span><span class="p">)</span>
 
         <span class="c1"># Initialise map</span>
         <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s1">&#39;ds&#39;</span><span class="p">):</span>  <span class="c1"># If dataset is lazily imported</span>
@@ -3573,7 +3567,7 @@
                         <span class="bp">self</span><span class="o">.</span><span class="n">get_map_background</span><span class="p">(</span><span class="n">ax</span><span class="p">,</span> <span class="n">background</span><span class="p">,</span> <span class="n">crs</span><span class="p">,</span>
                                                 <span class="n">time</span><span class="o">=</span><span class="n">times</span><span class="p">[</span><span class="n">i</span><span class="p">])</span>
                 <span class="c1"># https://stackoverflow.com/questions/18797175/animation-with-pcolormesh-routine-in-matplotlib-how-do-i-initialize-the-data</span>
-                <span class="n">bg</span><span class="o">.</span><span class="n">set_array</span><span class="p">(</span><span class="n">scalar</span><span class="p">[:</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="p">:</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">ravel</span><span class="p">())</span>
+                <span class="n">bg</span><span class="o">.</span><span class="n">set_array</span><span class="p">(</span><span class="n">scalar</span><span class="o">.</span><span class="n">ravel</span><span class="p">())</span>
                 <span class="k">if</span> <span class="nb">type</span><span class="p">(</span><span class="n">background</span><span class="p">)</span> <span class="ow">is</span> <span class="nb">list</span><span class="p">:</span>
                     <span class="n">ret</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">bg_quiv</span><span class="p">)</span>
                     <span class="n">bg_quiv</span><span class="o">.</span><span class="n">set_UVC</span><span class="p">(</span><span class="n">u_component</span><span class="p">[::</span><span class="n">skip</span><span class="p">,</span> <span class="p">::</span><span class="n">skip</span><span class="p">],</span>
@@ -4604,7 +4598,7 @@
             <span class="k">if</span> <span class="n">show</span> <span class="ow">is</span> <span class="kc">True</span><span class="p">:</span>
                 <span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
 
-        <span class="k">return</span> <span class="n">ax</span><span class="p">,</span> <span class="n">plt</span></div>
+        <span class="k">return</span> <span class="n">ax</span><span class="p">,</span> <span class="n">fig</span></div>
 
 <div class="viewcode-block" id="OpenDriftSimulation._substance_name"><a class="viewcode-back" href="../../../autoapi/opendrift/models/basemodel/index.html#opendrift.models.basemodel.OpenDriftSimulation._substance_name">[docs]</a>    <span class="k">def</span> <span class="nf">_substance_name</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">return</span> <span class="kc">None</span></div>
