@@ -1544,7 +1544,11 @@
 <span class="sd">        Sets the oil type by specifing a JSON dict. The format should be the same as the ADIOS database. See the `ADIOS database &lt;https://adios.orr.noaa.gov/oils&gt;`_ for a list.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">oil_weathering_model</span> <span class="o">==</span> <span class="s1">&#39;noaa&#39;</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">oiltype</span> <span class="o">=</span> <span class="n">adios</span><span class="o">.</span><span class="n">oil</span><span class="o">.</span><span class="n">OpendriftOil</span><span class="p">(</span><span class="n">json</span><span class="p">)</span>
+            <span class="n">o</span> <span class="o">=</span> <span class="p">{</span> <span class="s1">&#39;data&#39;</span><span class="p">:</span> <span class="p">{</span> <span class="s1">&#39;attributes&#39;</span> <span class="p">:</span> <span class="n">json</span> <span class="p">}</span> <span class="p">}</span>
+            <span class="n">o</span><span class="p">[</span><span class="s1">&#39;data&#39;</span><span class="p">][</span><span class="s1">&#39;_id&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">o</span><span class="p">[</span><span class="s1">&#39;data&#39;</span><span class="p">][</span><span class="s1">&#39;attributes&#39;</span><span class="p">][</span><span class="s1">&#39;oil_id&#39;</span><span class="p">]</span>
+            <span class="n">o</span><span class="p">[</span><span class="s1">&#39;data&#39;</span><span class="p">][</span><span class="s1">&#39;attributes&#39;</span><span class="p">][</span><span class="s1">&#39;metadata&#39;</span><span class="p">][</span><span class="s1">&#39;location&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;NORWAY&#39;</span>
+
+            <span class="bp">self</span><span class="o">.</span><span class="n">oiltype</span> <span class="o">=</span> <span class="n">adios</span><span class="o">.</span><span class="n">oil</span><span class="o">.</span><span class="n">OpendriftOil</span><span class="p">(</span><span class="n">o</span><span class="p">)</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">oil_name</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">oiltype</span><span class="o">.</span><span class="n">name</span>
             <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">oiltype</span><span class="o">.</span><span class="n">valid</span><span class="p">():</span>
                 <span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span>
@@ -1563,13 +1567,8 @@
             <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="s1">&#39;r&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">fd</span><span class="p">:</span>
                 <span class="n">j</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">fd</span><span class="p">)</span>
 
-            <span class="bp">self</span><span class="o">.</span><span class="n">oiltype</span> <span class="o">=</span> <span class="n">adios</span><span class="o">.</span><span class="n">oil</span><span class="o">.</span><span class="n">OpendriftOil</span><span class="p">(</span><span class="n">j</span><span class="p">)</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">oil_name</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">oiltype</span><span class="o">.</span><span class="n">name</span>
-            <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">oiltype</span><span class="o">.</span><span class="n">valid</span><span class="p">():</span>
-                <span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span>
-                    <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">oiltype</span><span class="si">}</span><span class="s2"> is not a valid oil for Opendrift simulations&quot;</span>
-                <span class="p">)</span>
-                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">()</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">set_oiltype_by_json</span><span class="p">(</span><span class="n">j</span><span class="p">)</span>
+
         <span class="k">else</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;unsupported oil weathering model&quot;</span><span class="p">)</span></div>
 
