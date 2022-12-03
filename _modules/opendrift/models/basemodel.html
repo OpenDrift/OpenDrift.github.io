@@ -1430,34 +1430,34 @@
                                         <span class="o">-</span><span class="mi">2</span><span class="p">,</span> <span class="n">missingbottom</span><span class="p">]</span>
 
                 <span class="c1"># Detect elements with missing data, for present reader group</span>
-                <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">env_tmp</span><span class="p">[</span><span class="n">variable_group</span><span class="p">[</span><span class="mi">0</span><span class="p">]],</span> <span class="s1">&#39;mask&#39;</span><span class="p">):</span>
-                    <span class="k">try</span><span class="p">:</span>
-                        <span class="k">del</span> <span class="n">combined_mask</span>
-                    <span class="k">except</span><span class="p">:</span>
-                        <span class="k">pass</span>
-                    <span class="k">for</span> <span class="n">var</span> <span class="ow">in</span> <span class="n">variable_group</span><span class="p">:</span>
-                        <span class="n">tmp_var</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">ma</span><span class="o">.</span><span class="n">masked_invalid</span><span class="p">(</span><span class="n">env_tmp</span><span class="p">[</span><span class="n">var</span><span class="p">])</span>
-                        <span class="c1"># Changed 13 Oct 2016, but uncertain of effect</span>
-                        <span class="c1"># TODO: to be checked</span>
-                        <span class="c1">#tmp_var = env_tmp[var]</span>
-                        <span class="k">if</span> <span class="s1">&#39;combined_mask&#39;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="nb">locals</span><span class="p">():</span>
-                            <span class="n">combined_mask</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">ma</span><span class="o">.</span><span class="n">getmask</span><span class="p">(</span><span class="n">tmp_var</span><span class="p">)</span>
-                        <span class="k">else</span><span class="p">:</span>
-                            <span class="n">combined_mask</span> <span class="o">=</span> \
-                                <span class="n">np</span><span class="o">.</span><span class="n">ma</span><span class="o">.</span><span class="n">mask_or</span><span class="p">(</span><span class="n">combined_mask</span><span class="p">,</span>
-                                              <span class="n">np</span><span class="o">.</span><span class="n">ma</span><span class="o">.</span><span class="n">getmask</span><span class="p">(</span><span class="n">tmp_var</span><span class="p">),</span>
-                                              <span class="n">shrink</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
-                    <span class="k">try</span><span class="p">:</span>
-                        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">missing_indices</span><span class="p">)</span> <span class="o">!=</span> <span class="nb">len</span><span class="p">(</span><span class="n">combined_mask</span><span class="p">):</span>
-                            <span class="c1"># TODO: mask mismatch due to 2 added points</span>
-                            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;Mismatch of masks&#39;</span><span class="p">)</span>
-                        <span class="n">missing_indices</span> <span class="o">=</span> <span class="n">missing_indices</span><span class="p">[</span><span class="n">combined_mask</span><span class="p">]</span>
-                    <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">ex</span><span class="p">:</span>  <span class="c1"># Not sure what is happening here</span>
-                        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span>
-                            <span class="s1">&#39;Problems setting mask on missing_indices!&#39;</span><span class="p">)</span>
-                        <span class="n">logger</span><span class="o">.</span><span class="n">exception</span><span class="p">(</span><span class="n">ex</span><span class="p">)</span>
-                <span class="k">else</span><span class="p">:</span>
-                    <span class="n">missing_indices</span> <span class="o">=</span> <span class="p">[]</span>  <span class="c1"># temporary workaround</span>
+                <span class="k">if</span> <span class="ow">not</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">env_tmp</span><span class="p">[</span><span class="n">variable_group</span><span class="p">[</span><span class="mi">0</span><span class="p">]],</span> <span class="s1">&#39;mask&#39;</span><span class="p">):</span>
+                    <span class="n">env_tmp</span><span class="p">[</span><span class="n">variable_group</span><span class="p">[</span><span class="mi">0</span><span class="p">]]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">ma</span><span class="o">.</span><span class="n">masked_invalid</span><span class="p">(</span><span class="n">env_tmp</span><span class="p">[</span><span class="n">variable_group</span><span class="p">[</span><span class="mi">0</span><span class="p">]])</span>
+                <span class="k">try</span><span class="p">:</span>
+                    <span class="k">del</span> <span class="n">combined_mask</span>
+                <span class="k">except</span><span class="p">:</span>
+                    <span class="k">pass</span>
+                <span class="k">for</span> <span class="n">var</span> <span class="ow">in</span> <span class="n">variable_group</span><span class="p">:</span>
+                    <span class="n">tmp_var</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">ma</span><span class="o">.</span><span class="n">masked_invalid</span><span class="p">(</span><span class="n">env_tmp</span><span class="p">[</span><span class="n">var</span><span class="p">])</span>
+                    <span class="c1"># Changed 13 Oct 2016, but uncertain of effect</span>
+                    <span class="c1"># TODO: to be checked</span>
+                    <span class="c1">#tmp_var = env_tmp[var]</span>
+                    <span class="k">if</span> <span class="s1">&#39;combined_mask&#39;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="nb">locals</span><span class="p">():</span>
+                        <span class="n">combined_mask</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">ma</span><span class="o">.</span><span class="n">getmask</span><span class="p">(</span><span class="n">tmp_var</span><span class="p">)</span>
+                    <span class="k">else</span><span class="p">:</span>
+                        <span class="n">combined_mask</span> <span class="o">=</span> \
+                            <span class="n">np</span><span class="o">.</span><span class="n">ma</span><span class="o">.</span><span class="n">mask_or</span><span class="p">(</span><span class="n">combined_mask</span><span class="p">,</span>
+                                          <span class="n">np</span><span class="o">.</span><span class="n">ma</span><span class="o">.</span><span class="n">getmask</span><span class="p">(</span><span class="n">tmp_var</span><span class="p">),</span>
+                                          <span class="n">shrink</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+                <span class="k">try</span><span class="p">:</span>
+                    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">missing_indices</span><span class="p">)</span> <span class="o">!=</span> <span class="nb">len</span><span class="p">(</span><span class="n">combined_mask</span><span class="p">):</span>
+                        <span class="c1"># TODO: mask mismatch due to 2 added points</span>
+                        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;Mismatch of masks&#39;</span><span class="p">)</span>
+                    <span class="n">missing_indices</span> <span class="o">=</span> <span class="n">missing_indices</span><span class="p">[</span><span class="n">combined_mask</span><span class="p">]</span>
+                <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">ex</span><span class="p">:</span>  <span class="c1"># Not sure what is happening here</span>
+                    <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span>
+                        <span class="s1">&#39;Problems setting mask on missing_indices!&#39;</span><span class="p">)</span>
+                    <span class="n">logger</span><span class="o">.</span><span class="n">exception</span><span class="p">(</span><span class="n">ex</span><span class="p">)</span>
+                <span class="nb">print</span><span class="p">(</span><span class="n">missing_indices</span><span class="p">,</span> <span class="s1">&#39;MISSIND&#39;</span><span class="p">)</span>
                 <span class="k">if</span> <span class="p">(</span><span class="nb">type</span><span class="p">(</span><span class="n">missing_indices</span><span class="p">)</span>
                         <span class="o">==</span> <span class="n">np</span><span class="o">.</span><span class="n">int64</span><span class="p">)</span> <span class="ow">or</span> <span class="p">(</span><span class="nb">type</span><span class="p">(</span><span class="n">missing_indices</span><span class="p">)</span> <span class="o">==</span> <span class="n">np</span><span class="o">.</span><span class="n">int32</span><span class="p">):</span>
                     <span class="n">missing_indices</span> <span class="o">=</span> <span class="p">[]</span>
