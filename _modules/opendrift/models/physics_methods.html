@@ -727,9 +727,12 @@
             <span class="k">return</span>
 
         <span class="n">wdf</span> <span class="o">=</span> <span class="n">wind_drift_factor</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+        <span class="n">wdf_air</span> <span class="o">=</span> <span class="n">wdf</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
         <span class="k">if</span> <span class="n">surface_only</span> <span class="ow">is</span> <span class="kc">False</span><span class="p">:</span>
             <span class="c1"># linear decrease from surface down to wind_drift_depth</span>
             <span class="n">wdf</span> <span class="o">=</span> <span class="n">wdf</span><span class="o">*</span><span class="p">(</span><span class="n">wind_drift_depth</span><span class="o">+</span><span class="bp">self</span><span class="o">.</span><span class="n">elements</span><span class="o">.</span><span class="n">z</span><span class="p">)</span><span class="o">/</span><span class="n">wind_drift_depth</span>
+            <span class="c1"># Resetting wdf for elements in air</span>
+            <span class="n">wdf</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">elements</span><span class="o">.</span><span class="n">z</span><span class="o">&gt;</span><span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="n">wdf_air</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">elements</span><span class="o">.</span><span class="n">z</span><span class="o">&gt;</span><span class="mi">0</span><span class="p">]</span>
         <span class="n">wdf</span><span class="p">[</span><span class="o">~</span><span class="n">surface</span><span class="p">]</span> <span class="o">=</span> <span class="mf">0.0</span>
         <span class="n">wdfmin</span> <span class="o">=</span> <span class="n">wdf</span><span class="p">[</span><span class="n">surface</span><span class="p">]</span><span class="o">.</span><span class="n">min</span><span class="p">()</span>
         <span class="n">wdfmax</span> <span class="o">=</span> <span class="n">wdf</span><span class="p">[</span><span class="n">surface</span><span class="p">]</span><span class="o">.</span><span class="n">max</span><span class="p">()</span>
