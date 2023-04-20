@@ -122,56 +122,6 @@
 <span class="kn">from</span> <span class="nn">opendrift.readers.basereader</span> <span class="kn">import</span> <span class="n">BaseReader</span><span class="p">,</span> <span class="n">StructuredReader</span>
 <span class="kn">import</span> <span class="nn">xarray</span> <span class="k">as</span> <span class="nn">xr</span>
 
-<div class="viewcode-block" id="proj_from_CF_dict"><a class="viewcode-back" href="../../../autoapi/opendrift/readers/reader_netCDF_CF_generic/index.html#opendrift.readers.reader_netCDF_CF_generic.proj_from_CF_dict">[docs]</a><span class="k">def</span> <span class="nf">proj_from_CF_dict</span><span class="p">(</span><span class="n">c</span><span class="p">):</span>
-
-    <span class="c1"># This method should be extended to other projections:</span>
-    <span class="c1"># https://cfconventions.org/wkt-proj-4.html</span>
-    <span class="k">if</span> <span class="ow">not</span> <span class="s1">&#39;grid_mapping_name&#39;</span> <span class="ow">in</span> <span class="n">c</span><span class="p">:</span>
-        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;grid_mapping not given in dictionary&#39;</span><span class="p">)</span>
-    <span class="n">gm</span> <span class="o">=</span> <span class="n">c</span><span class="p">[</span><span class="s1">&#39;grid_mapping_name&#39;</span><span class="p">]</span>
-
-    <span class="k">if</span> <span class="s1">&#39;earth_radius&#39;</span> <span class="ow">in</span> <span class="n">c</span><span class="p">:</span>
-        <span class="n">earth_radius</span> <span class="o">=</span> <span class="n">c</span><span class="p">[</span><span class="s1">&#39;earth_radius&#39;</span><span class="p">]</span>
-    <span class="k">else</span><span class="p">:</span>
-        <span class="n">earth_radius</span> <span class="o">=</span> <span class="mf">6371000.</span>
-    <span class="k">if</span> <span class="n">gm</span> <span class="o">==</span> <span class="s1">&#39;polar_stereographic&#39;</span><span class="p">:</span>
-        <span class="n">lon_0</span> <span class="o">=</span> <span class="mi">0</span>  <span class="c1"># default, but dangerous</span>
-        <span class="k">for</span> <span class="n">l0</span> <span class="ow">in</span> <span class="p">[</span><span class="s1">&#39;longitude_of_projection_origin&#39;</span><span class="p">,</span>
-                   <span class="s1">&#39;longitude_of_central_meridian&#39;</span><span class="p">,</span>
-                   <span class="s1">&#39;straight_vertical_longitude_from_pole&#39;</span><span class="p">]:</span>
-            <span class="k">if</span> <span class="n">l0</span> <span class="ow">in</span> <span class="n">c</span><span class="p">:</span>
-                <span class="n">lon_0</span> <span class="o">=</span> <span class="n">c</span><span class="p">[</span><span class="n">l0</span><span class="p">]</span>
-        <span class="k">if</span> <span class="s1">&#39;latitude_of_origin&#39;</span> <span class="ow">in</span> <span class="n">c</span><span class="p">:</span>
-            <span class="n">lat_ts</span> <span class="o">=</span> <span class="n">c</span><span class="p">[</span><span class="s1">&#39;latitude_of_origin&#39;</span><span class="p">]</span>
-        <span class="k">else</span><span class="p">:</span>
-            <span class="n">lat_ts</span> <span class="o">=</span> <span class="n">c</span><span class="p">[</span><span class="s1">&#39;latitude_of_projection_origin&#39;</span><span class="p">]</span>
-        <span class="k">if</span> <span class="s1">&#39;false_easting&#39;</span> <span class="ow">in</span> <span class="n">c</span><span class="p">:</span>
-            <span class="n">x0</span> <span class="o">=</span> <span class="n">c</span><span class="p">[</span><span class="s1">&#39;false_easting&#39;</span><span class="p">]</span>
-        <span class="k">else</span><span class="p">:</span>
-            <span class="n">x0</span> <span class="o">=</span> <span class="mi">0</span>  <span class="c1"># dangerous?</span>
-        <span class="k">if</span> <span class="s1">&#39;false_northing&#39;</span> <span class="ow">in</span> <span class="n">c</span><span class="p">:</span>
-            <span class="n">y0</span> <span class="o">=</span> <span class="n">c</span><span class="p">[</span><span class="s1">&#39;false_northing&#39;</span><span class="p">]</span>
-        <span class="k">else</span><span class="p">:</span>
-            <span class="n">y0</span> <span class="o">=</span> <span class="mi">0</span>  <span class="c1"># dangerous: is there a better default?</span>
-        <span class="k">if</span> <span class="s1">&#39;scale_factor_at_projection_origin&#39;</span> <span class="ow">in</span> <span class="n">c</span><span class="p">:</span>
-            <span class="n">k0</span> <span class="o">=</span> <span class="n">c</span><span class="p">[</span><span class="s1">&#39;scale_factor_at_projection_origin&#39;</span><span class="p">]</span>
-        <span class="k">else</span><span class="p">:</span>
-            <span class="n">k0</span> <span class="o">=</span> <span class="mf">1.0</span>
-        <span class="n">proj4</span> <span class="o">=</span> <span class="p">(</span><span class="s1">&#39;+proj=</span><span class="si">{!s}</span><span class="s1"> +lat_0=</span><span class="si">{!s}</span><span class="s1"> +lon_0=</span><span class="si">{!s}</span><span class="s1"> +lat_ts=</span><span class="si">{!s}</span><span class="s1"> &#39;</span>
-                 <span class="s1">&#39;+k_0=</span><span class="si">{!s}</span><span class="s1"> +x_0=</span><span class="si">{!s}</span><span class="s1"> +y_0=</span><span class="si">{!s}</span><span class="s1"> +units=m +a=</span><span class="si">{!s}</span><span class="s1"> &#39;</span>
-                 <span class="s1">&#39;+no_defs&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="s1">&#39;stere&#39;</span><span class="p">,</span>
-                                   <span class="n">c</span><span class="p">[</span><span class="s1">&#39;latitude_of_projection_origin&#39;</span><span class="p">],</span>
-                                   <span class="n">lon_0</span><span class="p">,</span> <span class="n">lat_ts</span><span class="p">,</span> <span class="n">k0</span><span class="p">,</span> <span class="n">x0</span><span class="p">,</span> <span class="n">y0</span><span class="p">,</span> <span class="n">earth_radius</span><span class="p">)</span>
-                 <span class="p">)</span>
-
-    <span class="k">elif</span> <span class="n">gm</span> <span class="o">==</span> <span class="s1">&#39;rotated_latitude_longitude&#39;</span><span class="p">:</span>
-        <span class="n">proj4</span> <span class="o">=</span> <span class="s1">&#39;+proj=ob_tran +o_proj=longlat +lon_0=</span><span class="si">%s</span><span class="s1"> +o_lat_p=</span><span class="si">%s</span><span class="s1"> +R=</span><span class="si">%s</span><span class="s1"> +no_defs&#39;</span> <span class="o">%</span> <span class="p">(</span>
-                <span class="n">c</span><span class="p">[</span><span class="s1">&#39;grid_north_pole_longitude&#39;</span><span class="p">]</span><span class="o">-</span><span class="mi">180</span><span class="p">,</span> <span class="n">c</span><span class="p">[</span><span class="s1">&#39;grid_north_pole_latitude&#39;</span><span class="p">],</span> <span class="n">earth_radius</span><span class="p">)</span>
-
-    <span class="n">proj</span> <span class="o">=</span> <span class="n">pyproj</span><span class="o">.</span><span class="n">Proj</span><span class="p">(</span><span class="n">proj4</span><span class="p">)</span>
-
-    <span class="k">return</span> <span class="n">proj4</span><span class="p">,</span> <span class="n">proj</span></div>
-
 
 <div class="viewcode-block" id="Reader"><a class="viewcode-back" href="../../../autoapi/opendrift/readers/reader_netCDF_CF_generic/index.html#opendrift.readers.reader_netCDF_CF_generic.Reader">[docs]</a><span class="k">class</span> <span class="nc">Reader</span><span class="p">(</span><span class="n">StructuredReader</span><span class="p">,</span> <span class="n">BaseReader</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
@@ -262,19 +212,20 @@
             <span class="n">var</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">Dataset</span><span class="o">.</span><span class="n">variables</span><span class="p">[</span><span class="n">var_name</span><span class="p">]</span>
 
             <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">proj4</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-                <span class="k">if</span> <span class="s1">&#39;proj4&#39;</span> <span class="ow">in</span> <span class="n">var</span><span class="o">.</span><span class="n">attrs</span><span class="p">:</span>
-                    <span class="bp">self</span><span class="o">.</span><span class="n">proj4</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">var</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s1">&#39;proj4&#39;</span><span class="p">])</span>
-                <span class="k">elif</span> <span class="s1">&#39;proj4_string&#39;</span> <span class="ow">in</span> <span class="n">var</span><span class="o">.</span><span class="n">attrs</span><span class="p">:</span>
-                    <span class="bp">self</span><span class="o">.</span><span class="n">proj4</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">var</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s1">&#39;proj4_string&#39;</span><span class="p">])</span>
-                <span class="k">elif</span> <span class="s1">&#39;grid_mapping_name&#39;</span> <span class="ow">in</span> <span class="n">var</span><span class="o">.</span><span class="n">attrs</span><span class="p">:</span>
+                <span class="k">if</span> <span class="s1">&#39;grid_mapping_name&#39;</span> <span class="ow">in</span> <span class="n">var</span><span class="o">.</span><span class="n">attrs</span><span class="p">:</span>
                     <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span>
                         <span class="p">(</span><span class="s1">&#39;Parsing CF grid mapping dictionary:&#39;</span>
                         <span class="s1">&#39; &#39;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">var</span><span class="o">.</span><span class="n">attrs</span><span class="p">)))</span>
-                    <span class="k">try</span><span class="p">:</span>
-                        <span class="bp">self</span><span class="o">.</span><span class="n">proj4</span><span class="p">,</span> <span class="n">proj</span> <span class="o">=</span>\
-                            <span class="n">proj_from_CF_dict</span><span class="p">(</span><span class="n">var</span><span class="o">.</span><span class="n">attrs</span><span class="p">)</span>
+                    <span class="k">try</span><span class="p">:</span>  <span class="c1"># parse proj4 with pyproj.CRS</span>
+                        <span class="n">crs</span> <span class="o">=</span> <span class="n">pyproj</span><span class="o">.</span><span class="n">CRS</span><span class="o">.</span><span class="n">from_cf</span><span class="p">(</span><span class="n">var</span><span class="o">.</span><span class="n">attrs</span><span class="p">)</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">proj4</span> <span class="o">=</span> <span class="n">crs</span><span class="o">.</span><span class="n">to_proj4</span><span class="p">()</span>
                     <span class="k">except</span><span class="p">:</span>
                         <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s1">&#39;Could not parse CF grid_mapping&#39;</span><span class="p">)</span>
+                <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">proj4</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                    <span class="k">if</span> <span class="s1">&#39;proj4&#39;</span> <span class="ow">in</span> <span class="n">var</span><span class="o">.</span><span class="n">attrs</span><span class="p">:</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">proj4</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">var</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s1">&#39;proj4&#39;</span><span class="p">])</span>
+                    <span class="k">elif</span> <span class="s1">&#39;proj4_string&#39;</span> <span class="ow">in</span> <span class="n">var</span><span class="o">.</span><span class="n">attrs</span><span class="p">:</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">proj4</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">var</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s1">&#39;proj4_string&#39;</span><span class="p">])</span>
 
             <span class="n">standard_name</span> <span class="o">=</span> <span class="n">var</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s1">&#39;standard_name&#39;</span><span class="p">]</span> <span class="k">if</span> <span class="s1">&#39;standard_name&#39;</span> <span class="ow">in</span> <span class="n">var</span><span class="o">.</span><span class="n">attrs</span> <span class="k">else</span> <span class="s1">&#39;&#39;</span>
             <span class="n">long_name</span> <span class="o">=</span> <span class="n">var</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s1">&#39;long_name&#39;</span><span class="p">]</span> <span class="k">if</span> <span class="s1">&#39;long_name&#39;</span> <span class="ow">in</span> <span class="n">var</span><span class="o">.</span><span class="n">attrs</span> <span class="k">else</span> <span class="s1">&#39;&#39;</span>
