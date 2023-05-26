@@ -138,6 +138,7 @@
 <li class="toctree-l2"><a class="reference internal" href="example_leeway.html">Leeway</a></li>
 <li class="toctree-l2"><a class="reference internal" href="example_current_from_drifter.html">Current from drifter</a></li>
 <li class="toctree-l2"><a class="reference internal" href="example_horizontal_diffusion.html">Horizontal diffusion</a></li>
+<li class="toctree-l2"><a class="reference internal" href="example_leeway_backtrack.html">Leeway forward and backward</a></li>
 <li class="toctree-l2"><a class="reference internal" href="example_entrainment_rate_oil_types.html">Entrainment rate for light and heavy oils</a></li>
 <li class="toctree-l2"><a class="reference internal" href="example_compare_oilbudgets.html">Comparing oil budgets</a></li>
 <li class="toctree-l2"><a class="reference internal" href="example_chemicaldrift.html">ChemicalDrift - Transport and fate of organic compounds</a></li>
@@ -198,7 +199,7 @@ to download the full example code</p>
 <span class="n">o</span> <span class="o">=</span> <span class="n">OceanDrift</span><span class="p">(</span><span class="n">loglevel</span><span class="o">=</span><span class="mi">20</span><span class="p">)</span>  <span class="c1"># Set loglevel to 0 for debug information</span>
 </pre></div>
 </div>
-<div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>10:54:22 INFO    opendrift.models.basemodel:529: OpenDriftSimulation initialised (version 1.10.7 / v1.10.6-64-g7814aed)
+<div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>14:03:02 INFO    opendrift.models.basemodel:529: OpenDriftSimulation initialised (version 1.10.7 / v1.10.6-66-g1f8e848)
 </pre></div>
 </div>
 <p>Using live data from Thredds</p>
@@ -253,80 +254,78 @@ Lazy readers:
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">o</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">duration</span><span class="o">=</span><span class="n">timedelta</span><span class="p">(</span><span class="n">hours</span><span class="o">=</span><span class="mi">24</span><span class="p">),</span> <span class="n">time_step</span><span class="o">=</span><span class="mi">1800</span><span class="p">)</span>
 </pre></div>
 </div>
-<div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>10:54:22 INFO    opendrift.models.basemodel:2571: Fallback values will be used for the following variables which have no readers:
-10:54:22 INFO    opendrift.models.basemodel:2574:       x_sea_water_velocity: 0.000000
-10:54:22 INFO    opendrift.models.basemodel:2574:       y_sea_water_velocity: 0.000000
-10:54:22 INFO    opendrift.models.basemodel:2574:       x_wind: 0.000000
-10:54:22 INFO    opendrift.models.basemodel:2574:       y_wind: 0.000000
-10:54:22 INFO    opendrift.models.basemodel:2574:       upward_sea_water_velocity: 0.000000
-10:54:22 INFO    opendrift.models.basemodel:2574:       ocean_vertical_diffusivity: 0.000000
-10:54:22 INFO    opendrift.models.basemodel:2574:       sea_surface_wave_significant_height: 0.000000
-10:54:22 INFO    opendrift.models.basemodel:2574:       sea_surface_wave_stokes_drift_x_velocity: 0.000000
-10:54:22 INFO    opendrift.models.basemodel:2574:       sea_surface_wave_stokes_drift_y_velocity: 0.000000
-10:54:22 INFO    opendrift.models.basemodel:2574:       sea_surface_wave_period_at_variance_spectral_density_maximum: 0.000000
-10:54:22 INFO    opendrift.models.basemodel:2574:       sea_surface_wave_mean_period_from_variance_spectral_density_second_frequency_moment: 0.000000
-10:54:22 INFO    opendrift.models.basemodel:2574:       surface_downward_x_stress: 0.000000
-10:54:22 INFO    opendrift.models.basemodel:2574:       surface_downward_y_stress: 0.000000
-10:54:22 INFO    opendrift.models.basemodel:2574:       turbulent_kinetic_energy: 0.000000
-10:54:22 INFO    opendrift.models.basemodel:2574:       turbulent_generic_length_scale: 0.000000
-10:54:22 INFO    opendrift.models.basemodel:2574:       ocean_mixed_layer_thickness: 50.000000
-10:54:22 INFO    opendrift.models.basemodel:2574:       sea_floor_depth_below_sea_level: 10000.000000
-10:54:22 INFO    opendrift.models.basemodel:2733: Adding a dynamical landmask with max. priority based on assumed maximum speed of 1 m/s. Adding a customised landmask may be faster...
-10:54:29 INFO    opendrift.models.basemodel:1681: Using existing reader for land_binary_mask
-10:54:29 INFO    opendrift.models.basemodel:1693: All points are in ocean
-10:54:29 INFO    opendrift.models.basemodel:2862: 2023-05-25 10:54:22.609043 - step 1 of 48 - 2000 active elements (0 deactivated)
-10:54:29 INFO    opendrift.readers.reader_netCDF_CF_generic:92: Opening dataset: https://thredds.met.no/thredds/dodsC/sea/norkyst800m/1h/aggregate_be
+<div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>14:03:02 INFO    opendrift.models.basemodel:2571: Fallback values will be used for the following variables which have no readers:
+14:03:02 INFO    opendrift.models.basemodel:2574:       x_sea_water_velocity: 0.000000
+14:03:02 INFO    opendrift.models.basemodel:2574:       y_sea_water_velocity: 0.000000
+14:03:02 INFO    opendrift.models.basemodel:2574:       x_wind: 0.000000
+14:03:02 INFO    opendrift.models.basemodel:2574:       y_wind: 0.000000
+14:03:02 INFO    opendrift.models.basemodel:2574:       upward_sea_water_velocity: 0.000000
+14:03:02 INFO    opendrift.models.basemodel:2574:       ocean_vertical_diffusivity: 0.000000
+14:03:02 INFO    opendrift.models.basemodel:2574:       sea_surface_wave_significant_height: 0.000000
+14:03:02 INFO    opendrift.models.basemodel:2574:       sea_surface_wave_stokes_drift_x_velocity: 0.000000
+14:03:02 INFO    opendrift.models.basemodel:2574:       sea_surface_wave_stokes_drift_y_velocity: 0.000000
+14:03:02 INFO    opendrift.models.basemodel:2574:       sea_surface_wave_period_at_variance_spectral_density_maximum: 0.000000
+14:03:02 INFO    opendrift.models.basemodel:2574:       sea_surface_wave_mean_period_from_variance_spectral_density_second_frequency_moment: 0.000000
+14:03:02 INFO    opendrift.models.basemodel:2574:       surface_downward_x_stress: 0.000000
+14:03:02 INFO    opendrift.models.basemodel:2574:       surface_downward_y_stress: 0.000000
+14:03:02 INFO    opendrift.models.basemodel:2574:       turbulent_kinetic_energy: 0.000000
+14:03:02 INFO    opendrift.models.basemodel:2574:       turbulent_generic_length_scale: 0.000000
+14:03:02 INFO    opendrift.models.basemodel:2574:       ocean_mixed_layer_thickness: 50.000000
+14:03:02 INFO    opendrift.models.basemodel:2574:       sea_floor_depth_below_sea_level: 10000.000000
+14:03:02 INFO    opendrift.models.basemodel:2733: Adding a dynamical landmask with max. priority based on assumed maximum speed of 1 m/s. Adding a customised landmask may be faster...
+14:03:09 INFO    opendrift.models.basemodel:1681: Using existing reader for land_binary_mask
+14:03:09 INFO    opendrift.models.basemodel:1693: All points are in ocean
+14:03:09 INFO    opendrift.models.basemodel:2862: 2023-05-26 14:03:02.431674 - step 1 of 48 - 2000 active elements (0 deactivated)
+14:03:09 INFO    opendrift.readers.reader_netCDF_CF_generic:92: Opening dataset: https://thredds.met.no/thredds/dodsC/sea/norkyst800m/1h/aggregate_be
 /opt/conda/envs/opendrift/lib/python3.11/site-packages/pyproj/crs/crs.py:1286: UserWarning: You will likely lose important projection information when converting to a PROJ string from another format. See: https://proj.org/faq.html#what-is-the-best-format-for-describing-coordinate-reference-systems
   proj = self._crs.to_proj4(version=version)
-10:54:33 INFO    opendrift.models.basemodel:2862: 2023-05-25 11:24:22.609043 - step 2 of 48 - 2000 active elements (0 deactivated)
-10:54:34 INFO    opendrift.models.basemodel:2862: 2023-05-25 11:54:22.609043 - step 3 of 48 - 2000 active elements (0 deactivated)
-10:54:34 INFO    opendrift.models.basemodel:2862: 2023-05-25 12:24:22.609043 - step 4 of 48 - 2000 active elements (0 deactivated)
-10:54:35 INFO    opendrift.models.basemodel:2862: 2023-05-25 12:54:22.609043 - step 5 of 48 - 2000 active elements (0 deactivated)
-10:54:36 INFO    opendrift.models.basemodel:2862: 2023-05-25 13:24:22.609043 - step 6 of 48 - 2000 active elements (0 deactivated)
-10:54:37 INFO    opendrift.models.basemodel:2862: 2023-05-25 13:54:22.609043 - step 7 of 48 - 2000 active elements (0 deactivated)
-10:54:37 INFO    opendrift.models.basemodel:2862: 2023-05-25 14:24:22.609043 - step 8 of 48 - 2000 active elements (0 deactivated)
-10:54:39 INFO    opendrift.models.basemodel:2862: 2023-05-25 14:54:22.609043 - step 9 of 48 - 2000 active elements (0 deactivated)
-10:54:39 INFO    opendrift.models.basemodel:2862: 2023-05-25 15:24:22.609043 - step 10 of 48 - 2000 active elements (0 deactivated)
-10:54:40 INFO    opendrift.models.basemodel:2862: 2023-05-25 15:54:22.609043 - step 11 of 48 - 2000 active elements (0 deactivated)
-10:54:40 INFO    opendrift.models.basemodel:2862: 2023-05-25 16:24:22.609043 - step 12 of 48 - 2000 active elements (0 deactivated)
-10:54:41 INFO    opendrift.models.basemodel:2862: 2023-05-25 16:54:22.609043 - step 13 of 48 - 2000 active elements (0 deactivated)
-10:54:41 INFO    opendrift.models.basemodel:2862: 2023-05-25 17:24:22.609043 - step 14 of 48 - 2000 active elements (0 deactivated)
-10:54:42 INFO    opendrift.models.basemodel:2862: 2023-05-25 17:54:22.609043 - step 15 of 48 - 2000 active elements (0 deactivated)
-10:54:42 INFO    opendrift.models.basemodel:2862: 2023-05-25 18:24:22.609043 - step 16 of 48 - 2000 active elements (0 deactivated)
-10:54:44 INFO    opendrift.models.basemodel:2862: 2023-05-25 18:54:22.609043 - step 17 of 48 - 2000 active elements (0 deactivated)
-10:54:44 INFO    opendrift.models.basemodel:2862: 2023-05-25 19:24:22.609043 - step 18 of 48 - 2000 active elements (0 deactivated)
-10:54:45 INFO    opendrift.models.basemodel:2862: 2023-05-25 19:54:22.609043 - step 19 of 48 - 2000 active elements (0 deactivated)
-10:54:45 INFO    opendrift.models.basemodel:2862: 2023-05-25 20:24:22.609043 - step 20 of 48 - 2000 active elements (0 deactivated)
-10:54:46 INFO    opendrift.models.basemodel:2862: 2023-05-25 20:54:22.609043 - step 21 of 48 - 2000 active elements (0 deactivated)
-10:54:46 INFO    opendrift.models.basemodel:2862: 2023-05-25 21:24:22.609043 - step 22 of 48 - 2000 active elements (0 deactivated)
-10:54:47 INFO    opendrift.models.basemodel:2862: 2023-05-25 21:54:22.609043 - step 23 of 48 - 2000 active elements (0 deactivated)
-10:54:48 INFO    opendrift.models.basemodel:2862: 2023-05-25 22:24:22.609043 - step 24 of 48 - 2000 active elements (0 deactivated)
-10:54:49 INFO    opendrift.models.basemodel:2862: 2023-05-25 22:54:22.609043 - step 25 of 48 - 2000 active elements (0 deactivated)
-10:54:49 INFO    opendrift.models.basemodel:2862: 2023-05-25 23:24:22.609043 - step 26 of 48 - 2000 active elements (0 deactivated)
-10:54:50 INFO    opendrift.models.basemodel:2862: 2023-05-25 23:54:22.609043 - step 27 of 48 - 2000 active elements (0 deactivated)
-10:54:50 INFO    opendrift.models.basemodel:2862: 2023-05-26 00:24:22.609043 - step 28 of 48 - 2000 active elements (0 deactivated)
-10:54:52 INFO    opendrift.models.basemodel:2862: 2023-05-26 00:54:22.609043 - step 29 of 48 - 2000 active elements (0 deactivated)
-/root/project/opendrift/readers/interpolation/interpolators.py:17: RuntimeWarning: overflow encountered in cast
-  data[mask] = np.finfo(np.float64).min
-10:54:52 INFO    opendrift.models.basemodel:2862: 2023-05-26 01:24:22.609043 - step 30 of 48 - 2000 active elements (0 deactivated)
-10:54:53 INFO    opendrift.models.basemodel:2862: 2023-05-26 01:54:22.609043 - step 31 of 48 - 2000 active elements (0 deactivated)
-10:54:53 INFO    opendrift.models.basemodel:2862: 2023-05-26 02:24:22.609043 - step 32 of 48 - 2000 active elements (0 deactivated)
-10:54:54 INFO    opendrift.models.basemodel:2862: 2023-05-26 02:54:22.609043 - step 33 of 48 - 2000 active elements (0 deactivated)
-10:54:54 INFO    opendrift.models.basemodel:2862: 2023-05-26 03:24:22.609043 - step 34 of 48 - 2000 active elements (0 deactivated)
-10:54:55 INFO    opendrift.models.basemodel:2862: 2023-05-26 03:54:22.609043 - step 35 of 48 - 2000 active elements (0 deactivated)
-10:54:55 INFO    opendrift.models.basemodel:2862: 2023-05-26 04:24:22.609043 - step 36 of 48 - 2000 active elements (0 deactivated)
-10:54:57 INFO    opendrift.models.basemodel:2862: 2023-05-26 04:54:22.609043 - step 37 of 48 - 2000 active elements (0 deactivated)
-10:54:57 INFO    opendrift.models.basemodel:2862: 2023-05-26 05:24:22.609043 - step 38 of 48 - 2000 active elements (0 deactivated)
-10:54:58 INFO    opendrift.models.basemodel:2862: 2023-05-26 05:54:22.609043 - step 39 of 48 - 2000 active elements (0 deactivated)
-10:54:58 INFO    opendrift.models.basemodel:2862: 2023-05-26 06:24:22.609043 - step 40 of 48 - 2000 active elements (0 deactivated)
-10:54:59 INFO    opendrift.models.basemodel:2862: 2023-05-26 06:54:22.609043 - step 41 of 48 - 2000 active elements (0 deactivated)
-10:54:59 INFO    opendrift.models.basemodel:2862: 2023-05-26 07:24:22.609043 - step 42 of 48 - 2000 active elements (0 deactivated)
-10:55:00 INFO    opendrift.models.basemodel:2862: 2023-05-26 07:54:22.609043 - step 43 of 48 - 2000 active elements (0 deactivated)
-10:55:00 INFO    opendrift.models.basemodel:2862: 2023-05-26 08:24:22.609043 - step 44 of 48 - 2000 active elements (0 deactivated)
-10:55:02 INFO    opendrift.models.basemodel:2862: 2023-05-26 08:54:22.609043 - step 45 of 48 - 2000 active elements (0 deactivated)
-10:55:02 INFO    opendrift.models.basemodel:2862: 2023-05-26 09:24:22.609043 - step 46 of 48 - 2000 active elements (0 deactivated)
-10:55:03 INFO    opendrift.models.basemodel:2862: 2023-05-26 09:54:22.609043 - step 47 of 48 - 2000 active elements (0 deactivated)
-10:55:03 INFO    opendrift.models.basemodel:2862: 2023-05-26 10:24:22.609043 - step 48 of 48 - 2000 active elements (0 deactivated)
+14:03:13 INFO    opendrift.models.basemodel:2862: 2023-05-26 14:33:02.431674 - step 2 of 48 - 2000 active elements (0 deactivated)
+14:03:13 INFO    opendrift.models.basemodel:2862: 2023-05-26 15:03:02.431674 - step 3 of 48 - 2000 active elements (0 deactivated)
+14:03:14 INFO    opendrift.models.basemodel:2862: 2023-05-26 15:33:02.431674 - step 4 of 48 - 2000 active elements (0 deactivated)
+14:03:14 INFO    opendrift.models.basemodel:2862: 2023-05-26 16:03:02.431674 - step 5 of 48 - 2000 active elements (0 deactivated)
+14:03:15 INFO    opendrift.models.basemodel:2862: 2023-05-26 16:33:02.431674 - step 6 of 48 - 2000 active elements (0 deactivated)
+14:03:15 INFO    opendrift.models.basemodel:2862: 2023-05-26 17:03:02.431674 - step 7 of 48 - 2000 active elements (0 deactivated)
+14:03:17 INFO    opendrift.models.basemodel:2862: 2023-05-26 17:33:02.431674 - step 8 of 48 - 2000 active elements (0 deactivated)
+14:03:17 INFO    opendrift.models.basemodel:2862: 2023-05-26 18:03:02.431674 - step 9 of 48 - 2000 active elements (0 deactivated)
+14:03:18 INFO    opendrift.models.basemodel:2862: 2023-05-26 18:33:02.431674 - step 10 of 48 - 2000 active elements (0 deactivated)
+14:03:18 INFO    opendrift.models.basemodel:2862: 2023-05-26 19:03:02.431674 - step 11 of 48 - 2000 active elements (0 deactivated)
+14:03:19 INFO    opendrift.models.basemodel:2862: 2023-05-26 19:33:02.431674 - step 12 of 48 - 2000 active elements (0 deactivated)
+14:03:19 INFO    opendrift.models.basemodel:2862: 2023-05-26 20:03:02.431674 - step 13 of 48 - 2000 active elements (0 deactivated)
+14:03:20 INFO    opendrift.models.basemodel:2862: 2023-05-26 20:33:02.431674 - step 14 of 48 - 2000 active elements (0 deactivated)
+14:03:20 INFO    opendrift.models.basemodel:2862: 2023-05-26 21:03:02.431674 - step 15 of 48 - 2000 active elements (0 deactivated)
+14:03:22 INFO    opendrift.models.basemodel:2862: 2023-05-26 21:33:02.431674 - step 16 of 48 - 2000 active elements (0 deactivated)
+14:03:22 INFO    opendrift.models.basemodel:2862: 2023-05-26 22:03:02.431674 - step 17 of 48 - 2000 active elements (0 deactivated)
+14:03:23 INFO    opendrift.models.basemodel:2862: 2023-05-26 22:33:02.431674 - step 18 of 48 - 2000 active elements (0 deactivated)
+14:03:23 INFO    opendrift.models.basemodel:2862: 2023-05-26 23:03:02.431674 - step 19 of 48 - 2000 active elements (0 deactivated)
+14:03:24 INFO    opendrift.models.basemodel:2862: 2023-05-26 23:33:02.431674 - step 20 of 48 - 2000 active elements (0 deactivated)
+14:03:24 INFO    opendrift.models.basemodel:2862: 2023-05-27 00:03:02.431674 - step 21 of 48 - 2000 active elements (0 deactivated)
+14:03:25 INFO    opendrift.models.basemodel:2862: 2023-05-27 00:33:02.431674 - step 22 of 48 - 2000 active elements (0 deactivated)
+14:03:25 INFO    opendrift.models.basemodel:2862: 2023-05-27 01:03:02.431674 - step 23 of 48 - 2000 active elements (0 deactivated)
+14:03:26 INFO    opendrift.models.basemodel:2862: 2023-05-27 01:33:02.431674 - step 24 of 48 - 2000 active elements (0 deactivated)
+14:03:26 INFO    opendrift.models.basemodel:2862: 2023-05-27 02:03:02.431674 - step 25 of 48 - 2000 active elements (0 deactivated)
+14:03:27 INFO    opendrift.models.basemodel:2862: 2023-05-27 02:33:02.431674 - step 26 of 48 - 2000 active elements (0 deactivated)
+14:03:28 INFO    opendrift.models.basemodel:2862: 2023-05-27 03:03:02.431674 - step 27 of 48 - 2000 active elements (0 deactivated)
+14:03:29 INFO    opendrift.models.basemodel:2862: 2023-05-27 03:33:02.431674 - step 28 of 48 - 2000 active elements (0 deactivated)
+14:03:29 INFO    opendrift.models.basemodel:2862: 2023-05-27 04:03:02.431674 - step 29 of 48 - 2000 active elements (0 deactivated)
+14:03:31 INFO    opendrift.models.basemodel:2862: 2023-05-27 04:33:02.431674 - step 30 of 48 - 2000 active elements (0 deactivated)
+14:03:31 INFO    opendrift.models.basemodel:2862: 2023-05-27 05:03:02.431674 - step 31 of 48 - 2000 active elements (0 deactivated)
+14:03:32 INFO    opendrift.models.basemodel:2862: 2023-05-27 05:33:02.431674 - step 32 of 48 - 2000 active elements (0 deactivated)
+14:03:32 INFO    opendrift.models.basemodel:2862: 2023-05-27 06:03:02.431674 - step 33 of 48 - 2000 active elements (0 deactivated)
+14:03:33 INFO    opendrift.models.basemodel:2862: 2023-05-27 06:33:02.431674 - step 34 of 48 - 2000 active elements (0 deactivated)
+14:03:33 INFO    opendrift.models.basemodel:2862: 2023-05-27 07:03:02.431674 - step 35 of 48 - 2000 active elements (0 deactivated)
+14:03:34 INFO    opendrift.models.basemodel:2862: 2023-05-27 07:33:02.431674 - step 36 of 48 - 2000 active elements (0 deactivated)
+14:03:34 INFO    opendrift.models.basemodel:2862: 2023-05-27 08:03:02.431674 - step 37 of 48 - 2000 active elements (0 deactivated)
+14:03:35 INFO    opendrift.models.basemodel:2862: 2023-05-27 08:33:02.431674 - step 38 of 48 - 2000 active elements (0 deactivated)
+14:03:35 INFO    opendrift.models.basemodel:2862: 2023-05-27 09:03:02.431674 - step 39 of 48 - 2000 active elements (0 deactivated)
+14:03:36 INFO    opendrift.models.basemodel:2862: 2023-05-27 09:33:02.431674 - step 40 of 48 - 2000 active elements (0 deactivated)
+14:03:36 INFO    opendrift.models.basemodel:2862: 2023-05-27 10:03:02.431674 - step 41 of 48 - 2000 active elements (0 deactivated)
+14:03:38 INFO    opendrift.models.basemodel:2862: 2023-05-27 10:33:02.431674 - step 42 of 48 - 2000 active elements (0 deactivated)
+14:03:38 INFO    opendrift.models.basemodel:2862: 2023-05-27 11:03:02.431674 - step 43 of 48 - 2000 active elements (0 deactivated)
+14:03:39 INFO    opendrift.models.basemodel:2862: 2023-05-27 11:33:02.431674 - step 44 of 48 - 2000 active elements (0 deactivated)
+14:03:39 INFO    opendrift.models.basemodel:2862: 2023-05-27 12:03:02.431674 - step 45 of 48 - 2000 active elements (0 deactivated)
+14:03:40 INFO    opendrift.models.basemodel:2862: 2023-05-27 12:33:02.431674 - step 46 of 48 - 2000 active elements (0 deactivated)
+14:03:40 INFO    opendrift.models.basemodel:2862: 2023-05-27 13:03:02.431674 - step 47 of 48 - 2000 active elements (0 deactivated)
+14:03:41 INFO    opendrift.models.basemodel:2862: 2023-05-27 13:33:02.431674 - step 48 of 48 - 2000 active elements (0 deactivated)
 </pre></div>
 </div>
 <p>Plot results with lines and particles colored by depth</p>
@@ -335,7 +334,7 @@ Lazy readers:
 <span class="n">o</span><span class="o">.</span><span class="n">animation</span><span class="p">(</span><span class="n">color</span><span class="o">=</span><span class="s1">&#39;z&#39;</span><span class="p">,</span> <span class="n">buffer</span><span class="o">=</span><span class="mf">.1</span><span class="p">,</span> <span class="n">fast</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 </pre></div>
 </div>
-<img src="../_images/sphx_glr_example_depth_001.png" srcset="../_images/sphx_glr_example_depth_001.png" alt="OpenDrift - OceanDrift 2023-05-25 10:54 to 2023-05-26 10:54 UTC (49 steps)" class = "sphx-glr-single-img"/><div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>===========================
+<img src="../_images/sphx_glr_example_depth_001.png" srcset="../_images/sphx_glr_example_depth_001.png" alt="OpenDrift - OceanDrift 2023-05-26 14:03 to 2023-05-27 14:03 UTC (49 steps)" class = "sphx-glr-single-img"/><div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>===========================
 --------------------
 Reader performance:
 --------------------
@@ -346,27 +345,27 @@ global_landmask
  0:00:00.0  masking
 --------------------
 https://thredds.met.no/thredds/dodsC/sea/norkyst800m/1h/aggregate_be
- 0:00:32.3  total
+ 0:00:28.8  total
  0:00:00.0  preparing
- 0:00:31.2  reading
+ 0:00:27.7  reading
  0:00:00.6  interpolation
  0:00:00.0  interpolation_time
- 0:00:01.1  rotating vectors
+ 0:00:01.0  rotating vectors
  0:00:00.0  masking
 --------------------
 Performance:
-   42.5 total time
+   39.3 total time
     0.0 configuration
-    6.4 preparing main loop
-      6.3 making dynamical landmask
+    6.9 preparing main loop
+      6.8 making dynamical landmask
       0.0 moving elements to ocean
-     34.8 readers
+     31.3 readers
         0.0 global_landmask
         0.2 postprocessing
-   35.7 main loop
-       32.4 https://thredds.met.no/thredds/dodsC/sea/norkyst800m/1h/aggregate_be
+   32.2 main loop
+       28.9 https://thredds.met.no/thredds/dodsC/sea/norkyst800m/1h/aggregate_be
       0.1 updating elements
-    0.2 cleaning up
+    0.1 cleaning up
 --------------------
 ===========================
 Model:  OceanDrift     (OpenDrift version 1.10.7)
@@ -399,19 +398,19 @@ Readers not added for the following variables:
   turbulent_kinetic_energy
 
 Time:
-        Start: 2023-05-25 10:54:22.609043 UTC
-        Present: 2023-05-26 10:54:22.609043 UTC
+        Start: 2023-05-26 14:03:02.431674 UTC
+        Present: 2023-05-27 14:03:02.431674 UTC
         Calculation steps: 48 * 0:30:00 - total time: 1 day, 0:00:00
         Output steps: 49 * 0:30:00
 ===========================
 
-10:56:25 WARNING opendrift.models.basemodel:3206: Plotting fast. This will make your plots less accurate.
-10:56:27 INFO    opendrift.models.basemodel:5325: Saving animation to /root/project/docs/source/gallery/animations/example_depth_0.gif...
-10:56:39 INFO    opendrift.models.basemodel:3828: Time to make animation: 0:00:14.066822
+14:04:58 WARNING opendrift.models.basemodel:3206: Plotting fast. This will make your plots less accurate.
+14:04:59 INFO    opendrift.models.basemodel:5325: Saving animation to /root/project/docs/source/gallery/animations/example_depth_0.gif...
+14:05:10 INFO    opendrift.models.basemodel:3828: Time to make animation: 0:00:12.596271
 </pre></div>
 </div>
 <img alt="../_images/example_depth_0.gif" src="../_images/example_depth_0.gif" />
-<p class="sphx-glr-timing"><strong>Total running time of the script:</strong> ( 2 minutes  22.827 seconds)</p>
+<p class="sphx-glr-timing"><strong>Total running time of the script:</strong> ( 2 minutes  15.105 seconds)</p>
 <div class="sphx-glr-footer sphx-glr-footer-example docutils container" id="sphx-glr-download-gallery-example-depth-py">
 <div class="sphx-glr-download sphx-glr-download-python docutils container">
 <p><a class="reference download internal" download="" href="../_downloads/ed8c5dfb58d36849ef47f71ec6388806/example_depth.py"><code class="xref download docutils literal notranslate"><span class="pre">Download</span> <span class="pre">Python</span> <span class="pre">source</span> <span class="pre">code:</span> <span class="pre">example_depth.py</span></code></a></p>
