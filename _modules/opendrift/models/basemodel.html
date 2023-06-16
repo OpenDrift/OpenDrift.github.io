@@ -529,6 +529,16 @@
                 <span class="s1">&#39;Elements are deactivated if the move further west than this limit&#39;</span><span class="p">,</span>
                 <span class="s1">&#39;level&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">CONFIG_LEVEL_ADVANCED</span>
             <span class="p">},</span>
+             <span class="s1">&#39;readers:max_number_of_fails&#39;</span><span class="p">:</span> <span class="p">{</span>
+                <span class="s1">&#39;type&#39;</span><span class="p">:</span> <span class="s1">&#39;int&#39;</span><span class="p">,</span>
+                <span class="s1">&#39;default&#39;</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span>
+                <span class="s1">&#39;min&#39;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>
+                <span class="s1">&#39;max&#39;</span><span class="p">:</span> <span class="mf">1e6</span><span class="p">,</span>
+                <span class="s1">&#39;units&#39;</span><span class="p">:</span> <span class="s1">&#39;number&#39;</span><span class="p">,</span>
+                <span class="s1">&#39;description&#39;</span><span class="p">:</span>
+                <span class="s1">&#39;Readers are discarded if they fail (e.g. corrupted data, og hanging servers) move than this number of times&#39;</span><span class="p">,</span>
+                <span class="s1">&#39;level&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">CONFIG_LEVEL_ADVANCED</span>
+            <span class="p">},</span>
         <span class="p">})</span>
 
         <span class="c1"># Add default element properties to config</span>
@@ -1374,6 +1384,14 @@
                     <span class="n">logger</span><span class="o">.</span><span class="n">exception</span><span class="p">(</span><span class="n">e</span><span class="p">)</span>
                     <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="n">traceback</span><span class="o">.</span><span class="n">format_exc</span><span class="p">())</span>
                     <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s1">&#39;========================&#39;</span><span class="p">)</span>
+
+                    <span class="n">reader</span><span class="o">.</span><span class="n">number_of_fails</span> <span class="o">=</span> <span class="n">reader</span><span class="o">.</span><span class="n">number_of_fails</span> <span class="o">+</span> <span class="mi">1</span>
+                    <span class="n">max_fails</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_config</span><span class="p">(</span><span class="s1">&#39;readers:max_number_of_fails&#39;</span><span class="p">)</span>
+                    <span class="k">if</span> <span class="n">reader</span><span class="o">.</span><span class="n">number_of_fails</span> <span class="o">&gt;</span> <span class="n">max_fails</span><span class="p">:</span>
+                        <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Reader </span><span class="si">{</span><span class="n">reader</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s1"> is discarded after failing &#39;</span>
+                                       <span class="sa">f</span><span class="s1">&#39;more times than allowed (</span><span class="si">{</span><span class="n">max_fails</span><span class="si">}</span><span class="s1">)&#39;</span><span class="p">)</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">discard_reader</span><span class="p">(</span><span class="n">reader</span><span class="p">,</span> <span class="n">reason</span><span class="o">=</span><span class="sa">f</span><span class="s1">&#39;Failed more than </span><span class="si">{</span><span class="n">max_fails</span><span class="si">}</span><span class="s1"> times.&#39;</span><span class="p">)</span>
+
                     <span class="bp">self</span><span class="o">.</span><span class="n">timer_end</span><span class="p">(</span><span class="s1">&#39;main loop:readers:&#39;</span> <span class="o">+</span>
                                    <span class="n">reader_name</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s1">&#39;:&#39;</span><span class="p">,</span> <span class="s1">&#39;&lt;colon&gt;&#39;</span><span class="p">))</span>
                     <span class="k">if</span> <span class="n">reader_name</span> <span class="o">==</span> <span class="n">reader_group</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]:</span>
