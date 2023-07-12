@@ -159,6 +159,14 @@
 <span class="sd">    o.set_config(&#39;seed:droplet_diameter_min_subsea&#39;, 0.0005)  # 0.5 mm</span>
 <span class="sd">    o.set_config(&#39;seed:droplet_diameter_max_subsea&#39;, 0.005)   # 5 mm</span>
 
+<span class="sd">Alternatively, the user can specify normal or lognormal initial subsea droplet size distributions, which are later modified by wave breaking events. In these cases the user must specify the mean and standard deviation of the distribution::</span>
+
+<span class="sd">.. code::</span>
+
+<span class="sd">    o.set_config(&#39;seed:droplet_size_distribution&#39;,&#39;lognormal&#39;)</span>
+<span class="sd">    o.set_config(&#39;seed:droplet_diameter_mu&#39;,0.001)  # 1 mm</span>
+<span class="sd">    o.set_config(&#39;seed:droplet_diameter_sigma&#39;,0.0008) # 0.8 mm</span>
+<span class="sd">    </span>
 <span class="sd">Note that these config settings must be adjusted before the seeding call.</span>
 <span class="sd">After each wave breaking event, a new droplet diameter will be chosen based on the config setting for droplet size distribution.</span>
 <span class="sd">&quot;&quot;&quot;</span>
@@ -435,6 +443,37 @@
                 <span class="s1">&#39;The amount (volume) of oil released per hour (or total amount if release is instantaneous)&#39;</span><span class="p">,</span>
                 <span class="s1">&#39;level&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">CONFIG_LEVEL_ESSENTIAL</span>
             <span class="p">},</span>
+            <span class="s1">&#39;seed:droplet_size_distribution&#39;</span><span class="p">:</span> <span class="p">{</span>
+                <span class="s1">&#39;type&#39;</span><span class="p">:</span>
+                <span class="s1">&#39;enum&#39;</span><span class="p">,</span>
+                <span class="s1">&#39;enum&#39;</span><span class="p">:</span> <span class="p">[</span><span class="s1">&#39;uniform&#39;</span><span class="p">,</span> <span class="s1">&#39;normal&#39;</span><span class="p">,</span> <span class="s1">&#39;lognormal&#39;</span><span class="p">],</span>
+                <span class="s1">&#39;default&#39;</span><span class="p">:</span>
+                <span class="s1">&#39;uniform&#39;</span><span class="p">,</span>
+                <span class="s1">&#39;level&#39;</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">CONFIG_LEVEL_ADVANCED</span><span class="p">,</span>
+                <span class="s1">&#39;description&#39;</span><span class="p">:</span>
+                <span class="s1">&#39;Droplet size distribution used for subsea release.&#39;</span>
+            <span class="p">},</span>
+            <span class="s1">&#39;seed:droplet_diameter_mu&#39;</span><span class="p">:</span> <span class="p">{</span>
+                <span class="s1">&#39;type&#39;</span><span class="p">:</span> <span class="s1">&#39;float&#39;</span><span class="p">,</span>
+                <span class="s1">&#39;default&#39;</span><span class="p">:</span> <span class="mf">0.001</span><span class="p">,</span>
+                <span class="s1">&#39;min&#39;</span><span class="p">:</span> <span class="mf">1e-8</span><span class="p">,</span>
+                <span class="s1">&#39;max&#39;</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span>
+                <span class="s1">&#39;units&#39;</span><span class="p">:</span> <span class="s1">&#39;meters&#39;</span><span class="p">,</span>
+                <span class="s1">&#39;description&#39;</span><span class="p">:</span>
+                <span class="s1">&#39;The mean diameter of oil droplet for a subsea release, used in normal/lognormal distributions.&#39;</span><span class="p">,</span>
+                <span class="s1">&#39;level&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">CONFIG_LEVEL_BASIC</span>
+            <span class="p">},</span>
+            <span class="s1">&#39;seed:droplet_diameter_sigma&#39;</span><span class="p">:</span> <span class="p">{</span>
+                <span class="s1">&#39;type&#39;</span><span class="p">:</span> <span class="s1">&#39;float&#39;</span><span class="p">,</span>
+                <span class="s1">&#39;default&#39;</span><span class="p">:</span> <span class="mf">0.0005</span><span class="p">,</span>
+                <span class="s1">&#39;min&#39;</span><span class="p">:</span> <span class="mf">1e-8</span><span class="p">,</span>
+                <span class="s1">&#39;max&#39;</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span>
+                <span class="s1">&#39;units&#39;</span><span class="p">:</span> <span class="s1">&#39;meters&#39;</span><span class="p">,</span>
+                <span class="s1">&#39;description&#39;</span><span class="p">:</span>
+                <span class="s1">&#39;The standard deviation in diameter of oil droplet for a subsea release, used in normal/lognormal distributions.&#39;</span><span class="p">,</span>
+                <span class="s1">&#39;level&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">CONFIG_LEVEL_BASIC</span>
+            <span class="p">},</span>
             <span class="s1">&#39;seed:droplet_diameter_min_subsea&#39;</span><span class="p">:</span> <span class="p">{</span>
                 <span class="s1">&#39;type&#39;</span><span class="p">:</span> <span class="s1">&#39;float&#39;</span><span class="p">,</span>
                 <span class="s1">&#39;default&#39;</span><span class="p">:</span> <span class="mf">0.0005</span><span class="p">,</span>
@@ -442,7 +481,7 @@
                 <span class="s1">&#39;max&#39;</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span>
                 <span class="s1">&#39;units&#39;</span><span class="p">:</span> <span class="s1">&#39;meters&#39;</span><span class="p">,</span>
                 <span class="s1">&#39;description&#39;</span><span class="p">:</span>
-                <span class="s1">&#39;The minimum diameter of oil droplet for a subsea release.&#39;</span><span class="p">,</span>
+                <span class="s1">&#39;The minimum diameter of oil droplet for a subsea release, used in unifrom distribution.&#39;</span><span class="p">,</span>
                 <span class="s1">&#39;level&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">CONFIG_LEVEL_BASIC</span>
             <span class="p">},</span>
             <span class="s1">&#39;seed:droplet_diameter_max_subsea&#39;</span><span class="p">:</span> <span class="p">{</span>
@@ -452,7 +491,7 @@
                 <span class="s1">&#39;max&#39;</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span>
                 <span class="s1">&#39;units&#39;</span><span class="p">:</span> <span class="s1">&#39;meters&#39;</span><span class="p">,</span>
                 <span class="s1">&#39;description&#39;</span><span class="p">:</span>
-                <span class="s1">&#39;The maximum diameter of oil droplet for a subsea release.&#39;</span><span class="p">,</span>
+                <span class="s1">&#39;The maximum diameter of oil droplet for a subsea release, used in uniform distribution.&#39;</span><span class="p">,</span>
                 <span class="s1">&#39;level&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">CONFIG_LEVEL_BASIC</span>
             <span class="p">},</span>
             <span class="s1">&#39;processes:dispersion&#39;</span><span class="p">:</span> <span class="p">{</span>
@@ -1053,7 +1092,7 @@
         <span class="k">elif</span> <span class="n">dm</span> <span class="o">==</span> <span class="s1">&#39;Li et al. (2017)&#39;</span><span class="p">:</span>
             <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_wave_breaking_droplet_diameter_liz2017</span><span class="p">()</span>
         <span class="k">else</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s2">&quot;no droplet size distribution specified&quot;</span><span class="p">)</span></div>
+            <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s2">&quot;no wave entrainment droplet size distribution specified&quot;</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="OpenOil.get_wave_breaking_droplet_diameter_liz2017"><a class="viewcode-back" href="../../../../autoapi/opendrift/models/openoil/openoil/index.html#opendrift.models.openoil.OpenOil.get_wave_breaking_droplet_diameter_liz2017">[docs]</a>    <span class="k">def</span> <span class="nf">get_wave_breaking_droplet_diameter_liz2017</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="c1"># Li,Zhengkai, M. Spaulding, D. French-McCay, D. Crowley, J.R. Payne: &quot;Development of a unified oil droplet size distribution model</span>
@@ -1648,13 +1687,46 @@
             <span class="n">z</span> <span class="o">=</span> <span class="n">z</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">ones</span><span class="p">(</span><span class="n">number</span><span class="p">)</span>  <span class="c1"># Convert scalar z to array</span>
         <span class="n">subsea</span> <span class="o">=</span> <span class="n">z</span> <span class="o">&lt;</span> <span class="mi">0</span>
         <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">subsea</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span> <span class="ow">and</span> <span class="s1">&#39;diameter&#39;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">kwargs</span><span class="p">:</span>
-            <span class="c1"># Droplet min and max for particles seeded below sea surface</span>
-            <span class="n">sub_dmin</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_config</span><span class="p">(</span><span class="s1">&#39;seed:droplet_diameter_min_subsea&#39;</span><span class="p">)</span>
-            <span class="n">sub_dmax</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_config</span><span class="p">(</span><span class="s1">&#39;seed:droplet_diameter_max_subsea&#39;</span><span class="p">)</span>
-            <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s1">&#39;Using particle diameters between </span><span class="si">%s</span><span class="s1"> and </span><span class="si">%s</span><span class="s1"> m for &#39;</span>
-                        <span class="s1">&#39;elements seeded below sea surface.&#39;</span> <span class="o">%</span>
-                        <span class="p">(</span><span class="n">sub_dmin</span><span class="p">,</span> <span class="n">sub_dmax</span><span class="p">))</span>
-            <span class="n">kwargs</span><span class="p">[</span><span class="s1">&#39;diameter&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">uniform</span><span class="p">(</span><span class="n">sub_dmin</span><span class="p">,</span> <span class="n">sub_dmax</span><span class="p">,</span> <span class="n">number</span><span class="p">)</span>
+            <span class="n">dsd</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_config</span><span class="p">(</span><span class="s1">&#39;seed:droplet_size_distribution&#39;</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">dsd</span> <span class="o">==</span> <span class="s1">&#39;uniform&#39;</span><span class="p">:</span>
+                <span class="c1"># Droplet min and max for particles seeded below sea surface</span>
+                <span class="n">sub_dmin</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_config</span><span class="p">(</span><span class="s1">&#39;seed:droplet_diameter_min_subsea&#39;</span><span class="p">)</span>
+                <span class="n">sub_dmax</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_config</span><span class="p">(</span><span class="s1">&#39;seed:droplet_diameter_max_subsea&#39;</span><span class="p">)</span>
+                <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s1">&#39;Using uniform droplet size distribution between </span><span class="si">%s</span><span class="s1"> and </span><span class="si">%s</span><span class="s1"> m for &#39;</span>
+                            <span class="s1">&#39;elements seeded below sea surface.&#39;</span> <span class="o">%</span>
+                            <span class="p">(</span><span class="n">sub_dmin</span><span class="p">,</span> <span class="n">sub_dmax</span><span class="p">))</span>
+                <span class="n">kwargs</span><span class="p">[</span><span class="s1">&#39;diameter&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">uniform</span><span class="p">(</span><span class="n">sub_dmin</span><span class="p">,</span> <span class="n">sub_dmax</span><span class="p">,</span> <span class="n">number</span><span class="p">)</span>
+            <span class="k">elif</span> <span class="n">dsd</span> <span class="o">==</span> <span class="s1">&#39;normal&#39;</span><span class="p">:</span>
+                <span class="c1"># Droplet mu and sigma for particles seeded below sea surface</span>
+                <span class="n">sub_mu</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_config</span><span class="p">(</span><span class="s1">&#39;seed:droplet_diameter_mu&#39;</span><span class="p">)</span>
+                <span class="n">sub_sigma</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_config</span><span class="p">(</span><span class="s1">&#39;seed:droplet_diameter_sigma&#39;</span><span class="p">)</span>
+                <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s1">&#39;Using normal droplet size distribution with &#39;</span>
+                            <span class="s1">&#39;mu = </span><span class="si">%s</span><span class="s1"> and sigma = </span><span class="si">%s</span><span class="s1"> m for elements seeded below sea surface.&#39;</span> <span class="o">%</span>
+                            <span class="p">(</span><span class="n">sub_mu</span><span class="p">,</span> <span class="n">sub_sigma</span><span class="p">))</span>
+                <span class="n">kwargs</span><span class="p">[</span><span class="s1">&#39;diameter&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">normal</span><span class="p">(</span><span class="n">sub_mu</span><span class="p">,</span> <span class="n">sub_sigma</span><span class="p">,</span> <span class="n">number</span><span class="p">)</span>
+            <span class="k">elif</span> <span class="n">dsd</span> <span class="o">==</span> <span class="s1">&#39;lognormal&#39;</span><span class="p">:</span>
+                <span class="c1"># Droplet mu and sigma for particles seeded below sea surface</span>
+                <span class="n">sub_mu</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_config</span><span class="p">(</span><span class="s1">&#39;seed:droplet_diameter_mu&#39;</span><span class="p">)</span>
+                <span class="n">sub_sigma</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_config</span><span class="p">(</span><span class="s1">&#39;seed:droplet_diameter_sigma&#39;</span><span class="p">)</span>
+                <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s1">&#39;Using lognormal droplet size distribution with &#39;</span>
+                            <span class="s1">&#39;mu = </span><span class="si">%s</span><span class="s1"> and sigma = </span><span class="si">%s</span><span class="s1"> m for elements seeded below sea surface.&#39;</span> <span class="o">%</span>
+                            <span class="p">(</span><span class="n">sub_mu</span><span class="p">,</span> <span class="n">sub_sigma</span><span class="p">))</span>
+                <span class="c1"># From numpy.random.lognormal:</span>
+                <span class="c1"># &quot;Note that the mean and standard deviation are not the values for the </span>
+                <span class="c1"># distribution itself, but of the underlying normal distribution it is derived from.&quot;</span>
+                <span class="c1"># So we need to compute the input to the function from the mean and </span>
+                <span class="c1"># standard deviation of the data we want to generate (assumed as input)</span>
+                <span class="n">sub_sigma2</span> <span class="o">=</span> <span class="n">sub_sigma</span><span class="o">**</span><span class="mi">2</span>
+                <span class="n">sub_sigma2_lognormal</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="n">sub_sigma2</span><span class="o">/</span><span class="n">sub_mu</span><span class="o">**</span><span class="mi">2</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span>
+                <span class="n">sub_mu_lognormal</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="n">sub_mu</span><span class="p">)</span> <span class="o">-</span> <span class="n">sub_sigma2_lognormal</span><span class="o">/</span><span class="mi">2</span>
+                <span class="n">sub_sigma_lognormal</span> <span class="o">=</span> <span class="n">sub_sigma2_lognormal</span><span class="o">**</span><span class="mf">0.5</span>
+                <span class="n">kwargs</span><span class="p">[</span><span class="s1">&#39;diameter&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">lognormal</span><span class="p">(</span><span class="n">sub_mu_lognormal</span><span class="p">,</span> <span class="n">sub_sigma_lognormal</span><span class="p">,</span> <span class="n">number</span><span class="p">)</span>
+                <span class="c1"># check it worked</span>
+                <span class="c1"># print(&#39;median = &#39;+str(np.median(kwargs[&#39;diameter&#39;])))</span>
+                <span class="c1"># print(&#39;mean = &#39;+str(np.mean(kwargs[&#39;diameter&#39;])))</span>
+                <span class="c1"># print(&#39;sigma = &#39;+str(np.std(kwargs[&#39;diameter&#39;])))</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s2">&quot;no valid initial subsea droplet size distribution specified&quot;</span><span class="p">)</span>
 
         <span class="k">if</span> <span class="s1">&#39;oiltype&#39;</span> <span class="ow">in</span> <span class="n">kwargs</span><span class="p">:</span>
             <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span>
