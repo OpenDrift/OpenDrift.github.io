@@ -2013,7 +2013,8 @@
                                               <span class="n">horizontal_smoothing</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
                                               <span class="n">smoothing_cells</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span>
                                               <span class="n">reader_sea_depth</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
-                                              <span class="n">landmask_shapefile</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+                                              <span class="n">landmask_shapefile</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                                              <span class="n">origin_marker</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&#39;&#39;&#39;Write netCDF file with map of Chemical species densities and concentrations&#39;&#39;&#39;</span>
 
         <span class="kn">from</span> <span class="nn">netCDF4</span> <span class="kn">import</span> <span class="n">Dataset</span><span class="p">,</span> <span class="n">date2num</span> <span class="c1">#, stringtochar</span>
@@ -2105,7 +2106,7 @@
                                                 <span class="n">density_proj</span><span class="o">=</span><span class="n">density_proj</span><span class="p">,</span>
                                                 <span class="n">llcrnrlon</span><span class="o">=</span><span class="n">llcrnrlon</span><span class="p">,</span> <span class="n">llcrnrlat</span><span class="o">=</span><span class="n">llcrnrlat</span><span class="p">,</span>
                                                 <span class="n">urcrnrlon</span><span class="o">=</span><span class="n">urcrnrlon</span><span class="p">,</span> <span class="n">urcrnrlat</span><span class="o">=</span><span class="n">urcrnrlat</span><span class="p">,</span>
-                                                <span class="n">weight</span><span class="o">=</span><span class="s1">&#39;mass&#39;</span><span class="p">)</span>
+                                                <span class="n">weight</span><span class="o">=</span><span class="s1">&#39;mass&#39;</span><span class="p">,</span><span class="n">origin_marker</span><span class="o">=</span><span class="n">origin_marker</span><span class="p">)</span>
 
         <span class="c1"># calculating center point for eacxh pixel</span>
         <span class="n">lon_array</span> <span class="o">=</span> <span class="p">(</span><span class="n">lon_array</span><span class="p">[:</span><span class="o">-</span><span class="mi">1</span><span class="p">,:</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">+</span> <span class="n">lon_array</span><span class="p">[</span><span class="mi">1</span><span class="p">:,</span><span class="mi">1</span><span class="p">:])</span><span class="o">/</span><span class="mi">2</span>
@@ -2347,7 +2348,7 @@
 <div class="viewcode-block" id="ChemicalDrift.get_chemical_density_array"><a class="viewcode-back" href="../../../autoapi/opendrift/models/chemicaldrift/index.html#opendrift.models.chemicaldrift.ChemicalDrift.get_chemical_density_array">[docs]</a>    <span class="k">def</span> <span class="nf">get_chemical_density_array</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">pixelsize_m</span><span class="p">,</span> <span class="n">z_array</span><span class="p">,</span>
                                        <span class="n">density_proj</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">llcrnrlon</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span><span class="n">llcrnrlat</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
                                        <span class="n">urcrnrlon</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span><span class="n">urcrnrlat</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
-                                       <span class="n">weight</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+                                       <span class="n">weight</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">origin_marker</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&#39;&#39;&#39;</span>
 <span class="sd">        compute a particle concentration map from particle positions</span>
 <span class="sd">        Use user defined projection (density_proj=&lt;proj4_string&gt;)</span>
@@ -2381,6 +2382,8 @@
 
         <span class="n">status</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_property</span><span class="p">(</span><span class="s1">&#39;status&#39;</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
         <span class="n">specie</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_property</span><span class="p">(</span><span class="s1">&#39;specie&#39;</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="k">if</span> <span class="n">origin_marker</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">originmarker</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_property</span><span class="p">(</span><span class="s1">&#39;origin_marker&#39;</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
         <span class="n">Nspecies</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">nspecies</span>
         <span class="n">H</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="nb">len</span><span class="p">(</span><span class="n">times</span><span class="p">),</span>
                       <span class="n">Nspecies</span><span class="p">,</span>
@@ -2393,6 +2396,8 @@
             <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">times</span><span class="p">)):</span>
                 <span class="k">if</span> <span class="n">weight</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
                     <span class="n">weights</span> <span class="o">=</span> <span class="n">weight_array</span><span class="p">[</span><span class="n">i</span><span class="p">,:]</span>
+                    <span class="k">if</span> <span class="n">origin_marker</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                        <span class="n">weight_array</span> <span class="o">=</span> <span class="n">weight_array</span> <span class="o">*</span> <span class="p">(</span><span class="n">originmarker</span><span class="p">[</span><span class="n">i</span><span class="p">,:]</span><span class="o">==</span><span class="n">origin_marker</span><span class="p">)</span>
                 <span class="k">else</span><span class="p">:</span>
                     <span class="n">weights</span> <span class="o">=</span> <span class="kc">None</span>
                 <span class="k">for</span> <span class="n">zi</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">z_array</span><span class="p">)</span><span class="o">-</span><span class="mi">1</span><span class="p">):</span>
