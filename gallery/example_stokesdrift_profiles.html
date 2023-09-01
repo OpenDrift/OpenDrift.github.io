@@ -26,8 +26,8 @@
     <script src="../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
-    <link rel="next" title="ROMS native reader" href="example_roms_native.html" />
-    <link rel="prev" title="Constant current" href="example_constant_current.html" /> 
+    <link rel="next" title="Relative and absolute wind" href="example_relative.html" />
+    <link rel="prev" title="Oil budget (NOAA)" href="example_oil_budget_noaa.html" /> 
 </head>
 
 <body class="wy-body-for-nav"> 
@@ -66,7 +66,6 @@
 <li class="toctree-l2"><a class="reference internal" href="example_eulerdrift_gauss_blob.html">Euler simulation / Finite differnce of Gaussian blob</a></li>
 <li class="toctree-l2"><a class="reference internal" href="example_plot.html">Example plot (for front page)</a></li>
 <li class="toctree-l2"><a class="reference internal" href="example_constant_current.html">Constant current</a></li>
-<li class="toctree-l2 current"><a class="current reference internal" href="#">Stokes drift vertical profiles</a></li>
 <li class="toctree-l2"><a class="reference internal" href="example_roms_native.html">ROMS native reader</a></li>
 <li class="toctree-l2"><a class="reference internal" href="example_long_cmems.html">CMEMS</a></li>
 <li class="toctree-l2"><a class="reference internal" href="example_depth.html">Drift at different depths</a></li>
@@ -126,6 +125,7 @@
 <li class="toctree-l2"><a class="reference internal" href="example_vertical_mixing.html">Vertical mixing</a></li>
 <li class="toctree-l2"><a class="reference internal" href="example_compare.html">Compare</a></li>
 <li class="toctree-l2"><a class="reference internal" href="example_oil_budget_noaa.html">Oil budget (NOAA)</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">Stokes drift vertical profiles</a></li>
 <li class="toctree-l2"><a class="reference internal" href="example_relative.html">Relative and absolute wind</a></li>
 <li class="toctree-l2"><a class="reference internal" href="example_sediments_resuspension.html">Sediment drift with resuspension</a></li>
 <li class="toctree-l2"><a class="reference internal" href="example_convolve_input.html">Convolve input</a></li>
@@ -194,33 +194,46 @@ to download the full example code</p>
 <section class="sphx-glr-example-title" id="stokes-drift-vertical-profiles">
 <span id="sphx-glr-gallery-example-stokesdrift-profiles-py"></span><h1>Stokes drift vertical profiles<a class="headerlink" href="#stokes-drift-vertical-profiles" title="Link to this heading"></a></h1>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
-<span class="kn">from</span> <span class="nn">opendrift.models.physics_methods</span> <span class="kn">import</span> <span class="n">stokes_drift_profile_breivik</span><span class="p">,</span> <span class="n">plot_stokes_profile</span>
+<span class="kn">from</span> <span class="nn">opendrift.models.physics_methods</span> <span class="kn">import</span> <span class="n">stokes_drift_profile_monochromatic</span><span class="p">,</span> <span class="n">stokes_drift_profile_exponential</span><span class="p">,</span> \
+                                             <span class="n">stokes_drift_profile_phillips</span><span class="p">,</span> <span class="n">stokes_drift_profile_windsea_swell</span><span class="p">,</span> <span class="n">plot_stokes_profile</span>
 
-<span class="n">z</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="o">-</span><span class="mi">10</span><span class="p">,</span> <span class="mi">100</span><span class="p">)</span>
-<span class="n">su_surface</span> <span class="o">=</span> <span class="mf">.3</span>
-<span class="n">sv_surface</span> <span class="o">=</span> <span class="mf">.1</span>
-<span class="n">T</span> <span class="o">=</span> <span class="mi">8</span>
+<span class="n">z</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="o">-</span><span class="mi">10</span><span class="p">,</span> <span class="mi">1000</span><span class="p">)</span>
 </pre></div>
 </div>
-<p>Plotting profiles of Stokes drift for significant wave heights of 1 and 2 meters</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">hs</span> <span class="o">=</span> <span class="mi">1</span>
-<span class="n">su1</span><span class="p">,</span> <span class="n">sv1</span><span class="p">,</span> <span class="n">ss1</span> <span class="o">=</span> <span class="n">stokes_drift_profile_breivik</span><span class="p">(</span><span class="n">su_surface</span><span class="p">,</span> <span class="n">sv_surface</span><span class="p">,</span> <span class="n">hs</span><span class="p">,</span> <span class="n">T</span><span class="p">,</span> <span class="n">z</span><span class="p">)</span>
+<p>Surface stokes drift and wave conditions</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">su_surface</span> <span class="o">=</span> <span class="mf">.3</span>
+<span class="n">sv_surface</span> <span class="o">=</span> <span class="mf">.1</span>
+<span class="n">Tp</span> <span class="o">=</span> <span class="mi">8</span>
 <span class="n">hs</span> <span class="o">=</span> <span class="mi">2</span>
-<span class="n">su2</span><span class="p">,</span> <span class="n">sv2</span><span class="p">,</span> <span class="n">ss2</span> <span class="o">=</span> <span class="n">stokes_drift_profile_breivik</span><span class="p">(</span><span class="n">su_surface</span><span class="p">,</span> <span class="n">sv_surface</span><span class="p">,</span> <span class="n">hs</span><span class="p">,</span> <span class="n">T</span><span class="p">,</span> <span class="n">z</span><span class="p">)</span>
+<span class="n">swell_dir_to</span> <span class="o">=</span> <span class="mi">0</span>  <span class="c1"># northwards</span>
+<span class="n">swell_mean_period</span> <span class="o">=</span> <span class="mi">10</span>  <span class="c1"># seconds</span>
+<span class="n">swell_height</span> <span class="o">=</span> <span class="mf">1.5</span>
+<span class="n">wind_sea_height</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">hs</span><span class="o">**</span><span class="mi">2</span> <span class="o">-</span> <span class="n">swell_height</span><span class="o">**</span><span class="mi">2</span><span class="p">)</span>
+<span class="n">wind_sea_mean_dir_to</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">degrees</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">arctan2</span><span class="p">(</span><span class="n">su_surface</span><span class="p">,</span> <span class="n">sv_surface</span><span class="p">))</span> <span class="o">+</span> <span class="mi">30</span>
+<span class="n">wind_sea_mean_period</span> <span class="o">=</span> <span class="mi">2</span>  <span class="c1"># seconds</span>
+</pre></div>
+</div>
+<p>Plotting profiles of Stokes drift for significant wave heights of 2 meters</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">su_m</span><span class="p">,</span> <span class="n">sv_m</span><span class="p">,</span> <span class="n">ss_m</span> <span class="o">=</span> <span class="n">stokes_drift_profile_monochromatic</span><span class="p">(</span><span class="n">su_surface</span><span class="p">,</span> <span class="n">sv_surface</span><span class="p">,</span> <span class="n">hs</span><span class="p">,</span> <span class="n">Tp</span><span class="p">,</span> <span class="n">z</span><span class="p">)</span>
+<span class="n">su_e</span><span class="p">,</span> <span class="n">sv_e</span><span class="p">,</span> <span class="n">ss_e</span> <span class="o">=</span> <span class="n">stokes_drift_profile_exponential</span><span class="p">(</span><span class="n">su_surface</span><span class="p">,</span> <span class="n">sv_surface</span><span class="p">,</span> <span class="n">hs</span><span class="p">,</span> <span class="n">Tp</span><span class="p">,</span> <span class="n">z</span><span class="p">)</span>
+<span class="n">su_p</span><span class="p">,</span> <span class="n">sv_p</span><span class="p">,</span> <span class="n">ss_p</span> <span class="o">=</span> <span class="n">stokes_drift_profile_phillips</span><span class="p">(</span><span class="n">su_surface</span><span class="p">,</span> <span class="n">sv_surface</span><span class="p">,</span> <span class="n">hs</span><span class="p">,</span> <span class="n">Tp</span><span class="p">,</span> <span class="n">z</span><span class="p">)</span>
+<span class="n">su_c</span><span class="p">,</span> <span class="n">sv_c</span><span class="p">,</span> <span class="n">ss_c</span> <span class="o">=</span> <span class="n">stokes_drift_profile_windsea_swell</span><span class="p">(</span><span class="n">su_surface</span><span class="p">,</span> <span class="n">sv_surface</span><span class="p">,</span>
+    <span class="n">swell_mean_direction_to</span><span class="o">=</span><span class="n">swell_dir_to</span><span class="p">,</span> <span class="n">swell_mean_period</span><span class="o">=</span><span class="n">swell_mean_period</span><span class="p">,</span>
+    <span class="n">swell_height</span><span class="o">=</span><span class="n">swell_height</span><span class="p">,</span>
+    <span class="n">wind_sea_mean_direction_to</span><span class="o">=</span><span class="n">wind_sea_mean_dir_to</span><span class="p">,</span> <span class="n">wind_sea_mean_period</span><span class="o">=</span><span class="n">wind_sea_mean_period</span><span class="p">,</span>
+    <span class="n">wind_sea_height</span><span class="o">=</span><span class="n">wind_sea_height</span><span class="p">,</span> <span class="n">z</span><span class="o">=</span><span class="n">z</span><span class="p">)</span>
 
 <span class="n">profiles</span> <span class="o">=</span> <span class="p">[</span>
-    <span class="p">{</span><span class="s1">&#39;u&#39;</span><span class="p">:</span> <span class="n">su1</span><span class="p">,</span> <span class="s1">&#39;v&#39;</span><span class="p">:</span> <span class="n">sv1</span><span class="p">,</span> <span class="s1">&#39;z&#39;</span><span class="p">:</span> <span class="n">z</span><span class="p">,</span> <span class="s1">&#39;kwargs&#39;</span><span class="p">:</span> <span class="p">{</span><span class="s1">&#39;label&#39;</span><span class="p">:</span> <span class="s1">&#39;Stokes, Hs = 1m&#39;</span><span class="p">}},</span>
-    <span class="p">{</span><span class="s1">&#39;u&#39;</span><span class="p">:</span> <span class="n">su2</span><span class="p">,</span> <span class="s1">&#39;v&#39;</span><span class="p">:</span> <span class="n">sv2</span><span class="p">,</span> <span class="s1">&#39;z&#39;</span><span class="p">:</span> <span class="n">z</span><span class="p">,</span> <span class="s1">&#39;kwargs&#39;</span><span class="p">:</span> <span class="p">{</span><span class="s1">&#39;label&#39;</span><span class="p">:</span> <span class="s1">&#39;Stokes, Hs = 2m&#39;</span><span class="p">}}</span>
+    <span class="p">{</span><span class="s1">&#39;u&#39;</span><span class="p">:</span> <span class="n">su_m</span><span class="p">,</span> <span class="s1">&#39;v&#39;</span><span class="p">:</span> <span class="n">sv_m</span><span class="p">,</span> <span class="s1">&#39;z&#39;</span><span class="p">:</span> <span class="n">z</span><span class="p">,</span> <span class="s1">&#39;kwargs&#39;</span><span class="p">:</span> <span class="p">{</span><span class="s1">&#39;label&#39;</span><span class="p">:</span> <span class="s1">&#39;Stokes, Monochromatic&#39;</span><span class="p">}},</span>
+    <span class="p">{</span><span class="s1">&#39;u&#39;</span><span class="p">:</span> <span class="n">su_e</span><span class="p">,</span> <span class="s1">&#39;v&#39;</span><span class="p">:</span> <span class="n">sv_e</span><span class="p">,</span> <span class="s1">&#39;z&#39;</span><span class="p">:</span> <span class="n">z</span><span class="p">,</span> <span class="s1">&#39;kwargs&#39;</span><span class="p">:</span> <span class="p">{</span><span class="s1">&#39;label&#39;</span><span class="p">:</span> <span class="s1">&#39;Stokes, Exponential&#39;</span><span class="p">}},</span>
+    <span class="p">{</span><span class="s1">&#39;u&#39;</span><span class="p">:</span> <span class="n">su_p</span><span class="p">,</span> <span class="s1">&#39;v&#39;</span><span class="p">:</span> <span class="n">sv_p</span><span class="p">,</span> <span class="s1">&#39;z&#39;</span><span class="p">:</span> <span class="n">z</span><span class="p">,</span> <span class="s1">&#39;kwargs&#39;</span><span class="p">:</span> <span class="p">{</span><span class="s1">&#39;label&#39;</span><span class="p">:</span> <span class="s1">&#39;Stokes, Phillips&#39;</span><span class="p">}},</span>
+    <span class="p">{</span><span class="s1">&#39;u&#39;</span><span class="p">:</span> <span class="n">su_c</span><span class="p">,</span> <span class="s1">&#39;v&#39;</span><span class="p">:</span> <span class="n">sv_c</span><span class="p">,</span> <span class="s1">&#39;z&#39;</span><span class="p">:</span> <span class="n">z</span><span class="p">,</span> <span class="s1">&#39;kwargs&#39;</span><span class="p">:</span> <span class="p">{</span><span class="s1">&#39;label&#39;</span><span class="p">:</span> <span class="s1">&#39;Stokes, Windsea + Swell&#39;</span><span class="p">}}</span>
     <span class="p">]</span>
 
-<span class="n">plot_stokes_profile</span><span class="p">(</span><span class="n">profiles</span><span class="p">)</span>
+<span class="n">plot_stokes_profile</span><span class="p">(</span><span class="n">profiles</span><span class="p">,</span> <span class="n">view</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;vertical&#39;</span><span class="p">,</span> <span class="s1">&#39;birdseye&#39;</span><span class="p">,</span> <span class="s1">&#39;u&#39;</span><span class="p">,</span> <span class="s1">&#39;v&#39;</span><span class="p">])</span>
 </pre></div>
 </div>
-<img src="../_images/sphx_glr_example_stokesdrift_profiles_001.png" srcset="../_images/sphx_glr_example_stokesdrift_profiles_001.png" alt="example stokesdrift profiles" class = "sphx-glr-single-img"/><div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>vertical Axes(0.125,0.11;0.352273x0.77)
-birdseye Axes(0.547727,0.11;0.352273x0.77)
-</pre></div>
-</div>
-<p class="sphx-glr-timing"><strong>Total running time of the script:</strong> (0 minutes 0.134 seconds)</p>
+<img src="../_images/sphx_glr_example_stokesdrift_profiles_001.png" srcset="../_images/sphx_glr_example_stokesdrift_profiles_001.png" alt="example stokesdrift profiles" class = "sphx-glr-single-img"/><p class="sphx-glr-timing"><strong>Total running time of the script:</strong> (0 minutes 0.313 seconds)</p>
 <div class="sphx-glr-footer sphx-glr-footer-example docutils container" id="sphx-glr-download-gallery-example-stokesdrift-profiles-py">
 <div class="sphx-glr-download sphx-glr-download-python docutils container">
 <p><a class="reference download internal" download="" href="../_downloads/bf2b6febe41f12bde506f8c5064d8956/example_stokesdrift_profiles.py"><code class="xref download docutils literal notranslate"><span class="pre">Download</span> <span class="pre">Python</span> <span class="pre">source</span> <span class="pre">code:</span> <span class="pre">example_stokesdrift_profiles.py</span></code></a></p>
@@ -236,8 +249,8 @@ birdseye Axes(0.547727,0.11;0.352273x0.77)
            </div>
           </div>
           <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
-        <a href="example_constant_current.html" class="btn btn-neutral float-left" title="Constant current" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
-        <a href="example_roms_native.html" class="btn btn-neutral float-right" title="ROMS native reader" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+        <a href="example_oil_budget_noaa.html" class="btn btn-neutral float-left" title="Oil budget (NOAA)" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="example_relative.html" class="btn btn-neutral float-right" title="Relative and absolute wind" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
     </div>
 
   <hr/>
