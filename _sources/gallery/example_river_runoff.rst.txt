@@ -55,8 +55,15 @@ First make a simulation with two seedings, marked by *origin_marker*
 .. code-block:: default
 
     o = OceanDrift(loglevel=20)
+    o.set_config('drift:horizontal_diffusivity', 300)
+    o.set_config('general:coastline_action', 'previous')
     t1 = datetime.now()
     t2 = t1 + timedelta(hours=48)
+    reader_x = reader_oscillating.Reader('x_sea_water_velocity', period_seconds=3600*24,
+                    amplitude=1, zero_time=t1)
+    reader_y = reader_oscillating.Reader('y_sea_water_velocity', period_seconds=3600*72,
+                    amplitude=.5, zero_time=t2)
+    o.add_reader([reader_x, reader_y])
     number = 25000
     o.seed_elements(time=[t1, t2], lon=9.017931, lat=58.562702, number=number,
                     origin_marker_name='River 1')  # River 1
@@ -64,13 +71,6 @@ First make a simulation with two seedings, marked by *origin_marker*
                     origin_marker_name='River 2')  # River 2
     seed_times = o.elements_scheduled_time[0:number]
 
-    reader_x = reader_oscillating.Reader('x_sea_water_velocity', period_seconds=3600*24,
-                    amplitude=1, zero_time=t1)
-    reader_y = reader_oscillating.Reader('y_sea_water_velocity', period_seconds=3600*72,
-                    amplitude=.5, zero_time=t2)
-    o.add_reader([reader_x, reader_y])
-    o.set_config('drift:horizontal_diffusivity', 300)
-    o.set_config('general:coastline_action', 'previous')
     o.run(duration=timedelta(hours=48),
           time_step=1800, time_step_output=3600, outfile=outfile)
 
@@ -82,129 +82,129 @@ First make a simulation with two seedings, marked by *origin_marker*
 
  .. code-block:: none
 
-    14:01:23 INFO    opendrift.models.basemodel:539: OpenDriftSimulation initialised (version 1.10.7 / v1.10.6-119-g1da5bec)
-    14:01:23 INFO    opendrift.models.basemodel:2591: Fallback values will be used for the following variables which have no readers: 
-    14:01:23 INFO    opendrift.models.basemodel:2594:       x_wind: 0.000000
-    14:01:23 INFO    opendrift.models.basemodel:2594:       y_wind: 0.000000
-    14:01:23 INFO    opendrift.models.basemodel:2594:       upward_sea_water_velocity: 0.000000
-    14:01:23 INFO    opendrift.models.basemodel:2594:       ocean_vertical_diffusivity: 0.000000
-    14:01:23 INFO    opendrift.models.basemodel:2594:       sea_surface_wave_significant_height: 0.000000
-    14:01:23 INFO    opendrift.models.basemodel:2594:       sea_surface_wave_stokes_drift_x_velocity: 0.000000
-    14:01:23 INFO    opendrift.models.basemodel:2594:       sea_surface_wave_stokes_drift_y_velocity: 0.000000
-    14:01:23 INFO    opendrift.models.basemodel:2594:       sea_surface_wave_period_at_variance_spectral_density_maximum: 0.000000
-    14:01:23 INFO    opendrift.models.basemodel:2594:       sea_surface_wave_mean_period_from_variance_spectral_density_second_frequency_moment: 0.000000
-    14:01:23 INFO    opendrift.models.basemodel:2594:       sea_surface_swell_wave_to_direction: 0.000000
-    14:01:23 INFO    opendrift.models.basemodel:2594:       sea_surface_swell_wave_peak_period_from_variance_spectral_density: 0.000000
-    14:01:23 INFO    opendrift.models.basemodel:2594:       sea_surface_swell_wave_significant_height: 0.000000
-    14:01:23 INFO    opendrift.models.basemodel:2594:       sea_surface_wind_wave_to_direction: 0.000000
-    14:01:23 INFO    opendrift.models.basemodel:2594:       sea_surface_wind_wave_mean_period: 0.000000
-    14:01:23 INFO    opendrift.models.basemodel:2594:       sea_surface_wind_wave_significant_height: 0.000000
-    14:01:23 INFO    opendrift.models.basemodel:2594:       surface_downward_x_stress: 0.000000
-    14:01:23 INFO    opendrift.models.basemodel:2594:       surface_downward_y_stress: 0.000000
-    14:01:23 INFO    opendrift.models.basemodel:2594:       turbulent_kinetic_energy: 0.000000
-    14:01:23 INFO    opendrift.models.basemodel:2594:       turbulent_generic_length_scale: 0.000000
-    14:01:23 INFO    opendrift.models.basemodel:2594:       ocean_mixed_layer_thickness: 50.000000
-    14:01:23 INFO    opendrift.models.basemodel:2594:       sea_floor_depth_below_sea_level: 10000.000000
-    14:01:23 INFO    opendrift.models.basemodel:2753: Adding a dynamical landmask with max. priority based on assumed maximum speed of 1 m/s. Adding a customised landmask may be faster...
-    14:01:34 INFO    opendrift.models.basemodel:1701: Using existing reader for land_binary_mask
-    14:01:34 INFO    opendrift.models.basemodel:1713: All points are in ocean
-    14:01:34 INFO    opendrift.models.basemodel:2882: 2023-09-01 14:01:23.395740 - step 1 of 96 - 522 active elements (0 deactivated)
-    14:01:34 INFO    opendrift.models.basemodel:2882: 2023-09-01 14:31:23.395740 - step 2 of 96 - 1042 active elements (0 deactivated)
-    14:01:34 INFO    opendrift.models.basemodel:2882: 2023-09-01 15:01:23.395740 - step 3 of 96 - 1564 active elements (0 deactivated)
-    14:01:34 INFO    opendrift.models.basemodel:2882: 2023-09-01 15:31:23.395740 - step 4 of 96 - 2084 active elements (0 deactivated)
-    14:01:34 INFO    opendrift.models.basemodel:2882: 2023-09-01 16:01:23.395740 - step 5 of 96 - 2606 active elements (0 deactivated)
-    14:01:34 INFO    opendrift.models.basemodel:2882: 2023-09-01 16:31:23.395740 - step 6 of 96 - 3126 active elements (0 deactivated)
-    14:01:34 INFO    opendrift.models.basemodel:2882: 2023-09-01 17:01:23.395740 - step 7 of 96 - 3646 active elements (0 deactivated)
-    14:01:34 INFO    opendrift.models.basemodel:2882: 2023-09-01 17:31:23.395740 - step 8 of 96 - 4168 active elements (0 deactivated)
-    14:01:34 INFO    opendrift.models.basemodel:2882: 2023-09-01 18:01:23.395740 - step 9 of 96 - 4688 active elements (0 deactivated)
-    14:01:34 INFO    opendrift.models.basemodel:2882: 2023-09-01 18:31:23.395740 - step 10 of 96 - 5210 active elements (0 deactivated)
-    14:01:35 INFO    opendrift.models.basemodel:2882: 2023-09-01 19:01:23.395740 - step 11 of 96 - 5730 active elements (0 deactivated)
-    14:01:35 INFO    opendrift.models.basemodel:2882: 2023-09-01 19:31:23.395740 - step 12 of 96 - 6250 active elements (0 deactivated)
-    14:01:35 INFO    opendrift.models.basemodel:2882: 2023-09-01 20:01:23.395740 - step 13 of 96 - 6772 active elements (0 deactivated)
-    14:01:35 INFO    opendrift.models.basemodel:2882: 2023-09-01 20:31:23.395740 - step 14 of 96 - 7292 active elements (0 deactivated)
-    14:01:35 INFO    opendrift.models.basemodel:2882: 2023-09-01 21:01:23.395740 - step 15 of 96 - 7814 active elements (0 deactivated)
-    14:01:35 INFO    opendrift.models.basemodel:2882: 2023-09-01 21:31:23.395740 - step 16 of 96 - 8334 active elements (0 deactivated)
-    14:01:35 INFO    opendrift.models.basemodel:2882: 2023-09-01 22:01:23.395740 - step 17 of 96 - 8854 active elements (0 deactivated)
-    14:01:35 INFO    opendrift.models.basemodel:2882: 2023-09-01 22:31:23.395740 - step 18 of 96 - 9376 active elements (0 deactivated)
-    14:01:35 INFO    opendrift.models.basemodel:2882: 2023-09-01 23:01:23.395740 - step 19 of 96 - 9896 active elements (0 deactivated)
-    14:01:35 INFO    opendrift.models.basemodel:2882: 2023-09-01 23:31:23.395740 - step 20 of 96 - 10418 active elements (0 deactivated)
-    14:01:35 INFO    opendrift.models.basemodel:2882: 2023-09-02 00:01:23.395740 - step 21 of 96 - 10938 active elements (0 deactivated)
-    14:01:35 INFO    opendrift.models.basemodel:2882: 2023-09-02 00:31:23.395740 - step 22 of 96 - 11458 active elements (0 deactivated)
-    14:01:35 INFO    opendrift.models.basemodel:2882: 2023-09-02 01:01:23.395740 - step 23 of 96 - 11980 active elements (0 deactivated)
-    14:01:35 INFO    opendrift.models.basemodel:2882: 2023-09-02 01:31:23.395740 - step 24 of 96 - 12500 active elements (0 deactivated)
-    14:01:36 INFO    opendrift.models.basemodel:2882: 2023-09-02 02:01:23.395740 - step 25 of 96 - 13022 active elements (0 deactivated)
-    14:01:36 INFO    opendrift.models.basemodel:2882: 2023-09-02 02:31:23.395740 - step 26 of 96 - 13542 active elements (0 deactivated)
-    14:01:36 INFO    opendrift.models.basemodel:2882: 2023-09-02 03:01:23.395740 - step 27 of 96 - 14062 active elements (0 deactivated)
-    14:01:36 INFO    opendrift.models.basemodel:2882: 2023-09-02 03:31:23.395740 - step 28 of 96 - 14584 active elements (0 deactivated)
-    14:01:36 INFO    opendrift.models.basemodel:2882: 2023-09-02 04:01:23.395740 - step 29 of 96 - 15104 active elements (0 deactivated)
-    14:01:36 INFO    opendrift.models.basemodel:2882: 2023-09-02 04:31:23.395740 - step 30 of 96 - 15626 active elements (0 deactivated)
-    14:01:36 INFO    opendrift.models.basemodel:2882: 2023-09-02 05:01:23.395740 - step 31 of 96 - 16146 active elements (0 deactivated)
-    14:01:37 INFO    opendrift.models.basemodel:2882: 2023-09-02 05:31:23.395740 - step 32 of 96 - 16668 active elements (0 deactivated)
-    14:01:37 INFO    opendrift.models.basemodel:2882: 2023-09-02 06:01:23.395740 - step 33 of 96 - 17188 active elements (0 deactivated)
-    14:01:37 INFO    opendrift.models.basemodel:2882: 2023-09-02 06:31:23.395740 - step 34 of 96 - 17708 active elements (0 deactivated)
-    14:01:37 INFO    opendrift.models.basemodel:2882: 2023-09-02 07:01:23.395740 - step 35 of 96 - 18230 active elements (0 deactivated)
-    14:01:37 INFO    opendrift.models.basemodel:2882: 2023-09-02 07:31:23.395740 - step 36 of 96 - 18750 active elements (0 deactivated)
-    14:01:37 INFO    opendrift.models.basemodel:2882: 2023-09-02 08:01:23.395740 - step 37 of 96 - 19272 active elements (0 deactivated)
-    14:01:37 INFO    opendrift.models.basemodel:2882: 2023-09-02 08:31:23.395740 - step 38 of 96 - 19792 active elements (0 deactivated)
-    14:01:37 INFO    opendrift.models.basemodel:2882: 2023-09-02 09:01:23.395740 - step 39 of 96 - 20312 active elements (0 deactivated)
-    14:01:38 INFO    opendrift.models.basemodel:2882: 2023-09-02 09:31:23.395740 - step 40 of 96 - 20834 active elements (0 deactivated)
-    14:01:38 INFO    opendrift.models.basemodel:2882: 2023-09-02 10:01:23.395740 - step 41 of 96 - 21354 active elements (0 deactivated)
-    14:01:38 INFO    opendrift.models.basemodel:2882: 2023-09-02 10:31:23.395740 - step 42 of 96 - 21876 active elements (0 deactivated)
-    14:01:38 INFO    opendrift.models.basemodel:2882: 2023-09-02 11:01:23.395740 - step 43 of 96 - 22396 active elements (0 deactivated)
-    14:01:38 INFO    opendrift.models.basemodel:2882: 2023-09-02 11:31:23.395740 - step 44 of 96 - 22916 active elements (0 deactivated)
-    14:01:38 INFO    opendrift.models.basemodel:2882: 2023-09-02 12:01:23.395740 - step 45 of 96 - 23438 active elements (0 deactivated)
-    14:01:38 INFO    opendrift.models.basemodel:2882: 2023-09-02 12:31:23.395740 - step 46 of 96 - 23958 active elements (0 deactivated)
-    14:01:39 INFO    opendrift.models.basemodel:2882: 2023-09-02 13:01:23.395740 - step 47 of 96 - 24480 active elements (0 deactivated)
-    14:01:39 INFO    opendrift.models.basemodel:2882: 2023-09-02 13:31:23.395740 - step 48 of 96 - 25000 active elements (0 deactivated)
-    14:01:39 INFO    opendrift.models.basemodel:2882: 2023-09-02 14:01:23.395740 - step 49 of 96 - 25520 active elements (0 deactivated)
-    14:01:39 INFO    opendrift.models.basemodel:2882: 2023-09-02 14:31:23.395740 - step 50 of 96 - 26042 active elements (0 deactivated)
-    14:01:39 INFO    opendrift.models.basemodel:2882: 2023-09-02 15:01:23.395740 - step 51 of 96 - 26562 active elements (0 deactivated)
-    14:01:39 INFO    opendrift.models.basemodel:2882: 2023-09-02 15:31:23.395740 - step 52 of 96 - 27084 active elements (0 deactivated)
-    14:01:40 INFO    opendrift.models.basemodel:2882: 2023-09-02 16:01:23.395740 - step 53 of 96 - 27604 active elements (0 deactivated)
-    14:01:40 INFO    opendrift.models.basemodel:2882: 2023-09-02 16:31:23.395740 - step 54 of 96 - 28124 active elements (0 deactivated)
-    14:01:40 INFO    opendrift.models.basemodel:2882: 2023-09-02 17:01:23.395740 - step 55 of 96 - 28646 active elements (0 deactivated)
-    14:01:40 INFO    opendrift.models.basemodel:2882: 2023-09-02 17:31:23.395740 - step 56 of 96 - 29166 active elements (0 deactivated)
-    14:01:40 INFO    opendrift.models.basemodel:2882: 2023-09-02 18:01:23.395740 - step 57 of 96 - 29688 active elements (0 deactivated)
-    14:01:41 INFO    opendrift.models.basemodel:2882: 2023-09-02 18:31:23.395740 - step 58 of 96 - 30208 active elements (0 deactivated)
-    14:01:41 INFO    opendrift.models.basemodel:2882: 2023-09-02 19:01:23.395740 - step 59 of 96 - 30728 active elements (0 deactivated)
-    14:01:41 INFO    opendrift.models.basemodel:2882: 2023-09-02 19:31:23.395740 - step 60 of 96 - 31250 active elements (0 deactivated)
-    14:01:41 INFO    opendrift.models.basemodel:2882: 2023-09-02 20:01:23.395740 - step 61 of 96 - 31770 active elements (0 deactivated)
-    14:01:42 INFO    opendrift.models.basemodel:2882: 2023-09-02 20:31:23.395740 - step 62 of 96 - 32292 active elements (0 deactivated)
-    14:01:42 INFO    opendrift.models.basemodel:2882: 2023-09-02 21:01:23.395740 - step 63 of 96 - 32812 active elements (0 deactivated)
-    14:01:42 INFO    opendrift.models.basemodel:2882: 2023-09-02 21:31:23.395740 - step 64 of 96 - 33334 active elements (0 deactivated)
-    14:01:42 INFO    opendrift.models.basemodel:2882: 2023-09-02 22:01:23.395740 - step 65 of 96 - 33854 active elements (0 deactivated)
-    14:01:43 INFO    opendrift.models.basemodel:2882: 2023-09-02 22:31:23.395740 - step 66 of 96 - 34374 active elements (0 deactivated)
-    14:01:43 INFO    opendrift.models.basemodel:2882: 2023-09-02 23:01:23.395740 - step 67 of 96 - 34896 active elements (0 deactivated)
-    14:01:43 INFO    opendrift.models.basemodel:2882: 2023-09-02 23:31:23.395740 - step 68 of 96 - 35416 active elements (0 deactivated)
-    14:01:44 INFO    opendrift.models.basemodel:2882: 2023-09-03 00:01:23.395740 - step 69 of 96 - 35938 active elements (0 deactivated)
-    14:01:44 INFO    opendrift.models.basemodel:2882: 2023-09-03 00:31:23.395740 - step 70 of 96 - 36458 active elements (0 deactivated)
-    14:01:44 INFO    opendrift.models.basemodel:2882: 2023-09-03 01:01:23.395740 - step 71 of 96 - 36978 active elements (0 deactivated)
-    14:01:45 INFO    opendrift.models.basemodel:2882: 2023-09-03 01:31:23.395740 - step 72 of 96 - 37500 active elements (0 deactivated)
-    14:01:45 INFO    opendrift.models.basemodel:2882: 2023-09-03 02:01:23.395740 - step 73 of 96 - 38020 active elements (0 deactivated)
-    14:01:46 INFO    opendrift.models.basemodel:2882: 2023-09-03 02:31:23.395740 - step 74 of 96 - 38542 active elements (0 deactivated)
-    14:01:46 INFO    opendrift.models.basemodel:2882: 2023-09-03 03:01:23.395740 - step 75 of 96 - 39062 active elements (0 deactivated)
-    14:01:46 INFO    opendrift.models.basemodel:2882: 2023-09-03 03:31:23.395740 - step 76 of 96 - 39582 active elements (0 deactivated)
-    14:01:46 INFO    opendrift.models.basemodel:2882: 2023-09-03 04:01:23.395740 - step 77 of 96 - 40104 active elements (0 deactivated)
-    14:01:47 INFO    opendrift.models.basemodel:2882: 2023-09-03 04:31:23.395740 - step 78 of 96 - 40624 active elements (0 deactivated)
-    14:01:47 INFO    opendrift.models.basemodel:2882: 2023-09-03 05:01:23.395740 - step 79 of 96 - 41146 active elements (0 deactivated)
-    14:01:48 INFO    opendrift.models.basemodel:2882: 2023-09-03 05:31:23.395740 - step 80 of 96 - 41666 active elements (0 deactivated)
-    14:01:48 INFO    opendrift.models.basemodel:2882: 2023-09-03 06:01:23.395740 - step 81 of 96 - 42186 active elements (0 deactivated)
-    14:01:49 INFO    opendrift.models.basemodel:2882: 2023-09-03 06:31:23.395740 - step 82 of 96 - 42708 active elements (0 deactivated)
-    14:01:49 INFO    opendrift.models.basemodel:2882: 2023-09-03 07:01:23.395740 - step 83 of 96 - 43228 active elements (0 deactivated)
-    14:01:49 INFO    opendrift.models.basemodel:2882: 2023-09-03 07:31:23.395740 - step 84 of 96 - 43750 active elements (0 deactivated)
-    14:01:50 INFO    opendrift.models.basemodel:2882: 2023-09-03 08:01:23.395740 - step 85 of 96 - 44270 active elements (0 deactivated)
-    14:01:50 INFO    opendrift.models.basemodel:2882: 2023-09-03 08:31:23.395740 - step 86 of 96 - 44790 active elements (0 deactivated)
-    14:01:50 INFO    opendrift.models.basemodel:2882: 2023-09-03 09:01:23.395740 - step 87 of 96 - 45312 active elements (0 deactivated)
-    14:01:51 INFO    opendrift.models.basemodel:2882: 2023-09-03 09:31:23.395740 - step 88 of 96 - 45832 active elements (0 deactivated)
-    14:01:51 INFO    opendrift.models.basemodel:2882: 2023-09-03 10:01:23.395740 - step 89 of 96 - 46354 active elements (0 deactivated)
-    14:01:52 INFO    opendrift.models.basemodel:2882: 2023-09-03 10:31:23.395740 - step 90 of 96 - 46874 active elements (0 deactivated)
-    14:01:52 INFO    opendrift.models.basemodel:2882: 2023-09-03 11:01:23.395740 - step 91 of 96 - 47394 active elements (0 deactivated)
-    14:01:53 INFO    opendrift.models.basemodel:2882: 2023-09-03 11:31:23.395740 - step 92 of 96 - 47916 active elements (0 deactivated)
-    14:01:53 INFO    opendrift.models.basemodel:2882: 2023-09-03 12:01:23.395740 - step 93 of 96 - 48436 active elements (0 deactivated)
-    14:01:54 INFO    opendrift.models.basemodel:2882: 2023-09-03 12:31:23.395740 - step 94 of 96 - 48958 active elements (0 deactivated)
-    14:01:54 INFO    opendrift.models.basemodel:2882: 2023-09-03 13:01:23.395740 - step 95 of 96 - 49478 active elements (0 deactivated)
-    14:01:55 INFO    opendrift.models.basemodel:2882: 2023-09-03 13:31:23.395740 - step 96 of 96 - 50000 active elements (0 deactivated)
-    14:01:58 INFO    opendrift.export.io_netcdf:111: Wrote 49 steps to file runoff.nc
+    13:18:18 INFO    opendrift.models.basemodel:528: OpenDriftSimulation initialised (version 1.10.7 / v1.10.6-159-ge61625c)
+    13:18:18 INFO    opendrift.models.basemodel.environment:219: Adding a dynamical landmask with max. priority based on assumed maximum speed of 1.0 m/s. Adding a customised landmask may be faster...
+    13:18:25 INFO    opendrift.models.basemodel.environment:246: Fallback values will be used for the following variables which have no readers: 
+    13:18:25 INFO    opendrift.models.basemodel.environment:249:    x_wind: 0.000000
+    13:18:25 INFO    opendrift.models.basemodel.environment:249:    y_wind: 0.000000
+    13:18:25 INFO    opendrift.models.basemodel.environment:249:    upward_sea_water_velocity: 0.000000
+    13:18:25 INFO    opendrift.models.basemodel.environment:249:    ocean_vertical_diffusivity: 0.000000
+    13:18:25 INFO    opendrift.models.basemodel.environment:249:    sea_surface_wave_significant_height: 0.000000
+    13:18:25 INFO    opendrift.models.basemodel.environment:249:    sea_surface_wave_stokes_drift_x_velocity: 0.000000
+    13:18:25 INFO    opendrift.models.basemodel.environment:249:    sea_surface_wave_stokes_drift_y_velocity: 0.000000
+    13:18:25 INFO    opendrift.models.basemodel.environment:249:    sea_surface_wave_period_at_variance_spectral_density_maximum: 0.000000
+    13:18:25 INFO    opendrift.models.basemodel.environment:249:    sea_surface_wave_mean_period_from_variance_spectral_density_second_frequency_moment: 0.000000
+    13:18:25 INFO    opendrift.models.basemodel.environment:249:    sea_surface_swell_wave_to_direction: 0.000000
+    13:18:25 INFO    opendrift.models.basemodel.environment:249:    sea_surface_swell_wave_peak_period_from_variance_spectral_density: 0.000000
+    13:18:25 INFO    opendrift.models.basemodel.environment:249:    sea_surface_swell_wave_significant_height: 0.000000
+    13:18:25 INFO    opendrift.models.basemodel.environment:249:    sea_surface_wind_wave_to_direction: 0.000000
+    13:18:25 INFO    opendrift.models.basemodel.environment:249:    sea_surface_wind_wave_mean_period: 0.000000
+    13:18:25 INFO    opendrift.models.basemodel.environment:249:    sea_surface_wind_wave_significant_height: 0.000000
+    13:18:25 INFO    opendrift.models.basemodel.environment:249:    surface_downward_x_stress: 0.000000
+    13:18:25 INFO    opendrift.models.basemodel.environment:249:    surface_downward_y_stress: 0.000000
+    13:18:25 INFO    opendrift.models.basemodel.environment:249:    turbulent_kinetic_energy: 0.000000
+    13:18:25 INFO    opendrift.models.basemodel.environment:249:    turbulent_generic_length_scale: 0.000000
+    13:18:25 INFO    opendrift.models.basemodel.environment:249:    ocean_mixed_layer_thickness: 50.000000
+    13:18:25 INFO    opendrift.models.basemodel.environment:249:    sea_floor_depth_below_sea_level: 10000.000000
+    13:18:28 INFO    opendrift.models.basemodel:891: Using existing reader for land_binary_mask
+    13:18:28 INFO    opendrift.models.basemodel:903: All points are in ocean
+    13:18:28 INFO    opendrift.models.basemodel:1989: 2023-11-01 13:18:18.387656 - step 1 of 96 - 522 active elements (0 deactivated)
+    13:18:28 INFO    opendrift.models.basemodel:1989: 2023-11-01 13:48:18.387656 - step 2 of 96 - 1042 active elements (0 deactivated)
+    13:18:28 INFO    opendrift.models.basemodel:1989: 2023-11-01 14:18:18.387656 - step 3 of 96 - 1564 active elements (0 deactivated)
+    13:18:28 INFO    opendrift.models.basemodel:1989: 2023-11-01 14:48:18.387656 - step 4 of 96 - 2084 active elements (0 deactivated)
+    13:18:28 INFO    opendrift.models.basemodel:1989: 2023-11-01 15:18:18.387656 - step 5 of 96 - 2606 active elements (0 deactivated)
+    13:18:28 INFO    opendrift.models.basemodel:1989: 2023-11-01 15:48:18.387656 - step 6 of 96 - 3126 active elements (0 deactivated)
+    13:18:28 INFO    opendrift.models.basemodel:1989: 2023-11-01 16:18:18.387656 - step 7 of 96 - 3646 active elements (0 deactivated)
+    13:18:28 INFO    opendrift.models.basemodel:1989: 2023-11-01 16:48:18.387656 - step 8 of 96 - 4168 active elements (0 deactivated)
+    13:18:28 INFO    opendrift.models.basemodel:1989: 2023-11-01 17:18:18.387656 - step 9 of 96 - 4688 active elements (0 deactivated)
+    13:18:28 INFO    opendrift.models.basemodel:1989: 2023-11-01 17:48:18.387656 - step 10 of 96 - 5210 active elements (0 deactivated)
+    13:18:28 INFO    opendrift.models.basemodel:1989: 2023-11-01 18:18:18.387656 - step 11 of 96 - 5730 active elements (0 deactivated)
+    13:18:28 INFO    opendrift.models.basemodel:1989: 2023-11-01 18:48:18.387656 - step 12 of 96 - 6250 active elements (0 deactivated)
+    13:18:28 INFO    opendrift.models.basemodel:1989: 2023-11-01 19:18:18.387656 - step 13 of 96 - 6772 active elements (0 deactivated)
+    13:18:28 INFO    opendrift.models.basemodel:1989: 2023-11-01 19:48:18.387656 - step 14 of 96 - 7292 active elements (0 deactivated)
+    13:18:29 INFO    opendrift.models.basemodel:1989: 2023-11-01 20:18:18.387656 - step 15 of 96 - 7814 active elements (0 deactivated)
+    13:18:29 INFO    opendrift.models.basemodel:1989: 2023-11-01 20:48:18.387656 - step 16 of 96 - 8334 active elements (0 deactivated)
+    13:18:29 INFO    opendrift.models.basemodel:1989: 2023-11-01 21:18:18.387656 - step 17 of 96 - 8854 active elements (0 deactivated)
+    13:18:29 INFO    opendrift.models.basemodel:1989: 2023-11-01 21:48:18.387656 - step 18 of 96 - 9376 active elements (0 deactivated)
+    13:18:29 INFO    opendrift.models.basemodel:1989: 2023-11-01 22:18:18.387656 - step 19 of 96 - 9896 active elements (0 deactivated)
+    13:18:29 INFO    opendrift.models.basemodel:1989: 2023-11-01 22:48:18.387656 - step 20 of 96 - 10418 active elements (0 deactivated)
+    13:18:29 INFO    opendrift.models.basemodel:1989: 2023-11-01 23:18:18.387656 - step 21 of 96 - 10938 active elements (0 deactivated)
+    13:18:29 INFO    opendrift.models.basemodel:1989: 2023-11-01 23:48:18.387656 - step 22 of 96 - 11458 active elements (0 deactivated)
+    13:18:29 INFO    opendrift.models.basemodel:1989: 2023-11-02 00:18:18.387656 - step 23 of 96 - 11980 active elements (0 deactivated)
+    13:18:29 INFO    opendrift.models.basemodel:1989: 2023-11-02 00:48:18.387656 - step 24 of 96 - 12500 active elements (0 deactivated)
+    13:18:29 INFO    opendrift.models.basemodel:1989: 2023-11-02 01:18:18.387656 - step 25 of 96 - 13022 active elements (0 deactivated)
+    13:18:29 INFO    opendrift.models.basemodel:1989: 2023-11-02 01:48:18.387656 - step 26 of 96 - 13542 active elements (0 deactivated)
+    13:18:30 INFO    opendrift.models.basemodel:1989: 2023-11-02 02:18:18.387656 - step 27 of 96 - 14062 active elements (0 deactivated)
+    13:18:30 INFO    opendrift.models.basemodel:1989: 2023-11-02 02:48:18.387656 - step 28 of 96 - 14584 active elements (0 deactivated)
+    13:18:30 INFO    opendrift.models.basemodel:1989: 2023-11-02 03:18:18.387656 - step 29 of 96 - 15104 active elements (0 deactivated)
+    13:18:30 INFO    opendrift.models.basemodel:1989: 2023-11-02 03:48:18.387656 - step 30 of 96 - 15626 active elements (0 deactivated)
+    13:18:30 INFO    opendrift.models.basemodel:1989: 2023-11-02 04:18:18.387656 - step 31 of 96 - 16146 active elements (0 deactivated)
+    13:18:30 INFO    opendrift.models.basemodel:1989: 2023-11-02 04:48:18.387656 - step 32 of 96 - 16668 active elements (0 deactivated)
+    13:18:30 INFO    opendrift.models.basemodel:1989: 2023-11-02 05:18:18.387656 - step 33 of 96 - 17188 active elements (0 deactivated)
+    13:18:31 INFO    opendrift.models.basemodel:1989: 2023-11-02 05:48:18.387656 - step 34 of 96 - 17708 active elements (0 deactivated)
+    13:18:31 INFO    opendrift.models.basemodel:1989: 2023-11-02 06:18:18.387656 - step 35 of 96 - 18230 active elements (0 deactivated)
+    13:18:31 INFO    opendrift.models.basemodel:1989: 2023-11-02 06:48:18.387656 - step 36 of 96 - 18750 active elements (0 deactivated)
+    13:18:31 INFO    opendrift.models.basemodel:1989: 2023-11-02 07:18:18.387656 - step 37 of 96 - 19272 active elements (0 deactivated)
+    13:18:31 INFO    opendrift.models.basemodel:1989: 2023-11-02 07:48:18.387656 - step 38 of 96 - 19792 active elements (0 deactivated)
+    13:18:31 INFO    opendrift.models.basemodel:1989: 2023-11-02 08:18:18.387656 - step 39 of 96 - 20312 active elements (0 deactivated)
+    13:18:32 INFO    opendrift.models.basemodel:1989: 2023-11-02 08:48:18.387656 - step 40 of 96 - 20834 active elements (0 deactivated)
+    13:18:32 INFO    opendrift.models.basemodel:1989: 2023-11-02 09:18:18.387656 - step 41 of 96 - 21354 active elements (0 deactivated)
+    13:18:32 INFO    opendrift.models.basemodel:1989: 2023-11-02 09:48:18.387656 - step 42 of 96 - 21876 active elements (0 deactivated)
+    13:18:32 INFO    opendrift.models.basemodel:1989: 2023-11-02 10:18:18.387656 - step 43 of 96 - 22396 active elements (0 deactivated)
+    13:18:32 INFO    opendrift.models.basemodel:1989: 2023-11-02 10:48:18.387656 - step 44 of 96 - 22916 active elements (0 deactivated)
+    13:18:33 INFO    opendrift.models.basemodel:1989: 2023-11-02 11:18:18.387656 - step 45 of 96 - 23438 active elements (0 deactivated)
+    13:18:33 INFO    opendrift.models.basemodel:1989: 2023-11-02 11:48:18.387656 - step 46 of 96 - 23958 active elements (0 deactivated)
+    13:18:33 INFO    opendrift.models.basemodel:1989: 2023-11-02 12:18:18.387656 - step 47 of 96 - 24480 active elements (0 deactivated)
+    13:18:33 INFO    opendrift.models.basemodel:1989: 2023-11-02 12:48:18.387656 - step 48 of 96 - 25000 active elements (0 deactivated)
+    13:18:33 INFO    opendrift.models.basemodel:1989: 2023-11-02 13:18:18.387656 - step 49 of 96 - 25520 active elements (0 deactivated)
+    13:18:34 INFO    opendrift.models.basemodel:1989: 2023-11-02 13:48:18.387656 - step 50 of 96 - 26042 active elements (0 deactivated)
+    13:18:34 INFO    opendrift.models.basemodel:1989: 2023-11-02 14:18:18.387656 - step 51 of 96 - 26562 active elements (0 deactivated)
+    13:18:34 INFO    opendrift.models.basemodel:1989: 2023-11-02 14:48:18.387656 - step 52 of 96 - 27084 active elements (0 deactivated)
+    13:18:34 INFO    opendrift.models.basemodel:1989: 2023-11-02 15:18:18.387656 - step 53 of 96 - 27604 active elements (0 deactivated)
+    13:18:35 INFO    opendrift.models.basemodel:1989: 2023-11-02 15:48:18.387656 - step 54 of 96 - 28124 active elements (0 deactivated)
+    13:18:35 INFO    opendrift.models.basemodel:1989: 2023-11-02 16:18:18.387656 - step 55 of 96 - 28646 active elements (0 deactivated)
+    13:18:35 INFO    opendrift.models.basemodel:1989: 2023-11-02 16:48:18.387656 - step 56 of 96 - 29166 active elements (0 deactivated)
+    13:18:35 INFO    opendrift.models.basemodel:1989: 2023-11-02 17:18:18.387656 - step 57 of 96 - 29688 active elements (0 deactivated)
+    13:18:36 INFO    opendrift.models.basemodel:1989: 2023-11-02 17:48:18.387656 - step 58 of 96 - 30208 active elements (0 deactivated)
+    13:18:36 INFO    opendrift.models.basemodel:1989: 2023-11-02 18:18:18.387656 - step 59 of 96 - 30728 active elements (0 deactivated)
+    13:18:36 INFO    opendrift.models.basemodel:1989: 2023-11-02 18:48:18.387656 - step 60 of 96 - 31250 active elements (0 deactivated)
+    13:18:36 INFO    opendrift.models.basemodel:1989: 2023-11-02 19:18:18.387656 - step 61 of 96 - 31770 active elements (0 deactivated)
+    13:18:37 INFO    opendrift.models.basemodel:1989: 2023-11-02 19:48:18.387656 - step 62 of 96 - 32292 active elements (0 deactivated)
+    13:18:37 INFO    opendrift.models.basemodel:1989: 2023-11-02 20:18:18.387656 - step 63 of 96 - 32812 active elements (0 deactivated)
+    13:18:38 INFO    opendrift.models.basemodel:1989: 2023-11-02 20:48:18.387656 - step 64 of 96 - 33334 active elements (0 deactivated)
+    13:18:38 INFO    opendrift.models.basemodel:1989: 2023-11-02 21:18:18.387656 - step 65 of 96 - 33854 active elements (0 deactivated)
+    13:18:38 INFO    opendrift.models.basemodel:1989: 2023-11-02 21:48:18.387656 - step 66 of 96 - 34374 active elements (0 deactivated)
+    13:18:38 INFO    opendrift.models.basemodel:1989: 2023-11-02 22:18:18.387656 - step 67 of 96 - 34896 active elements (0 deactivated)
+    13:18:39 INFO    opendrift.models.basemodel:1989: 2023-11-02 22:48:18.387656 - step 68 of 96 - 35416 active elements (0 deactivated)
+    13:18:39 INFO    opendrift.models.basemodel:1989: 2023-11-02 23:18:18.387656 - step 69 of 96 - 35938 active elements (0 deactivated)
+    13:18:40 INFO    opendrift.models.basemodel:1989: 2023-11-02 23:48:18.387656 - step 70 of 96 - 36458 active elements (0 deactivated)
+    13:18:40 INFO    opendrift.models.basemodel:1989: 2023-11-03 00:18:18.387656 - step 71 of 96 - 36978 active elements (0 deactivated)
+    13:18:40 INFO    opendrift.models.basemodel:1989: 2023-11-03 00:48:18.387656 - step 72 of 96 - 37500 active elements (0 deactivated)
+    13:18:41 INFO    opendrift.models.basemodel:1989: 2023-11-03 01:18:18.387656 - step 73 of 96 - 38020 active elements (0 deactivated)
+    13:18:41 INFO    opendrift.models.basemodel:1989: 2023-11-03 01:48:18.387656 - step 74 of 96 - 38542 active elements (0 deactivated)
+    13:18:41 INFO    opendrift.models.basemodel:1989: 2023-11-03 02:18:18.387656 - step 75 of 96 - 39062 active elements (0 deactivated)
+    13:18:42 INFO    opendrift.models.basemodel:1989: 2023-11-03 02:48:18.387656 - step 76 of 96 - 39582 active elements (0 deactivated)
+    13:18:42 INFO    opendrift.models.basemodel:1989: 2023-11-03 03:18:18.387656 - step 77 of 96 - 40104 active elements (0 deactivated)
+    13:18:43 INFO    opendrift.models.basemodel:1989: 2023-11-03 03:48:18.387656 - step 78 of 96 - 40624 active elements (0 deactivated)
+    13:18:43 INFO    opendrift.models.basemodel:1989: 2023-11-03 04:18:18.387656 - step 79 of 96 - 41146 active elements (0 deactivated)
+    13:18:44 INFO    opendrift.models.basemodel:1989: 2023-11-03 04:48:18.387656 - step 80 of 96 - 41666 active elements (0 deactivated)
+    13:18:44 INFO    opendrift.models.basemodel:1989: 2023-11-03 05:18:18.387656 - step 81 of 96 - 42186 active elements (0 deactivated)
+    13:18:45 INFO    opendrift.models.basemodel:1989: 2023-11-03 05:48:18.387656 - step 82 of 96 - 42708 active elements (0 deactivated)
+    13:18:45 INFO    opendrift.models.basemodel:1989: 2023-11-03 06:18:18.387656 - step 83 of 96 - 43228 active elements (0 deactivated)
+    13:18:46 INFO    opendrift.models.basemodel:1989: 2023-11-03 06:48:18.387656 - step 84 of 96 - 43750 active elements (0 deactivated)
+    13:18:46 INFO    opendrift.models.basemodel:1989: 2023-11-03 07:18:18.387656 - step 85 of 96 - 44270 active elements (0 deactivated)
+    13:18:47 INFO    opendrift.models.basemodel:1989: 2023-11-03 07:48:18.387656 - step 86 of 96 - 44790 active elements (0 deactivated)
+    13:18:47 INFO    opendrift.models.basemodel:1989: 2023-11-03 08:18:18.387656 - step 87 of 96 - 45312 active elements (0 deactivated)
+    13:18:48 INFO    opendrift.models.basemodel:1989: 2023-11-03 08:48:18.387656 - step 88 of 96 - 45832 active elements (0 deactivated)
+    13:18:48 INFO    opendrift.models.basemodel:1989: 2023-11-03 09:18:18.387656 - step 89 of 96 - 46354 active elements (0 deactivated)
+    13:18:49 INFO    opendrift.models.basemodel:1989: 2023-11-03 09:48:18.387656 - step 90 of 96 - 46874 active elements (0 deactivated)
+    13:18:49 INFO    opendrift.models.basemodel:1989: 2023-11-03 10:18:18.387656 - step 91 of 96 - 47394 active elements (0 deactivated)
+    13:18:50 INFO    opendrift.models.basemodel:1989: 2023-11-03 10:48:18.387656 - step 92 of 96 - 47916 active elements (0 deactivated)
+    13:18:50 INFO    opendrift.models.basemodel:1989: 2023-11-03 11:18:18.387656 - step 93 of 96 - 48436 active elements (0 deactivated)
+    13:18:51 INFO    opendrift.models.basemodel:1989: 2023-11-03 11:48:18.387656 - step 94 of 96 - 48958 active elements (0 deactivated)
+    13:18:51 INFO    opendrift.models.basemodel:1989: 2023-11-03 12:18:18.387656 - step 95 of 96 - 49478 active elements (0 deactivated)
+    13:18:52 INFO    opendrift.models.basemodel:1989: 2023-11-03 12:48:18.387656 - step 96 of 96 - 50000 active elements (0 deactivated)
+    13:18:56 INFO    opendrift.export.io_netcdf:112: Wrote 49 steps to file runoff.nc
     /opt/conda/envs/opendrift/lib/python3.11/site-packages/numpy/ma/core.py:467: RuntimeWarning: invalid value encountered in cast
       fill_value = np.array(fill_value, copy=False, dtype=ndtype)
 
@@ -231,14 +231,14 @@ will read and process data chuck-by-chunk directly from file using Dask.
 
  .. code-block:: none
 
-    14:02:06 DEBUG   opendrift.models.basemodel:625: Adding 18 config items from basemodel
-    14:02:06 DEBUG   opendrift.models.basemodel:625: Adding 5 config items from basemodel
-    14:02:06 DEBUG   opendrift.models.basemodel:625: Adding 48 config items from basemodel
-    14:02:06 INFO    opendrift.models.basemodel:539: OpenDriftSimulation initialised (version 1.10.7 / v1.10.6-119-g1da5bec)
-    14:02:06 DEBUG   opendrift.models.basemodel:625: Adding 15 config items from oceandrift
-    14:02:06 DEBUG   opendrift.models.basemodel:637:   Overwriting config item seed:z
-    14:02:06 DEBUG   opendrift.export.io_netcdf:216: Importing with Xarray from runoff.nc
-    14:02:06 INFO    opendrift:118: Returning <class 'opendrift.models.oceandrift.OceanDrift'> object
+    13:19:07 DEBUG   opendrift.config:156: Adding 15 config items from __init__
+    13:19:07 DEBUG   opendrift.config:166:   Overwriting config item readers:max_number_of_fails
+    13:19:07 DEBUG   opendrift.config:156: Adding 5 config items from __init__
+    13:19:07 INFO    opendrift.models.basemodel:528: OpenDriftSimulation initialised (version 1.10.7 / v1.10.6-159-ge61625c)
+    13:19:07 DEBUG   opendrift.config:156: Adding 15 config items from oceandrift
+    13:19:07 DEBUG   opendrift.config:166:   Overwriting config item seed:z
+    13:19:07 DEBUG   opendrift.export.io_netcdf:217: Importing with Xarray from runoff.nc
+    13:19:07 INFO    opendrift:118: Returning <class 'opendrift.models.oceandrift.OceanDrift'> object
 
 
 
@@ -328,117 +328,117 @@ Calculate density with given pixel size, weighted by runoff amount per element
 
  .. code-block:: none
 
-    14:02:07 INFO    opendrift.models.basemodel:4667:       calculating for origin_marker 0...
-    14:02:07 INFO    opendrift.models.basemodel:4667:       calculating for origin_marker 1...
-    14:02:07 DEBUG   opendrift.models.basemodel:3180: Setting up map: corners=None, fast=False, lscale=None
-    14:02:08 DEBUG   opendrift.readers.reader_global_landmask:83: Adding GSHHG shapes from cartopy, scale: h, extent: (7.309537506103514, 10.789533996582032, 57.41804962158203, 58.819724273681636)..
+    13:19:08 INFO    opendrift.models.basemodel:3815:       calculating for origin_marker 0...
+    13:19:08 INFO    opendrift.models.basemodel:3815:       calculating for origin_marker 1...
+    13:19:08 DEBUG   opendrift.models.basemodel:2311: Setting up map: corners=None, fast=False, lscale=None
+    13:19:08 DEBUG   opendrift.readers.reader_global_landmask:83: Adding GSHHG shapes from cartopy, scale: h, extent: (7.309537506103514, 10.789533996582032, 57.41804962158203, 58.819724273681636)..
     /opt/conda/envs/opendrift/lib/python3.11/site-packages/cartopy/mpl/geoaxes.py:1696: UserWarning: No data for colormapping provided via 'c'. Parameters 'cmap', 'vmin', 'vmax' will be ignored
       result = super().scatter(*args, **kwargs)
-    14:02:31 DEBUG   opendrift.readers.reader_global_landmask:83: Adding GSHHG shapes from cartopy, scale: h, extent: (7.309537506103514, 10.789533996582032, 57.41804962158203, 58.819724273681636)..
-    14:02:33 DEBUG   opendrift.models.basemodel:3855: Saving animation..
-    14:02:33 INFO    opendrift.models.basemodel:5350: Saving animation to /root/project/docs/source/gallery/animations/example_river_runoff_0.gif...
-    14:02:33 DEBUG   opendrift.readers.reader_global_landmask:83: Adding GSHHG shapes from cartopy, scale: h, extent: (7.309537506103514, 10.789533996582032, 57.41804962158203, 58.819724273681636)..
-    14:02:34 DEBUG   opendrift.readers.reader_global_landmask:83: Adding GSHHG shapes from cartopy, scale: h, extent: (7.309537506103514, 10.789533996582032, 57.41804962158203, 58.819724273681636)..
-    14:02:36 DEBUG   opendrift.readers.reader_global_landmask:83: Adding GSHHG shapes from cartopy, scale: h, extent: (7.309537506103514, 10.789533996582032, 57.41804962158203, 58.819724273681636)..
-    14:02:37 DEBUG   opendrift.readers.reader_global_landmask:83: Adding GSHHG shapes from cartopy, scale: h, extent: (7.309537506103514, 10.789533996582032, 57.41804962158203, 58.819724273681636)..
-    14:02:39 DEBUG   opendrift.readers.reader_global_landmask:83: Adding GSHHG shapes from cartopy, scale: h, extent: (7.309537506103514, 10.789533996582032, 57.41804962158203, 58.819724273681636)..
-    14:02:40 DEBUG   opendrift.readers.reader_global_landmask:83: Adding GSHHG shapes from cartopy, scale: h, extent: (7.309537506103514, 10.789533996582032, 57.41804962158203, 58.819724273681636)..
-    14:02:42 DEBUG   opendrift.readers.reader_global_landmask:83: Adding GSHHG shapes from cartopy, scale: h, extent: (7.309537506103514, 10.789533996582032, 57.41804962158203, 58.819724273681636)..
-    14:02:43 DEBUG   opendrift.readers.reader_global_landmask:83: Adding GSHHG shapes from cartopy, scale: h, extent: (7.309537506103514, 10.789533996582032, 57.41804962158203, 58.819724273681636)..
-    14:02:45 DEBUG   opendrift.readers.reader_global_landmask:83: Adding GSHHG shapes from cartopy, scale: h, extent: (7.309537506103514, 10.789533996582032, 57.41804962158203, 58.819724273681636)..
-    14:02:46 DEBUG   opendrift.readers.reader_global_landmask:83: Adding GSHHG shapes from cartopy, scale: h, extent: (7.309537506103514, 10.789533996582032, 57.41804962158203, 58.819724273681636)..
-    14:02:48 DEBUG   opendrift.readers.reader_global_landmask:83: Adding GSHHG shapes from cartopy, scale: h, extent: (7.309537506103514, 10.789533996582032, 57.41804962158203, 58.819724273681636)..
-    14:02:50 DEBUG   opendrift.readers.reader_global_landmask:83: Adding GSHHG shapes from cartopy, scale: h, extent: (7.309537506103514, 10.789533996582032, 57.41804962158203, 58.819724273681636)..
-    14:02:51 DEBUG   opendrift.readers.reader_global_landmask:83: Adding GSHHG shapes from cartopy, scale: h, extent: (7.309537506103514, 10.789533996582032, 57.41804962158203, 58.819724273681636)..
-    14:02:53 DEBUG   opendrift.readers.reader_global_landmask:83: Adding GSHHG shapes from cartopy, scale: h, extent: (7.309537506103514, 10.789533996582032, 57.41804962158203, 58.819724273681636)..
-    14:02:54 DEBUG   opendrift.readers.reader_global_landmask:83: Adding GSHHG shapes from cartopy, scale: h, extent: (7.309537506103514, 10.789533996582032, 57.41804962158203, 58.819724273681636)..
-    14:02:55 DEBUG   opendrift.readers.reader_global_landmask:83: Adding GSHHG shapes from cartopy, scale: h, extent: (7.309537506103514, 10.789533996582032, 57.41804962158203, 58.819724273681636)..
-    14:02:57 DEBUG   opendrift.readers.reader_global_landmask:83: Adding GSHHG shapes from cartopy, scale: h, extent: (7.309537506103514, 10.789533996582032, 57.41804962158203, 58.819724273681636)..
-    14:02:58 DEBUG   opendrift.readers.reader_global_landmask:83: Adding GSHHG shapes from cartopy, scale: h, extent: (7.309537506103514, 10.789533996582032, 57.41804962158203, 58.819724273681636)..
-    14:03:00 DEBUG   opendrift.readers.reader_global_landmask:83: Adding GSHHG shapes from cartopy, scale: h, extent: (7.309537506103514, 10.789533996582032, 57.41804962158203, 58.819724273681636)..
-    14:03:01 DEBUG   opendrift.readers.reader_global_landmask:83: Adding GSHHG shapes from cartopy, scale: h, extent: (7.309537506103514, 10.789533996582032, 57.41804962158203, 58.819724273681636)..
-    14:03:03 DEBUG   opendrift.readers.reader_global_landmask:83: Adding GSHHG shapes from cartopy, scale: h, extent: (7.309537506103514, 10.789533996582032, 57.41804962158203, 58.819724273681636)..
-    14:03:04 DEBUG   opendrift.readers.reader_global_landmask:83: Adding GSHHG shapes from cartopy, scale: h, extent: (7.309537506103514, 10.789533996582032, 57.41804962158203, 58.819724273681636)..
-    14:03:06 DEBUG   opendrift.readers.reader_global_landmask:83: Adding GSHHG shapes from cartopy, scale: h, extent: (7.309537506103514, 10.789533996582032, 57.41804962158203, 58.819724273681636)..
-    14:03:07 DEBUG   opendrift.readers.reader_global_landmask:83: Adding GSHHG shapes from cartopy, scale: h, extent: (7.309537506103514, 10.789533996582032, 57.41804962158203, 58.819724273681636)..
-    14:03:09 DEBUG   opendrift.readers.reader_global_landmask:83: Adding GSHHG shapes from cartopy, scale: h, extent: (7.309537506103514, 10.789533996582032, 57.41804962158203, 58.819724273681636)..
-    14:03:10 DEBUG   opendrift.readers.reader_global_landmask:83: Adding GSHHG shapes from cartopy, scale: h, extent: (7.309537506103514, 10.789533996582032, 57.41804962158203, 58.819724273681636)..
-    14:03:12 DEBUG   opendrift.readers.reader_global_landmask:83: Adding GSHHG shapes from cartopy, scale: h, extent: (7.309537506103514, 10.789533996582032, 57.41804962158203, 58.819724273681636)..
-    14:03:14 DEBUG   opendrift.readers.reader_global_landmask:83: Adding GSHHG shapes from cartopy, scale: h, extent: (7.309537506103514, 10.789533996582032, 57.41804962158203, 58.819724273681636)..
-    14:03:15 DEBUG   opendrift.readers.reader_global_landmask:83: Adding GSHHG shapes from cartopy, scale: h, extent: (7.309537506103514, 10.789533996582032, 57.41804962158203, 58.819724273681636)..
-    14:03:17 DEBUG   opendrift.readers.reader_global_landmask:83: Adding GSHHG shapes from cartopy, scale: h, extent: (7.309537506103514, 10.789533996582032, 57.41804962158203, 58.819724273681636)..
-    14:03:19 DEBUG   opendrift.readers.reader_global_landmask:83: Adding GSHHG shapes from cartopy, scale: h, extent: (7.309537506103514, 10.789533996582032, 57.41804962158203, 58.819724273681636)..
-    14:03:20 DEBUG   opendrift.readers.reader_global_landmask:83: Adding GSHHG shapes from cartopy, scale: h, extent: (7.309537506103514, 10.789533996582032, 57.41804962158203, 58.819724273681636)..
-    14:03:21 DEBUG   opendrift.readers.reader_global_landmask:83: Adding GSHHG shapes from cartopy, scale: h, extent: (7.309537506103514, 10.789533996582032, 57.41804962158203, 58.819724273681636)..
-    14:03:23 DEBUG   opendrift.readers.reader_global_landmask:83: Adding GSHHG shapes from cartopy, scale: h, extent: (7.309537506103514, 10.789533996582032, 57.41804962158203, 58.819724273681636)..
-    14:03:24 DEBUG   opendrift.readers.reader_global_landmask:83: Adding GSHHG shapes from cartopy, scale: h, extent: (7.309537506103514, 10.789533996582032, 57.41804962158203, 58.819724273681636)..
-    14:03:25 DEBUG   opendrift.readers.reader_global_landmask:83: Adding GSHHG shapes from cartopy, scale: h, extent: (7.309537506103514, 10.789533996582032, 57.41804962158203, 58.819724273681636)..
-    14:03:27 DEBUG   opendrift.readers.reader_global_landmask:83: Adding GSHHG shapes from cartopy, scale: h, extent: (7.309537506103514, 10.789533996582032, 57.41804962158203, 58.819724273681636)..
-    14:03:28 DEBUG   opendrift.readers.reader_global_landmask:83: Adding GSHHG shapes from cartopy, scale: h, extent: (7.309537506103514, 10.789533996582032, 57.41804962158203, 58.819724273681636)..
-    14:03:30 DEBUG   opendrift.readers.reader_global_landmask:83: Adding GSHHG shapes from cartopy, scale: h, extent: (7.309537506103514, 10.789533996582032, 57.41804962158203, 58.819724273681636)..
-    14:03:31 DEBUG   opendrift.readers.reader_global_landmask:83: Adding GSHHG shapes from cartopy, scale: h, extent: (7.309537506103514, 10.789533996582032, 57.41804962158203, 58.819724273681636)..
-    14:03:33 DEBUG   opendrift.readers.reader_global_landmask:83: Adding GSHHG shapes from cartopy, scale: h, extent: (7.309537506103514, 10.789533996582032, 57.41804962158203, 58.819724273681636)..
-    14:03:35 DEBUG   opendrift.readers.reader_global_landmask:83: Adding GSHHG shapes from cartopy, scale: h, extent: (7.309537506103514, 10.789533996582032, 57.41804962158203, 58.819724273681636)..
-    14:03:36 DEBUG   opendrift.readers.reader_global_landmask:83: Adding GSHHG shapes from cartopy, scale: h, extent: (7.309537506103514, 10.789533996582032, 57.41804962158203, 58.819724273681636)..
-    14:03:37 DEBUG   opendrift.readers.reader_global_landmask:83: Adding GSHHG shapes from cartopy, scale: h, extent: (7.309537506103514, 10.789533996582032, 57.41804962158203, 58.819724273681636)..
-    14:03:39 DEBUG   opendrift.readers.reader_global_landmask:83: Adding GSHHG shapes from cartopy, scale: h, extent: (7.309537506103514, 10.789533996582032, 57.41804962158203, 58.819724273681636)..
-    14:03:41 DEBUG   opendrift.readers.reader_global_landmask:83: Adding GSHHG shapes from cartopy, scale: h, extent: (7.309537506103514, 10.789533996582032, 57.41804962158203, 58.819724273681636)..
-    14:03:42 DEBUG   opendrift.readers.reader_global_landmask:83: Adding GSHHG shapes from cartopy, scale: h, extent: (7.309537506103514, 10.789533996582032, 57.41804962158203, 58.819724273681636)..
-    14:03:43 DEBUG   opendrift.readers.reader_global_landmask:83: Adding GSHHG shapes from cartopy, scale: h, extent: (7.309537506103514, 10.789533996582032, 57.41804962158203, 58.819724273681636)..
-    14:03:44 DEBUG   opendrift.readers.reader_global_landmask:83: Adding GSHHG shapes from cartopy, scale: h, extent: (7.309537506103514, 10.789533996582032, 57.41804962158203, 58.819724273681636)..
-    14:03:46 DEBUG   opendrift.readers.reader_global_landmask:83: Adding GSHHG shapes from cartopy, scale: h, extent: (7.309537506103514, 10.789533996582032, 57.41804962158203, 58.819724273681636)..
-    14:03:47 DEBUG   opendrift.readers.reader_global_landmask:83: Adding GSHHG shapes from cartopy, scale: h, extent: (7.309537506103514, 10.789533996582032, 57.41804962158203, 58.819724273681636)..
-    14:03:49 DEBUG   opendrift.readers.reader_global_landmask:83: Adding GSHHG shapes from cartopy, scale: h, extent: (7.309537506103514, 10.789533996582032, 57.41804962158203, 58.819724273681636)..
-    14:03:50 DEBUG   opendrift.readers.reader_global_landmask:83: Adding GSHHG shapes from cartopy, scale: h, extent: (7.309537506103514, 10.789533996582032, 57.41804962158203, 58.819724273681636)..
-    14:03:52 DEBUG   opendrift.readers.reader_global_landmask:83: Adding GSHHG shapes from cartopy, scale: h, extent: (7.309537506103514, 10.789533996582032, 57.41804962158203, 58.819724273681636)..
-    14:03:53 DEBUG   opendrift.readers.reader_global_landmask:83: Adding GSHHG shapes from cartopy, scale: h, extent: (7.309537506103514, 10.789533996582032, 57.41804962158203, 58.819724273681636)..
-    14:03:55 DEBUG   opendrift.readers.reader_global_landmask:83: Adding GSHHG shapes from cartopy, scale: h, extent: (7.309537506103514, 10.789533996582032, 57.41804962158203, 58.819724273681636)..
-    14:03:57 DEBUG   opendrift.readers.reader_global_landmask:83: Adding GSHHG shapes from cartopy, scale: h, extent: (7.309537506103514, 10.789533996582032, 57.41804962158203, 58.819724273681636)..
-    14:03:58 DEBUG   opendrift.readers.reader_global_landmask:83: Adding GSHHG shapes from cartopy, scale: h, extent: (7.309537506103514, 10.789533996582032, 57.41804962158203, 58.819724273681636)..
-    14:04:00 DEBUG   opendrift.readers.reader_global_landmask:83: Adding GSHHG shapes from cartopy, scale: h, extent: (7.309537506103514, 10.789533996582032, 57.41804962158203, 58.819724273681636)..
-    14:04:01 DEBUG   opendrift.readers.reader_global_landmask:83: Adding GSHHG shapes from cartopy, scale: h, extent: (7.309537506103514, 10.789533996582032, 57.41804962158203, 58.819724273681636)..
-    14:04:03 DEBUG   opendrift.readers.reader_global_landmask:83: Adding GSHHG shapes from cartopy, scale: h, extent: (7.309537506103514, 10.789533996582032, 57.41804962158203, 58.819724273681636)..
-    14:04:04 DEBUG   opendrift.readers.reader_global_landmask:83: Adding GSHHG shapes from cartopy, scale: h, extent: (7.309537506103514, 10.789533996582032, 57.41804962158203, 58.819724273681636)..
-    14:04:06 DEBUG   opendrift.readers.reader_global_landmask:83: Adding GSHHG shapes from cartopy, scale: h, extent: (7.309537506103514, 10.789533996582032, 57.41804962158203, 58.819724273681636)..
-    14:04:07 DEBUG   opendrift.readers.reader_global_landmask:83: Adding GSHHG shapes from cartopy, scale: h, extent: (7.309537506103514, 10.789533996582032, 57.41804962158203, 58.819724273681636)..
-    14:04:09 DEBUG   opendrift.readers.reader_global_landmask:83: Adding GSHHG shapes from cartopy, scale: h, extent: (7.309537506103514, 10.789533996582032, 57.41804962158203, 58.819724273681636)..
-    14:04:11 DEBUG   opendrift.readers.reader_global_landmask:83: Adding GSHHG shapes from cartopy, scale: h, extent: (7.309537506103514, 10.789533996582032, 57.41804962158203, 58.819724273681636)..
-    14:04:13 DEBUG   opendrift.readers.reader_global_landmask:83: Adding GSHHG shapes from cartopy, scale: h, extent: (7.309537506103514, 10.789533996582032, 57.41804962158203, 58.819724273681636)..
-    14:04:14 DEBUG   opendrift.readers.reader_global_landmask:83: Adding GSHHG shapes from cartopy, scale: h, extent: (7.309537506103514, 10.789533996582032, 57.41804962158203, 58.819724273681636)..
-    14:04:16 DEBUG   opendrift.readers.reader_global_landmask:83: Adding GSHHG shapes from cartopy, scale: h, extent: (7.309537506103514, 10.789533996582032, 57.41804962158203, 58.819724273681636)..
-    14:04:17 DEBUG   opendrift.readers.reader_global_landmask:83: Adding GSHHG shapes from cartopy, scale: h, extent: (7.309537506103514, 10.789533996582032, 57.41804962158203, 58.819724273681636)..
-    14:04:19 DEBUG   opendrift.readers.reader_global_landmask:83: Adding GSHHG shapes from cartopy, scale: h, extent: (7.309537506103514, 10.789533996582032, 57.41804962158203, 58.819724273681636)..
-    14:04:20 DEBUG   opendrift.readers.reader_global_landmask:83: Adding GSHHG shapes from cartopy, scale: h, extent: (7.309537506103514, 10.789533996582032, 57.41804962158203, 58.819724273681636)..
-    14:04:22 DEBUG   opendrift.readers.reader_global_landmask:83: Adding GSHHG shapes from cartopy, scale: h, extent: (7.309537506103514, 10.789533996582032, 57.41804962158203, 58.819724273681636)..
-    14:04:23 DEBUG   opendrift.readers.reader_global_landmask:83: Adding GSHHG shapes from cartopy, scale: h, extent: (7.309537506103514, 10.789533996582032, 57.41804962158203, 58.819724273681636)..
-    14:04:25 DEBUG   opendrift.readers.reader_global_landmask:83: Adding GSHHG shapes from cartopy, scale: h, extent: (7.309537506103514, 10.789533996582032, 57.41804962158203, 58.819724273681636)..
-    14:04:27 DEBUG   opendrift.readers.reader_global_landmask:83: Adding GSHHG shapes from cartopy, scale: h, extent: (7.309537506103514, 10.789533996582032, 57.41804962158203, 58.819724273681636)..
-    14:04:28 DEBUG   opendrift.readers.reader_global_landmask:83: Adding GSHHG shapes from cartopy, scale: h, extent: (7.309537506103514, 10.789533996582032, 57.41804962158203, 58.819724273681636)..
-    14:04:30 DEBUG   opendrift.readers.reader_global_landmask:83: Adding GSHHG shapes from cartopy, scale: h, extent: (7.309537506103514, 10.789533996582032, 57.41804962158203, 58.819724273681636)..
-    14:04:31 DEBUG   opendrift.readers.reader_global_landmask:83: Adding GSHHG shapes from cartopy, scale: h, extent: (7.309537506103514, 10.789533996582032, 57.41804962158203, 58.819724273681636)..
-    14:04:33 DEBUG   opendrift.readers.reader_global_landmask:83: Adding GSHHG shapes from cartopy, scale: h, extent: (7.309537506103514, 10.789533996582032, 57.41804962158203, 58.819724273681636)..
-    14:04:34 DEBUG   opendrift.readers.reader_global_landmask:83: Adding GSHHG shapes from cartopy, scale: h, extent: (7.309537506103514, 10.789533996582032, 57.41804962158203, 58.819724273681636)..
-    14:04:35 DEBUG   opendrift.readers.reader_global_landmask:83: Adding GSHHG shapes from cartopy, scale: h, extent: (7.309537506103514, 10.789533996582032, 57.41804962158203, 58.819724273681636)..
-    14:04:37 DEBUG   opendrift.readers.reader_global_landmask:83: Adding GSHHG shapes from cartopy, scale: h, extent: (7.309537506103514, 10.789533996582032, 57.41804962158203, 58.819724273681636)..
-    14:04:38 DEBUG   opendrift.readers.reader_global_landmask:83: Adding GSHHG shapes from cartopy, scale: h, extent: (7.309537506103514, 10.789533996582032, 57.41804962158203, 58.819724273681636)..
-    14:04:39 DEBUG   opendrift.readers.reader_global_landmask:83: Adding GSHHG shapes from cartopy, scale: h, extent: (7.309537506103514, 10.789533996582032, 57.41804962158203, 58.819724273681636)..
-    14:04:41 DEBUG   opendrift.readers.reader_global_landmask:83: Adding GSHHG shapes from cartopy, scale: h, extent: (7.309537506103514, 10.789533996582032, 57.41804962158203, 58.819724273681636)..
-    14:04:42 DEBUG   opendrift.readers.reader_global_landmask:83: Adding GSHHG shapes from cartopy, scale: h, extent: (7.309537506103514, 10.789533996582032, 57.41804962158203, 58.819724273681636)..
-    14:04:43 DEBUG   opendrift.readers.reader_global_landmask:83: Adding GSHHG shapes from cartopy, scale: h, extent: (7.309537506103514, 10.789533996582032, 57.41804962158203, 58.819724273681636)..
-    14:04:45 DEBUG   opendrift.readers.reader_global_landmask:83: Adding GSHHG shapes from cartopy, scale: h, extent: (7.309537506103514, 10.789533996582032, 57.41804962158203, 58.819724273681636)..
-    14:04:46 DEBUG   opendrift.readers.reader_global_landmask:83: Adding GSHHG shapes from cartopy, scale: h, extent: (7.309537506103514, 10.789533996582032, 57.41804962158203, 58.819724273681636)..
-    14:04:48 DEBUG   opendrift.readers.reader_global_landmask:83: Adding GSHHG shapes from cartopy, scale: h, extent: (7.309537506103514, 10.789533996582032, 57.41804962158203, 58.819724273681636)..
-    14:04:50 DEBUG   opendrift.readers.reader_global_landmask:83: Adding GSHHG shapes from cartopy, scale: h, extent: (7.309537506103514, 10.789533996582032, 57.41804962158203, 58.819724273681636)..
-    14:04:51 DEBUG   opendrift.readers.reader_global_landmask:83: Adding GSHHG shapes from cartopy, scale: h, extent: (7.309537506103514, 10.789533996582032, 57.41804962158203, 58.819724273681636)..
-    14:04:52 DEBUG   opendrift.readers.reader_global_landmask:83: Adding GSHHG shapes from cartopy, scale: h, extent: (7.309537506103514, 10.789533996582032, 57.41804962158203, 58.819724273681636)..
-    14:04:54 DEBUG   opendrift.readers.reader_global_landmask:83: Adding GSHHG shapes from cartopy, scale: h, extent: (7.309537506103514, 10.789533996582032, 57.41804962158203, 58.819724273681636)..
-    14:04:55 DEBUG   opendrift.readers.reader_global_landmask:83: Adding GSHHG shapes from cartopy, scale: h, extent: (7.309537506103514, 10.789533996582032, 57.41804962158203, 58.819724273681636)..
-    14:04:56 DEBUG   opendrift.readers.reader_global_landmask:83: Adding GSHHG shapes from cartopy, scale: h, extent: (7.309537506103514, 10.789533996582032, 57.41804962158203, 58.819724273681636)..
-    14:04:58 DEBUG   opendrift.readers.reader_global_landmask:83: Adding GSHHG shapes from cartopy, scale: h, extent: (7.309537506103514, 10.789533996582032, 57.41804962158203, 58.819724273681636)..
-    14:05:00 DEBUG   opendrift.models.basemodel:5388: MPLBACKEND = agg
-    14:05:00 DEBUG   opendrift.models.basemodel:5389: DISPLAY = None
-    14:05:00 DEBUG   opendrift.models.basemodel:5390: Time to save animation: 0:02:27.613121
-    14:05:00 INFO    opendrift.models.basemodel:3848: Time to make animation: 0:02:53.035125
+    13:19:34 DEBUG   opendrift.readers.reader_global_landmask:83: Adding GSHHG shapes from cartopy, scale: h, extent: (7.309537506103514, 10.789533996582032, 57.41804962158203, 58.819724273681636)..
+    13:19:36 DEBUG   opendrift.models.basemodel:2993: Saving animation..
+    13:19:36 INFO    opendrift.models.basemodel:4506: Saving animation to /root/project/docs/source/gallery/animations/example_river_runoff_0.gif...
+    13:19:36 DEBUG   opendrift.readers.reader_global_landmask:83: Adding GSHHG shapes from cartopy, scale: h, extent: (7.309537506103514, 10.789533996582032, 57.41804962158203, 58.819724273681636)..
+    13:19:37 DEBUG   opendrift.readers.reader_global_landmask:83: Adding GSHHG shapes from cartopy, scale: h, extent: (7.309537506103514, 10.789533996582032, 57.41804962158203, 58.819724273681636)..
+    13:19:39 DEBUG   opendrift.readers.reader_global_landmask:83: Adding GSHHG shapes from cartopy, scale: h, extent: (7.309537506103514, 10.789533996582032, 57.41804962158203, 58.819724273681636)..
+    13:19:41 DEBUG   opendrift.readers.reader_global_landmask:83: Adding GSHHG shapes from cartopy, scale: h, extent: (7.309537506103514, 10.789533996582032, 57.41804962158203, 58.819724273681636)..
+    13:19:43 DEBUG   opendrift.readers.reader_global_landmask:83: Adding GSHHG shapes from cartopy, scale: h, extent: (7.309537506103514, 10.789533996582032, 57.41804962158203, 58.819724273681636)..
+    13:19:45 DEBUG   opendrift.readers.reader_global_landmask:83: Adding GSHHG shapes from cartopy, scale: h, extent: (7.309537506103514, 10.789533996582032, 57.41804962158203, 58.819724273681636)..
+    13:19:46 DEBUG   opendrift.readers.reader_global_landmask:83: Adding GSHHG shapes from cartopy, scale: h, extent: (7.309537506103514, 10.789533996582032, 57.41804962158203, 58.819724273681636)..
+    13:19:48 DEBUG   opendrift.readers.reader_global_landmask:83: Adding GSHHG shapes from cartopy, scale: h, extent: (7.309537506103514, 10.789533996582032, 57.41804962158203, 58.819724273681636)..
+    13:19:50 DEBUG   opendrift.readers.reader_global_landmask:83: Adding GSHHG shapes from cartopy, scale: h, extent: (7.309537506103514, 10.789533996582032, 57.41804962158203, 58.819724273681636)..
+    13:19:52 DEBUG   opendrift.readers.reader_global_landmask:83: Adding GSHHG shapes from cartopy, scale: h, extent: (7.309537506103514, 10.789533996582032, 57.41804962158203, 58.819724273681636)..
+    13:19:53 DEBUG   opendrift.readers.reader_global_landmask:83: Adding GSHHG shapes from cartopy, scale: h, extent: (7.309537506103514, 10.789533996582032, 57.41804962158203, 58.819724273681636)..
+    13:19:55 DEBUG   opendrift.readers.reader_global_landmask:83: Adding GSHHG shapes from cartopy, scale: h, extent: (7.309537506103514, 10.789533996582032, 57.41804962158203, 58.819724273681636)..
+    13:19:57 DEBUG   opendrift.readers.reader_global_landmask:83: Adding GSHHG shapes from cartopy, scale: h, extent: (7.309537506103514, 10.789533996582032, 57.41804962158203, 58.819724273681636)..
+    13:19:59 DEBUG   opendrift.readers.reader_global_landmask:83: Adding GSHHG shapes from cartopy, scale: h, extent: (7.309537506103514, 10.789533996582032, 57.41804962158203, 58.819724273681636)..
+    13:20:00 DEBUG   opendrift.readers.reader_global_landmask:83: Adding GSHHG shapes from cartopy, scale: h, extent: (7.309537506103514, 10.789533996582032, 57.41804962158203, 58.819724273681636)..
+    13:20:02 DEBUG   opendrift.readers.reader_global_landmask:83: Adding GSHHG shapes from cartopy, scale: h, extent: (7.309537506103514, 10.789533996582032, 57.41804962158203, 58.819724273681636)..
+    13:20:04 DEBUG   opendrift.readers.reader_global_landmask:83: Adding GSHHG shapes from cartopy, scale: h, extent: (7.309537506103514, 10.789533996582032, 57.41804962158203, 58.819724273681636)..
+    13:20:06 DEBUG   opendrift.readers.reader_global_landmask:83: Adding GSHHG shapes from cartopy, scale: h, extent: (7.309537506103514, 10.789533996582032, 57.41804962158203, 58.819724273681636)..
+    13:20:07 DEBUG   opendrift.readers.reader_global_landmask:83: Adding GSHHG shapes from cartopy, scale: h, extent: (7.309537506103514, 10.789533996582032, 57.41804962158203, 58.819724273681636)..
+    13:20:09 DEBUG   opendrift.readers.reader_global_landmask:83: Adding GSHHG shapes from cartopy, scale: h, extent: (7.309537506103514, 10.789533996582032, 57.41804962158203, 58.819724273681636)..
+    13:20:11 DEBUG   opendrift.readers.reader_global_landmask:83: Adding GSHHG shapes from cartopy, scale: h, extent: (7.309537506103514, 10.789533996582032, 57.41804962158203, 58.819724273681636)..
+    13:20:13 DEBUG   opendrift.readers.reader_global_landmask:83: Adding GSHHG shapes from cartopy, scale: h, extent: (7.309537506103514, 10.789533996582032, 57.41804962158203, 58.819724273681636)..
+    13:20:15 DEBUG   opendrift.readers.reader_global_landmask:83: Adding GSHHG shapes from cartopy, scale: h, extent: (7.309537506103514, 10.789533996582032, 57.41804962158203, 58.819724273681636)..
+    13:20:17 DEBUG   opendrift.readers.reader_global_landmask:83: Adding GSHHG shapes from cartopy, scale: h, extent: (7.309537506103514, 10.789533996582032, 57.41804962158203, 58.819724273681636)..
+    13:20:18 DEBUG   opendrift.readers.reader_global_landmask:83: Adding GSHHG shapes from cartopy, scale: h, extent: (7.309537506103514, 10.789533996582032, 57.41804962158203, 58.819724273681636)..
+    13:20:20 DEBUG   opendrift.readers.reader_global_landmask:83: Adding GSHHG shapes from cartopy, scale: h, extent: (7.309537506103514, 10.789533996582032, 57.41804962158203, 58.819724273681636)..
+    13:20:22 DEBUG   opendrift.readers.reader_global_landmask:83: Adding GSHHG shapes from cartopy, scale: h, extent: (7.309537506103514, 10.789533996582032, 57.41804962158203, 58.819724273681636)..
+    13:20:24 DEBUG   opendrift.readers.reader_global_landmask:83: Adding GSHHG shapes from cartopy, scale: h, extent: (7.309537506103514, 10.789533996582032, 57.41804962158203, 58.819724273681636)..
+    13:20:26 DEBUG   opendrift.readers.reader_global_landmask:83: Adding GSHHG shapes from cartopy, scale: h, extent: (7.309537506103514, 10.789533996582032, 57.41804962158203, 58.819724273681636)..
+    13:20:27 DEBUG   opendrift.readers.reader_global_landmask:83: Adding GSHHG shapes from cartopy, scale: h, extent: (7.309537506103514, 10.789533996582032, 57.41804962158203, 58.819724273681636)..
+    13:20:29 DEBUG   opendrift.readers.reader_global_landmask:83: Adding GSHHG shapes from cartopy, scale: h, extent: (7.309537506103514, 10.789533996582032, 57.41804962158203, 58.819724273681636)..
+    13:20:31 DEBUG   opendrift.readers.reader_global_landmask:83: Adding GSHHG shapes from cartopy, scale: h, extent: (7.309537506103514, 10.789533996582032, 57.41804962158203, 58.819724273681636)..
+    13:20:33 DEBUG   opendrift.readers.reader_global_landmask:83: Adding GSHHG shapes from cartopy, scale: h, extent: (7.309537506103514, 10.789533996582032, 57.41804962158203, 58.819724273681636)..
+    13:20:34 DEBUG   opendrift.readers.reader_global_landmask:83: Adding GSHHG shapes from cartopy, scale: h, extent: (7.309537506103514, 10.789533996582032, 57.41804962158203, 58.819724273681636)..
+    13:20:36 DEBUG   opendrift.readers.reader_global_landmask:83: Adding GSHHG shapes from cartopy, scale: h, extent: (7.309537506103514, 10.789533996582032, 57.41804962158203, 58.819724273681636)..
+    13:20:38 DEBUG   opendrift.readers.reader_global_landmask:83: Adding GSHHG shapes from cartopy, scale: h, extent: (7.309537506103514, 10.789533996582032, 57.41804962158203, 58.819724273681636)..
+    13:20:39 DEBUG   opendrift.readers.reader_global_landmask:83: Adding GSHHG shapes from cartopy, scale: h, extent: (7.309537506103514, 10.789533996582032, 57.41804962158203, 58.819724273681636)..
+    13:20:41 DEBUG   opendrift.readers.reader_global_landmask:83: Adding GSHHG shapes from cartopy, scale: h, extent: (7.309537506103514, 10.789533996582032, 57.41804962158203, 58.819724273681636)..
+    13:20:43 DEBUG   opendrift.readers.reader_global_landmask:83: Adding GSHHG shapes from cartopy, scale: h, extent: (7.309537506103514, 10.789533996582032, 57.41804962158203, 58.819724273681636)..
+    13:20:45 DEBUG   opendrift.readers.reader_global_landmask:83: Adding GSHHG shapes from cartopy, scale: h, extent: (7.309537506103514, 10.789533996582032, 57.41804962158203, 58.819724273681636)..
+    13:20:46 DEBUG   opendrift.readers.reader_global_landmask:83: Adding GSHHG shapes from cartopy, scale: h, extent: (7.309537506103514, 10.789533996582032, 57.41804962158203, 58.819724273681636)..
+    13:20:48 DEBUG   opendrift.readers.reader_global_landmask:83: Adding GSHHG shapes from cartopy, scale: h, extent: (7.309537506103514, 10.789533996582032, 57.41804962158203, 58.819724273681636)..
+    13:20:50 DEBUG   opendrift.readers.reader_global_landmask:83: Adding GSHHG shapes from cartopy, scale: h, extent: (7.309537506103514, 10.789533996582032, 57.41804962158203, 58.819724273681636)..
+    13:20:52 DEBUG   opendrift.readers.reader_global_landmask:83: Adding GSHHG shapes from cartopy, scale: h, extent: (7.309537506103514, 10.789533996582032, 57.41804962158203, 58.819724273681636)..
+    13:20:53 DEBUG   opendrift.readers.reader_global_landmask:83: Adding GSHHG shapes from cartopy, scale: h, extent: (7.309537506103514, 10.789533996582032, 57.41804962158203, 58.819724273681636)..
+    13:20:55 DEBUG   opendrift.readers.reader_global_landmask:83: Adding GSHHG shapes from cartopy, scale: h, extent: (7.309537506103514, 10.789533996582032, 57.41804962158203, 58.819724273681636)..
+    13:20:57 DEBUG   opendrift.readers.reader_global_landmask:83: Adding GSHHG shapes from cartopy, scale: h, extent: (7.309537506103514, 10.789533996582032, 57.41804962158203, 58.819724273681636)..
+    13:20:59 DEBUG   opendrift.readers.reader_global_landmask:83: Adding GSHHG shapes from cartopy, scale: h, extent: (7.309537506103514, 10.789533996582032, 57.41804962158203, 58.819724273681636)..
+    13:21:00 DEBUG   opendrift.readers.reader_global_landmask:83: Adding GSHHG shapes from cartopy, scale: h, extent: (7.309537506103514, 10.789533996582032, 57.41804962158203, 58.819724273681636)..
+    13:21:02 DEBUG   opendrift.readers.reader_global_landmask:83: Adding GSHHG shapes from cartopy, scale: h, extent: (7.309537506103514, 10.789533996582032, 57.41804962158203, 58.819724273681636)..
+    13:21:04 DEBUG   opendrift.readers.reader_global_landmask:83: Adding GSHHG shapes from cartopy, scale: h, extent: (7.309537506103514, 10.789533996582032, 57.41804962158203, 58.819724273681636)..
+    13:21:05 DEBUG   opendrift.readers.reader_global_landmask:83: Adding GSHHG shapes from cartopy, scale: h, extent: (7.309537506103514, 10.789533996582032, 57.41804962158203, 58.819724273681636)..
+    13:21:07 DEBUG   opendrift.readers.reader_global_landmask:83: Adding GSHHG shapes from cartopy, scale: h, extent: (7.309537506103514, 10.789533996582032, 57.41804962158203, 58.819724273681636)..
+    13:21:09 DEBUG   opendrift.readers.reader_global_landmask:83: Adding GSHHG shapes from cartopy, scale: h, extent: (7.309537506103514, 10.789533996582032, 57.41804962158203, 58.819724273681636)..
+    13:21:11 DEBUG   opendrift.readers.reader_global_landmask:83: Adding GSHHG shapes from cartopy, scale: h, extent: (7.309537506103514, 10.789533996582032, 57.41804962158203, 58.819724273681636)..
+    13:21:12 DEBUG   opendrift.readers.reader_global_landmask:83: Adding GSHHG shapes from cartopy, scale: h, extent: (7.309537506103514, 10.789533996582032, 57.41804962158203, 58.819724273681636)..
+    13:21:14 DEBUG   opendrift.readers.reader_global_landmask:83: Adding GSHHG shapes from cartopy, scale: h, extent: (7.309537506103514, 10.789533996582032, 57.41804962158203, 58.819724273681636)..
+    13:21:16 DEBUG   opendrift.readers.reader_global_landmask:83: Adding GSHHG shapes from cartopy, scale: h, extent: (7.309537506103514, 10.789533996582032, 57.41804962158203, 58.819724273681636)..
+    13:21:18 DEBUG   opendrift.readers.reader_global_landmask:83: Adding GSHHG shapes from cartopy, scale: h, extent: (7.309537506103514, 10.789533996582032, 57.41804962158203, 58.819724273681636)..
+    13:21:20 DEBUG   opendrift.readers.reader_global_landmask:83: Adding GSHHG shapes from cartopy, scale: h, extent: (7.309537506103514, 10.789533996582032, 57.41804962158203, 58.819724273681636)..
+    13:21:22 DEBUG   opendrift.readers.reader_global_landmask:83: Adding GSHHG shapes from cartopy, scale: h, extent: (7.309537506103514, 10.789533996582032, 57.41804962158203, 58.819724273681636)..
+    13:21:23 DEBUG   opendrift.readers.reader_global_landmask:83: Adding GSHHG shapes from cartopy, scale: h, extent: (7.309537506103514, 10.789533996582032, 57.41804962158203, 58.819724273681636)..
+    13:21:25 DEBUG   opendrift.readers.reader_global_landmask:83: Adding GSHHG shapes from cartopy, scale: h, extent: (7.309537506103514, 10.789533996582032, 57.41804962158203, 58.819724273681636)..
+    13:21:27 DEBUG   opendrift.readers.reader_global_landmask:83: Adding GSHHG shapes from cartopy, scale: h, extent: (7.309537506103514, 10.789533996582032, 57.41804962158203, 58.819724273681636)..
+    13:21:29 DEBUG   opendrift.readers.reader_global_landmask:83: Adding GSHHG shapes from cartopy, scale: h, extent: (7.309537506103514, 10.789533996582032, 57.41804962158203, 58.819724273681636)..
+    13:21:30 DEBUG   opendrift.readers.reader_global_landmask:83: Adding GSHHG shapes from cartopy, scale: h, extent: (7.309537506103514, 10.789533996582032, 57.41804962158203, 58.819724273681636)..
+    13:21:32 DEBUG   opendrift.readers.reader_global_landmask:83: Adding GSHHG shapes from cartopy, scale: h, extent: (7.309537506103514, 10.789533996582032, 57.41804962158203, 58.819724273681636)..
+    13:21:34 DEBUG   opendrift.readers.reader_global_landmask:83: Adding GSHHG shapes from cartopy, scale: h, extent: (7.309537506103514, 10.789533996582032, 57.41804962158203, 58.819724273681636)..
+    13:21:35 DEBUG   opendrift.readers.reader_global_landmask:83: Adding GSHHG shapes from cartopy, scale: h, extent: (7.309537506103514, 10.789533996582032, 57.41804962158203, 58.819724273681636)..
+    13:21:37 DEBUG   opendrift.readers.reader_global_landmask:83: Adding GSHHG shapes from cartopy, scale: h, extent: (7.309537506103514, 10.789533996582032, 57.41804962158203, 58.819724273681636)..
+    13:21:39 DEBUG   opendrift.readers.reader_global_landmask:83: Adding GSHHG shapes from cartopy, scale: h, extent: (7.309537506103514, 10.789533996582032, 57.41804962158203, 58.819724273681636)..
+    13:21:40 DEBUG   opendrift.readers.reader_global_landmask:83: Adding GSHHG shapes from cartopy, scale: h, extent: (7.309537506103514, 10.789533996582032, 57.41804962158203, 58.819724273681636)..
+    13:21:42 DEBUG   opendrift.readers.reader_global_landmask:83: Adding GSHHG shapes from cartopy, scale: h, extent: (7.309537506103514, 10.789533996582032, 57.41804962158203, 58.819724273681636)..
+    13:21:44 DEBUG   opendrift.readers.reader_global_landmask:83: Adding GSHHG shapes from cartopy, scale: h, extent: (7.309537506103514, 10.789533996582032, 57.41804962158203, 58.819724273681636)..
+    13:21:45 DEBUG   opendrift.readers.reader_global_landmask:83: Adding GSHHG shapes from cartopy, scale: h, extent: (7.309537506103514, 10.789533996582032, 57.41804962158203, 58.819724273681636)..
+    13:21:47 DEBUG   opendrift.readers.reader_global_landmask:83: Adding GSHHG shapes from cartopy, scale: h, extent: (7.309537506103514, 10.789533996582032, 57.41804962158203, 58.819724273681636)..
+    13:21:49 DEBUG   opendrift.readers.reader_global_landmask:83: Adding GSHHG shapes from cartopy, scale: h, extent: (7.309537506103514, 10.789533996582032, 57.41804962158203, 58.819724273681636)..
+    13:21:51 DEBUG   opendrift.readers.reader_global_landmask:83: Adding GSHHG shapes from cartopy, scale: h, extent: (7.309537506103514, 10.789533996582032, 57.41804962158203, 58.819724273681636)..
+    13:21:52 DEBUG   opendrift.readers.reader_global_landmask:83: Adding GSHHG shapes from cartopy, scale: h, extent: (7.309537506103514, 10.789533996582032, 57.41804962158203, 58.819724273681636)..
+    13:21:54 DEBUG   opendrift.readers.reader_global_landmask:83: Adding GSHHG shapes from cartopy, scale: h, extent: (7.309537506103514, 10.789533996582032, 57.41804962158203, 58.819724273681636)..
+    13:21:56 DEBUG   opendrift.readers.reader_global_landmask:83: Adding GSHHG shapes from cartopy, scale: h, extent: (7.309537506103514, 10.789533996582032, 57.41804962158203, 58.819724273681636)..
+    13:21:57 DEBUG   opendrift.readers.reader_global_landmask:83: Adding GSHHG shapes from cartopy, scale: h, extent: (7.309537506103514, 10.789533996582032, 57.41804962158203, 58.819724273681636)..
+    13:21:59 DEBUG   opendrift.readers.reader_global_landmask:83: Adding GSHHG shapes from cartopy, scale: h, extent: (7.309537506103514, 10.789533996582032, 57.41804962158203, 58.819724273681636)..
+    13:22:01 DEBUG   opendrift.readers.reader_global_landmask:83: Adding GSHHG shapes from cartopy, scale: h, extent: (7.309537506103514, 10.789533996582032, 57.41804962158203, 58.819724273681636)..
+    13:22:03 DEBUG   opendrift.readers.reader_global_landmask:83: Adding GSHHG shapes from cartopy, scale: h, extent: (7.309537506103514, 10.789533996582032, 57.41804962158203, 58.819724273681636)..
+    13:22:04 DEBUG   opendrift.readers.reader_global_landmask:83: Adding GSHHG shapes from cartopy, scale: h, extent: (7.309537506103514, 10.789533996582032, 57.41804962158203, 58.819724273681636)..
+    13:22:06 DEBUG   opendrift.readers.reader_global_landmask:83: Adding GSHHG shapes from cartopy, scale: h, extent: (7.309537506103514, 10.789533996582032, 57.41804962158203, 58.819724273681636)..
+    13:22:08 DEBUG   opendrift.readers.reader_global_landmask:83: Adding GSHHG shapes from cartopy, scale: h, extent: (7.309537506103514, 10.789533996582032, 57.41804962158203, 58.819724273681636)..
+    13:22:10 DEBUG   opendrift.readers.reader_global_landmask:83: Adding GSHHG shapes from cartopy, scale: h, extent: (7.309537506103514, 10.789533996582032, 57.41804962158203, 58.819724273681636)..
+    13:22:11 DEBUG   opendrift.readers.reader_global_landmask:83: Adding GSHHG shapes from cartopy, scale: h, extent: (7.309537506103514, 10.789533996582032, 57.41804962158203, 58.819724273681636)..
+    13:22:13 DEBUG   opendrift.readers.reader_global_landmask:83: Adding GSHHG shapes from cartopy, scale: h, extent: (7.309537506103514, 10.789533996582032, 57.41804962158203, 58.819724273681636)..
+    13:22:15 DEBUG   opendrift.readers.reader_global_landmask:83: Adding GSHHG shapes from cartopy, scale: h, extent: (7.309537506103514, 10.789533996582032, 57.41804962158203, 58.819724273681636)..
+    13:22:17 DEBUG   opendrift.readers.reader_global_landmask:83: Adding GSHHG shapes from cartopy, scale: h, extent: (7.309537506103514, 10.789533996582032, 57.41804962158203, 58.819724273681636)..
+    13:22:18 DEBUG   opendrift.readers.reader_global_landmask:83: Adding GSHHG shapes from cartopy, scale: h, extent: (7.309537506103514, 10.789533996582032, 57.41804962158203, 58.819724273681636)..
+    13:22:20 DEBUG   opendrift.readers.reader_global_landmask:83: Adding GSHHG shapes from cartopy, scale: h, extent: (7.309537506103514, 10.789533996582032, 57.41804962158203, 58.819724273681636)..
+    13:22:22 DEBUG   opendrift.readers.reader_global_landmask:83: Adding GSHHG shapes from cartopy, scale: h, extent: (7.309537506103514, 10.789533996582032, 57.41804962158203, 58.819724273681636)..
+    13:22:24 DEBUG   opendrift.readers.reader_global_landmask:83: Adding GSHHG shapes from cartopy, scale: h, extent: (7.309537506103514, 10.789533996582032, 57.41804962158203, 58.819724273681636)..
+    13:22:26 DEBUG   opendrift.readers.reader_global_landmask:83: Adding GSHHG shapes from cartopy, scale: h, extent: (7.309537506103514, 10.789533996582032, 57.41804962158203, 58.819724273681636)..
+    13:22:29 DEBUG   opendrift.models.basemodel:4544: MPLBACKEND = agg
+    13:22:29 DEBUG   opendrift.models.basemodel:4545: DISPLAY = None
+    13:22:29 DEBUG   opendrift.models.basemodel:4546: Time to save animation: 0:02:53.570287
+    13:22:29 INFO    opendrift.models.basemodel:2986: Time to make animation: 0:03:20.843295
 
 
 
@@ -537,7 +537,7 @@ Finally, plot the spatial distribution of mean age of water
 
 
 .. image-sg:: /gallery/images/sphx_glr_example_river_runoff_002.png
-   :alt: OpenDrift - OceanDrift 2023-09-01 14:01 to 2023-09-03 14:01 UTC (49 steps)
+   :alt: OpenDrift - OceanDrift 2023-11-01 13:18 to 2023-11-03 13:18 UTC (49 steps)
    :srcset: /gallery/images/sphx_glr_example_river_runoff_002.png
    :class: sphx-glr-single-img
 
@@ -546,13 +546,12 @@ Finally, plot the spatial distribution of mean age of water
 
  .. code-block:: none
 
-    14:05:01 INFO    opendrift.models.basemodel:4667:       calculating for origin_marker 0...
-    14:05:01 INFO    opendrift.models.basemodel:4667:       calculating for origin_marker 1...
-    14:05:01 INFO    opendrift.models.basemodel:4667:       calculating for origin_marker 0...
-    14:05:01 INFO    opendrift.models.basemodel:4667:       calculating for origin_marker 1...
-    14:05:01 DEBUG   opendrift.models.basemodel:3180: Setting up map: corners=None, fast=True, lscale=None
-    14:05:01 WARNING opendrift.models.basemodel:3226: Plotting fast. This will make your plots less accurate.
-    1.0009216427327419 ALPHA
+    13:22:30 INFO    opendrift.models.basemodel:3815:       calculating for origin_marker 0...
+    13:22:30 INFO    opendrift.models.basemodel:3815:       calculating for origin_marker 1...
+    13:22:30 INFO    opendrift.models.basemodel:3815:       calculating for origin_marker 0...
+    13:22:31 INFO    opendrift.models.basemodel:3815:       calculating for origin_marker 1...
+    13:22:31 DEBUG   opendrift.models.basemodel:2311: Setting up map: corners=None, fast=True, lscale=None
+    13:22:31 WARNING opendrift.models.basemodel:2357: Plotting fast. This will make your plots less accurate.
 
 
 
@@ -560,7 +559,7 @@ Finally, plot the spatial distribution of mean age of water
 
 .. rst-class:: sphx-glr-timing
 
-   **Total running time of the script:** (3 minutes 40.380 seconds)
+   **Total running time of the script:** (4 minutes 15.139 seconds)
 
 
 .. _sphx_glr_download_gallery_example_river_runoff.py:

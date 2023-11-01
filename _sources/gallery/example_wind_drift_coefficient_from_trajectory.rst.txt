@@ -79,13 +79,30 @@ First we simulate a synthetic drifter trajectory
 
 .. GENERATED FROM PYTHON SOURCE LINES 29-30
 
-Using a wind_drift_factor of 0.33 i.e. drift is current + 3.3% of wind speed
+Adding some horizontal diffusivity as "noise"
 
-.. GENERATED FROM PYTHON SOURCE LINES 30-33
+.. GENERATED FROM PYTHON SOURCE LINES 30-32
 
 .. code-block:: default
 
-    ot.seed_elements(lon=4, lat=60, number=1, time=ot.readers[list(ot.readers)[0]].start_time,
+    ot.set_config('drift:horizontal_diffusivity', 10)
+
+
+
+
+
+
+
+
+.. GENERATED FROM PYTHON SOURCE LINES 33-34
+
+Using a wind_drift_factor of 0.33 i.e. drift is current + 3.3% of wind speed
+
+.. GENERATED FROM PYTHON SOURCE LINES 34-37
+
+.. code-block:: default
+
+    ot.seed_elements(lon=4, lat=60, number=1, time=ot.env.readers[list(ot.env.readers)[0]].start_time,
             wind_drift_factor=0.033)
 
 
@@ -95,15 +112,10 @@ Using a wind_drift_factor of 0.33 i.e. drift is current + 3.3% of wind speed
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 34-35
-
-Adding some horizontal diffusivity as "noise"
-
-.. GENERATED FROM PYTHON SOURCE LINES 35-38
+.. GENERATED FROM PYTHON SOURCE LINES 38-40
 
 .. code-block:: default
 
-    ot.set_config('drift:horizontal_diffusivity', 10)
     ot.run(duration=timedelta(hours=12), time_step=600)
 
 
@@ -120,11 +132,11 @@ Adding some horizontal diffusivity as "noise"
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 39-40
+.. GENERATED FROM PYTHON SOURCE LINES 41-42
 
 Secondly, calculating the wind_drift_factor which reproduces the "observed" trajectory with minimal difference
 
-.. GENERATED FROM PYTHON SOURCE LINES 40-58
+.. GENERATED FROM PYTHON SOURCE LINES 42-60
 
 .. code-block:: default
 
@@ -138,12 +150,12 @@ Secondly, calculating the wind_drift_factor which reproduces the "observed" traj
     o.add_readers_from_list([o.test_data_folder() +
         '16Nov2015_NorKyst_z_surface/norkyst800_subset_16Nov2015.nc',
         o.test_data_folder() + '16Nov2015_NorKyst_z_surface/arome_subset_16Nov2015.nc'], lazy=False)
-    t = o.get_variables_along_trajectory(variables=['x_sea_water_velocity', 'y_sea_water_velocity', 'x_wind', 'y_wind'],
+    t = o.env.get_variables_along_trajectory(variables=['x_sea_water_velocity', 'y_sea_water_velocity', 'x_wind', 'y_wind'],
             lons=drifter_lons, lats=drifter_lats, times=drifter_times)
 
     wind_drift_factor, azimuth = wind_drift_factor_from_trajectory(t)
 
-    o.seed_elements(lon=4, lat=60, number=1, time=ot.readers[list(ot.readers)[0]].start_time,
+    o.seed_elements(lon=4, lat=60, number=1, time=ot.env.readers[list(ot.env.readers)[0]].start_time,
                     wind_drift_factor=0.033)
 
 
@@ -164,11 +176,11 @@ Secondly, calculating the wind_drift_factor which reproduces the "observed" traj
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 59-60
+.. GENERATED FROM PYTHON SOURCE LINES 61-62
 
 New simulation, this time without diffusivity/noise
 
-.. GENERATED FROM PYTHON SOURCE LINES 60-64
+.. GENERATED FROM PYTHON SOURCE LINES 62-66
 
 .. code-block:: default
 
@@ -191,20 +203,19 @@ New simulation, this time without diffusivity/noise
 
     /root/project/opendrift/readers/interpolation/interpolators.py:17: RuntimeWarning: overflow encountered in cast
       data[mask] = np.finfo(np.float64).min
-    1.0 ALPHA
 
     (<GeoAxes: title={'center': 'OpenDrift - OceanDrift\n2015-11-16 00:00 to 2015-11-16 12:00 UTC (73 steps)'}>, <Figure size 860.245x1100 with 1 Axes>)
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 65-69
+.. GENERATED FROM PYTHON SOURCE LINES 67-71
 
 The mean retrieved wind_drift_factor is 0.036, slichtly higher than the value 0.033 used for the simulation.
 The difference is due to the "noise" added by horizontal diffusion.
 Note that the retieved wind_drift_factor is linked to the wind and current used for the retrieval,
 other forcing datasets will yeld different value of the wind_drift_factor.
 
-.. GENERATED FROM PYTHON SOURCE LINES 69-80
+.. GENERATED FROM PYTHON SOURCE LINES 71-82
 
 .. code-block:: default
 
@@ -237,12 +248,12 @@ other forcing datasets will yeld different value of the wind_drift_factor.
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 81-83
+.. GENERATED FROM PYTHON SOURCE LINES 83-85
 
 A polar 2D histogram showing also the azimuth offset direction of the retrieved wind drift factor.
 See Sutherland et al. (2020), https://doi.org/10.1175/JTECH-D-20-0013.1
 
-.. GENERATED FROM PYTHON SOURCE LINES 83-98
+.. GENERATED FROM PYTHON SOURCE LINES 85-100
 
 .. code-block:: default
 
@@ -273,7 +284,7 @@ See Sutherland et al. (2020), https://doi.org/10.1175/JTECH-D-20-0013.1
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 99-105
+.. GENERATED FROM PYTHON SOURCE LINES 101-107
 
 Alternative method, using skillscore
 ====================================
@@ -282,7 +293,7 @@ Here we calculate trajectories for a range of wind_drift_factors,
 and calculate the Liu-Weissberg skillscore for each.
 The optimized wind_drift_factor corresponds to the maximum skillscore.
 
-.. GENERATED FROM PYTHON SOURCE LINES 105-111
+.. GENERATED FROM PYTHON SOURCE LINES 107-113
 
 .. code-block:: default
 
@@ -308,16 +319,16 @@ The optimized wind_drift_factor corresponds to the maximum skillscore.
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 112-113
+.. GENERATED FROM PYTHON SOURCE LINES 114-115
 
 Calulating trajectories for 100 different wind_drift_factors between 0 and 0.05
 
-.. GENERATED FROM PYTHON SOURCE LINES 113-119
+.. GENERATED FROM PYTHON SOURCE LINES 115-121
 
 .. code-block:: default
 
     wdf = np.linspace(0.0, 0.05, 100)
-    o.seed_elements(lon=4, lat=60, time=ot.readers[list(ot.readers)[0]].start_time,
+    o.seed_elements(lon=4, lat=60, time=ot.env.readers[list(ot.env.readers)[0]].start_time,
                     wind_drift_factor=wdf, number=len(wdf))
     o.run(duration=timedelta(hours=12), time_step=600)
     o.plot(linecolor='wind_drift_factor', drifter=drifter)
@@ -337,17 +348,16 @@ Calulating trajectories for 100 different wind_drift_factors between 0 and 0.05
 
     /root/project/opendrift/readers/interpolation/interpolators.py:17: RuntimeWarning: overflow encountered in cast
       data[mask] = np.finfo(np.float64).min
-    0.9128345689654023 ALPHA
 
     (<GeoAxes: title={'center': 'OpenDrift - OceanDrift\n2015-11-16 00:00 to 2015-11-16 12:00 UTC (73 steps)'}>, <Figure size 897.544x1100 with 2 Axes>)
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 120-121
+.. GENERATED FROM PYTHON SOURCE LINES 122-123
 
 Plotting and finding the wind_drift_factor which maximises the skillscore
 
-.. GENERATED FROM PYTHON SOURCE LINES 121-129
+.. GENERATED FROM PYTHON SOURCE LINES 123-131
 
 .. code-block:: default
 
@@ -371,7 +381,7 @@ Plotting and finding the wind_drift_factor which maximises the skillscore
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 130-136
+.. GENERATED FROM PYTHON SOURCE LINES 132-138
 
 We see that using skillscore from the full trajectories gives a better estimate
 than calculating the average of the wind_drift_factor from 
@@ -383,7 +393,7 @@ The skillscore method is still robust, and gives a `wind_drift_factor` of 0.036,
 
 .. rst-class:: sphx-glr-timing
 
-   **Total running time of the script:** (0 minutes 33.802 seconds)
+   **Total running time of the script:** (0 minutes 33.089 seconds)
 
 
 .. _sphx_glr_download_gallery_example_wind_drift_coefficient_from_trajectory.py:

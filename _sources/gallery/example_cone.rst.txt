@@ -40,7 +40,7 @@ Cone seeding
 
  .. code-block:: none
 
-    14:01:07 INFO    opendrift.models.basemodel:539: OpenDriftSimulation initialised (version 1.10.7 / v1.10.6-119-g1da5bec)
+    13:17:37 INFO    opendrift.models.basemodel:528: OpenDriftSimulation initialised (version 1.10.7 / v1.10.6-159-ge61625c)
 
 
 
@@ -63,12 +63,41 @@ Using live data from Thredds
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 19-21
+.. GENERATED FROM PYTHON SOURCE LINES 19-20
+
+Adjusting some configuration
+
+.. GENERATED FROM PYTHON SOURCE LINES 20-27
+
+.. code-block:: default
+
+    o.set_config('processes:dispersion', True)
+    o.set_config('processes:evaporation', False)
+    o.set_config('processes:emulsification', True)
+    o.disable_vertical_motion()
+    #o.set_config('drift:vertical_mixing', False)
+    #o.set_config('drift:vertical_mixing', False)
+
+
+
+
+
+.. rst-class:: sphx-glr-script-out
+
+ .. code-block:: none
+
+    13:17:37 INFO    opendrift.models.oceandrift:346: Setting config: drift:vertical_advection -> False
+    13:17:37 INFO    opendrift.models.oceandrift:346: Setting config: drift:vertical_mixing -> False
+
+
+
+
+.. GENERATED FROM PYTHON SOURCE LINES 28-30
 
 Seed elements along cone, e.g. ship track with
 increasing uncertainty in position
 
-.. GENERATED FROM PYTHON SOURCE LINES 21-32
+.. GENERATED FROM PYTHON SOURCE LINES 30-40
 
 .. code-block:: default
 
@@ -77,7 +106,6 @@ increasing uncertainty in position
     latend = 69.991446
     lonend = 17.760061
     time = [datetime.utcnow(), datetime.utcnow() + timedelta(hours=12)]
-
     o.seed_cone(lon=[lonstart, lonend], lat=[latstart, latend],
                 oil_type='EKOFISK', radius=[100, 800], number=10000, time=[time])
 
@@ -91,18 +119,35 @@ increasing uncertainty in position
 
  .. code-block:: none
 
-    14:01:07 INFO    opendrift.models.openoil.openoil:1462: setting oil_type to: EKOFISK
-    14:01:07 INFO    opendrift.models.openoil.adios.dirjs:71: Querying ADIOS database for oil: EKOFISK
-    14:01:07 WARNING opendrift.models.openoil.adios.dirjs:75: Several oils found with name: EKOFISK: ['AD00329', 'AD02094', 'NO00016', 'AD02463', 'AD01944', 'AD00333', 'NO00013', 'NO00014', 'AD00328', 'AD00332', 'AD02558', 'NO00015'], using first.
-    14:01:07 INFO    opendrift.models.openoil.openoil:1652: Using density 816.262844 and viscosity 4.1747069628680365e-06 of oiltype EKOFISK
+    13:17:37 INFO    opendrift.models.basemodel.environment:219: Adding a dynamical landmask with max. priority based on assumed maximum speed of 1.0 m/s. Adding a customised landmask may be faster...
+    13:17:44 INFO    opendrift.models.basemodel.environment:246: Fallback values will be used for the following variables which have no readers: 
+    13:17:44 INFO    opendrift.models.basemodel.environment:249:    upward_sea_water_velocity: 0.000000
+    13:17:44 INFO    opendrift.models.basemodel.environment:249:    sea_surface_wave_significant_height: 0.000000
+    13:17:44 INFO    opendrift.models.basemodel.environment:249:    sea_surface_wave_stokes_drift_x_velocity: 0.000000
+    13:17:44 INFO    opendrift.models.basemodel.environment:249:    sea_surface_wave_stokes_drift_y_velocity: 0.000000
+    13:17:44 INFO    opendrift.models.basemodel.environment:249:    sea_surface_wave_period_at_variance_spectral_density_maximum: 0.000000
+    13:17:44 INFO    opendrift.models.basemodel.environment:249:    sea_surface_wave_mean_period_from_variance_spectral_density_second_frequency_moment: 0.000000
+    13:17:44 INFO    opendrift.models.basemodel.environment:249:    sea_ice_area_fraction: 0.000000
+    13:17:44 INFO    opendrift.models.basemodel.environment:249:    sea_ice_x_velocity: 0.000000
+    13:17:44 INFO    opendrift.models.basemodel.environment:249:    sea_ice_y_velocity: 0.000000
+    13:17:44 INFO    opendrift.models.basemodel.environment:249:    sea_water_temperature: 10.000000
+    13:17:44 INFO    opendrift.models.basemodel.environment:249:    sea_water_salinity: 34.000000
+    13:17:44 INFO    opendrift.models.basemodel.environment:249:    sea_floor_depth_below_sea_level: 10000.000000
+    13:17:44 INFO    opendrift.models.basemodel.environment:249:    ocean_vertical_diffusivity: 0.020000
+    13:17:44 INFO    opendrift.models.basemodel.environment:249:    ocean_mixed_layer_thickness: 50.000000
+    13:17:44 INFO    opendrift.models.openoil.adios.dirjs:71: Querying ADIOS database for oil: EKOFISK
+    13:17:44 WARNING opendrift.models.openoil.adios.dirjs:75: Several oils found with name: EKOFISK: ['AD00329', 'AD02094', 'NO00016', 'AD02463', 'AD01944', 'AD00333', 'NO00013', 'NO00014', 'AD00328', 'AD00332', 'AD02558', 'NO00015'], using first.
+    13:17:44 INFO    opendrift.models.openoil.openoil:1657: Using density 816.262844 and viscosity 4.1747069628680365e-06 of oiltype EKOFISK
     ===========================
     Model:  OpenOil     (OpenDrift version 1.10.7)
             0 active Oil particles  (0 deactivated, 10000 scheduled)
     -------------------
     Environment variables:
       -----
-    Readers not added for the following variables:
       land_binary_mask
+         1) global_landmask
+      -----
+    Readers not added for the following variables:
       ocean_mixed_layer_thickness
       ocean_vertical_diffusivity
       sea_floor_depth_below_sea_level
@@ -124,46 +169,19 @@ increasing uncertainty in position
     ---
     Lazy readers:
       LazyReader: https://thredds.met.no/thredds/dodsC/sea/norkyst800m/1h/aggregate_be
+
+    Discarded readers:
     ===========================
 
 
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 33-34
-
-Adjusting some configuration
-
-.. GENERATED FROM PYTHON SOURCE LINES 34-41
-
-.. code-block:: default
-
-    o.set_config('processes:dispersion', True)
-    o.set_config('processes:evaporation', False)
-    o.set_config('processes:emulsification', True)
-    o.disable_vertical_motion()
-    #o.set_config('drift:vertical_mixing', False)
-    #o.set_config('drift:vertical_mixing', False)
-
-
-
-
-
-.. rst-class:: sphx-glr-script-out
-
- .. code-block:: none
-
-    14:01:07 INFO    opendrift.models.oceandrift:346: Setting config: drift:vertical_advection -> False
-    14:01:07 INFO    opendrift.models.oceandrift:346: Setting config: drift:vertical_mixing -> False
-
-
-
-
-.. GENERATED FROM PYTHON SOURCE LINES 42-43
+.. GENERATED FROM PYTHON SOURCE LINES 41-42
 
 Running model for 24 hours
 
-.. GENERATED FROM PYTHON SOURCE LINES 43-45
+.. GENERATED FROM PYTHON SOURCE LINES 42-44
 
 .. code-block:: default
 
@@ -177,121 +195,117 @@ Running model for 24 hours
 
  .. code-block:: none
 
-    14:01:07 INFO    opendrift.models.basemodel:2591: Fallback values will be used for the following variables which have no readers: 
-    14:01:07 INFO    opendrift.models.basemodel:2594:       upward_sea_water_velocity: 0.000000
-    14:01:07 INFO    opendrift.models.basemodel:2594:       sea_surface_wave_significant_height: 0.000000
-    14:01:07 INFO    opendrift.models.basemodel:2594:       sea_surface_wave_stokes_drift_x_velocity: 0.000000
-    14:01:07 INFO    opendrift.models.basemodel:2594:       sea_surface_wave_stokes_drift_y_velocity: 0.000000
-    14:01:07 INFO    opendrift.models.basemodel:2594:       sea_surface_wave_period_at_variance_spectral_density_maximum: 0.000000
-    14:01:07 INFO    opendrift.models.basemodel:2594:       sea_surface_wave_mean_period_from_variance_spectral_density_second_frequency_moment: 0.000000
-    14:01:07 INFO    opendrift.models.basemodel:2594:       sea_ice_area_fraction: 0.000000
-    14:01:07 INFO    opendrift.models.basemodel:2594:       sea_ice_x_velocity: 0.000000
-    14:01:07 INFO    opendrift.models.basemodel:2594:       sea_ice_y_velocity: 0.000000
-    14:01:07 INFO    opendrift.models.basemodel:2594:       sea_water_temperature: 10.000000
-    14:01:07 INFO    opendrift.models.basemodel:2594:       sea_water_salinity: 34.000000
-    14:01:07 INFO    opendrift.models.basemodel:2594:       sea_floor_depth_below_sea_level: 10000.000000
-    14:01:07 INFO    opendrift.models.basemodel:2594:       ocean_vertical_diffusivity: 0.020000
-    14:01:07 INFO    opendrift.models.basemodel:2594:       ocean_mixed_layer_thickness: 50.000000
-    14:01:07 INFO    opendrift.models.basemodel:2753: Adding a dynamical landmask with max. priority based on assumed maximum speed of 1.3 m/s. Adding a customised landmask may be faster...
-    14:01:13 INFO    opendrift.models.basemodel:1701: Using existing reader for land_binary_mask
-    14:01:13 INFO    opendrift.models.basemodel:1713: All points are in ocean
-    14:01:13 INFO    opendrift.models.openoil.openoil:646: Oil-water surface tension is 0.028284 Nm
-    14:01:13 INFO    opendrift.models.basemodel:2882: 2023-09-01 14:01:07.834076 - step 1 of 48 - 417 active elements (0 deactivated)
-    14:01:14 INFO    opendrift.readers.reader_netCDF_CF_generic:92: Opening dataset: https://thredds.met.no/thredds/dodsC/sea/norkyst800m/1h/aggregate_be
+    13:17:44 INFO    opendrift.models.basemodel:891: Using existing reader for land_binary_mask
+    13:17:44 INFO    opendrift.models.basemodel:903: All points are in ocean
+    13:17:44 INFO    opendrift.models.openoil.openoil:651: Oil-water surface tension is 0.028284 Nm
+    13:17:44 INFO    opendrift.models.basemodel:1989: 2023-11-01 13:17:37.033964 - step 1 of 48 - 417 active elements (0 deactivated)
+    13:17:45 INFO    opendrift.readers.reader_netCDF_CF_generic:92: Opening dataset: https://thredds.met.no/thredds/dodsC/sea/norkyst800m/1h/aggregate_be
     /opt/conda/envs/opendrift/lib/python3.11/site-packages/pyproj/crs/crs.py:1286: UserWarning: You will likely lose important projection information when converting to a PROJ string from another format. See: https://proj.org/faq.html#what-is-the-best-format-for-describing-coordinate-reference-systems
       proj = self._crs.to_proj4(version=version)
-    14:01:18 INFO    opendrift.models.basemodel:2882: 2023-09-01 14:31:07.834076 - step 2 of 48 - 834 active elements (0 deactivated)
-    14:01:19 WARNING opendrift.readers.basereader.structured:286: Data block from https://thredds.met.no/thredds/dodsC/sea/norkyst800m/1h/aggregate_be not large enough to cover element positions within timestep. Buffer size (8) must be increased. See `Variables.set_buffer_size`.
+    13:17:49 WARNING opendrift.readers.basereader.structured:286: Data block from https://thredds.met.no/thredds/dodsC/sea/norkyst800m/1h/aggregate_be not large enough to cover element positions within timestep. Buffer size (7) must be increased. See `Variables.set_buffer_size`.
     /root/project/opendrift/readers/interpolation/interpolators.py:17: RuntimeWarning: overflow encountered in cast
       data[mask] = np.finfo(np.float64).min
-    14:01:19 INFO    opendrift.models.basemodel:2882: 2023-09-01 15:01:07.834076 - step 3 of 48 - 1250 active elements (0 deactivated)
-    14:01:24 WARNING opendrift.readers.basereader.structured:286: Data block from https://thredds.met.no/thredds/dodsC/sea/norkyst800m/1h/aggregate_be not large enough to cover element positions within timestep. Buffer size (8) must be increased. See `Variables.set_buffer_size`.
-    14:01:24 WARNING opendrift.readers.basereader.structured:286: Data block from https://thredds.met.no/thredds/dodsC/sea/norkyst800m/1h/aggregate_be not large enough to cover element positions within timestep. Buffer size (8) must be increased. See `Variables.set_buffer_size`.
-    14:01:24 INFO    opendrift.models.basemodel:2882: 2023-09-01 15:31:07.834076 - step 4 of 48 - 1667 active elements (0 deactivated)
-    14:01:25 WARNING opendrift.readers.basereader.structured:286: Data block from https://thredds.met.no/thredds/dodsC/sea/norkyst800m/1h/aggregate_be not large enough to cover element positions within timestep. Buffer size (8) must be increased. See `Variables.set_buffer_size`.
-    14:01:25 INFO    opendrift.models.basemodel:2882: 2023-09-01 16:01:07.834076 - step 5 of 48 - 2084 active elements (0 deactivated)
-    14:01:27 WARNING opendrift.readers.basereader.structured:286: Data block from https://thredds.met.no/thredds/dodsC/sea/norkyst800m/1h/aggregate_be not large enough to cover element positions within timestep. Buffer size (8) must be increased. See `Variables.set_buffer_size`.
-    14:01:27 INFO    opendrift.models.basemodel:2882: 2023-09-01 16:31:07.834076 - step 6 of 48 - 2500 active elements (0 deactivated)
-    14:01:28 WARNING opendrift.readers.basereader.structured:286: Data block from https://thredds.met.no/thredds/dodsC/sea/norkyst800m/1h/aggregate_be not large enough to cover element positions within timestep. Buffer size (8) must be increased. See `Variables.set_buffer_size`.
-    14:01:28 INFO    opendrift.models.basemodel:2882: 2023-09-01 17:01:07.834076 - step 7 of 48 - 2917 active elements (0 deactivated)
-    14:01:30 WARNING opendrift.readers.basereader.structured:286: Data block from https://thredds.met.no/thredds/dodsC/sea/norkyst800m/1h/aggregate_be not large enough to cover element positions within timestep. Buffer size (8) must be increased. See `Variables.set_buffer_size`.
-    14:01:30 INFO    opendrift.models.basemodel:2882: 2023-09-01 17:31:07.834076 - step 8 of 48 - 3334 active elements (0 deactivated)
-    14:01:31 WARNING opendrift.readers.basereader.structured:286: Data block from https://thredds.met.no/thredds/dodsC/sea/norkyst800m/1h/aggregate_be not large enough to cover element positions within timestep. Buffer size (8) must be increased. See `Variables.set_buffer_size`.
-    14:01:31 INFO    opendrift.models.basemodel:2882: 2023-09-01 18:01:07.834076 - step 9 of 48 - 3750 active elements (0 deactivated)
-    14:01:33 WARNING opendrift.readers.basereader.structured:286: Data block from https://thredds.met.no/thredds/dodsC/sea/norkyst800m/1h/aggregate_be not large enough to cover element positions within timestep. Buffer size (8) must be increased. See `Variables.set_buffer_size`.
-    14:01:33 INFO    opendrift.models.basemodel:2882: 2023-09-01 18:31:07.834076 - step 10 of 48 - 4167 active elements (0 deactivated)
-    14:01:34 WARNING opendrift.readers.basereader.structured:286: Data block from https://thredds.met.no/thredds/dodsC/sea/norkyst800m/1h/aggregate_be not large enough to cover element positions within timestep. Buffer size (8) must be increased. See `Variables.set_buffer_size`.
-    14:01:34 INFO    opendrift.models.basemodel:2882: 2023-09-01 19:01:07.834076 - step 11 of 48 - 4583 active elements (0 deactivated)
-    14:01:36 WARNING opendrift.readers.basereader.structured:286: Data block from https://thredds.met.no/thredds/dodsC/sea/norkyst800m/1h/aggregate_be not large enough to cover element positions within timestep. Buffer size (8) must be increased. See `Variables.set_buffer_size`.
-    14:01:36 INFO    opendrift.models.basemodel:2882: 2023-09-01 19:31:07.834076 - step 12 of 48 - 5000 active elements (0 deactivated)
-    14:01:37 WARNING opendrift.readers.basereader.structured:286: Data block from https://thredds.met.no/thredds/dodsC/sea/norkyst800m/1h/aggregate_be not large enough to cover element positions within timestep. Buffer size (8) must be increased. See `Variables.set_buffer_size`.
-    14:01:37 WARNING opendrift.readers.basereader.structured:286: Data block from https://thredds.met.no/thredds/dodsC/sea/norkyst800m/1h/aggregate_be not large enough to cover element positions within timestep. Buffer size (8) must be increased. See `Variables.set_buffer_size`.
-    14:01:37 INFO    opendrift.models.basemodel:2882: 2023-09-01 20:01:07.834076 - step 13 of 48 - 5417 active elements (0 deactivated)
-    14:01:39 WARNING opendrift.readers.basereader.structured:286: Data block from https://thredds.met.no/thredds/dodsC/sea/norkyst800m/1h/aggregate_be not large enough to cover element positions within timestep. Buffer size (8) must be increased. See `Variables.set_buffer_size`.
-    14:01:39 WARNING opendrift.readers.basereader.structured:286: Data block from https://thredds.met.no/thredds/dodsC/sea/norkyst800m/1h/aggregate_be not large enough to cover element positions within timestep. Buffer size (8) must be increased. See `Variables.set_buffer_size`.
-    14:01:39 INFO    opendrift.models.basemodel:2882: 2023-09-01 20:31:07.834076 - step 14 of 48 - 5833 active elements (0 deactivated)
-    14:01:40 WARNING opendrift.readers.basereader.structured:286: Data block from https://thredds.met.no/thredds/dodsC/sea/norkyst800m/1h/aggregate_be not large enough to cover element positions within timestep. Buffer size (8) must be increased. See `Variables.set_buffer_size`.
-    14:01:40 WARNING opendrift.readers.basereader.structured:286: Data block from https://thredds.met.no/thredds/dodsC/sea/norkyst800m/1h/aggregate_be not large enough to cover element positions within timestep. Buffer size (8) must be increased. See `Variables.set_buffer_size`.
-    14:01:40 INFO    opendrift.models.basemodel:2882: 2023-09-01 21:01:07.834076 - step 15 of 48 - 6250 active elements (0 deactivated)
-    14:01:42 WARNING opendrift.readers.basereader.structured:286: Data block from https://thredds.met.no/thredds/dodsC/sea/norkyst800m/1h/aggregate_be not large enough to cover element positions within timestep. Buffer size (8) must be increased. See `Variables.set_buffer_size`.
-    14:01:42 WARNING opendrift.readers.basereader.structured:286: Data block from https://thredds.met.no/thredds/dodsC/sea/norkyst800m/1h/aggregate_be not large enough to cover element positions within timestep. Buffer size (8) must be increased. See `Variables.set_buffer_size`.
-    14:01:42 INFO    opendrift.models.basemodel:2882: 2023-09-01 21:31:07.834076 - step 16 of 48 - 6667 active elements (0 deactivated)
-    14:01:43 WARNING opendrift.readers.basereader.structured:286: Data block from https://thredds.met.no/thredds/dodsC/sea/norkyst800m/1h/aggregate_be not large enough to cover element positions within timestep. Buffer size (8) must be increased. See `Variables.set_buffer_size`.
-    14:01:43 WARNING opendrift.readers.basereader.structured:286: Data block from https://thredds.met.no/thredds/dodsC/sea/norkyst800m/1h/aggregate_be not large enough to cover element positions within timestep. Buffer size (8) must be increased. See `Variables.set_buffer_size`.
-    14:01:43 INFO    opendrift.models.basemodel:2882: 2023-09-01 22:01:07.834076 - step 17 of 48 - 7082 active elements (1 deactivated)
-    14:01:46 WARNING opendrift.readers.basereader.structured:286: Data block from https://thredds.met.no/thredds/dodsC/sea/norkyst800m/1h/aggregate_be not large enough to cover element positions within timestep. Buffer size (8) must be increased. See `Variables.set_buffer_size`.
-    14:01:46 WARNING opendrift.readers.basereader.structured:286: Data block from https://thredds.met.no/thredds/dodsC/sea/norkyst800m/1h/aggregate_be not large enough to cover element positions within timestep. Buffer size (8) must be increased. See `Variables.set_buffer_size`.
-    14:01:46 INFO    opendrift.models.basemodel:2882: 2023-09-01 22:31:07.834076 - step 18 of 48 - 7498 active elements (2 deactivated)
-    14:01:49 WARNING opendrift.readers.basereader.structured:286: Data block from https://thredds.met.no/thredds/dodsC/sea/norkyst800m/1h/aggregate_be not large enough to cover element positions within timestep. Buffer size (8) must be increased. See `Variables.set_buffer_size`.
-    14:01:49 INFO    opendrift.models.basemodel:2882: 2023-09-01 23:01:07.834076 - step 19 of 48 - 7914 active elements (2 deactivated)
-    14:01:51 WARNING opendrift.readers.basereader.structured:286: Data block from https://thredds.met.no/thredds/dodsC/sea/norkyst800m/1h/aggregate_be not large enough to cover element positions within timestep. Buffer size (8) must be increased. See `Variables.set_buffer_size`.
-    14:01:51 INFO    opendrift.models.basemodel:2882: 2023-09-01 23:31:07.834076 - step 20 of 48 - 8331 active elements (2 deactivated)
-    14:01:52 WARNING opendrift.readers.basereader.structured:286: Data block from https://thredds.met.no/thredds/dodsC/sea/norkyst800m/1h/aggregate_be not large enough to cover element positions within timestep. Buffer size (8) must be increased. See `Variables.set_buffer_size`.
-    14:01:52 WARNING opendrift.readers.basereader.structured:286: Data block from https://thredds.met.no/thredds/dodsC/sea/norkyst800m/1h/aggregate_be not large enough to cover element positions within timestep. Buffer size (8) must be increased. See `Variables.set_buffer_size`.
-    14:01:52 INFO    opendrift.models.basemodel:2882: 2023-09-02 00:01:07.834076 - step 21 of 48 - 8748 active elements (2 deactivated)
-    14:01:53 WARNING opendrift.readers.basereader.structured:286: Data block from https://thredds.met.no/thredds/dodsC/sea/norkyst800m/1h/aggregate_be not large enough to cover element positions within timestep. Buffer size (8) must be increased. See `Variables.set_buffer_size`.
-    14:01:54 WARNING opendrift.readers.basereader.structured:286: Data block from https://thredds.met.no/thredds/dodsC/sea/norkyst800m/1h/aggregate_be not large enough to cover element positions within timestep. Buffer size (8) must be increased. See `Variables.set_buffer_size`.
-    14:01:54 INFO    opendrift.models.basemodel:2882: 2023-09-02 00:31:07.834076 - step 22 of 48 - 9164 active elements (2 deactivated)
-    14:01:55 WARNING opendrift.readers.basereader.structured:286: Data block from https://thredds.met.no/thredds/dodsC/sea/norkyst800m/1h/aggregate_be not large enough to cover element positions within timestep. Buffer size (8) must be increased. See `Variables.set_buffer_size`.
-    14:01:55 WARNING opendrift.readers.basereader.structured:286: Data block from https://thredds.met.no/thredds/dodsC/sea/norkyst800m/1h/aggregate_be not large enough to cover element positions within timestep. Buffer size (8) must be increased. See `Variables.set_buffer_size`.
-    14:01:55 INFO    opendrift.models.basemodel:2882: 2023-09-02 01:01:07.834076 - step 23 of 48 - 9579 active elements (4 deactivated)
-    14:01:57 WARNING opendrift.readers.basereader.structured:286: Data block from https://thredds.met.no/thredds/dodsC/sea/norkyst800m/1h/aggregate_be not large enough to cover element positions within timestep. Buffer size (8) must be increased. See `Variables.set_buffer_size`.
-    14:01:57 WARNING opendrift.readers.basereader.structured:286: Data block from https://thredds.met.no/thredds/dodsC/sea/norkyst800m/1h/aggregate_be not large enough to cover element positions within timestep. Buffer size (8) must be increased. See `Variables.set_buffer_size`.
-    14:01:57 INFO    opendrift.models.basemodel:2882: 2023-09-02 01:31:07.834076 - step 24 of 48 - 9994 active elements (6 deactivated)
-    14:01:59 WARNING opendrift.readers.basereader.structured:286: Data block from https://thredds.met.no/thredds/dodsC/sea/norkyst800m/1h/aggregate_be not large enough to cover element positions within timestep. Buffer size (8) must be increased. See `Variables.set_buffer_size`.
-    14:01:59 INFO    opendrift.models.basemodel:2882: 2023-09-02 02:01:07.834076 - step 25 of 48 - 9992 active elements (8 deactivated)
-    14:02:00 INFO    opendrift.models.basemodel:2882: 2023-09-02 02:31:07.834076 - step 26 of 48 - 9986 active elements (14 deactivated)
-    14:02:01 INFO    opendrift.models.basemodel:2882: 2023-09-02 03:01:07.834076 - step 27 of 48 - 9975 active elements (25 deactivated)
-    14:02:02 INFO    opendrift.models.basemodel:2882: 2023-09-02 03:31:07.834076 - step 28 of 48 - 9973 active elements (27 deactivated)
-    14:02:02 INFO    opendrift.models.basemodel:2882: 2023-09-02 04:01:07.834076 - step 29 of 48 - 9973 active elements (27 deactivated)
-    14:02:04 INFO    opendrift.models.basemodel:2882: 2023-09-02 04:31:07.834076 - step 30 of 48 - 9972 active elements (28 deactivated)
-    14:02:04 INFO    opendrift.models.basemodel:2882: 2023-09-02 05:01:07.834076 - step 31 of 48 - 9972 active elements (28 deactivated)
-    14:02:06 INFO    opendrift.models.basemodel:2882: 2023-09-02 05:31:07.834076 - step 32 of 48 - 9970 active elements (30 deactivated)
-    14:02:06 INFO    opendrift.models.basemodel:2882: 2023-09-02 06:01:07.834076 - step 33 of 48 - 9967 active elements (33 deactivated)
-    14:02:08 INFO    opendrift.models.basemodel:2882: 2023-09-02 06:31:07.834076 - step 34 of 48 - 9966 active elements (34 deactivated)
-    14:02:08 INFO    opendrift.models.basemodel:2882: 2023-09-02 07:01:07.834076 - step 35 of 48 - 9962 active elements (38 deactivated)
-    14:02:10 INFO    opendrift.models.basemodel:2882: 2023-09-02 07:31:07.834076 - step 36 of 48 - 9950 active elements (50 deactivated)
-    14:02:10 INFO    opendrift.models.basemodel:2882: 2023-09-02 08:01:07.834076 - step 37 of 48 - 9923 active elements (77 deactivated)
-    14:02:12 INFO    opendrift.models.basemodel:2882: 2023-09-02 08:31:07.834076 - step 38 of 48 - 9893 active elements (107 deactivated)
-    14:02:12 INFO    opendrift.models.basemodel:2882: 2023-09-02 09:01:07.834076 - step 39 of 48 - 9848 active elements (152 deactivated)
-    14:02:14 INFO    opendrift.models.basemodel:2882: 2023-09-02 09:31:07.834076 - step 40 of 48 - 9829 active elements (171 deactivated)
-    14:02:14 INFO    opendrift.models.basemodel:2882: 2023-09-02 10:01:07.834076 - step 41 of 48 - 9812 active elements (188 deactivated)
-    14:02:16 INFO    opendrift.models.basemodel:2882: 2023-09-02 10:31:07.834076 - step 42 of 48 - 9799 active elements (201 deactivated)
-    14:02:16 INFO    opendrift.models.basemodel:2882: 2023-09-02 11:01:07.834076 - step 43 of 48 - 9783 active elements (217 deactivated)
-    14:02:18 INFO    opendrift.models.basemodel:2882: 2023-09-02 11:31:07.834076 - step 44 of 48 - 9774 active elements (226 deactivated)
-    14:02:18 INFO    opendrift.models.basemodel:2882: 2023-09-02 12:01:07.834076 - step 45 of 48 - 9747 active elements (253 deactivated)
-    14:02:20 INFO    opendrift.models.basemodel:2882: 2023-09-02 12:31:07.834076 - step 46 of 48 - 9730 active elements (270 deactivated)
-    14:02:20 INFO    opendrift.models.basemodel:2882: 2023-09-02 13:01:07.834076 - step 47 of 48 - 9709 active elements (291 deactivated)
-    14:02:23 INFO    opendrift.models.basemodel:2882: 2023-09-02 13:31:07.834076 - step 48 of 48 - 9689 active elements (311 deactivated)
+    13:17:49 INFO    opendrift.models.basemodel:1989: 2023-11-01 13:47:37.033964 - step 2 of 48 - 834 active elements (0 deactivated)
+    13:17:50 WARNING opendrift.readers.basereader.structured:286: Data block from https://thredds.met.no/thredds/dodsC/sea/norkyst800m/1h/aggregate_be not large enough to cover element positions within timestep. Buffer size (7) must be increased. See `Variables.set_buffer_size`.
+    13:17:50 WARNING opendrift.readers.basereader.structured:286: Data block from https://thredds.met.no/thredds/dodsC/sea/norkyst800m/1h/aggregate_be not large enough to cover element positions within timestep. Buffer size (7) must be increased. See `Variables.set_buffer_size`.
+    13:17:50 INFO    opendrift.models.basemodel:1989: 2023-11-01 14:17:37.033964 - step 3 of 48 - 1250 active elements (0 deactivated)
+    13:17:52 WARNING opendrift.readers.basereader.structured:286: Data block from https://thredds.met.no/thredds/dodsC/sea/norkyst800m/1h/aggregate_be not large enough to cover element positions within timestep. Buffer size (7) must be increased. See `Variables.set_buffer_size`.
+    13:17:52 WARNING opendrift.readers.basereader.structured:286: Data block from https://thredds.met.no/thredds/dodsC/sea/norkyst800m/1h/aggregate_be not large enough to cover element positions within timestep. Buffer size (7) must be increased. See `Variables.set_buffer_size`.
+    13:17:52 INFO    opendrift.models.basemodel:1989: 2023-11-01 14:47:37.033964 - step 4 of 48 - 1667 active elements (0 deactivated)
+    13:17:53 WARNING opendrift.readers.basereader.structured:286: Data block from https://thredds.met.no/thredds/dodsC/sea/norkyst800m/1h/aggregate_be not large enough to cover element positions within timestep. Buffer size (7) must be increased. See `Variables.set_buffer_size`.
+    13:17:53 WARNING opendrift.readers.basereader.structured:286: Data block from https://thredds.met.no/thredds/dodsC/sea/norkyst800m/1h/aggregate_be not large enough to cover element positions within timestep. Buffer size (7) must be increased. See `Variables.set_buffer_size`.
+    13:17:53 INFO    opendrift.models.basemodel:1989: 2023-11-01 15:17:37.033964 - step 5 of 48 - 2084 active elements (0 deactivated)
+    13:17:54 WARNING opendrift.readers.basereader.structured:286: Data block from https://thredds.met.no/thredds/dodsC/sea/norkyst800m/1h/aggregate_be not large enough to cover element positions within timestep. Buffer size (7) must be increased. See `Variables.set_buffer_size`.
+    13:17:55 WARNING opendrift.readers.basereader.structured:286: Data block from https://thredds.met.no/thredds/dodsC/sea/norkyst800m/1h/aggregate_be not large enough to cover element positions within timestep. Buffer size (7) must be increased. See `Variables.set_buffer_size`.
+    13:17:55 INFO    opendrift.models.basemodel:1989: 2023-11-01 15:47:37.033964 - step 6 of 48 - 2500 active elements (0 deactivated)
+    13:17:56 WARNING opendrift.readers.basereader.structured:286: Data block from https://thredds.met.no/thredds/dodsC/sea/norkyst800m/1h/aggregate_be not large enough to cover element positions within timestep. Buffer size (7) must be increased. See `Variables.set_buffer_size`.
+    13:17:56 WARNING opendrift.readers.basereader.structured:286: Data block from https://thredds.met.no/thredds/dodsC/sea/norkyst800m/1h/aggregate_be not large enough to cover element positions within timestep. Buffer size (7) must be increased. See `Variables.set_buffer_size`.
+    13:17:56 INFO    opendrift.models.basemodel:1989: 2023-11-01 16:17:37.033964 - step 7 of 48 - 2917 active elements (0 deactivated)
+    13:17:57 WARNING opendrift.readers.basereader.structured:286: Data block from https://thredds.met.no/thredds/dodsC/sea/norkyst800m/1h/aggregate_be not large enough to cover element positions within timestep. Buffer size (7) must be increased. See `Variables.set_buffer_size`.
+    13:17:57 WARNING opendrift.readers.basereader.structured:286: Data block from https://thredds.met.no/thredds/dodsC/sea/norkyst800m/1h/aggregate_be not large enough to cover element positions within timestep. Buffer size (7) must be increased. See `Variables.set_buffer_size`.
+    13:17:57 INFO    opendrift.models.basemodel:1989: 2023-11-01 16:47:37.033964 - step 8 of 48 - 3334 active elements (0 deactivated)
+    13:17:58 WARNING opendrift.readers.basereader.structured:286: Data block from https://thredds.met.no/thredds/dodsC/sea/norkyst800m/1h/aggregate_be not large enough to cover element positions within timestep. Buffer size (7) must be increased. See `Variables.set_buffer_size`.
+    13:17:58 WARNING opendrift.readers.basereader.structured:286: Data block from https://thredds.met.no/thredds/dodsC/sea/norkyst800m/1h/aggregate_be not large enough to cover element positions within timestep. Buffer size (7) must be increased. See `Variables.set_buffer_size`.
+    13:17:58 INFO    opendrift.models.basemodel:1989: 2023-11-01 17:17:37.033964 - step 9 of 48 - 3750 active elements (0 deactivated)
+    13:18:00 WARNING opendrift.readers.basereader.structured:286: Data block from https://thredds.met.no/thredds/dodsC/sea/norkyst800m/1h/aggregate_be not large enough to cover element positions within timestep. Buffer size (7) must be increased. See `Variables.set_buffer_size`.
+    13:18:00 WARNING opendrift.readers.basereader.structured:286: Data block from https://thredds.met.no/thredds/dodsC/sea/norkyst800m/1h/aggregate_be not large enough to cover element positions within timestep. Buffer size (7) must be increased. See `Variables.set_buffer_size`.
+    13:18:00 INFO    opendrift.models.basemodel:1989: 2023-11-01 17:47:37.033964 - step 10 of 48 - 4167 active elements (0 deactivated)
+    13:18:01 WARNING opendrift.readers.basereader.structured:286: Data block from https://thredds.met.no/thredds/dodsC/sea/norkyst800m/1h/aggregate_be not large enough to cover element positions within timestep. Buffer size (7) must be increased. See `Variables.set_buffer_size`.
+    13:18:01 WARNING opendrift.readers.basereader.structured:286: Data block from https://thredds.met.no/thredds/dodsC/sea/norkyst800m/1h/aggregate_be not large enough to cover element positions within timestep. Buffer size (7) must be increased. See `Variables.set_buffer_size`.
+    13:18:01 INFO    opendrift.models.basemodel:1989: 2023-11-01 18:17:37.033964 - step 11 of 48 - 4583 active elements (0 deactivated)
+    13:18:03 WARNING opendrift.readers.basereader.structured:286: Data block from https://thredds.met.no/thredds/dodsC/sea/norkyst800m/1h/aggregate_be not large enough to cover element positions within timestep. Buffer size (7) must be increased. See `Variables.set_buffer_size`.
+    13:18:03 WARNING opendrift.readers.basereader.structured:286: Data block from https://thredds.met.no/thredds/dodsC/sea/norkyst800m/1h/aggregate_be not large enough to cover element positions within timestep. Buffer size (7) must be increased. See `Variables.set_buffer_size`.
+    13:18:03 INFO    opendrift.models.basemodel:1989: 2023-11-01 18:47:37.033964 - step 12 of 48 - 5000 active elements (0 deactivated)
+    13:18:04 WARNING opendrift.readers.basereader.structured:286: Data block from https://thredds.met.no/thredds/dodsC/sea/norkyst800m/1h/aggregate_be not large enough to cover element positions within timestep. Buffer size (7) must be increased. See `Variables.set_buffer_size`.
+    13:18:04 WARNING opendrift.readers.basereader.structured:286: Data block from https://thredds.met.no/thredds/dodsC/sea/norkyst800m/1h/aggregate_be not large enough to cover element positions within timestep. Buffer size (7) must be increased. See `Variables.set_buffer_size`.
+    13:18:04 INFO    opendrift.models.basemodel:1989: 2023-11-01 19:17:37.033964 - step 13 of 48 - 5417 active elements (0 deactivated)
+    13:18:05 WARNING opendrift.readers.basereader.structured:286: Data block from https://thredds.met.no/thredds/dodsC/sea/norkyst800m/1h/aggregate_be not large enough to cover element positions within timestep. Buffer size (7) must be increased. See `Variables.set_buffer_size`.
+    13:18:06 WARNING opendrift.readers.basereader.structured:286: Data block from https://thredds.met.no/thredds/dodsC/sea/norkyst800m/1h/aggregate_be not large enough to cover element positions within timestep. Buffer size (7) must be increased. See `Variables.set_buffer_size`.
+    13:18:06 INFO    opendrift.models.basemodel:1989: 2023-11-01 19:47:37.033964 - step 14 of 48 - 5833 active elements (0 deactivated)
+    13:18:07 WARNING opendrift.readers.basereader.structured:286: Data block from https://thredds.met.no/thredds/dodsC/sea/norkyst800m/1h/aggregate_be not large enough to cover element positions within timestep. Buffer size (7) must be increased. See `Variables.set_buffer_size`.
+    13:18:07 WARNING opendrift.readers.basereader.structured:286: Data block from https://thredds.met.no/thredds/dodsC/sea/norkyst800m/1h/aggregate_be not large enough to cover element positions within timestep. Buffer size (7) must be increased. See `Variables.set_buffer_size`.
+    13:18:07 INFO    opendrift.models.basemodel:1989: 2023-11-01 20:17:37.033964 - step 15 of 48 - 6250 active elements (0 deactivated)
+    13:18:08 WARNING opendrift.readers.basereader.structured:286: Data block from https://thredds.met.no/thredds/dodsC/sea/norkyst800m/1h/aggregate_be not large enough to cover element positions within timestep. Buffer size (7) must be increased. See `Variables.set_buffer_size`.
+    13:18:08 WARNING opendrift.readers.basereader.structured:286: Data block from https://thredds.met.no/thredds/dodsC/sea/norkyst800m/1h/aggregate_be not large enough to cover element positions within timestep. Buffer size (7) must be increased. See `Variables.set_buffer_size`.
+    13:18:08 INFO    opendrift.models.basemodel:1989: 2023-11-01 20:47:37.033964 - step 16 of 48 - 6667 active elements (0 deactivated)
+    13:18:09 WARNING opendrift.readers.basereader.structured:286: Data block from https://thredds.met.no/thredds/dodsC/sea/norkyst800m/1h/aggregate_be not large enough to cover element positions within timestep. Buffer size (7) must be increased. See `Variables.set_buffer_size`.
+    13:18:10 WARNING opendrift.readers.basereader.structured:286: Data block from https://thredds.met.no/thredds/dodsC/sea/norkyst800m/1h/aggregate_be not large enough to cover element positions within timestep. Buffer size (7) must be increased. See `Variables.set_buffer_size`.
+    13:18:10 INFO    opendrift.models.basemodel:1989: 2023-11-01 21:17:37.033964 - step 17 of 48 - 7083 active elements (0 deactivated)
+    13:18:11 WARNING opendrift.readers.basereader.structured:286: Data block from https://thredds.met.no/thredds/dodsC/sea/norkyst800m/1h/aggregate_be not large enough to cover element positions within timestep. Buffer size (7) must be increased. See `Variables.set_buffer_size`.
+    13:18:11 WARNING opendrift.readers.basereader.structured:286: Data block from https://thredds.met.no/thredds/dodsC/sea/norkyst800m/1h/aggregate_be not large enough to cover element positions within timestep. Buffer size (7) must be increased. See `Variables.set_buffer_size`.
+    13:18:11 INFO    opendrift.models.basemodel:1989: 2023-11-01 21:47:37.033964 - step 18 of 48 - 7500 active elements (0 deactivated)
+    13:18:12 WARNING opendrift.readers.basereader.structured:286: Data block from https://thredds.met.no/thredds/dodsC/sea/norkyst800m/1h/aggregate_be not large enough to cover element positions within timestep. Buffer size (7) must be increased. See `Variables.set_buffer_size`.
+    13:18:12 WARNING opendrift.readers.basereader.structured:286: Data block from https://thredds.met.no/thredds/dodsC/sea/norkyst800m/1h/aggregate_be not large enough to cover element positions within timestep. Buffer size (7) must be increased. See `Variables.set_buffer_size`.
+    13:18:12 INFO    opendrift.models.basemodel:1989: 2023-11-01 22:17:37.033964 - step 19 of 48 - 7916 active elements (0 deactivated)
+    13:18:14 WARNING opendrift.readers.basereader.structured:286: Data block from https://thredds.met.no/thredds/dodsC/sea/norkyst800m/1h/aggregate_be not large enough to cover element positions within timestep. Buffer size (7) must be increased. See `Variables.set_buffer_size`.
+    13:18:14 WARNING opendrift.readers.basereader.structured:286: Data block from https://thredds.met.no/thredds/dodsC/sea/norkyst800m/1h/aggregate_be not large enough to cover element positions within timestep. Buffer size (7) must be increased. See `Variables.set_buffer_size`.
+    13:18:14 INFO    opendrift.models.basemodel:1989: 2023-11-01 22:47:37.033964 - step 20 of 48 - 8333 active elements (0 deactivated)
+    13:18:15 WARNING opendrift.readers.basereader.structured:286: Data block from https://thredds.met.no/thredds/dodsC/sea/norkyst800m/1h/aggregate_be not large enough to cover element positions within timestep. Buffer size (7) must be increased. See `Variables.set_buffer_size`.
+    13:18:15 WARNING opendrift.readers.basereader.structured:286: Data block from https://thredds.met.no/thredds/dodsC/sea/norkyst800m/1h/aggregate_be not large enough to cover element positions within timestep. Buffer size (7) must be increased. See `Variables.set_buffer_size`.
+    13:18:15 INFO    opendrift.models.basemodel:1989: 2023-11-01 23:17:37.033964 - step 21 of 48 - 8750 active elements (0 deactivated)
+    13:18:16 WARNING opendrift.readers.basereader.structured:286: Data block from https://thredds.met.no/thredds/dodsC/sea/norkyst800m/1h/aggregate_be not large enough to cover element positions within timestep. Buffer size (7) must be increased. See `Variables.set_buffer_size`.
+    13:18:16 WARNING opendrift.readers.basereader.structured:286: Data block from https://thredds.met.no/thredds/dodsC/sea/norkyst800m/1h/aggregate_be not large enough to cover element positions within timestep. Buffer size (7) must be increased. See `Variables.set_buffer_size`.
+    13:18:17 INFO    opendrift.models.basemodel:1989: 2023-11-01 23:47:37.033964 - step 22 of 48 - 9166 active elements (0 deactivated)
+    13:18:18 WARNING opendrift.readers.basereader.structured:286: Data block from https://thredds.met.no/thredds/dodsC/sea/norkyst800m/1h/aggregate_be not large enough to cover element positions within timestep. Buffer size (7) must be increased. See `Variables.set_buffer_size`.
+    13:18:18 WARNING opendrift.readers.basereader.structured:286: Data block from https://thredds.met.no/thredds/dodsC/sea/norkyst800m/1h/aggregate_be not large enough to cover element positions within timestep. Buffer size (7) must be increased. See `Variables.set_buffer_size`.
+    13:18:18 INFO    opendrift.models.basemodel:1989: 2023-11-02 00:17:37.033964 - step 23 of 48 - 9583 active elements (0 deactivated)
+    13:18:19 WARNING opendrift.readers.basereader.structured:286: Data block from https://thredds.met.no/thredds/dodsC/sea/norkyst800m/1h/aggregate_be not large enough to cover element positions within timestep. Buffer size (7) must be increased. See `Variables.set_buffer_size`.
+    13:18:19 WARNING opendrift.readers.basereader.structured:286: Data block from https://thredds.met.no/thredds/dodsC/sea/norkyst800m/1h/aggregate_be not large enough to cover element positions within timestep. Buffer size (7) must be increased. See `Variables.set_buffer_size`.
+    13:18:19 INFO    opendrift.models.basemodel:1989: 2023-11-02 00:47:37.033964 - step 24 of 48 - 10000 active elements (0 deactivated)
+    13:18:21 WARNING opendrift.readers.basereader.structured:286: Data block from https://thredds.met.no/thredds/dodsC/sea/norkyst800m/1h/aggregate_be not large enough to cover element positions within timestep. Buffer size (7) must be increased. See `Variables.set_buffer_size`.
+    13:18:22 INFO    opendrift.models.basemodel:1989: 2023-11-02 01:17:37.033964 - step 25 of 48 - 10000 active elements (0 deactivated)
+    13:18:23 INFO    opendrift.models.basemodel:1989: 2023-11-02 01:47:37.033964 - step 26 of 48 - 9999 active elements (1 deactivated)
+    13:18:23 INFO    opendrift.models.basemodel:1989: 2023-11-02 02:17:37.033964 - step 27 of 48 - 9997 active elements (3 deactivated)
+    13:18:25 INFO    opendrift.models.basemodel:1989: 2023-11-02 02:47:37.033964 - step 28 of 48 - 9989 active elements (11 deactivated)
+    13:18:25 INFO    opendrift.models.basemodel:1989: 2023-11-02 03:17:37.033964 - step 29 of 48 - 9971 active elements (29 deactivated)
+    13:18:26 INFO    opendrift.models.basemodel:1989: 2023-11-02 03:47:37.033964 - step 30 of 48 - 9923 active elements (77 deactivated)
+    13:18:27 INFO    opendrift.models.basemodel:1989: 2023-11-02 04:17:37.033964 - step 31 of 48 - 9861 active elements (139 deactivated)
+    13:18:28 INFO    opendrift.models.basemodel:1989: 2023-11-02 04:47:37.033964 - step 32 of 48 - 9784 active elements (216 deactivated)
+    13:18:28 INFO    opendrift.models.basemodel:1989: 2023-11-02 05:17:37.033964 - step 33 of 48 - 9683 active elements (317 deactivated)
+    13:18:30 INFO    opendrift.models.basemodel:1989: 2023-11-02 05:47:37.033964 - step 34 of 48 - 9555 active elements (445 deactivated)
+    13:18:30 INFO    opendrift.models.basemodel:1989: 2023-11-02 06:17:37.033964 - step 35 of 48 - 9414 active elements (586 deactivated)
+    13:18:32 INFO    opendrift.models.basemodel:1989: 2023-11-02 06:47:37.033964 - step 36 of 48 - 9259 active elements (741 deactivated)
+    13:18:32 INFO    opendrift.models.basemodel:1989: 2023-11-02 07:17:37.033964 - step 37 of 48 - 9133 active elements (867 deactivated)
+    13:18:34 INFO    opendrift.models.basemodel:1989: 2023-11-02 07:47:37.033964 - step 38 of 48 - 9029 active elements (971 deactivated)
+    13:18:34 INFO    opendrift.models.basemodel:1989: 2023-11-02 08:17:37.033964 - step 39 of 48 - 8951 active elements (1049 deactivated)
+    13:18:35 INFO    opendrift.models.basemodel:1989: 2023-11-02 08:47:37.033964 - step 40 of 48 - 8877 active elements (1123 deactivated)
+    13:18:35 INFO    opendrift.models.basemodel:1989: 2023-11-02 09:17:37.033964 - step 41 of 48 - 8826 active elements (1174 deactivated)
+    13:18:37 INFO    opendrift.models.basemodel:1989: 2023-11-02 09:47:37.033964 - step 42 of 48 - 8735 active elements (1265 deactivated)
+    13:18:37 INFO    opendrift.models.basemodel:1989: 2023-11-02 10:17:37.033964 - step 43 of 48 - 8658 active elements (1342 deactivated)
+    13:18:39 INFO    opendrift.models.basemodel:1989: 2023-11-02 10:47:37.033964 - step 44 of 48 - 8577 active elements (1423 deactivated)
+    13:18:39 INFO    opendrift.models.basemodel:1989: 2023-11-02 11:17:37.033964 - step 45 of 48 - 8490 active elements (1510 deactivated)
+    13:18:40 INFO    opendrift.models.basemodel:1989: 2023-11-02 11:47:37.033964 - step 46 of 48 - 8438 active elements (1562 deactivated)
+    13:18:41 INFO    opendrift.models.basemodel:1989: 2023-11-02 12:17:37.033964 - step 47 of 48 - 8402 active elements (1598 deactivated)
+    13:18:43 INFO    opendrift.models.basemodel:1989: 2023-11-02 12:47:37.033964 - step 48 of 48 - 8361 active elements (1639 deactivated)
 
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 46-47
+.. GENERATED FROM PYTHON SOURCE LINES 45-46
 
 Print and plot results
 
-.. GENERATED FROM PYTHON SOURCE LINES 47-49
+.. GENERATED FROM PYTHON SOURCE LINES 46-48
 
 .. code-block:: default
 
@@ -316,36 +330,31 @@ Print and plot results
      0:00:00.0  masking
     --------------------
     https://thredds.met.no/thredds/dodsC/sea/norkyst800m/1h/aggregate_be
-     0:01:04.4  total
+     0:00:52.6  total
      0:00:00.0  preparing
-     0:01:02.4  reading
-     0:00:02.9  interpolation
+     0:00:50.4  reading
+     0:00:03.4  interpolation
      0:00:00.1  interpolation_time
-     0:00:01.9  rotating vectors
+     0:00:02.1  rotating vectors
      0:00:00.0  masking
     --------------------
     Performance:
-     1:15.9 total time
-        0.1 configuration
-        5.8 preparing main loop
-          5.6 making dynamical landmask
+     1:06.6 total time
+        7.6 configuration
+        0.2 preparing main loop
           0.0 moving elements to ocean
-       1:07.5 readers
-            0.0 global_landmask
-            0.5 postprocessing
-     1:09.6 main loop
-         1:04.8 https://thredds.met.no/thredds/dodsC/sea/norkyst800m/1h/aggregate_be
-          0.7 updating elements
+       58.5 main loop
+          0.8 updating elements
             0.1 oil weathering
               0.0 updating viscosities
               0.0 updating densities
               0.0 emulsification
               0.0 dispersion
-        0.3 cleaning up
+        0.1 cleaning up
     --------------------
     ===========================
     Model:  OpenOil     (OpenDrift version 1.10.7)
-            9650 active Oil particles  (350 deactivated, 0 scheduled)
+            8315 active Oil particles  (1685 deactivated, 0 scheduled)
     -------------------
     Environment variables:
       -----
@@ -374,9 +383,11 @@ Print and plot results
       sea_surface_wave_stokes_drift_x_velocity
       sea_surface_wave_stokes_drift_y_velocity
 
+    Discarded readers:
+
     Time:
-            Start: 2023-09-01 14:01:07.834076 UTC
-            Present: 2023-09-02 14:01:07.834076 UTC
+            Start: 2023-11-01 13:17:37.033964 UTC
+            Present: 2023-11-02 13:17:37.033964 UTC
             Calculation steps: 48 * 0:30:00 - total time: 1 day, 0:00:00
             Output steps: 25 * 1:00:00
     ===========================
@@ -385,11 +396,11 @@ Print and plot results
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 50-51
+.. GENERATED FROM PYTHON SOURCE LINES 49-50
 
 Add text label on the map
 
-.. GENERATED FROM PYTHON SOURCE LINES 51-56
+.. GENERATED FROM PYTHON SOURCE LINES 50-55
 
 .. code-block:: default
 
@@ -408,17 +419,17 @@ Add text label on the map
 
     /opt/conda/envs/opendrift/lib/python3.11/site-packages/cartopy/mpl/geoaxes.py:1696: UserWarning: No data for colormapping provided via 'c'. Parameters 'cmap' will be ignored
       result = super().scatter(*args, **kwargs)
-    14:02:43 INFO    opendrift.models.basemodel:5350: Saving animation to /root/project/docs/source/gallery/animations/example_cone_0.gif...
-    14:03:48 INFO    opendrift.models.basemodel:3848: Time to make animation: 0:01:24.970725
+    13:19:10 INFO    opendrift.models.basemodel:4506: Saving animation to /root/project/docs/source/gallery/animations/example_cone_0.gif...
+    13:20:37 INFO    opendrift.models.basemodel:2986: Time to make animation: 0:01:53.883217
 
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 57-58
+.. GENERATED FROM PYTHON SOURCE LINES 56-57
 
 .. image:: /gallery/animations/example_cone_0.gif
 
-.. GENERATED FROM PYTHON SOURCE LINES 58-60
+.. GENERATED FROM PYTHON SOURCE LINES 57-59
 
 .. code-block:: default
 
@@ -428,7 +439,7 @@ Add text label on the map
 
 
 .. image-sg:: /gallery/images/sphx_glr_example_cone_001.png
-   :alt: OpenDrift - OpenOil (EKOFISK) 2023-09-01 14:01 to 2023-09-02 14:01 UTC (25 steps)
+   :alt: OpenDrift - OpenOil (EKOFISK) 2023-11-01 13:17 to 2023-11-02 13:17 UTC (25 steps)
    :srcset: /gallery/images/sphx_glr_example_cone_001.png
    :class: sphx-glr-single-img
 
@@ -437,17 +448,16 @@ Add text label on the map
 
  .. code-block:: none
 
-    14:03:48 WARNING opendrift.models.basemodel:3226: Plotting fast. This will make your plots less accurate.
-    0.1 ALPHA
+    13:20:37 WARNING opendrift.models.basemodel:2357: Plotting fast. This will make your plots less accurate.
 
-    (<GeoAxes: title={'center': 'OpenDrift - OpenOil (EKOFISK)\n2023-09-01 14:01 to 2023-09-02 14:01 UTC (25 steps)'}>, <Figure size 696.68x1100 with 1 Axes>)
+    (<GeoAxes: title={'center': 'OpenDrift - OpenOil (EKOFISK)\n2023-11-01 13:17 to 2023-11-02 13:17 UTC (25 steps)'}>, <Figure size 741.86x1100 with 1 Axes>)
 
 
 
 
 .. rst-class:: sphx-glr-timing
 
-   **Total running time of the script:** (3 minutes 8.273 seconds)
+   **Total running time of the script:** (3 minutes 28.733 seconds)
 
 
 .. _sphx_glr_download_gallery_example_cone.py:

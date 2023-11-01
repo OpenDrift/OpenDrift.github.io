@@ -110,11 +110,10 @@
 <span class="c1"># along with OpenDrift.  If not, see &lt;https://www.gnu.org/licenses/&gt;.</span>
 <span class="c1">#</span>
 <span class="c1"># Copyright 2015, Knut-Frode Dagestad, MET Norway</span>
-
 <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">Leeway is the search and rescue (SAR) model developed by the US Coast Guard, as originally described in</span>
 
-<span class="sd">    Allen, A.A, 2005: Leeway Divergence, USCG R&amp;D Center Technical Report CG-D-05-05. Available through http://www.ntis.gov, reference ADA435435 </span>
+<span class="sd">    Allen, A.A, 2005: Leeway Divergence, USCG R&amp;D Center Technical Report CG-D-05-05. Available through http://www.ntis.gov, reference ADA435435</span>
 
 <span class="sd">    Allen A.A. and J.V. Plourde (1999) Review of Leeway; Field Experiments and Implementation, USCG R&amp;D Center Technical Report CG-D-08-99. Available through http://www.ntis.gov, reference ADA366414</span>
 
@@ -130,12 +129,15 @@
 <span class="kn">from</span> <span class="nn">builtins</span> <span class="kn">import</span> <span class="nb">range</span>
 <span class="kn">import</span> <span class="nn">os</span>
 <span class="kn">from</span> <span class="nn">collections</span> <span class="kn">import</span> <span class="n">OrderedDict</span>
-<span class="kn">import</span> <span class="nn">logging</span><span class="p">;</span> <span class="n">logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span>
+<span class="kn">import</span> <span class="nn">logging</span>
+
+<span class="n">logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span>
 
 <span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
 
 <span class="kn">from</span> <span class="nn">opendrift.models.basemodel</span> <span class="kn">import</span> <span class="n">OpenDriftSimulation</span>
 <span class="kn">from</span> <span class="nn">opendrift.elements</span> <span class="kn">import</span> <span class="n">LagrangianArray</span>
+<span class="kn">from</span> <span class="nn">opendrift.config</span> <span class="kn">import</span> <span class="n">CONFIG_LEVEL_ESSENTIAL</span><span class="p">,</span> <span class="n">CONFIG_LEVEL_BASIC</span><span class="p">,</span> <span class="n">CONFIG_LEVEL_ADVANCED</span>
 
 <span class="n">RIGHT</span> <span class="o">=</span> <span class="mi">0</span>
 <span class="n">LEFT</span> <span class="o">=</span> <span class="mi">1</span>
@@ -149,50 +151,76 @@
 
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">variables</span> <span class="o">=</span> <span class="n">LagrangianArray</span><span class="o">.</span><span class="n">add_variables</span><span class="p">([</span>
-        <span class="p">(</span><span class="s1">&#39;object_type&#39;</span><span class="p">,</span> <span class="p">{</span><span class="s1">&#39;dtype&#39;</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">uint16</span><span class="p">,</span>
-                        <span class="s1">&#39;units&#39;</span><span class="p">:</span> <span class="s1">&#39;1&#39;</span><span class="p">,</span>
-                        <span class="s1">&#39;seed&#39;</span><span class="p">:</span> <span class="kc">False</span><span class="p">,</span>
-                        <span class="s1">&#39;default&#39;</span><span class="p">:</span> <span class="mi">0</span><span class="p">}),</span>
-        <span class="p">(</span><span class="s1">&#39;orientation&#39;</span><span class="p">,</span> <span class="p">{</span><span class="s1">&#39;dtype&#39;</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">uint8</span><span class="p">,</span>
-                         <span class="s1">&#39;units&#39;</span><span class="p">:</span> <span class="s1">&#39;1&#39;</span><span class="p">,</span>
-            <span class="s1">&#39;description&#39;</span><span class="p">:</span> <span class="s1">&#39;0/1 is left/right of downwind. Randomly chosen at seed time&#39;</span><span class="p">,</span>
-                         <span class="s1">&#39;seed&#39;</span><span class="p">:</span> <span class="kc">False</span><span class="p">,</span>
-                         <span class="s1">&#39;default&#39;</span><span class="p">:</span> <span class="mi">1</span><span class="p">}),</span>
-        <span class="p">(</span><span class="s1">&#39;jibe_probability&#39;</span><span class="p">,</span> <span class="p">{</span><span class="s1">&#39;dtype&#39;</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">float32</span><span class="p">,</span>
-                             <span class="s1">&#39;units&#39;</span><span class="p">:</span> <span class="s1">&#39;1/h&#39;</span><span class="p">,</span>
-            <span class="s1">&#39;description&#39;</span><span class="p">:</span> <span class="s1">&#39;Probability per hour that an object may change orientation (jibing)&#39;</span><span class="p">,</span>
-                             <span class="s1">&#39;default&#39;</span><span class="p">:</span> <span class="mf">0.04</span><span class="p">}),</span>
-        <span class="p">(</span><span class="s1">&#39;downwind_slope&#39;</span><span class="p">,</span> <span class="p">{</span><span class="s1">&#39;dtype&#39;</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">float32</span><span class="p">,</span>
-                           <span class="s1">&#39;units&#39;</span><span class="p">:</span> <span class="s1">&#39;%&#39;</span><span class="p">,</span>
-                           <span class="s1">&#39;seed&#39;</span><span class="p">:</span> <span class="kc">False</span><span class="p">,</span>
-                           <span class="s1">&#39;default&#39;</span><span class="p">:</span> <span class="mi">1</span><span class="p">}),</span>
-        <span class="p">(</span><span class="s1">&#39;crosswind_slope&#39;</span><span class="p">,</span> <span class="p">{</span><span class="s1">&#39;dtype&#39;</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">float32</span><span class="p">,</span>
-                            <span class="s1">&#39;units&#39;</span><span class="p">:</span> <span class="s1">&#39;1&#39;</span><span class="p">,</span>
-                           <span class="s1">&#39;seed&#39;</span><span class="p">:</span> <span class="kc">False</span><span class="p">,</span>
-                            <span class="s1">&#39;default&#39;</span><span class="p">:</span> <span class="mi">1</span><span class="p">}),</span>
-        <span class="p">(</span><span class="s1">&#39;downwind_offset&#39;</span><span class="p">,</span> <span class="p">{</span><span class="s1">&#39;dtype&#39;</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">float32</span><span class="p">,</span>
-                            <span class="s1">&#39;units&#39;</span><span class="p">:</span> <span class="s1">&#39;cm/s&#39;</span><span class="p">,</span>
-                           <span class="s1">&#39;seed&#39;</span><span class="p">:</span> <span class="kc">False</span><span class="p">,</span>
-                            <span class="s1">&#39;default&#39;</span><span class="p">:</span> <span class="mi">0</span><span class="p">}),</span>
-        <span class="p">(</span><span class="s1">&#39;crosswind_offset&#39;</span><span class="p">,</span> <span class="p">{</span><span class="s1">&#39;dtype&#39;</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">float32</span><span class="p">,</span>
-                             <span class="s1">&#39;units&#39;</span><span class="p">:</span> <span class="s1">&#39;cm/s&#39;</span><span class="p">,</span>
-                           <span class="s1">&#39;seed&#39;</span><span class="p">:</span> <span class="kc">False</span><span class="p">,</span>
-                             <span class="s1">&#39;default&#39;</span><span class="p">:</span> <span class="mi">0</span><span class="p">}),</span>
-        <span class="p">(</span><span class="s1">&#39;downwind_eps&#39;</span><span class="p">,</span> <span class="p">{</span><span class="s1">&#39;dtype&#39;</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">float32</span><span class="p">,</span>
-                         <span class="s1">&#39;units&#39;</span><span class="p">:</span> <span class="s1">&#39;cm/s&#39;</span><span class="p">,</span>
-                           <span class="s1">&#39;seed&#39;</span><span class="p">:</span> <span class="kc">False</span><span class="p">,</span>
-                         <span class="s1">&#39;default&#39;</span><span class="p">:</span> <span class="mi">0</span><span class="p">}),</span>
-        <span class="p">(</span><span class="s1">&#39;crosswind_eps&#39;</span><span class="p">,</span> <span class="p">{</span><span class="s1">&#39;dtype&#39;</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">float32</span><span class="p">,</span>
-                          <span class="s1">&#39;units&#39;</span><span class="p">:</span> <span class="s1">&#39;cm/s&#39;</span><span class="p">,</span>
-                           <span class="s1">&#39;seed&#39;</span><span class="p">:</span> <span class="kc">False</span><span class="p">,</span>
-                          <span class="s1">&#39;default&#39;</span><span class="p">:</span> <span class="mi">0</span><span class="p">}),</span>
-        <span class="p">(</span><span class="s1">&#39;current_drift_factor&#39;</span><span class="p">,</span> <span class="p">{</span><span class="s1">&#39;dtype&#39;</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">float32</span><span class="p">,</span>
-                                  <span class="s1">&#39;units&#39;</span><span class="p">:</span> <span class="s1">&#39;1&#39;</span><span class="p">,</span>
-                <span class="s1">&#39;description&#39;</span><span class="p">:</span> <span class="s1">&#39;Elements are moved with this fraction of the &#39;</span>
-                            <span class="s1">&#39;current vector, in addition to currents &#39;</span>
-                            <span class="s1">&#39;and Stokes drift&#39;</span><span class="p">,</span>
-                               <span class="s1">&#39;default&#39;</span><span class="p">:</span> <span class="mi">1</span><span class="p">})</span>
-        <span class="p">])</span></div>
+        <span class="p">(</span><span class="s1">&#39;object_type&#39;</span><span class="p">,</span> <span class="p">{</span>
+            <span class="s1">&#39;dtype&#39;</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">uint16</span><span class="p">,</span>
+            <span class="s1">&#39;units&#39;</span><span class="p">:</span> <span class="s1">&#39;1&#39;</span><span class="p">,</span>
+            <span class="s1">&#39;seed&#39;</span><span class="p">:</span> <span class="kc">False</span><span class="p">,</span>
+            <span class="s1">&#39;default&#39;</span><span class="p">:</span> <span class="mi">0</span>
+        <span class="p">}),</span>
+        <span class="p">(</span><span class="s1">&#39;orientation&#39;</span><span class="p">,</span> <span class="p">{</span>
+            <span class="s1">&#39;dtype&#39;</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">uint8</span><span class="p">,</span>
+            <span class="s1">&#39;units&#39;</span><span class="p">:</span> <span class="s1">&#39;1&#39;</span><span class="p">,</span>
+            <span class="s1">&#39;description&#39;</span><span class="p">:</span>
+            <span class="s1">&#39;0/1 is left/right of downwind. Randomly chosen at seed time&#39;</span><span class="p">,</span>
+            <span class="s1">&#39;seed&#39;</span><span class="p">:</span> <span class="kc">False</span><span class="p">,</span>
+            <span class="s1">&#39;default&#39;</span><span class="p">:</span> <span class="mi">1</span>
+        <span class="p">}),</span>
+        <span class="p">(</span><span class="s1">&#39;jibe_probability&#39;</span><span class="p">,</span> <span class="p">{</span>
+            <span class="s1">&#39;dtype&#39;</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">float32</span><span class="p">,</span>
+            <span class="s1">&#39;units&#39;</span><span class="p">:</span> <span class="s1">&#39;1/h&#39;</span><span class="p">,</span>
+            <span class="s1">&#39;description&#39;</span><span class="p">:</span>
+            <span class="s1">&#39;Probability per hour that an object may change orientation (jibing)&#39;</span><span class="p">,</span>
+            <span class="s1">&#39;default&#39;</span><span class="p">:</span> <span class="mf">0.04</span>
+        <span class="p">}),</span>
+        <span class="p">(</span><span class="s1">&#39;downwind_slope&#39;</span><span class="p">,</span> <span class="p">{</span>
+            <span class="s1">&#39;dtype&#39;</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">float32</span><span class="p">,</span>
+            <span class="s1">&#39;units&#39;</span><span class="p">:</span> <span class="s1">&#39;%&#39;</span><span class="p">,</span>
+            <span class="s1">&#39;seed&#39;</span><span class="p">:</span> <span class="kc">False</span><span class="p">,</span>
+            <span class="s1">&#39;default&#39;</span><span class="p">:</span> <span class="mi">1</span>
+        <span class="p">}),</span>
+        <span class="p">(</span><span class="s1">&#39;crosswind_slope&#39;</span><span class="p">,</span> <span class="p">{</span>
+            <span class="s1">&#39;dtype&#39;</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">float32</span><span class="p">,</span>
+            <span class="s1">&#39;units&#39;</span><span class="p">:</span> <span class="s1">&#39;1&#39;</span><span class="p">,</span>
+            <span class="s1">&#39;seed&#39;</span><span class="p">:</span> <span class="kc">False</span><span class="p">,</span>
+            <span class="s1">&#39;default&#39;</span><span class="p">:</span> <span class="mi">1</span>
+        <span class="p">}),</span>
+        <span class="p">(</span><span class="s1">&#39;downwind_offset&#39;</span><span class="p">,</span> <span class="p">{</span>
+            <span class="s1">&#39;dtype&#39;</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">float32</span><span class="p">,</span>
+            <span class="s1">&#39;units&#39;</span><span class="p">:</span> <span class="s1">&#39;cm/s&#39;</span><span class="p">,</span>
+            <span class="s1">&#39;seed&#39;</span><span class="p">:</span> <span class="kc">False</span><span class="p">,</span>
+            <span class="s1">&#39;default&#39;</span><span class="p">:</span> <span class="mi">0</span>
+        <span class="p">}),</span>
+        <span class="p">(</span><span class="s1">&#39;crosswind_offset&#39;</span><span class="p">,</span> <span class="p">{</span>
+            <span class="s1">&#39;dtype&#39;</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">float32</span><span class="p">,</span>
+            <span class="s1">&#39;units&#39;</span><span class="p">:</span> <span class="s1">&#39;cm/s&#39;</span><span class="p">,</span>
+            <span class="s1">&#39;seed&#39;</span><span class="p">:</span> <span class="kc">False</span><span class="p">,</span>
+            <span class="s1">&#39;default&#39;</span><span class="p">:</span> <span class="mi">0</span>
+        <span class="p">}),</span>
+        <span class="p">(</span><span class="s1">&#39;downwind_eps&#39;</span><span class="p">,</span> <span class="p">{</span>
+            <span class="s1">&#39;dtype&#39;</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">float32</span><span class="p">,</span>
+            <span class="s1">&#39;units&#39;</span><span class="p">:</span> <span class="s1">&#39;cm/s&#39;</span><span class="p">,</span>
+            <span class="s1">&#39;seed&#39;</span><span class="p">:</span> <span class="kc">False</span><span class="p">,</span>
+            <span class="s1">&#39;default&#39;</span><span class="p">:</span> <span class="mi">0</span>
+        <span class="p">}),</span>
+        <span class="p">(</span><span class="s1">&#39;crosswind_eps&#39;</span><span class="p">,</span> <span class="p">{</span>
+            <span class="s1">&#39;dtype&#39;</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">float32</span><span class="p">,</span>
+            <span class="s1">&#39;units&#39;</span><span class="p">:</span> <span class="s1">&#39;cm/s&#39;</span><span class="p">,</span>
+            <span class="s1">&#39;seed&#39;</span><span class="p">:</span> <span class="kc">False</span><span class="p">,</span>
+            <span class="s1">&#39;default&#39;</span><span class="p">:</span> <span class="mi">0</span>
+        <span class="p">}),</span>
+        <span class="p">(</span><span class="s1">&#39;current_drift_factor&#39;</span><span class="p">,</span> <span class="p">{</span>
+            <span class="s1">&#39;dtype&#39;</span><span class="p">:</span>
+            <span class="n">np</span><span class="o">.</span><span class="n">float32</span><span class="p">,</span>
+            <span class="s1">&#39;units&#39;</span><span class="p">:</span>
+            <span class="s1">&#39;1&#39;</span><span class="p">,</span>
+            <span class="s1">&#39;description&#39;</span><span class="p">:</span>
+            <span class="s1">&#39;Elements are moved with this fraction of the &#39;</span>
+            <span class="s1">&#39;current vector, in addition to currents &#39;</span>
+            <span class="s1">&#39;and Stokes drift&#39;</span><span class="p">,</span>
+            <span class="s1">&#39;default&#39;</span><span class="p">:</span>
+            <span class="mi">1</span>
+        <span class="p">})</span>
+    <span class="p">])</span></div>
 
 
 
@@ -209,20 +237,33 @@
     <span class="n">ElementType</span> <span class="o">=</span> <span class="n">LeewayObj</span>
 
     <span class="n">required_variables</span> <span class="o">=</span> <span class="p">{</span>
-        <span class="s1">&#39;x_wind&#39;</span><span class="p">:</span> <span class="p">{</span><span class="s1">&#39;fallback&#39;</span><span class="p">:</span> <span class="kc">None</span><span class="p">},</span>
-        <span class="s1">&#39;y_wind&#39;</span><span class="p">:</span> <span class="p">{</span><span class="s1">&#39;fallback&#39;</span><span class="p">:</span> <span class="kc">None</span><span class="p">},</span>
-        <span class="s1">&#39;x_sea_water_velocity&#39;</span><span class="p">:</span> <span class="p">{</span><span class="s1">&#39;fallback&#39;</span><span class="p">:</span> <span class="kc">None</span><span class="p">},</span>
-        <span class="s1">&#39;y_sea_water_velocity&#39;</span><span class="p">:</span> <span class="p">{</span><span class="s1">&#39;fallback&#39;</span><span class="p">:</span> <span class="kc">None</span><span class="p">},</span>
-        <span class="s1">&#39;land_binary_mask&#39;</span><span class="p">:</span> <span class="p">{</span><span class="s1">&#39;fallback&#39;</span><span class="p">:</span> <span class="kc">None</span><span class="p">},</span>
-        <span class="p">}</span>
-
+        <span class="s1">&#39;x_wind&#39;</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s1">&#39;fallback&#39;</span><span class="p">:</span> <span class="kc">None</span>
+        <span class="p">},</span>
+        <span class="s1">&#39;y_wind&#39;</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s1">&#39;fallback&#39;</span><span class="p">:</span> <span class="kc">None</span>
+        <span class="p">},</span>
+        <span class="s1">&#39;x_sea_water_velocity&#39;</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s1">&#39;fallback&#39;</span><span class="p">:</span> <span class="kc">None</span>
+        <span class="p">},</span>
+        <span class="s1">&#39;y_sea_water_velocity&#39;</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s1">&#39;fallback&#39;</span><span class="p">:</span> <span class="kc">None</span>
+        <span class="p">},</span>
+        <span class="s1">&#39;land_binary_mask&#39;</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s1">&#39;fallback&#39;</span><span class="p">:</span> <span class="kc">None</span>
+        <span class="p">},</span>
+    <span class="p">}</span>
 
     <span class="c1"># Default colors for plotting</span>
-    <span class="n">status_colors</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;initial&#39;</span><span class="p">:</span> <span class="s1">&#39;green&#39;</span><span class="p">,</span> <span class="s1">&#39;active&#39;</span><span class="p">:</span> <span class="s1">&#39;blue&#39;</span><span class="p">,</span>
-                     <span class="s1">&#39;missing_data&#39;</span><span class="p">:</span> <span class="s1">&#39;gray&#39;</span><span class="p">,</span> <span class="s1">&#39;stranded&#39;</span><span class="p">:</span> <span class="s1">&#39;red&#39;</span><span class="p">,</span>
-                     <span class="s1">&#39;evaporated&#39;</span><span class="p">:</span> <span class="s1">&#39;yellow&#39;</span><span class="p">,</span> <span class="s1">&#39;dispersed&#39;</span><span class="p">:</span> <span class="s1">&#39;magenta&#39;</span><span class="p">}</span>
+    <span class="n">status_colors</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="s1">&#39;initial&#39;</span><span class="p">:</span> <span class="s1">&#39;green&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;active&#39;</span><span class="p">:</span> <span class="s1">&#39;blue&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;missing_data&#39;</span><span class="p">:</span> <span class="s1">&#39;gray&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;stranded&#39;</span><span class="p">:</span> <span class="s1">&#39;red&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;evaporated&#39;</span><span class="p">:</span> <span class="s1">&#39;yellow&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;dispersed&#39;</span><span class="p">:</span> <span class="s1">&#39;magenta&#39;</span>
+    <span class="p">}</span>
 
-    <span class="n">max_speed</span> <span class="o">=</span> <span class="mi">5</span>  <span class="c1"># Assumed max average speed of any element</span>
 
     <span class="c1"># Configuration</span>
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">d</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
@@ -238,16 +279,16 @@
         <span class="n">objproptxt</span> <span class="o">=</span> <span class="n">objprop_file</span><span class="o">.</span><span class="n">readlines</span><span class="p">()</span>
         <span class="n">objprop_file</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">leewayprop</span> <span class="o">=</span> <span class="n">OrderedDict</span><span class="p">({})</span>
-        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">objproptxt</span><span class="p">)</span><span class="o">//</span><span class="mi">3</span><span class="o">+</span><span class="mi">1</span><span class="p">):</span>
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">objproptxt</span><span class="p">)</span> <span class="o">//</span> <span class="mi">3</span> <span class="o">+</span> <span class="mi">1</span><span class="p">):</span>
             <span class="c1"># Stop at first blank line</span>
-            <span class="k">if</span> <span class="ow">not</span> <span class="n">objproptxt</span><span class="p">[</span><span class="n">i</span><span class="o">*</span><span class="mi">3</span><span class="p">]</span><span class="o">.</span><span class="n">strip</span><span class="p">():</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">objproptxt</span><span class="p">[</span><span class="n">i</span> <span class="o">*</span> <span class="mi">3</span><span class="p">]</span><span class="o">.</span><span class="n">strip</span><span class="p">():</span>
                 <span class="k">break</span>
-            <span class="n">elems</span> <span class="o">=</span> <span class="n">objproptxt</span><span class="p">[</span><span class="n">i</span><span class="o">*</span><span class="mi">3</span><span class="p">]</span><span class="o">.</span><span class="n">split</span><span class="p">()[</span><span class="mi">0</span><span class="p">]</span>
+            <span class="n">elems</span> <span class="o">=</span> <span class="n">objproptxt</span><span class="p">[</span><span class="n">i</span> <span class="o">*</span> <span class="mi">3</span><span class="p">]</span><span class="o">.</span><span class="n">split</span><span class="p">()[</span><span class="mi">0</span><span class="p">]</span>
 
-            <span class="n">objKey</span> <span class="o">=</span> <span class="n">objproptxt</span><span class="p">[</span><span class="n">i</span><span class="o">*</span><span class="mi">3</span><span class="p">]</span><span class="o">.</span><span class="n">split</span><span class="p">()[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
-            <span class="n">arr</span> <span class="o">=</span> <span class="p">[</span><span class="nb">float</span><span class="p">(</span><span class="n">x</span><span class="p">)</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">objproptxt</span><span class="p">[</span><span class="n">i</span><span class="o">*</span><span class="mi">3</span><span class="o">+</span><span class="mi">2</span><span class="p">]</span><span class="o">.</span><span class="n">split</span><span class="p">()]</span>
+            <span class="n">objKey</span> <span class="o">=</span> <span class="n">objproptxt</span><span class="p">[</span><span class="n">i</span> <span class="o">*</span> <span class="mi">3</span><span class="p">]</span><span class="o">.</span><span class="n">split</span><span class="p">()[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
+            <span class="n">arr</span> <span class="o">=</span> <span class="p">[</span><span class="nb">float</span><span class="p">(</span><span class="n">x</span><span class="p">)</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">objproptxt</span><span class="p">[</span><span class="n">i</span> <span class="o">*</span> <span class="mi">3</span> <span class="o">+</span> <span class="mi">2</span><span class="p">]</span><span class="o">.</span><span class="n">split</span><span class="p">()]</span>
             <span class="n">props</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;OBJKEY&#39;</span><span class="p">:</span> <span class="n">objKey</span><span class="p">}</span>
-            <span class="n">props</span><span class="p">[</span><span class="s1">&#39;Description&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">objproptxt</span><span class="p">[</span><span class="n">i</span><span class="o">*</span><span class="mi">3</span><span class="o">+</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
+            <span class="n">props</span><span class="p">[</span><span class="s1">&#39;Description&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">objproptxt</span><span class="p">[</span><span class="n">i</span> <span class="o">*</span> <span class="mi">3</span> <span class="o">+</span> <span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
             <span class="n">props</span><span class="p">[</span><span class="s1">&#39;DWSLOPE&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">arr</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
             <span class="n">props</span><span class="p">[</span><span class="s1">&#39;DWOFFSET&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">arr</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
             <span class="n">props</span><span class="p">[</span><span class="s1">&#39;DWSTD&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">arr</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span>
@@ -257,28 +298,39 @@
             <span class="n">props</span><span class="p">[</span><span class="s1">&#39;CWLSLOPE&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">arr</span><span class="p">[</span><span class="mi">6</span><span class="p">]</span>
             <span class="n">props</span><span class="p">[</span><span class="s1">&#39;CWLOFFSET&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">arr</span><span class="p">[</span><span class="mi">7</span><span class="p">]</span>
             <span class="n">props</span><span class="p">[</span><span class="s1">&#39;CWLSTD&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">arr</span><span class="p">[</span><span class="mi">8</span><span class="p">]</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">leewayprop</span><span class="p">[</span><span class="n">i</span><span class="o">+</span><span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="n">props</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">leewayprop</span><span class="p">[</span><span class="n">i</span> <span class="o">+</span> <span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="n">props</span>
 
         <span class="c1"># Config</span>
-        <span class="n">descriptions</span> <span class="o">=</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">leewayprop</span><span class="p">[</span><span class="n">p</span><span class="p">][</span><span class="s1">&#39;Description&#39;</span><span class="p">]</span> <span class="k">for</span>
-                        <span class="n">p</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">leewayprop</span><span class="p">]</span>
+        <span class="n">descriptions</span> <span class="o">=</span> <span class="p">[</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">leewayprop</span><span class="p">[</span><span class="n">p</span><span class="p">][</span><span class="s1">&#39;Description&#39;</span><span class="p">]</span> <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">leewayprop</span>
+        <span class="p">]</span>
 
         <span class="c1"># Calling general constructor of parent class</span>
         <span class="nb">super</span><span class="p">(</span><span class="n">Leeway</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">_add_config</span><span class="p">({</span>
-            <span class="s1">&#39;seed:object_type&#39;</span><span class="p">:</span> <span class="p">{</span><span class="s1">&#39;type&#39;</span><span class="p">:</span> <span class="s1">&#39;enum&#39;</span><span class="p">,</span> <span class="s1">&#39;enum&#39;</span><span class="p">:</span> <span class="n">descriptions</span><span class="p">,</span>
+            <span class="s1">&#39;seed:object_type&#39;</span><span class="p">:</span> <span class="p">{</span>
+                <span class="s1">&#39;type&#39;</span><span class="p">:</span> <span class="s1">&#39;enum&#39;</span><span class="p">,</span>
+                <span class="s1">&#39;enum&#39;</span><span class="p">:</span> <span class="n">descriptions</span><span class="p">,</span>
                 <span class="s1">&#39;default&#39;</span><span class="p">:</span> <span class="n">descriptions</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span>
                 <span class="s1">&#39;description&#39;</span><span class="p">:</span> <span class="s1">&#39;Leeway object category for this simulation&#39;</span><span class="p">,</span>
-                <span class="s1">&#39;level&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">CONFIG_LEVEL_ESSENTIAL</span><span class="p">},</span>
-            <span class="s1">&#39;seed:jibe_probability&#39;</span><span class="p">:</span> <span class="p">{</span><span class="s1">&#39;type&#39;</span><span class="p">:</span> <span class="s1">&#39;float&#39;</span><span class="p">,</span>
-                <span class="s1">&#39;default&#39;</span><span class="p">:</span> <span class="mf">0.04</span><span class="p">,</span> <span class="s1">&#39;min&#39;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span> <span class="s1">&#39;max&#39;</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span>
-                <span class="s1">&#39;description&#39;</span><span class="p">:</span> <span class="s1">&#39;Probability per hour for jibing (objects changing orientation)&#39;</span><span class="p">,</span>
-                <span class="s1">&#39;units&#39;</span><span class="p">:</span> <span class="s1">&#39;probability&#39;</span><span class="p">,</span> <span class="s1">&#39;level&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">CONFIG_LEVEL_BASIC</span><span class="p">},</span>
-            <span class="p">})</span>
+                <span class="s1">&#39;level&#39;</span><span class="p">:</span> <span class="n">CONFIG_LEVEL_ESSENTIAL</span>
+            <span class="p">},</span>
+            <span class="s1">&#39;seed:jibe_probability&#39;</span><span class="p">:</span> <span class="p">{</span>
+                <span class="s1">&#39;type&#39;</span><span class="p">:</span> <span class="s1">&#39;float&#39;</span><span class="p">,</span>
+                <span class="s1">&#39;default&#39;</span><span class="p">:</span> <span class="mf">0.04</span><span class="p">,</span>
+                <span class="s1">&#39;min&#39;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>
+                <span class="s1">&#39;max&#39;</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span>
+                <span class="s1">&#39;description&#39;</span><span class="p">:</span>
+                <span class="s1">&#39;Probability per hour for jibing (objects changing orientation)&#39;</span><span class="p">,</span>
+                <span class="s1">&#39;units&#39;</span><span class="p">:</span> <span class="s1">&#39;probability&#39;</span><span class="p">,</span>
+                <span class="s1">&#39;level&#39;</span><span class="p">:</span> <span class="n">CONFIG_LEVEL_BASIC</span>
+            <span class="p">},</span>
+        <span class="p">})</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">_set_config_default</span><span class="p">(</span><span class="s1">&#39;general:time_step_minutes&#39;</span><span class="p">,</span> <span class="mi">10</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_set_config_default</span><span class="p">(</span><span class="s1">&#39;general:time_step_output_minutes&#39;</span><span class="p">,</span> <span class="mi">60</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_set_config_default</span><span class="p">(</span><span class="s1">&#39;drift:max_speed&#39;</span><span class="p">,</span> <span class="mi">5</span><span class="p">)</span>
 
 <div class="viewcode-block" id="Leeway.seed_elements">
 <a class="viewcode-back" href="../../../autoapi/opendrift/models/leeway/index.html#opendrift.models.leeway.Leeway.seed_elements">[docs]</a>
@@ -301,9 +353,10 @@
             <span class="n">object_name</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_config</span><span class="p">(</span><span class="s1">&#39;seed:object_type&#39;</span><span class="p">)</span>
             <span class="c1"># Get number from name</span>
             <span class="n">found</span> <span class="o">=</span> <span class="kc">False</span>
-            <span class="k">for</span> <span class="n">object_type</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">leewayprop</span><span class="p">)</span><span class="o">+</span><span class="mi">1</span><span class="p">):</span>
-                <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">leewayprop</span><span class="p">[</span><span class="n">object_type</span><span class="p">][</span><span class="s1">&#39;OBJKEY&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="n">object_name</span> <span class="ow">or</span><span class="p">(</span>
-                    <span class="bp">self</span><span class="o">.</span><span class="n">leewayprop</span><span class="p">[</span><span class="n">object_type</span><span class="p">][</span><span class="s1">&#39;Description&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="n">object_name</span><span class="p">):</span>
+            <span class="k">for</span> <span class="n">object_type</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">leewayprop</span><span class="p">)</span> <span class="o">+</span> <span class="mi">1</span><span class="p">):</span>
+                <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">leewayprop</span><span class="p">[</span><span class="n">object_type</span><span class="p">][</span><span class="s1">&#39;OBJKEY&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="n">object_name</span> <span class="ow">or</span> <span class="p">(</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">leewayprop</span><span class="p">[</span><span class="n">object_type</span><span class="p">][</span><span class="s1">&#39;Description&#39;</span><span class="p">]</span>
+                        <span class="o">==</span> <span class="n">object_name</span><span class="p">):</span>
                     <span class="n">found</span> <span class="o">=</span> <span class="kc">True</span>
                     <span class="k">break</span>
             <span class="k">if</span> <span class="n">found</span> <span class="ow">is</span> <span class="kc">False</span><span class="p">:</span>
@@ -311,8 +364,8 @@
                 <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;Object </span><span class="si">%s</span><span class="s1"> not available&#39;</span> <span class="o">%</span> <span class="n">object_type</span><span class="p">)</span>
 
         <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s1">&#39;Seeding elements of object type </span><span class="si">%i</span><span class="s1">: </span><span class="si">%s</span><span class="s1"> (</span><span class="si">%s</span><span class="s1">)&#39;</span> <span class="o">%</span>
-                     <span class="p">(</span><span class="n">object_type</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">leewayprop</span><span class="p">[</span><span class="n">object_type</span><span class="p">][</span><span class="s1">&#39;OBJKEY&#39;</span><span class="p">],</span>
-                      <span class="bp">self</span><span class="o">.</span><span class="n">leewayprop</span><span class="p">[</span><span class="n">object_type</span><span class="p">][</span><span class="s1">&#39;Description&#39;</span><span class="p">]))</span>
+                    <span class="p">(</span><span class="n">object_type</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">leewayprop</span><span class="p">[</span><span class="n">object_type</span><span class="p">][</span><span class="s1">&#39;OBJKEY&#39;</span><span class="p">],</span>
+                     <span class="bp">self</span><span class="o">.</span><span class="n">leewayprop</span><span class="p">[</span><span class="n">object_type</span><span class="p">][</span><span class="s1">&#39;Description&#39;</span><span class="p">]))</span>
 
         <span class="c1"># Drift orientation of particles.  0 is right of downwind,</span>
         <span class="c1"># 1 is left of downwind</span>
@@ -326,18 +379,18 @@
         <span class="c1"># Negative downwind slope must be avoided as</span>
         <span class="c1"># particles should drift downwind.</span>
         <span class="c1"># The problem arises because of high error variances (see e.g. PIW-1).</span>
-        <span class="n">downwind_slope</span> <span class="o">=</span> <span class="n">ones</span><span class="o">*</span><span class="bp">self</span><span class="o">.</span><span class="n">leewayprop</span><span class="p">[</span><span class="n">object_type</span><span class="p">][</span><span class="s1">&#39;DWSLOPE&#39;</span><span class="p">]</span>
-        <span class="n">downwind_offset</span> <span class="o">=</span> <span class="n">ones</span><span class="o">*</span><span class="bp">self</span><span class="o">.</span><span class="n">leewayprop</span><span class="p">[</span><span class="n">object_type</span><span class="p">][</span><span class="s1">&#39;DWOFFSET&#39;</span><span class="p">]</span>
+        <span class="n">downwind_slope</span> <span class="o">=</span> <span class="n">ones</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">leewayprop</span><span class="p">[</span><span class="n">object_type</span><span class="p">][</span><span class="s1">&#39;DWSLOPE&#39;</span><span class="p">]</span>
+        <span class="n">downwind_offset</span> <span class="o">=</span> <span class="n">ones</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">leewayprop</span><span class="p">[</span><span class="n">object_type</span><span class="p">][</span><span class="s1">&#39;DWOFFSET&#39;</span><span class="p">]</span>
         <span class="n">dwstd</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">leewayprop</span><span class="p">[</span><span class="n">object_type</span><span class="p">][</span><span class="s1">&#39;DWSTD&#39;</span><span class="p">]</span>
         <span class="n">rdw</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">number</span><span class="p">)</span>
         <span class="n">epsdw</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">number</span><span class="p">)</span>
         <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">number</span><span class="p">):</span>
-            <span class="n">rdw</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">randn</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
-            <span class="n">epsdw</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">rdw</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">*</span><span class="n">dwstd</span>
+            <span class="n">rdw</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">randn</span><span class="p">(</span><span class="mi">1</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+            <span class="n">epsdw</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">rdw</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">*</span> <span class="n">dwstd</span>
             <span class="c1"># Avoid negative downwind slopes</span>
-            <span class="k">while</span> <span class="n">downwind_slope</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">+</span> <span class="n">epsdw</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">/</span><span class="mf">20.0</span> <span class="o">&lt;</span> <span class="mf">0.0</span><span class="p">:</span>
+            <span class="k">while</span> <span class="n">downwind_slope</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">+</span> <span class="n">epsdw</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">/</span> <span class="mf">20.0</span> <span class="o">&lt;</span> <span class="mf">0.0</span><span class="p">:</span>
                 <span class="n">rdw</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">randn</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
-                <span class="n">epsdw</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">rdw</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">*</span><span class="n">dwstd</span>
+                <span class="n">epsdw</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">rdw</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">*</span> <span class="n">dwstd</span>
         <span class="n">downwind_eps</span> <span class="o">=</span> <span class="n">epsdw</span>
         <span class="c1"># NB</span>
         <span class="c1"># downwind_eps = np.zeros(number)</span>
@@ -369,20 +422,27 @@
         <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s1">&#39;seed_cone_arguments&#39;</span><span class="p">):</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">ascii</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">seed_cone_arguments</span>
         <span class="k">else</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">ascii</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;lon&#39;</span><span class="p">:</span> <span class="n">lon</span><span class="p">,</span> <span class="s1">&#39;lat&#39;</span><span class="p">:</span> <span class="n">lat</span><span class="p">,</span>
-                          <span class="s1">&#39;radius&#39;</span><span class="p">:</span> <span class="n">kwargs</span><span class="p">[</span><span class="s1">&#39;radius&#39;</span><span class="p">]</span> <span class="k">if</span> <span class="s1">&#39;radius&#39;</span> <span class="ow">in</span> <span class="n">kwargs</span> <span class="k">else</span> <span class="mi">0</span><span class="p">,</span>
-                          <span class="s1">&#39;number&#39;</span><span class="p">:</span> <span class="n">number</span><span class="p">,</span> <span class="s1">&#39;time&#39;</span><span class="p">:</span> <span class="n">kwargs</span><span class="p">[</span><span class="s1">&#39;time&#39;</span><span class="p">]}</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">ascii</span> <span class="o">=</span> <span class="p">{</span>
+                <span class="s1">&#39;lon&#39;</span><span class="p">:</span> <span class="n">lon</span><span class="p">,</span>
+                <span class="s1">&#39;lat&#39;</span><span class="p">:</span> <span class="n">lat</span><span class="p">,</span>
+                <span class="s1">&#39;radius&#39;</span><span class="p">:</span> <span class="n">kwargs</span><span class="p">[</span><span class="s1">&#39;radius&#39;</span><span class="p">]</span> <span class="k">if</span> <span class="s1">&#39;radius&#39;</span> <span class="ow">in</span> <span class="n">kwargs</span> <span class="k">else</span> <span class="mi">0</span><span class="p">,</span>
+                <span class="s1">&#39;number&#39;</span><span class="p">:</span> <span class="n">number</span><span class="p">,</span>
+                <span class="s1">&#39;time&#39;</span><span class="p">:</span> <span class="n">kwargs</span><span class="p">[</span><span class="s1">&#39;time&#39;</span><span class="p">]</span>
+            <span class="p">}</span>
 
         <span class="c1"># Call general seed_elements function of OpenDriftSimulation class</span>
         <span class="c1"># with the specific values calculated</span>
-        <span class="nb">super</span><span class="p">(</span><span class="n">Leeway</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">seed_elements</span><span class="p">(</span><span class="n">lon</span><span class="p">,</span> <span class="n">lat</span><span class="p">,</span>
-            <span class="n">orientation</span><span class="o">=</span><span class="n">orientation</span><span class="p">,</span> <span class="n">object_type</span><span class="o">=</span><span class="n">object_type</span><span class="p">,</span>
-            <span class="n">downwind_slope</span><span class="o">=</span><span class="n">downwind_slope</span><span class="p">,</span>
-            <span class="n">crosswind_slope</span><span class="o">=</span><span class="n">crosswind_slope</span><span class="p">,</span>
-            <span class="n">downwind_offset</span><span class="o">=</span><span class="n">downwind_offset</span><span class="p">,</span>
-            <span class="n">crosswind_offset</span><span class="o">=</span><span class="n">crosswind_offset</span><span class="p">,</span>
-            <span class="n">downwind_eps</span><span class="o">=</span><span class="n">downwind_eps</span><span class="p">,</span> <span class="n">crosswind_eps</span><span class="o">=</span><span class="n">crosswind_eps</span><span class="p">,</span>
-            <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span></div>
+        <span class="nb">super</span><span class="p">(</span><span class="n">Leeway</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">seed_elements</span><span class="p">(</span><span class="n">lon</span><span class="p">,</span>
+                                          <span class="n">lat</span><span class="p">,</span>
+                                          <span class="n">orientation</span><span class="o">=</span><span class="n">orientation</span><span class="p">,</span>
+                                          <span class="n">object_type</span><span class="o">=</span><span class="n">object_type</span><span class="p">,</span>
+                                          <span class="n">downwind_slope</span><span class="o">=</span><span class="n">downwind_slope</span><span class="p">,</span>
+                                          <span class="n">crosswind_slope</span><span class="o">=</span><span class="n">crosswind_slope</span><span class="p">,</span>
+                                          <span class="n">downwind_offset</span><span class="o">=</span><span class="n">downwind_offset</span><span class="p">,</span>
+                                          <span class="n">crosswind_offset</span><span class="o">=</span><span class="n">crosswind_offset</span><span class="p">,</span>
+                                          <span class="n">downwind_eps</span><span class="o">=</span><span class="n">downwind_eps</span><span class="p">,</span>
+                                          <span class="n">crosswind_eps</span><span class="o">=</span><span class="n">crosswind_eps</span><span class="p">,</span>
+                                          <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span></div>
 
 
 <div class="viewcode-block" id="Leeway.list_object_categories">
@@ -398,7 +458,7 @@
             <span class="k">if</span> <span class="n">substr</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
                 <span class="k">if</span> <span class="n">substr</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">description</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="o">+</span> <span class="n">objkey</span><span class="o">.</span><span class="n">lower</span><span class="p">():</span>
                     <span class="k">continue</span>
-            <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;</span><span class="si">%i</span><span class="s1"> </span><span class="si">%s</span><span class="s1"> </span><span class="si">%s</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">i</span><span class="o">+</span><span class="mi">1</span><span class="p">,</span> <span class="n">objkey</span><span class="p">,</span> <span class="n">description</span><span class="p">))</span></div>
+            <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;</span><span class="si">%i</span><span class="s1"> </span><span class="si">%s</span><span class="s1"> </span><span class="si">%s</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">i</span> <span class="o">+</span> <span class="mi">1</span><span class="p">,</span> <span class="n">objkey</span><span class="p">,</span> <span class="n">description</span><span class="p">))</span></div>
 
 
 <div class="viewcode-block" id="Leeway.update">
@@ -412,18 +472,18 @@
         <span class="n">winddir</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arctan2</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">environment</span><span class="o">.</span><span class="n">x_wind</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">environment</span><span class="o">.</span><span class="n">y_wind</span><span class="p">)</span>
 
         <span class="c1"># Move particles with the leeway CCC TODO</span>
-        <span class="n">downwind_leeway</span> <span class="o">=</span> <span class="p">((</span><span class="bp">self</span><span class="o">.</span><span class="n">elements</span><span class="o">.</span><span class="n">downwind_slope</span> <span class="o">+</span>
-                            <span class="bp">self</span><span class="o">.</span><span class="n">elements</span><span class="o">.</span><span class="n">downwind_eps</span><span class="o">/</span><span class="mf">20.0</span><span class="p">)</span><span class="o">*</span><span class="n">windspeed</span> <span class="o">+</span>
-                           <span class="bp">self</span><span class="o">.</span><span class="n">elements</span><span class="o">.</span><span class="n">downwind_offset</span> <span class="o">+</span>
-                           <span class="bp">self</span><span class="o">.</span><span class="n">elements</span><span class="o">.</span><span class="n">downwind_eps</span><span class="o">/</span><span class="mf">2.0</span><span class="p">)</span><span class="o">*</span><span class="mf">.01</span>  <span class="c1"># In m/s</span>
+        <span class="n">downwind_leeway</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">elements</span><span class="o">.</span><span class="n">downwind_slope</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">elements</span><span class="o">.</span><span class="n">downwind_eps</span> <span class="o">/</span> <span class="mf">20.0</span><span class="p">)</span>
+            <span class="o">*</span> <span class="n">windspeed</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">elements</span><span class="o">.</span><span class="n">downwind_offset</span> <span class="o">+</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">elements</span><span class="o">.</span><span class="n">downwind_eps</span> <span class="o">/</span> <span class="mf">2.0</span><span class="p">)</span> <span class="o">*</span> <span class="mf">.01</span>  <span class="c1"># In m/s</span>
         <span class="n">crosswind_leeway</span> <span class="o">=</span> <span class="p">((</span><span class="bp">self</span><span class="o">.</span><span class="n">elements</span><span class="o">.</span><span class="n">crosswind_slope</span> <span class="o">+</span>
-                            <span class="bp">self</span><span class="o">.</span><span class="n">elements</span><span class="o">.</span><span class="n">crosswind_eps</span><span class="o">/</span><span class="mf">20.0</span><span class="p">)</span><span class="o">*</span><span class="n">windspeed</span> <span class="o">+</span>
+                             <span class="bp">self</span><span class="o">.</span><span class="n">elements</span><span class="o">.</span><span class="n">crosswind_eps</span> <span class="o">/</span> <span class="mf">20.0</span><span class="p">)</span> <span class="o">*</span> <span class="n">windspeed</span> <span class="o">+</span>
                             <span class="bp">self</span><span class="o">.</span><span class="n">elements</span><span class="o">.</span><span class="n">crosswind_offset</span> <span class="o">+</span>
-                            <span class="bp">self</span><span class="o">.</span><span class="n">elements</span><span class="o">.</span><span class="n">crosswind_eps</span><span class="o">/</span><span class="mf">2.0</span><span class="p">)</span><span class="o">*</span><span class="mf">.01</span>  <span class="c1"># In m/s</span>
+                            <span class="bp">self</span><span class="o">.</span><span class="n">elements</span><span class="o">.</span><span class="n">crosswind_eps</span> <span class="o">/</span> <span class="mf">2.0</span><span class="p">)</span> <span class="o">*</span> <span class="mf">.01</span>  <span class="c1"># In m/s</span>
         <span class="n">sinth</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="n">winddir</span><span class="p">)</span>
         <span class="n">costh</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">cos</span><span class="p">(</span><span class="n">winddir</span><span class="p">)</span>
-        <span class="n">y_leeway</span> <span class="o">=</span> <span class="n">downwind_leeway</span><span class="o">*</span><span class="n">costh</span><span class="o">+</span><span class="n">crosswind_leeway</span><span class="o">*</span><span class="n">sinth</span>
-        <span class="n">x_leeway</span> <span class="o">=</span> <span class="o">-</span><span class="n">downwind_leeway</span><span class="o">*</span><span class="n">sinth</span><span class="o">+</span><span class="n">crosswind_leeway</span><span class="o">*</span><span class="n">costh</span>
+        <span class="n">y_leeway</span> <span class="o">=</span> <span class="n">downwind_leeway</span> <span class="o">*</span> <span class="n">costh</span> <span class="o">+</span> <span class="n">crosswind_leeway</span> <span class="o">*</span> <span class="n">sinth</span>
+        <span class="n">x_leeway</span> <span class="o">=</span> <span class="o">-</span><span class="n">downwind_leeway</span> <span class="o">*</span> <span class="n">sinth</span> <span class="o">+</span> <span class="n">crosswind_leeway</span> <span class="o">*</span> <span class="n">costh</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">update_positions</span><span class="p">(</span><span class="o">-</span><span class="n">x_leeway</span><span class="p">,</span> <span class="n">y_leeway</span><span class="p">)</span>
 
         <span class="c1"># Move particles with ambient current</span>
@@ -431,13 +491,16 @@
                               <span class="bp">self</span><span class="o">.</span><span class="n">environment</span><span class="o">.</span><span class="n">y_sea_water_velocity</span><span class="p">)</span>
 
         <span class="c1"># Jibe elements randomly according to given probability</span>
-        <span class="n">jibe_rate</span> <span class="o">=</span> <span class="o">-</span><span class="n">np</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="mi">1</span><span class="o">-</span><span class="bp">self</span><span class="o">.</span><span class="n">elements</span><span class="o">.</span><span class="n">jibe_probability</span><span class="p">)</span><span class="o">/</span><span class="mi">3600</span>  <span class="c1"># Hourly to instantaneous</span>
-        <span class="n">jp_per_timestep</span> <span class="o">=</span> <span class="mi">1</span> <span class="o">-</span> <span class="n">np</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="o">-</span><span class="n">jibe_rate</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">time_step</span><span class="o">.</span><span class="n">total_seconds</span><span class="p">()))</span>
+        <span class="n">jibe_rate</span> <span class="o">=</span> <span class="o">-</span><span class="n">np</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="mi">1</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">elements</span><span class="o">.</span><span class="n">jibe_probability</span>
+                            <span class="p">)</span> <span class="o">/</span> <span class="mi">3600</span>  <span class="c1"># Hourly to instantaneous</span>
+        <span class="n">jp_per_timestep</span> <span class="o">=</span> <span class="mi">1</span> <span class="o">-</span> <span class="n">np</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span>
+            <span class="o">-</span><span class="n">jibe_rate</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">time_step</span><span class="o">.</span><span class="n">total_seconds</span><span class="p">()))</span>
         <span class="n">jib</span> <span class="o">=</span> <span class="n">jp_per_timestep</span> <span class="o">&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">random</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">num_elements_active</span><span class="p">())</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">elements</span><span class="o">.</span><span class="n">crosswind_slope</span><span class="p">[</span><span class="n">jib</span><span class="p">]</span> <span class="o">=</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">elements</span><span class="o">.</span><span class="n">crosswind_slope</span><span class="p">[</span><span class="n">jib</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">elements</span><span class="o">.</span><span class="n">crosswind_slope</span><span class="p">[</span>
+            <span class="n">jib</span><span class="p">]</span> <span class="o">=</span> <span class="o">-</span><span class="bp">self</span><span class="o">.</span><span class="n">elements</span><span class="o">.</span><span class="n">crosswind_slope</span><span class="p">[</span><span class="n">jib</span><span class="p">]</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">elements</span><span class="o">.</span><span class="n">orientation</span><span class="p">[</span><span class="n">jib</span><span class="p">]</span> <span class="o">=</span> <span class="mi">1</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">elements</span><span class="o">.</span><span class="n">orientation</span><span class="p">[</span><span class="n">jib</span><span class="p">]</span>
         <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;Jibing </span><span class="si">%i</span><span class="s1"> out of </span><span class="si">%i</span><span class="s1"> elements.&#39;</span> <span class="o">%</span>
-                      <span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">jib</span><span class="p">),</span> <span class="bp">self</span><span class="o">.</span><span class="n">num_elements_active</span><span class="p">()))</span></div>
+                     <span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">jib</span><span class="p">),</span> <span class="bp">self</span><span class="o">.</span><span class="n">num_elements_active</span><span class="p">()))</span></div>
 
 
 <div class="viewcode-block" id="Leeway.export_ascii">
@@ -448,63 +511,56 @@
         <span class="k">try</span><span class="p">:</span>
             <span class="n">f</span> <span class="o">=</span> <span class="nb">open</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="s1">&#39;w&#39;</span><span class="p">)</span>
         <span class="k">except</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;Could not open file for writing: &#39;</span>
-                             <span class="o">+</span> <span class="n">filename</span><span class="p">)</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;Could not open file for writing: &#39;</span> <span class="o">+</span> <span class="n">filename</span><span class="p">)</span>
 
-        <span class="n">start_time</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">start_time</span>
         <span class="k">for</span> <span class="n">inp</span> <span class="ow">in</span> <span class="p">[</span><span class="s1">&#39;lon&#39;</span><span class="p">,</span> <span class="s1">&#39;lat&#39;</span><span class="p">,</span> <span class="s1">&#39;radius&#39;</span><span class="p">,</span> <span class="s1">&#39;time&#39;</span><span class="p">]:</span>
             <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">atleast_1d</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">ascii</span><span class="p">[</span><span class="n">inp</span><span class="p">]))</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">ascii</span><span class="p">[</span><span class="n">inp</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">ascii</span><span class="p">[</span><span class="n">inp</span><span class="p">],</span> <span class="bp">self</span><span class="o">.</span><span class="n">ascii</span><span class="p">[</span><span class="n">inp</span><span class="p">]]</span>
         <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s1">&#39;# Drift simulation initiated [UTC]:</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">)</span>
         <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s1">&#39;simDate simTime</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">)</span>
         <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">start_time</span><span class="o">.</span><span class="n">strftime</span><span class="p">(</span><span class="s1">&#39;%Y-%m-</span><span class="si">%d</span><span class="se">\t</span><span class="s1">%H:%M:%S</span><span class="se">\t</span><span class="s1">#</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">))</span>
-        <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span>
-            <span class="s1">&#39;# Model version:</span><span class="se">\n</span><span class="s1">&#39;</span>
-            <span class="s1">&#39;modelVersion</span><span class="se">\n</span><span class="s1">&#39;</span>
-            <span class="s1">&#39; 3.00</span><span class="se">\n</span><span class="s1">&#39;</span>  <span class="c1"># OpenDrift version</span>
-            <span class="s1">&#39;# Object class id &amp; name:</span><span class="se">\n</span><span class="s1">&#39;</span>
-            <span class="s1">&#39;objectClassId  objectClassName</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">)</span>
+        <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s1">&#39;# Model version:</span><span class="se">\n</span><span class="s1">&#39;</span>
+                <span class="s1">&#39;modelVersion</span><span class="se">\n</span><span class="s1">&#39;</span>
+                <span class="s1">&#39; 3.00</span><span class="se">\n</span><span class="s1">&#39;</span>  <span class="c1"># OpenDrift version</span>
+                <span class="s1">&#39;# Object class id &amp; name:</span><span class="se">\n</span><span class="s1">&#39;</span>
+                <span class="s1">&#39;objectClassId  objectClassName</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">)</span>
         <span class="k">try</span><span class="p">:</span>
             <span class="n">objtype</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">elements</span><span class="o">.</span><span class="n">object_type</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
         <span class="k">except</span><span class="p">:</span>
             <span class="n">objtype</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">elements_deactivated</span><span class="o">.</span><span class="n">object_type</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
-        <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s1">&#39; </span><span class="si">%i</span><span class="se">\t</span><span class="si">%s</span><span class="se">\n</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">objtype</span><span class="p">,</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">leewayprop</span><span class="p">[</span><span class="n">objtype</span><span class="p">][</span><span class="s1">&#39;OBJKEY&#39;</span><span class="p">]))</span>
-        <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span>
-            <span class="s1">&#39;# Seeding start time, position &amp; radius:</span><span class="se">\n</span><span class="s1">&#39;</span>
-            <span class="s1">&#39;startDate</span><span class="se">\t</span><span class="s1">startTime</span><span class="se">\t</span><span class="s1">startLon</span><span class="se">\t</span><span class="s1">startLat</span><span class="se">\t</span><span class="s1">startRad</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">)</span>
-        <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s1">&#39;</span><span class="si">%s</span><span class="se">\t</span><span class="si">%s</span><span class="se">\t</span><span class="si">%s</span><span class="se">\t</span><span class="si">%s</span><span class="se">\n</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="p">(</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">ascii</span><span class="p">[</span><span class="s1">&#39;time&#39;</span><span class="p">][</span><span class="mi">0</span><span class="p">],</span> <span class="bp">self</span><span class="o">.</span><span class="n">ascii</span><span class="p">[</span><span class="s1">&#39;lon&#39;</span><span class="p">][</span><span class="mi">0</span><span class="p">],</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">ascii</span><span class="p">[</span><span class="s1">&#39;lat&#39;</span><span class="p">][</span><span class="mi">0</span><span class="p">],</span> <span class="bp">self</span><span class="o">.</span><span class="n">ascii</span><span class="p">[</span><span class="s1">&#39;radius&#39;</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span><span class="o">/</span><span class="mf">1000.</span><span class="p">))</span>
-        <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span>
-            <span class="s1">&#39;# Seeding end time, position &amp; radius:</span><span class="se">\n</span><span class="s1">&#39;</span>
-            <span class="s1">&#39;endDate</span><span class="se">\t</span><span class="s1">endTime</span><span class="se">\t</span><span class="s1">endLon</span><span class="se">\t</span><span class="s1">endLat</span><span class="se">\t</span><span class="s1">endRad</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">)</span>
-        <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s1">&#39;</span><span class="si">%s</span><span class="se">\t</span><span class="si">%s</span><span class="se">\t</span><span class="si">%s</span><span class="se">\t</span><span class="si">%s</span><span class="se">\n</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="p">(</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">ascii</span><span class="p">[</span><span class="s1">&#39;time&#39;</span><span class="p">][</span><span class="mi">1</span><span class="p">],</span> <span class="bp">self</span><span class="o">.</span><span class="n">ascii</span><span class="p">[</span><span class="s1">&#39;lon&#39;</span><span class="p">][</span><span class="mi">1</span><span class="p">],</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">ascii</span><span class="p">[</span><span class="s1">&#39;lat&#39;</span><span class="p">][</span><span class="mi">1</span><span class="p">],</span> <span class="bp">self</span><span class="o">.</span><span class="n">ascii</span><span class="p">[</span><span class="s1">&#39;radius&#39;</span><span class="p">][</span><span class="mi">1</span><span class="p">]</span><span class="o">/</span><span class="mf">1000.</span><span class="p">))</span>
-        <span class="n">seedDuration</span> <span class="o">=</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">ascii</span><span class="p">[</span><span class="s1">&#39;time&#39;</span><span class="p">][</span><span class="mi">1</span><span class="p">]</span><span class="o">-</span><span class="bp">self</span><span class="o">.</span><span class="n">ascii</span><span class="p">[</span><span class="s1">&#39;time&#39;</span><span class="p">][</span><span class="mi">0</span><span class="p">])</span><span class="o">.</span><span class="n">total_seconds</span><span class="p">()</span><span class="o">/</span><span class="mf">60.</span>
-        <span class="n">seedSteps</span><span class="o">=</span><span class="n">seedDuration</span><span class="o">/</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">time_step_output</span><span class="o">.</span><span class="n">total_seconds</span><span class="p">()</span><span class="o">/</span><span class="mf">60.</span><span class="p">)</span>
+        <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s1">&#39; </span><span class="si">%i</span><span class="se">\t</span><span class="si">%s</span><span class="se">\n</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">objtype</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">leewayprop</span><span class="p">[</span><span class="n">objtype</span><span class="p">][</span><span class="s1">&#39;OBJKEY&#39;</span><span class="p">]))</span>
+        <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s1">&#39;# Seeding start time, position &amp; radius:</span><span class="se">\n</span><span class="s1">&#39;</span>
+                <span class="s1">&#39;startDate</span><span class="se">\t</span><span class="s1">startTime</span><span class="se">\t</span><span class="s1">startLon</span><span class="se">\t</span><span class="s1">startLat</span><span class="se">\t</span><span class="s1">startRad</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">)</span>
+        <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s1">&#39;</span><span class="si">%s</span><span class="se">\t</span><span class="si">%s</span><span class="se">\t</span><span class="si">%s</span><span class="se">\t</span><span class="si">%s</span><span class="se">\n</span><span class="s1">&#39;</span> <span class="o">%</span>
+                <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">ascii</span><span class="p">[</span><span class="s1">&#39;time&#39;</span><span class="p">][</span><span class="mi">0</span><span class="p">],</span> <span class="bp">self</span><span class="o">.</span><span class="n">ascii</span><span class="p">[</span><span class="s1">&#39;lon&#39;</span><span class="p">][</span><span class="mi">0</span><span class="p">],</span>
+                 <span class="bp">self</span><span class="o">.</span><span class="n">ascii</span><span class="p">[</span><span class="s1">&#39;lat&#39;</span><span class="p">][</span><span class="mi">0</span><span class="p">],</span> <span class="bp">self</span><span class="o">.</span><span class="n">ascii</span><span class="p">[</span><span class="s1">&#39;radius&#39;</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span> <span class="o">/</span> <span class="mf">1000.</span><span class="p">))</span>
+        <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s1">&#39;# Seeding end time, position &amp; radius:</span><span class="se">\n</span><span class="s1">&#39;</span>
+                <span class="s1">&#39;endDate</span><span class="se">\t</span><span class="s1">endTime</span><span class="se">\t</span><span class="s1">endLon</span><span class="se">\t</span><span class="s1">endLat</span><span class="se">\t</span><span class="s1">endRad</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">)</span>
+        <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s1">&#39;</span><span class="si">%s</span><span class="se">\t</span><span class="si">%s</span><span class="se">\t</span><span class="si">%s</span><span class="se">\t</span><span class="si">%s</span><span class="se">\n</span><span class="s1">&#39;</span> <span class="o">%</span>
+                <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">ascii</span><span class="p">[</span><span class="s1">&#39;time&#39;</span><span class="p">][</span><span class="mi">1</span><span class="p">],</span> <span class="bp">self</span><span class="o">.</span><span class="n">ascii</span><span class="p">[</span><span class="s1">&#39;lon&#39;</span><span class="p">][</span><span class="mi">1</span><span class="p">],</span>
+                 <span class="bp">self</span><span class="o">.</span><span class="n">ascii</span><span class="p">[</span><span class="s1">&#39;lat&#39;</span><span class="p">][</span><span class="mi">1</span><span class="p">],</span> <span class="bp">self</span><span class="o">.</span><span class="n">ascii</span><span class="p">[</span><span class="s1">&#39;radius&#39;</span><span class="p">][</span><span class="mi">1</span><span class="p">]</span> <span class="o">/</span> <span class="mf">1000.</span><span class="p">))</span>
+        <span class="n">seedDuration</span> <span class="o">=</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">ascii</span><span class="p">[</span><span class="s1">&#39;time&#39;</span><span class="p">][</span><span class="mi">1</span><span class="p">]</span> <span class="o">-</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">ascii</span><span class="p">[</span><span class="s1">&#39;time&#39;</span><span class="p">][</span><span class="mi">0</span><span class="p">])</span><span class="o">.</span><span class="n">total_seconds</span><span class="p">()</span> <span class="o">/</span> <span class="mf">60.</span>
+        <span class="n">seedSteps</span> <span class="o">=</span> <span class="n">seedDuration</span> <span class="o">/</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">time_step_output</span><span class="o">.</span><span class="n">total_seconds</span><span class="p">()</span> <span class="o">/</span>
+                                    <span class="mf">60.</span><span class="p">)</span>
         <span class="n">seedSteps</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">maximum</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">seedSteps</span><span class="p">)</span>
-        <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span>
-            <span class="s1">&#39;# Duration of seeding [min] &amp; [timesteps]:</span><span class="se">\n</span><span class="s1">&#39;</span>
-            <span class="s1">&#39;seedDuration   seedSteps</span><span class="se">\n</span><span class="s1">&#39;</span>
-            <span class="s1">&#39;    </span><span class="si">%i</span><span class="s1">      </span><span class="si">%i</span><span class="se">\n</span><span class="s1">&#39;</span>
-            <span class="s1">&#39;# Length of timestep [min]:</span><span class="se">\n</span><span class="s1">&#39;</span>
-            <span class="s1">&#39;timeStep</span><span class="se">\n</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">seedDuration</span><span class="p">,</span> <span class="n">seedSteps</span><span class="p">))</span>
-        <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s1">&#39;</span><span class="si">%i</span><span class="se">\n</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">time_step_output</span><span class="o">.</span><span class="n">total_seconds</span><span class="p">()</span><span class="o">/</span><span class="mf">60.</span><span class="p">))</span>
-        <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span>
-            <span class="s1">&#39;# Length of model simulation [min] &amp; [timesteps]:</span><span class="se">\n</span><span class="s1">&#39;</span>
-            <span class="s1">&#39;simLength  simSteps</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">)</span>
-        <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s1">&#39;</span><span class="si">%i</span><span class="se">\t</span><span class="si">%i</span><span class="se">\n</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="p">((</span><span class="bp">self</span><span class="o">.</span><span class="n">time</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">start_time</span><span class="p">)</span><span class="o">.</span><span class="n">total_seconds</span><span class="p">()</span><span class="o">/</span><span class="mf">60.</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">steps_output</span><span class="p">))</span>
+        <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s1">&#39;# Duration of seeding [min] &amp; [timesteps]:</span><span class="se">\n</span><span class="s1">&#39;</span>
+                <span class="s1">&#39;seedDuration   seedSteps</span><span class="se">\n</span><span class="s1">&#39;</span>
+                <span class="s1">&#39;    </span><span class="si">%i</span><span class="s1">      </span><span class="si">%i</span><span class="se">\n</span><span class="s1">&#39;</span>
+                <span class="s1">&#39;# Length of timestep [min]:</span><span class="se">\n</span><span class="s1">&#39;</span>
+                <span class="s1">&#39;timeStep</span><span class="se">\n</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">seedDuration</span><span class="p">,</span> <span class="n">seedSteps</span><span class="p">))</span>
+        <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s1">&#39;</span><span class="si">%i</span><span class="se">\n</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">time_step_output</span><span class="o">.</span><span class="n">total_seconds</span><span class="p">()</span> <span class="o">/</span> <span class="mf">60.</span><span class="p">))</span>
+        <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s1">&#39;# Length of model simulation [min] &amp; [timesteps]:</span><span class="se">\n</span><span class="s1">&#39;</span>
+                <span class="s1">&#39;simLength  simSteps</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">)</span>
+        <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s1">&#39;</span><span class="si">%i</span><span class="se">\t</span><span class="si">%i</span><span class="se">\n</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="p">((</span><span class="bp">self</span><span class="o">.</span><span class="n">time</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">start_time</span><span class="p">)</span><span class="o">.</span><span class="n">total_seconds</span><span class="p">()</span> <span class="o">/</span>
+                              <span class="mf">60.</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">steps_output</span><span class="p">))</span>
 
-        <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span>
-            <span class="s1">&#39;# Total no of seeded particles:</span><span class="se">\n</span><span class="s1">&#39;</span>
-            <span class="s1">&#39;seedTotal</span><span class="se">\n</span><span class="s1">&#39;</span>
-            <span class="s1">&#39; </span><span class="si">%s</span><span class="se">\n</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">num_elements_activated</span><span class="p">()))</span>
-        <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span>
-            <span class="s1">&#39;# Particles seeded per timestep:</span><span class="se">\n</span><span class="s1">&#39;</span>
-            <span class="s1">&#39;seedRate</span><span class="se">\n</span><span class="s1">&#39;</span>
-            <span class="s1">&#39; </span><span class="si">%i</span><span class="se">\n</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">num_elements_activated</span><span class="p">()</span><span class="o">/</span><span class="n">seedSteps</span><span class="p">))</span>
+        <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s1">&#39;# Total no of seeded particles:</span><span class="se">\n</span><span class="s1">&#39;</span>
+                <span class="s1">&#39;seedTotal</span><span class="se">\n</span><span class="s1">&#39;</span>
+                <span class="s1">&#39; </span><span class="si">%s</span><span class="se">\n</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">num_elements_activated</span><span class="p">()))</span>
+        <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s1">&#39;# Particles seeded per timestep:</span><span class="se">\n</span><span class="s1">&#39;</span>
+                <span class="s1">&#39;seedRate</span><span class="se">\n</span><span class="s1">&#39;</span>
+                <span class="s1">&#39; </span><span class="si">%i</span><span class="se">\n</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">num_elements_activated</span><span class="p">()</span> <span class="o">/</span> <span class="n">seedSteps</span><span class="p">))</span>
 
         <span class="n">index_of_first</span><span class="p">,</span> <span class="n">index_of_last</span> <span class="o">=</span> \
             <span class="bp">self</span><span class="o">.</span><span class="n">index_of_activation_and_deactivation</span><span class="p">()</span>
@@ -514,42 +570,46 @@
         <span class="n">lats</span><span class="p">,</span> <span class="n">statuss</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_property</span><span class="p">(</span><span class="s1">&#39;lat&#39;</span><span class="p">)</span>
         <span class="n">orientations</span><span class="p">,</span> <span class="n">statuss</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_property</span><span class="p">(</span><span class="s1">&#39;orientation&#39;</span><span class="p">)</span>
         <span class="k">for</span> <span class="n">step</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">steps_output</span><span class="p">):</span>
-            <span class="n">lon</span> <span class="o">=</span> <span class="n">lons</span><span class="p">[</span><span class="n">step</span><span class="p">,:]</span>
-            <span class="n">lat</span> <span class="o">=</span> <span class="n">lats</span><span class="p">[</span><span class="n">step</span><span class="p">,:]</span>
-            <span class="n">orientation</span> <span class="o">=</span> <span class="n">orientations</span><span class="p">[</span><span class="n">step</span><span class="p">,:]</span>
-            <span class="n">status</span> <span class="o">=</span> <span class="n">statuss</span><span class="p">[</span><span class="n">step</span><span class="p">,:]</span>
-            <span class="k">if</span> <span class="nb">sum</span><span class="p">(</span><span class="n">status</span><span class="o">==</span><span class="mi">0</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>  <span class="c1"># All elements deactivated: using last position</span>
-                <span class="n">lon</span> <span class="o">=</span> <span class="n">lons</span><span class="p">[</span><span class="n">step</span><span class="o">-</span><span class="mi">1</span><span class="p">,:]</span>
-                <span class="n">lat</span> <span class="o">=</span> <span class="n">lats</span><span class="p">[</span><span class="n">step</span><span class="o">-</span><span class="mi">1</span><span class="p">,:]</span>
-                <span class="n">orientation</span> <span class="o">=</span> <span class="n">orientations</span><span class="p">[</span><span class="n">step</span><span class="o">-</span><span class="mi">1</span><span class="p">,:]</span>
-                <span class="n">status</span> <span class="o">=</span> <span class="n">statuss</span><span class="p">[</span><span class="n">step</span><span class="o">-</span><span class="mi">1</span><span class="p">,:]</span>
+            <span class="n">lon</span> <span class="o">=</span> <span class="n">lons</span><span class="p">[</span><span class="n">step</span><span class="p">,</span> <span class="p">:]</span>
+            <span class="n">lat</span> <span class="o">=</span> <span class="n">lats</span><span class="p">[</span><span class="n">step</span><span class="p">,</span> <span class="p">:]</span>
+            <span class="n">orientation</span> <span class="o">=</span> <span class="n">orientations</span><span class="p">[</span><span class="n">step</span><span class="p">,</span> <span class="p">:]</span>
+            <span class="n">status</span> <span class="o">=</span> <span class="n">statuss</span><span class="p">[</span><span class="n">step</span><span class="p">,</span> <span class="p">:]</span>
+            <span class="k">if</span> <span class="nb">sum</span><span class="p">(</span><span class="n">status</span> <span class="o">==</span>
+                   <span class="mi">0</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>  <span class="c1"># All elements deactivated: using last position</span>
+                <span class="n">lon</span> <span class="o">=</span> <span class="n">lons</span><span class="p">[</span><span class="n">step</span> <span class="o">-</span> <span class="mi">1</span><span class="p">,</span> <span class="p">:]</span>
+                <span class="n">lat</span> <span class="o">=</span> <span class="n">lats</span><span class="p">[</span><span class="n">step</span> <span class="o">-</span> <span class="mi">1</span><span class="p">,</span> <span class="p">:]</span>
+                <span class="n">orientation</span> <span class="o">=</span> <span class="n">orientations</span><span class="p">[</span><span class="n">step</span> <span class="o">-</span> <span class="mi">1</span><span class="p">,</span> <span class="p">:]</span>
+                <span class="n">status</span> <span class="o">=</span> <span class="n">statuss</span><span class="p">[</span><span class="n">step</span> <span class="o">-</span> <span class="mi">1</span><span class="p">,</span> <span class="p">:]</span>
             <span class="n">num_active</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="o">~</span><span class="n">status</span><span class="o">.</span><span class="n">mask</span><span class="p">)</span>
             <span class="n">status</span><span class="p">[</span><span class="n">status</span><span class="o">.</span><span class="n">mask</span><span class="p">]</span> <span class="o">=</span> <span class="mi">41</span>  <span class="c1"># seeded on land</span>
             <span class="n">lon</span><span class="p">[</span><span class="n">status</span><span class="o">.</span><span class="n">mask</span><span class="p">]</span> <span class="o">=</span> <span class="mi">0</span>
             <span class="n">lat</span><span class="p">[</span><span class="n">status</span><span class="o">.</span><span class="n">mask</span><span class="p">]</span> <span class="o">=</span> <span class="mi">0</span>
             <span class="n">orientation</span><span class="p">[</span><span class="n">status</span><span class="o">.</span><span class="n">mask</span><span class="p">]</span> <span class="o">=</span> <span class="mi">0</span>
-            <span class="n">status</span><span class="p">[</span><span class="n">status</span><span class="o">==</span><span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="mi">11</span> <span class="c1"># active</span>
-            <span class="n">status</span><span class="p">[</span><span class="n">status</span><span class="o">==</span><span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="mi">41</span> <span class="c1"># stranded</span>
-            <span class="n">ID</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">num_active</span><span class="o">+</span><span class="mi">1</span><span class="p">)</span>
+            <span class="n">status</span><span class="p">[</span><span class="n">status</span> <span class="o">==</span> <span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="mi">11</span>  <span class="c1"># active</span>
+            <span class="n">status</span><span class="p">[</span><span class="n">status</span> <span class="o">==</span> <span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="mi">41</span>  <span class="c1"># stranded</span>
             <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s1">&#39;</span><span class="se">\n</span><span class="s1"># Date [UTC]:</span><span class="se">\n</span><span class="s1">nowDate   nowTime</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">)</span>
-            <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">((</span><span class="bp">self</span><span class="o">.</span><span class="n">start_time</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">time_step_output</span><span class="o">*</span><span class="n">step</span><span class="p">)</span><span class="o">.</span><span class="n">strftime</span><span class="p">(</span><span class="s1">&#39;%Y-%m-</span><span class="si">%d</span><span class="se">\t</span><span class="s1">%H:%M:%S</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">))</span>
-            <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s1">&#39;# Time passed [min] &amp; [timesteps], now seeded, seeded so far:</span><span class="se">\n</span><span class="s1">timePassed  nStep   nowSeeded   nSeeded</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">)</span>
-            <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s1">&#39;  </span><span class="si">%i</span><span class="se">\t</span><span class="si">%i</span><span class="se">\t</span><span class="si">%i</span><span class="se">\t</span><span class="si">%i</span><span class="se">\n</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="p">(</span>
-                <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">time_step_output</span><span class="o">*</span><span class="n">step</span><span class="p">)</span><span class="o">.</span><span class="n">total_seconds</span><span class="p">()</span><span class="o">/</span><span class="mi">60</span><span class="p">,</span>
-                 <span class="n">step</span><span class="o">+</span><span class="mi">1</span><span class="p">,</span> <span class="n">num_active</span><span class="o">-</span><span class="n">beforeseeded</span><span class="p">,</span> <span class="n">num_active</span><span class="p">))</span>
+            <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">((</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">start_time</span> <span class="o">+</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">time_step_output</span> <span class="o">*</span> <span class="n">step</span><span class="p">)</span><span class="o">.</span><span class="n">strftime</span><span class="p">(</span><span class="s1">&#39;%Y-%m-</span><span class="si">%d</span><span class="se">\t</span><span class="s1">%H:%M:%S</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">))</span>
+            <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span>
+                <span class="s1">&#39;# Time passed [min] &amp; [timesteps], now seeded, seeded so far:</span><span class="se">\n</span><span class="s1">timePassed  nStep   nowSeeded   nSeeded</span><span class="se">\n</span><span class="s1">&#39;</span>
+            <span class="p">)</span>
+            <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s1">&#39;  </span><span class="si">%i</span><span class="se">\t</span><span class="si">%i</span><span class="se">\t</span><span class="si">%i</span><span class="se">\t</span><span class="si">%i</span><span class="se">\n</span><span class="s1">&#39;</span> <span class="o">%</span>
+                    <span class="p">((</span><span class="bp">self</span><span class="o">.</span><span class="n">time_step_output</span> <span class="o">*</span> <span class="n">step</span><span class="p">)</span><span class="o">.</span><span class="n">total_seconds</span><span class="p">()</span> <span class="o">/</span> <span class="mi">60</span><span class="p">,</span>
+                     <span class="n">step</span> <span class="o">+</span> <span class="mi">1</span><span class="p">,</span> <span class="n">num_active</span> <span class="o">-</span> <span class="n">beforeseeded</span><span class="p">,</span> <span class="n">num_active</span><span class="p">))</span>
             <span class="n">beforeseeded</span> <span class="o">=</span> <span class="n">num_active</span>
             <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s1">&#39;# Mean position:</span><span class="se">\n</span><span class="s1">meanLon meanLat</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">)</span>
-            <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s1">&#39;</span><span class="si">%f</span><span class="se">\t</span><span class="si">%f</span><span class="se">\n</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">lon</span><span class="p">[</span><span class="n">status</span><span class="o">==</span><span class="mi">11</span><span class="p">]),</span>
-                                  <span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">lat</span><span class="p">[</span><span class="n">status</span><span class="o">==</span><span class="mi">11</span><span class="p">])))</span>
+            <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s1">&#39;</span><span class="si">%f</span><span class="se">\t</span><span class="si">%f</span><span class="se">\n</span><span class="s1">&#39;</span> <span class="o">%</span>
+                    <span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">lon</span><span class="p">[</span><span class="n">status</span> <span class="o">==</span> <span class="mi">11</span><span class="p">]),</span> <span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">lat</span><span class="p">[</span><span class="n">status</span> <span class="o">==</span> <span class="mi">11</span><span class="p">])))</span>
             <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s1">&#39;# Particle data:</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">)</span>
             <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s1">&#39;id  lon lat state   age orientation</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">)</span>
-            <span class="n">age_minutes</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">time_step_output</span><span class="o">.</span><span class="n">total_seconds</span><span class="p">()</span><span class="o">*</span><span class="p">(</span>
-                           <span class="n">step</span> <span class="o">-</span> <span class="n">index_of_first</span><span class="p">)</span><span class="o">/</span><span class="mi">60</span>
-            <span class="n">age_minutes</span><span class="p">[</span><span class="n">age_minutes</span><span class="o">&lt;</span><span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="mi">0</span>
+            <span class="n">age_minutes</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">time_step_output</span><span class="o">.</span><span class="n">total_seconds</span><span class="p">()</span> <span class="o">*</span> <span class="p">(</span>
+                <span class="n">step</span> <span class="o">-</span> <span class="n">index_of_first</span><span class="p">)</span> <span class="o">/</span> <span class="mi">60</span>
+            <span class="n">age_minutes</span><span class="p">[</span><span class="n">age_minutes</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="mi">0</span>
             <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">num_active</span><span class="p">):</span>
-                <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s1">&#39;</span><span class="si">%i</span><span class="se">\t</span><span class="si">%s</span><span class="se">\t</span><span class="si">%s</span><span class="se">\t</span><span class="si">%i</span><span class="se">\t</span><span class="si">%i</span><span class="se">\t</span><span class="si">%i</span><span class="se">\n</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">i</span><span class="o">+</span><span class="mi">1</span><span class="p">,</span>
-                        <span class="n">lon</span><span class="p">[</span><span class="n">i</span><span class="p">],</span> <span class="n">lat</span><span class="p">[</span><span class="n">i</span><span class="p">],</span> <span class="n">status</span><span class="p">[</span><span class="n">i</span><span class="p">],</span> <span class="n">age_minutes</span><span class="p">[</span><span class="n">i</span><span class="p">],</span>
-                        <span class="n">orientation</span><span class="p">[</span><span class="n">i</span><span class="p">]))</span>
+                <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s1">&#39;</span><span class="si">%i</span><span class="se">\t</span><span class="si">%.6f</span><span class="se">\t</span><span class="si">%.6f</span><span class="se">\t</span><span class="si">%i</span><span class="se">\t</span><span class="si">%i</span><span class="se">\t</span><span class="si">%i</span><span class="se">\n</span><span class="s1">&#39;</span> <span class="o">%</span>
+                        <span class="p">(</span><span class="n">i</span> <span class="o">+</span> <span class="mi">1</span><span class="p">,</span> <span class="n">lon</span><span class="p">[</span><span class="n">i</span><span class="p">],</span> <span class="n">lat</span><span class="p">[</span><span class="n">i</span><span class="p">],</span> <span class="n">status</span><span class="p">[</span><span class="n">i</span><span class="p">],</span> <span class="n">age_minutes</span><span class="p">[</span><span class="n">i</span><span class="p">],</span>
+                         <span class="n">orientation</span><span class="p">[</span><span class="n">i</span><span class="p">]))</span>
 
         <span class="n">f</span><span class="o">.</span><span class="n">close</span><span class="p">()</span></div>
 
@@ -559,9 +619,9 @@
     <span class="k">def</span> <span class="nf">_substance_name</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="c1"># TODO: find a better algorithm to return name of object category</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">history</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="n">object_type</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">history</span><span class="p">[</span><span class="s1">&#39;object_type&#39;</span><span class="p">][</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">]</span>
+            <span class="n">object_type</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">history</span><span class="p">[</span><span class="s1">&#39;object_type&#39;</span><span class="p">][</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span>
             <span class="k">if</span> <span class="ow">not</span> <span class="n">np</span><span class="o">.</span><span class="n">isfinite</span><span class="p">(</span><span class="n">object_type</span><span class="p">):</span>  <span class="c1"># For backward simulations</span>
-                <span class="n">object_type</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">history</span><span class="p">[</span><span class="s1">&#39;object_type&#39;</span><span class="p">][</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span><span class="mi">0</span><span class="p">]</span>
+                <span class="n">object_type</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">history</span><span class="p">[</span><span class="s1">&#39;object_type&#39;</span><span class="p">][</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="n">object_type</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">atleast_1d</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">elements_scheduled</span><span class="o">.</span><span class="n">object_type</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
         <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">isfinite</span><span class="p">(</span><span class="n">object_type</span><span class="p">):</span>

@@ -104,6 +104,7 @@
 
 <span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
 <span class="kn">from</span> <span class="nn">netCDF4</span> <span class="kn">import</span> <span class="n">Dataset</span><span class="p">,</span> <span class="n">num2date</span><span class="p">,</span> <span class="n">date2num</span>
+<span class="kn">from</span> <span class="nn">opendrift.models.basemodel</span> <span class="kn">import</span> <span class="n">Mode</span>
 
 <span class="c1"># Module with functions to export/import trajectory data to/from netCDF file</span>
 <span class="c1"># Strives to be compliant with netCDF CF-convention on trajectories</span>
@@ -137,7 +138,7 @@
     <span class="bp">self</span><span class="o">.</span><span class="n">outfile</span><span class="o">.</span><span class="n">model_url</span> <span class="o">=</span> <span class="s1">&#39;https://github.com/OpenDrift/opendrift&#39;</span>
     <span class="bp">self</span><span class="o">.</span><span class="n">outfile</span><span class="o">.</span><span class="n">opendrift_class</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__name__</span>
     <span class="bp">self</span><span class="o">.</span><span class="n">outfile</span><span class="o">.</span><span class="n">opendrift_module</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__module__</span>
-    <span class="bp">self</span><span class="o">.</span><span class="n">outfile</span><span class="o">.</span><span class="n">readers</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">readers</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">outfile</span><span class="o">.</span><span class="n">readers</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">env</span><span class="o">.</span><span class="n">readers</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span>
     <span class="bp">self</span><span class="o">.</span><span class="n">outfile</span><span class="o">.</span><span class="n">time_coverage_start</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">start_time</span><span class="p">)</span>
     <span class="bp">self</span><span class="o">.</span><span class="n">outfile</span><span class="o">.</span><span class="n">time_step_calculation</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">time_step</span><span class="p">)</span>
     <span class="bp">self</span><span class="o">.</span><span class="n">outfile</span><span class="o">.</span><span class="n">time_step_output</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">time_step_output</span><span class="p">)</span>
@@ -366,7 +367,9 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">lonmin</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">float32</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">ds</span><span class="o">.</span><span class="n">lon</span><span class="o">.</span><span class="n">minval</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">latmin</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">float32</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">ds</span><span class="o">.</span><span class="n">lat</span><span class="o">.</span><span class="n">minval</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">lonmax</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">float32</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">ds</span><span class="o">.</span><span class="n">lon</span><span class="o">.</span><span class="n">maxval</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">latmax</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">float32</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">ds</span><span class="o">.</span><span class="n">lat</span><span class="o">.</span><span class="n">maxval</span><span class="p">)</span></div>
+        <span class="bp">self</span><span class="o">.</span><span class="n">latmax</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">float32</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">ds</span><span class="o">.</span><span class="n">lat</span><span class="o">.</span><span class="n">maxval</span><span class="p">)</span>
+
+    <span class="bp">self</span><span class="o">.</span><span class="n">mode</span> <span class="o">=</span> <span class="n">Mode</span><span class="o">.</span><span class="n">Result</span></div>
 
 
 <div class="viewcode-block" id="import_file">
@@ -463,6 +466,7 @@
 
     <span class="c1"># Import and apply config settings</span>
     <span class="n">attributes</span> <span class="o">=</span> <span class="n">infile</span><span class="o">.</span><span class="n">ncattrs</span><span class="p">()</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">mode</span> <span class="o">=</span> <span class="n">Mode</span><span class="o">.</span><span class="n">Config</span>  <span class="c1"># To allow setting config</span>
     <span class="k">for</span> <span class="n">attr</span> <span class="ow">in</span> <span class="n">attributes</span><span class="p">:</span>
         <span class="k">if</span> <span class="n">attr</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s1">&#39;config_&#39;</span><span class="p">):</span>
             <span class="n">value</span> <span class="o">=</span> <span class="n">infile</span><span class="o">.</span><span class="n">getncattr</span><span class="p">(</span><span class="n">attr</span><span class="p">)</span>
@@ -473,13 +477,16 @@
                 <span class="n">value</span> <span class="o">=</span> <span class="kc">False</span>
             <span class="k">if</span> <span class="n">value</span> <span class="o">==</span> <span class="s1">&#39;None&#39;</span><span class="p">:</span>
                 <span class="n">value</span> <span class="o">=</span> <span class="kc">None</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">set_config</span><span class="p">(</span><span class="n">conf_key</span><span class="p">,</span> <span class="n">value</span><span class="p">)</span>
             <span class="k">try</span><span class="p">:</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">set_config</span><span class="p">(</span><span class="n">conf_key</span><span class="p">,</span> <span class="n">value</span><span class="p">)</span>
                 <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;Setting imported config: </span><span class="si">%s</span><span class="s1"> -&gt; </span><span class="si">%s</span><span class="s1">&#39;</span> <span class="o">%</span>
                              <span class="p">(</span><span class="n">conf_key</span><span class="p">,</span> <span class="n">value</span><span class="p">))</span>
-            <span class="k">except</span><span class="p">:</span>
+            <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+                <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="n">e</span><span class="p">)</span>
                 <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="s1">&#39;Could not set config: </span><span class="si">%s</span><span class="s1"> -&gt; </span><span class="si">%s</span><span class="s1">&#39;</span> <span class="o">%</span>
                                 <span class="p">(</span><span class="n">conf_key</span><span class="p">,</span> <span class="n">value</span><span class="p">))</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">mode</span> <span class="o">=</span> <span class="n">Mode</span><span class="o">.</span><span class="n">Result</span>
 
     <span class="c1"># Import time steps from metadata</span>
     <span class="k">def</span> <span class="nf">timedelta_from_string</span><span class="p">(</span><span class="n">timestring</span><span class="p">):</span>

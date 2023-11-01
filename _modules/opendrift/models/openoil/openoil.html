@@ -148,6 +148,10 @@
 
 
 <span class="sd">    o = OpenOil()</span>
+<span class="sd">    o.set_config(&#39;environment:constant:x_wind&#39;, 0)</span>
+<span class="sd">    o.set_config(&#39;environment:constant:y_wind&#39;, 0)</span>
+<span class="sd">    o.set_config(&#39;environment:constant:x_sea_water_velocity&#39;, 0)</span>
+<span class="sd">    o.set_config(&#39;environment:constant:y_sea_water_velocity&#39;, 0)</span>
 <span class="sd">    o.seed_elements(4, 60, number=100, time=datetime.now(), diameter=1e-5)</span>
 
 <span class="sd">In this case, the diameter will not change during the simulation, which is useful e.g. for sensitivity tests. The same diameter will be used for all elements for this example, but an array of the same length as the number of elements may also be provided.</span>
@@ -166,7 +170,7 @@
 <span class="sd">    o.set_config(&#39;seed:droplet_size_distribution&#39;,&#39;lognormal&#39;)</span>
 <span class="sd">    o.set_config(&#39;seed:droplet_diameter_mu&#39;,0.001)  # 1 mm</span>
 <span class="sd">    o.set_config(&#39;seed:droplet_diameter_sigma&#39;,0.0008) # 0.8 mm</span>
-<span class="sd">    </span>
+
 <span class="sd">Note that these config settings must be adjusted before the seeding call.</span>
 <span class="sd">After each wave breaking event, a new droplet diameter will be chosen based on the config setting for droplet size distribution.</span>
 <span class="sd">&quot;&quot;&quot;</span>
@@ -184,6 +188,7 @@
 <span class="kn">from</span> <span class="nn">.</span> <span class="kn">import</span> <span class="n">noaa_oil_weathering</span> <span class="k">as</span> <span class="n">noaa</span>
 <span class="kn">from</span> <span class="nn">.</span> <span class="kn">import</span> <span class="n">adios</span>
 <span class="kn">from</span> <span class="nn">opendrift.models.physics_methods</span> <span class="kn">import</span> <span class="n">oil_wave_entrainment_rate_li2017</span>
+<span class="kn">from</span> <span class="nn">opendrift.config</span> <span class="kn">import</span> <span class="n">CONFIG_LEVEL_ESSENTIAL</span><span class="p">,</span> <span class="n">CONFIG_LEVEL_BASIC</span><span class="p">,</span> <span class="n">CONFIG_LEVEL_ADVANCED</span>
 
 
 <span class="c1"># Defining the oil element properties</span>
@@ -446,7 +451,7 @@
                 <span class="s1">&#39;units&#39;</span><span class="p">:</span> <span class="s1">&#39;m3 per hour&#39;</span><span class="p">,</span>
                 <span class="s1">&#39;description&#39;</span><span class="p">:</span>
                 <span class="s1">&#39;The amount (volume) of oil released per hour (or total amount if release is instantaneous)&#39;</span><span class="p">,</span>
-                <span class="s1">&#39;level&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">CONFIG_LEVEL_ESSENTIAL</span>
+                <span class="s1">&#39;level&#39;</span><span class="p">:</span> <span class="n">CONFIG_LEVEL_ESSENTIAL</span>
             <span class="p">},</span>
             <span class="s1">&#39;seed:droplet_size_distribution&#39;</span><span class="p">:</span> <span class="p">{</span>
                 <span class="s1">&#39;type&#39;</span><span class="p">:</span>
@@ -455,7 +460,7 @@
                 <span class="s1">&#39;default&#39;</span><span class="p">:</span>
                 <span class="s1">&#39;uniform&#39;</span><span class="p">,</span>
                 <span class="s1">&#39;level&#39;</span><span class="p">:</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">CONFIG_LEVEL_ADVANCED</span><span class="p">,</span>
+                <span class="n">CONFIG_LEVEL_ADVANCED</span><span class="p">,</span>
                 <span class="s1">&#39;description&#39;</span><span class="p">:</span>
                 <span class="s1">&#39;Droplet size distribution used for subsea release.&#39;</span>
             <span class="p">},</span>
@@ -467,7 +472,7 @@
                 <span class="s1">&#39;units&#39;</span><span class="p">:</span> <span class="s1">&#39;meters&#39;</span><span class="p">,</span>
                 <span class="s1">&#39;description&#39;</span><span class="p">:</span>
                 <span class="s1">&#39;The mean diameter of oil droplet for a subsea release, used in normal/lognormal distributions.&#39;</span><span class="p">,</span>
-                <span class="s1">&#39;level&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">CONFIG_LEVEL_BASIC</span>
+                <span class="s1">&#39;level&#39;</span><span class="p">:</span> <span class="n">CONFIG_LEVEL_BASIC</span>
             <span class="p">},</span>
             <span class="s1">&#39;seed:droplet_diameter_sigma&#39;</span><span class="p">:</span> <span class="p">{</span>
                 <span class="s1">&#39;type&#39;</span><span class="p">:</span> <span class="s1">&#39;float&#39;</span><span class="p">,</span>
@@ -477,7 +482,7 @@
                 <span class="s1">&#39;units&#39;</span><span class="p">:</span> <span class="s1">&#39;meters&#39;</span><span class="p">,</span>
                 <span class="s1">&#39;description&#39;</span><span class="p">:</span>
                 <span class="s1">&#39;The standard deviation in diameter of oil droplet for a subsea release, used in normal/lognormal distributions.&#39;</span><span class="p">,</span>
-                <span class="s1">&#39;level&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">CONFIG_LEVEL_BASIC</span>
+                <span class="s1">&#39;level&#39;</span><span class="p">:</span> <span class="n">CONFIG_LEVEL_BASIC</span>
             <span class="p">},</span>
             <span class="s1">&#39;seed:droplet_diameter_min_subsea&#39;</span><span class="p">:</span> <span class="p">{</span>
                 <span class="s1">&#39;type&#39;</span><span class="p">:</span> <span class="s1">&#39;float&#39;</span><span class="p">,</span>
@@ -487,7 +492,7 @@
                 <span class="s1">&#39;units&#39;</span><span class="p">:</span> <span class="s1">&#39;meters&#39;</span><span class="p">,</span>
                 <span class="s1">&#39;description&#39;</span><span class="p">:</span>
                 <span class="s1">&#39;The minimum diameter of oil droplet for a subsea release, used in unifrom distribution.&#39;</span><span class="p">,</span>
-                <span class="s1">&#39;level&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">CONFIG_LEVEL_BASIC</span>
+                <span class="s1">&#39;level&#39;</span><span class="p">:</span> <span class="n">CONFIG_LEVEL_BASIC</span>
             <span class="p">},</span>
             <span class="s1">&#39;seed:droplet_diameter_max_subsea&#39;</span><span class="p">:</span> <span class="p">{</span>
                 <span class="s1">&#39;type&#39;</span><span class="p">:</span> <span class="s1">&#39;float&#39;</span><span class="p">,</span>
@@ -497,40 +502,40 @@
                 <span class="s1">&#39;units&#39;</span><span class="p">:</span> <span class="s1">&#39;meters&#39;</span><span class="p">,</span>
                 <span class="s1">&#39;description&#39;</span><span class="p">:</span>
                 <span class="s1">&#39;The maximum diameter of oil droplet for a subsea release, used in uniform distribution.&#39;</span><span class="p">,</span>
-                <span class="s1">&#39;level&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">CONFIG_LEVEL_BASIC</span>
+                <span class="s1">&#39;level&#39;</span><span class="p">:</span> <span class="n">CONFIG_LEVEL_BASIC</span>
             <span class="p">},</span>
             <span class="s1">&#39;processes:dispersion&#39;</span><span class="p">:</span> <span class="p">{</span>
                 <span class="s1">&#39;type&#39;</span><span class="p">:</span> <span class="s1">&#39;bool&#39;</span><span class="p">,</span>
                 <span class="s1">&#39;default&#39;</span><span class="p">:</span> <span class="kc">True</span><span class="p">,</span>
                 <span class="s1">&#39;description&#39;</span><span class="p">:</span>
                 <span class="s1">&#39;Oil is removed from simulation (dispersed), if entrained as very small droplets.&#39;</span><span class="p">,</span>
-                <span class="s1">&#39;level&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">CONFIG_LEVEL_BASIC</span>
+                <span class="s1">&#39;level&#39;</span><span class="p">:</span> <span class="n">CONFIG_LEVEL_BASIC</span>
             <span class="p">},</span>
             <span class="s1">&#39;processes:evaporation&#39;</span><span class="p">:</span> <span class="p">{</span>
                 <span class="s1">&#39;type&#39;</span><span class="p">:</span> <span class="s1">&#39;bool&#39;</span><span class="p">,</span>
                 <span class="s1">&#39;default&#39;</span><span class="p">:</span> <span class="kc">True</span><span class="p">,</span>
                 <span class="s1">&#39;description&#39;</span><span class="p">:</span> <span class="s1">&#39;Surface oil is evaporated.&#39;</span><span class="p">,</span>
-                <span class="s1">&#39;level&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">CONFIG_LEVEL_BASIC</span>
+                <span class="s1">&#39;level&#39;</span><span class="p">:</span> <span class="n">CONFIG_LEVEL_BASIC</span>
             <span class="p">},</span>
             <span class="s1">&#39;processes:emulsification&#39;</span><span class="p">:</span> <span class="p">{</span>
                 <span class="s1">&#39;type&#39;</span><span class="p">:</span> <span class="s1">&#39;bool&#39;</span><span class="p">,</span>
                 <span class="s1">&#39;default&#39;</span><span class="p">:</span> <span class="kc">True</span><span class="p">,</span>
                 <span class="s1">&#39;description&#39;</span><span class="p">:</span>
                 <span class="s1">&#39;Surface oil is emulsified, i.e. water droplets are mixed into oil due to wave mixing, with resulting increas of viscosity.&#39;</span><span class="p">,</span>
-                <span class="s1">&#39;level&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">CONFIG_LEVEL_BASIC</span>
+                <span class="s1">&#39;level&#39;</span><span class="p">:</span> <span class="n">CONFIG_LEVEL_BASIC</span>
             <span class="p">},</span>
             <span class="s1">&#39;processes:biodegradation&#39;</span><span class="p">:</span> <span class="p">{</span>
                 <span class="s1">&#39;type&#39;</span><span class="p">:</span> <span class="s1">&#39;bool&#39;</span><span class="p">,</span>
                 <span class="s1">&#39;default&#39;</span><span class="p">:</span> <span class="kc">False</span><span class="p">,</span>
                 <span class="s1">&#39;description&#39;</span><span class="p">:</span> <span class="s1">&#39;Oil mass is biodegraded (eaten by bacteria).&#39;</span><span class="p">,</span>
-                <span class="s1">&#39;level&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">CONFIG_LEVEL_BASIC</span>
+                <span class="s1">&#39;level&#39;</span><span class="p">:</span> <span class="n">CONFIG_LEVEL_BASIC</span>
             <span class="p">},</span>
             <span class="s1">&#39;processes:update_oilfilm_thickness&#39;</span><span class="p">:</span> <span class="p">{</span>
                 <span class="s1">&#39;type&#39;</span><span class="p">:</span> <span class="s1">&#39;bool&#39;</span><span class="p">,</span>
                 <span class="s1">&#39;default&#39;</span><span class="p">:</span> <span class="kc">False</span><span class="p">,</span>
                 <span class="s1">&#39;description&#39;</span><span class="p">:</span>
                 <span class="s1">&#39;Oil film thickness is calculated at each time step. The alternative is that oil film thickness is kept constant with value provided at seeding.&#39;</span><span class="p">,</span>
-                <span class="s1">&#39;level&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">CONFIG_LEVEL_ADVANCED</span>
+                <span class="s1">&#39;level&#39;</span><span class="p">:</span> <span class="n">CONFIG_LEVEL_ADVANCED</span>
             <span class="p">},</span>
             <span class="s1">&#39;wave_entrainment:droplet_size_distribution&#39;</span><span class="p">:</span> <span class="p">{</span>
                 <span class="s1">&#39;type&#39;</span><span class="p">:</span>
@@ -539,7 +544,7 @@
                 <span class="s1">&#39;default&#39;</span><span class="p">:</span>
                 <span class="s1">&#39;Johansen et al. (2015)&#39;</span><span class="p">,</span>
                 <span class="s1">&#39;level&#39;</span><span class="p">:</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">CONFIG_LEVEL_ADVANCED</span><span class="p">,</span>
+                <span class="n">CONFIG_LEVEL_ADVANCED</span><span class="p">,</span>
                 <span class="s1">&#39;description&#39;</span><span class="p">:</span>
                 <span class="s1">&#39;Algorithm to be used for calculating oil droplet size spectrum after entrainment by breaking waves.&#39;</span>
             <span class="p">},</span>
@@ -550,7 +555,7 @@
                 <span class="s1">&#39;default&#39;</span><span class="p">:</span>
                 <span class="s1">&#39;Li et al. (2017)&#39;</span><span class="p">,</span>
                 <span class="s1">&#39;level&#39;</span><span class="p">:</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">CONFIG_LEVEL_ADVANCED</span><span class="p">,</span>
+                <span class="n">CONFIG_LEVEL_ADVANCED</span><span class="p">,</span>
                 <span class="s1">&#39;description&#39;</span><span class="p">:</span>
                 <span class="s1">&#39;Algorithm to be used for calculating the entrainment rate of oil due to wave breaking.&#39;</span>
             <span class="p">},</span>
@@ -562,7 +567,7 @@
                 <span class="s1">&#39;default&#39;</span><span class="p">:</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">oiltypes</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span>
                 <span class="s1">&#39;level&#39;</span><span class="p">:</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">CONFIG_LEVEL_ESSENTIAL</span><span class="p">,</span>
+                <span class="n">CONFIG_LEVEL_ESSENTIAL</span><span class="p">,</span>
                 <span class="s1">&#39;description&#39;</span><span class="p">:</span>
                 <span class="s1">&#39;Oil type to be used for the simulation, from the NOAA ADIOS database.&#39;</span>
             <span class="p">},</span>
@@ -1639,10 +1644,11 @@
 <span class="sd">        Sets the oil type by specifying the name, the first match will be chosen. See the `ADIOS database &lt;https://adios.orr.noaa.gov/oils&gt;`_ for a list. OpenDrift provides a small set of extra oils.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
 
-        <span class="bp">self</span><span class="o">.</span><span class="n">set_config</span><span class="p">(</span><span class="s1">&#39;seed:oil_type&#39;</span><span class="p">,</span> <span class="n">oiltype</span><span class="p">)</span>
-        <span class="n">oiltype</span> <span class="o">=</span> <span class="n">adios</span><span class="o">.</span><span class="n">oil_name_alias</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">oiltype</span><span class="p">,</span> <span class="n">oiltype</span><span class="p">)</span>
-        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;setting oil_type to: </span><span class="si">{</span><span class="n">oiltype</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_config</span><span class="p">(</span><span class="s1">&#39;seed:oil_type&#39;</span><span class="p">)</span> <span class="o">!=</span> <span class="n">oiltype</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">__set_seed_config__</span><span class="p">(</span><span class="s1">&#39;seed:oil_type&#39;</span><span class="p">,</span> <span class="n">oiltype</span><span class="p">)</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;setting oil_type to: </span><span class="si">{</span><span class="n">oiltype</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
 
+        <span class="n">oiltype</span> <span class="o">=</span> <span class="n">adios</span><span class="o">.</span><span class="n">oil_name_alias</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">oiltype</span><span class="p">,</span> <span class="n">oiltype</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">oil_name</span> <span class="o">=</span> <span class="n">oiltype</span>
 
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">oil_weathering_model</span> <span class="o">==</span> <span class="s1">&#39;noaa&#39;</span><span class="p">:</span>
@@ -1761,8 +1767,6 @@
             <span class="n">kwargs</span><span class="p">[</span><span class="s1">&#39;lat&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">args</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
             <span class="n">args</span> <span class="o">=</span> <span class="p">{}</span>
 
-        <span class="bp">self</span><span class="o">.</span><span class="n">store_oil_seed_metadata</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
-
         <span class="k">if</span> <span class="s1">&#39;number&#39;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">kwargs</span><span class="p">:</span>
             <span class="n">number</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_config</span><span class="p">(</span><span class="s1">&#39;seed:number&#39;</span><span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
@@ -1812,9 +1816,9 @@
                             <span class="s1">&#39;mu = </span><span class="si">%s</span><span class="s1"> and sigma = </span><span class="si">%s</span><span class="s1"> m for elements seeded below sea surface.&#39;</span> <span class="o">%</span>
                             <span class="p">(</span><span class="n">sub_mu</span><span class="p">,</span> <span class="n">sub_sigma</span><span class="p">))</span>
                 <span class="c1"># From numpy.random.lognormal:</span>
-                <span class="c1"># &quot;Note that the mean and standard deviation are not the values for the </span>
+                <span class="c1"># &quot;Note that the mean and standard deviation are not the values for the</span>
                 <span class="c1"># distribution itself, but of the underlying normal distribution it is derived from.&quot;</span>
-                <span class="c1"># So we need to compute the input to the function from the mean and </span>
+                <span class="c1"># So we need to compute the input to the function from the mean and</span>
                 <span class="c1"># standard deviation of the data we want to generate (assumed as input)</span>
                 <span class="n">sub_sigma2</span> <span class="o">=</span> <span class="n">sub_sigma</span><span class="o">**</span><span class="mi">2</span>
                 <span class="n">sub_sigma2_lognormal</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="n">sub_sigma2</span><span class="o">/</span><span class="n">sub_mu</span><span class="o">**</span><span class="mi">2</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span>
@@ -1836,7 +1840,8 @@
             <span class="k">del</span> <span class="n">kwargs</span><span class="p">[</span><span class="s1">&#39;oiltype&#39;</span><span class="p">]</span>
 
         <span class="k">if</span> <span class="s1">&#39;oil_type&#39;</span> <span class="ow">in</span> <span class="n">kwargs</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">set_config</span><span class="p">(</span><span class="s1">&#39;seed:oil_type&#39;</span><span class="p">,</span> <span class="n">kwargs</span><span class="p">[</span><span class="s1">&#39;oil_type&#39;</span><span class="p">])</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_config</span><span class="p">(</span><span class="s1">&#39;seed:oil_type&#39;</span><span class="p">)</span> <span class="o">!=</span> <span class="n">kwargs</span><span class="p">[</span><span class="s1">&#39;oil_type&#39;</span><span class="p">]:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">__set_seed_config__</span><span class="p">(</span><span class="s1">&#39;seed:oil_type&#39;</span><span class="p">,</span> <span class="n">kwargs</span><span class="p">[</span><span class="s1">&#39;oil_type&#39;</span><span class="p">])</span>
             <span class="k">del</span> <span class="n">kwargs</span><span class="p">[</span><span class="s1">&#39;oil_type&#39;</span><span class="p">]</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s1">&#39;Oil type not specified, using default: &#39;</span> <span class="o">+</span>
@@ -1871,6 +1876,8 @@
             <span class="n">duration_hours</span> <span class="o">=</span> <span class="mf">1.</span>  <span class="c1"># For instantaneous spill, we use 1h</span>
         <span class="n">kwargs</span><span class="p">[</span><span class="s1">&#39;mass_oil&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="n">m3_per_hour</span> <span class="o">*</span> <span class="n">duration_hours</span> <span class="o">/</span> <span class="n">num_elements</span> <span class="o">*</span>
                               <span class="n">kwargs</span><span class="p">[</span><span class="s1">&#39;density&#39;</span><span class="p">])</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">store_oil_seed_metadata</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
 
         <span class="nb">super</span><span class="p">(</span><span class="n">OpenOil</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">seed_elements</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span></div>
 

@@ -4,16 +4,37 @@
 .. py:module:: opendrift.models.basemodel
 
 
-Module Contents
----------------
+Submodules
+----------
+.. toctree::
+   :titlesonly:
+   :maxdepth: 1
+
+   environment/index.rst
+
+
+Package Contents
+----------------
 
 Classes
 ~~~~~~~
 
 .. autoapisummary::
 
+   opendrift.models.basemodel.Environment
+   opendrift.models.basemodel.Timeable
+   opendrift.models.basemodel.PhysicsMethods
+   opendrift.models.basemodel.Configurable
    opendrift.models.basemodel.OpenDriftSimulation
 
+
+
+Functions
+~~~~~~~~~
+
+.. autoapisummary::
+
+   opendrift.models.basemodel.require_mode
 
 
 
@@ -23,15 +44,418 @@ Attributes
 .. autoapisummary::
 
    opendrift.models.basemodel.logger
+   opendrift.models.basemodel.CONFIG_LEVEL_BASIC
+   opendrift.models.basemodel.CONFIG_LEVEL_ADVANCED
+   opendrift.models.basemodel.Mode
+
+
+.. py:class:: Environment(required_variables, required_profiles_z_range, _config)
+
+
+   Bases: :py:obj:`opendrift.timer.Timeable`, :py:obj:`opendrift.config.Configurable`
+
+   Utility class for measuring total time spent in various steps in a class
+   throughout program execution.
+
+   .. py:attribute:: readers
+      :type: OrderedDict
+
+      
+
+   .. py:attribute:: priority_list
+      :type: OrderedDict
+
+      
+
+   .. py:attribute:: required_variables
+      :type: Dict
+
+      
+
+   .. py:attribute:: required_profiles_z_range
+      :type: List[float]
+
+      
+
+   .. py:attribute:: discarded_readers
+      :type: Dict
+
+      
+
+   .. py:attribute:: proj_latlon
+
+      
+
+   .. py:attribute:: __finalized__
+      :value: False
+
+      
+
+   .. py:method:: finalize(simulation_extent=None, start=None, end=None)
+
+      Prepare environment for simulation.
+
+      Args:
+
+          simulation_extent: The expected extent of the simulation.
+
+          start: Expected start time of simulation.
+
+          end: Expected end time of simulation.
+
+
+   .. py:method:: prepare_readers(extent, start_time, end_time)
+
+
+   .. py:method:: __generate_constant_readers__()
+
+
+   .. py:method:: __add_auto_landmask__()
+
+
+   .. py:method:: __assert_no_missing_variables__()
+
+
+   .. py:method:: add_readers_from_file(filename, timeout=10, lazy=True)
+
+
+   .. py:method:: add_readers_from_list(urls, timeout=10, lazy=True, variables=None)
+
+      Make readers from a list of URLs or paths to netCDF datasets
+
+
+   .. py:method:: add_reader(readers, variables=None, first=False)
+
+      Add one or more readers providing variables used by this model.
+
+      Method may be called subsequently to add more readers
+      for other variables.
+
+      Args:
+          readers: one or more (list) Reader objects.
+
+          variables (optional): list of strings of standard_name of variables to be provided by this/these reader(s).
+          first: Set to True if this reader should be set as first option
+
+
+   .. py:method:: list_environment_variables()
+
+      Return list of all variables provided by the added readers.
+
+
+   .. py:method:: get_reader_groups(variables=None)
+
+      Find which groups of variables are provided by the same readers.
+
+      This function loops through 'priority_list' (see above) and groups
+      all variables returned by the same readers in the same order. This
+      allows asking readers for several variables simultaneously,
+      improving performance. Used by method 'get_environment'.
+
+      Returns:
+          variable_groups: list of lists of (environment) variables.
+          reader_groups: list of list of reader names, corresponding to
+          each of the variable_groups.
+
+
+   .. py:method:: _lazy_readers()
+
+
+   .. py:method:: _unlazy_readers()
+
+
+   .. py:method:: _initialise_next_lazy_reader()
+
+      Returns reader if successful and None if no more readers
+
+
+   .. py:method:: discard_reader_if_not_relevant(reader, time)
+
+
+   .. py:method:: discard_reader(reader, reason)
+
+
+   .. py:method:: missing_variables()
+
+      Return list of all variables for which no reader has been added.
+
+
+   .. py:method:: get_environment(variables, time, lon, lat, z, profiles)
+
+      Retrieve environmental variables at requested positions.
+
+      Args:
+
+          variables: list of variable names
+
+          time: time to get environment for
+
+          lon: array of longitudes
+
+          lat: array of latitudes
+
+          z: depth to get value for
+
+          profiles: ?
+
+      Updates:
+          Buffer (raw data blocks) for each reader stored for performance:
+              [readers].var_block_before (last before requested time)
+              [readers].var_block_after (first after requested time)
+              - lists of one ReaderBlock per variable group: time, x, y, [vars]
+
+      Returns:
+          environment: recarray with variables as named attributes,
+                       interpolated to requested positions/time.
+
+
+
+   .. py:method:: get_variables_along_trajectory(variables, lons, lats, times)
+
 
 
 .. py:data:: logger
 
    
 
+.. py:class:: Timeable
+
+
+   Utility class for measuring total time spent in various steps in a class
+   throughout program execution.
+
+   .. py:property:: timers
+
+
+   .. py:property:: timing
+
+
+   .. py:attribute:: __timers__
+
+      
+
+   .. py:attribute:: __timing__
+
+      
+
+   .. py:method:: timer_start(category)
+
+
+   .. py:method:: timer_end(category)
+
+
+
+.. py:exception:: WrongMode(expected_mode, real_mode, msg=None)
+
+
+   Bases: :py:obj:`Exception`
+
+   Common base class for all non-exit exceptions.
+
+   Initialize self.  See help(type(self)) for accurate signature.
+
+
+.. py:class:: PhysicsMethods
+
+
+   Physics methods to be inherited by OpenDriftSimulation class
+
+   .. py:method:: sea_water_density(T=10.0, S=35.0)
+      :staticmethod:
+
+      The function gives the density of seawater at one atmosphere
+      pressure as given in :
+
+      N.P. Fofonoff and R.C. Millard Jr.,1983,
+      Unesco technical papers in marine science no. 44.
+
+      S   = Salinity in promille of the seawater
+      T   = Temperature of the seawater in degrees Celsius
+
+
+   .. py:method:: skillscore_trajectory(lon_obs, lat_obs, time_obs, duration=None, max_time_offset=timedelta(seconds=60), method='liu-weissberg', **kwargs)
+
+      Calculate skill-score comparing simulated and observed trajectories
+
+      A skill score is calculated for each of the modelled trajectories,
+      starting from the closest time/obs of the given modelled trajectory
+
+      Parameters
+      ----------
+      lon_obs : array_like
+      lat_obs : array_like
+          The longitude and latitudes of the observed trajectory
+      time_obs : array of datetime
+          The time corresponding to the observed positions
+      duration : timedelta
+          If None, skill score is calculated for the full trajectory, from the start
+          Otherwise, only this sub-part of the trajectory is used.
+      max_time_offset : timedelta
+          The maximum allowed time difference between observed and modelled time
+          Default: 1 minute
+      method : string
+          Currently available: 'liu-wessberg'
+          To be implemented: 'darpa'
+      **kwargs : further arguments for skillscore method (e.g. tolerance_threshold)
+
+      Returns
+      -------
+      skillscore : array_like
+          One value for each trajectory
+
+
+   .. py:method:: advect_ocean_current(factor=1)
+
+
+   .. py:method:: advect_with_sea_ice(factor=1)
+
+
+   .. py:method:: advect_wind(factor=1)
+
+
+   .. py:method:: stokes_drift(factor=1)
+
+
+   .. py:method:: resurface_elements(minimum_depth)
+
+
+   .. py:method:: calculate_missing_environment_variables()
+
+
+   .. py:method:: wind_speed()
+
+
+   .. py:method:: current_speed()
+
+
+   .. py:method:: significant_wave_height()
+
+
+   .. py:method:: _wave_frequency()
+
+
+   .. py:method:: wave_period()
+
+
+   .. py:method:: wave_energy()
+
+
+   .. py:method:: wave_energy_dissipation()
+
+
+   .. py:method:: wave_damping_coefficient()
+
+
+   .. py:method:: sea_surface_wave_breaking_fraction()
+
+
+   .. py:method:: air_density()
+
+
+   .. py:method:: windspeed_from_stress()
+
+
+   .. py:method:: solar_elevation()
+
+      Solar elevation at present time and position of active elements.
+
+
+   .. py:method:: sea_floor_depth()
+
+      Sea floor depth (positive) for presently active elements
+
+
+
+.. py:class:: Configurable
+
+
+   .. py:attribute:: _config
+      :type: Union[Dict, None]
+
+      
+
+   .. py:method:: get_config(key, default='raise')
+
+
+   .. py:method:: list_config(prefix='')
+
+      List all possible configuration settings with values
+
+
+   .. py:method:: list_configspec(prefix='')
+
+      Readable formatting of config specification
+
+
+   .. py:method:: get_configspec(prefix='', level=[1, 2, 3])
+
+
+   .. py:method:: set_config(key, value)
+
+
+   .. py:method:: _set_config_default(key, value)
+
+      Update both default and actual value of a config setting
+
+
+   .. py:method:: _add_config(config, overwrite=True)
+
+      Add configuration settings
+
+      config is a dictionary where keys are configuration keywords,
+      and values are dictionaries with the following contents:
+
+      type (string): 'float', 'int', 'bool' or 'enum'
+
+      min, max (float/int/None): (only when type is 'float' or 'int')
+          The minimum and maximum allowed values for this setting.
+          May also be None if there are no upper/lowe limits.
+
+      units (string): (only when type is 'float' or 'int')
+          The units of this config setting.
+
+      enum (list): (only when type is 'enum')
+          A list of possible values for this setting.
+
+      default (number/bool/string/None):
+          The default value for this setting.
+
+      value (number/bool/string/None): The actual value for this setting.
+          This is updated with self.set_config(key, value) and retrieved
+          with self.get_config(key)
+
+      description (string):
+          A description of this config setting, for users/documentation/GUIs.
+
+      level (int): A parameter to determine the level of exposure in GUIs
+          1 CONFIG_LEVEL_ESSENTIAL: important setting which user has to consider
+          2 CONFIG_LEVEL_BASIC: setting which many users may consider
+          3 CONFIG_LEVEL_ADVANCED: setting relevant only to advanced users
+
+
+
+
+.. py:data:: CONFIG_LEVEL_BASIC
+   :value: 2
+
+   
+
+.. py:data:: CONFIG_LEVEL_ADVANCED
+   :value: 3
+
+   
+
+.. py:data:: Mode
+
+   
+
+.. py:function:: require_mode(mode, post_next_mode=False, error=None)
+
+
 .. py:class:: OpenDriftSimulation(seed=0, iomodule='netcdf', loglevel=logging.DEBUG, logtime='%H:%M:%S', logfile=None)
 
-   Bases: :py:obj:`opendrift.models.physics_methods.PhysicsMethods`, :py:obj:`opendrift.timer.Timeable`
+
+   Bases: :py:obj:`opendrift.models.physics_methods.PhysicsMethods`, :py:obj:`opendrift.timer.Timeable`, :py:obj:`opendrift.config.Configurable`
 
    Generic trajectory model class, to be extended (subclassed).
 
@@ -110,7 +534,17 @@ Attributes
       Any trajectory model implementation must list needed variables.
 
 
+   .. py:property:: required_profiles_z_range
+      :abstractmethod:
+
+      Any trajectory model implementation must list range or return None.
+
+
    .. py:attribute:: __metaclass__
+
+      
+
+   .. py:attribute:: mode
 
       
 
@@ -120,30 +554,6 @@ Attributes
       
 
    .. py:attribute:: status_colors_default
-
-      
-
-   .. py:attribute:: CONFIG_LEVEL_ESSENTIAL
-      :value: 1
-
-      
-
-   .. py:attribute:: CONFIG_LEVEL_BASIC
-      :value: 2
-
-      
-
-   .. py:attribute:: CONFIG_LEVEL_ADVANCED
-      :value: 3
-
-      
-
-   .. py:attribute:: max_speed
-      :value: 1
-
-      
-
-   .. py:attribute:: required_profiles_z_range
 
       
 
@@ -158,75 +568,45 @@ Attributes
 
    .. py:attribute:: proj_latlon
 
+      The environment holds all the readers and the forcing data for the simulation.
+
+
+   .. py:attribute:: env
+      :type: environment.Environment
+
       
 
    .. py:method:: SRS()
       :classmethod:
 
 
-   .. py:method:: list_config(prefix='')
-
-      List all possible configuration settings with values
+   .. py:method:: clone()
 
 
-   .. py:method:: list_configspec(prefix='')
-
-      Readable formatting of config specification
+   .. py:method:: set_config(*args, **kwargs)
 
 
-   .. py:method:: get_configspec(prefix='', level=[1, 2, 3])
+   .. py:method:: __set_seed_config__(key, value)
 
-
-   .. py:method:: _add_config(config, overwrite=True)
-
-      Add configuration settings
-
-      config is a dictionary where keys are configuration keywords,
-      and values are dictionaries with the following contents:
-
-      type (string): 'float', 'int', 'bool' or 'enum'
-
-      min, max (float/int/None): (only when type is 'float' or 'int')
-          The minimum and maximum allowed values for this setting.
-          May also be None if there are no upper/lowe limits.
-
-      units (string): (only when type is 'float' or 'int')
-          The units of this config setting.
-
-      enum (list): (only when type is 'enum')
-          A list of possible values for this setting.
-
-      default (number/bool/string/None):
-          The default value for this setting.
-
-      value (number/bool/string/None): The actual value for this setting.
-          This is updated with self.set_config(key, value) and retrieved
-          with self.get_config(key)
-
-      description (string):
-          A description of this config setting, for users/documentation/GUIs.
-
-      level (int): A parameter to determine the level of exposure in GUIs
-          1 self.CONFIG_LEVEL_ESSENTIAL: important setting which user has to consider
-          2 self.CONFIG_LEVEL_BASIC: setting which many users may consider
-          3 self.CONFIG_LEVEL_ADVANCED: setting relevant only to advanced users
-
-
-
-   .. py:method:: set_config(key, value)
-
-
-   .. py:method:: _set_config_default(key, value)
-
-      Update both default and actual value of a config setting
-
-
-   .. py:method:: get_config(key)
+      This method allows setting config values that are passed as seed arguments. The environment is already prepared before this, so make sure that nothing is changed that requires the environment to be re-initialized.
 
 
    .. py:method:: add_metadata(key, value)
 
       Add item to metadata dictionary, for export as netCDF global attributes
+
+
+   .. py:method:: add_reader(readers, variables=None, first=False)
+
+
+   .. py:method:: add_readers_from_list(*args, **kwargs)
+
+      Make readers from a list of URLs or paths to netCDF datasets
+
+
+   .. py:method:: add_readers_from_file(*args, **kwargs)
+
+      Make readers from a file containing list of URLs or paths to netCDF datasets
 
 
    .. py:method:: prepare_run()
@@ -266,89 +646,6 @@ Attributes
    .. py:method:: performance()
 
       Report the time spent on various tasks
-
-
-   .. py:method:: add_reader(readers, variables=None, first=False)
-
-      Add one or more readers providing variables used by this model.
-
-      Method may be called subsequently to add more readers
-      for other variables.
-
-      Args:
-          readers: one or more (list) Reader objects.
-
-          variables (optional): list of strings of standard_name of variables to be provided by this/these reader(s).
-          first: Set to True if this reader should be set as first option
-
-
-   .. py:method:: add_readers_from_list(urls, timeout=10, lazy=True, variables=None)
-
-      Make readers from a list of URLs or paths to netCDF datasets
-
-
-   .. py:method:: add_readers_from_file(filename, timeout=10, lazy=True)
-
-
-   .. py:method:: list_environment_variables()
-
-      Return list of all variables provided by the added readers.
-
-
-   .. py:method:: missing_variables()
-
-      Return list of all variables for which no reader has been added.
-
-
-   .. py:method:: get_reader_groups(variables=None, time=None)
-
-      Find which groups of variables are provided by the same readers.
-
-      This function loops through 'priority_list' (see above) and groups
-      all variables returned by the same readers in the same order. This
-      allows asking readers for several variables simultaneously,
-      improving performance. Used by method 'get_environment'.
-
-      Returns:
-          variable_groups: list of lists of (environment) variables.
-          reader_groups: list of list of reader names, corresponding to
-          each of the variable_groups.
-
-
-   .. py:method:: _lazy_readers()
-
-
-   .. py:method:: _unlazy_readers()
-
-
-   .. py:method:: _initialise_next_lazy_reader()
-
-      Returns reader if successful and None if no more readers
-
-
-   .. py:method:: discard_reader_if_not_relevant(reader)
-
-
-   .. py:method:: discard_reader(reader, reason)
-
-
-   .. py:method:: get_environment(variables, time, lon, lat, z, profiles)
-
-      Retrieve environmental variables at requested positions.
-
-      Updates:
-          Buffer (raw data blocks) for each reader stored for performance:
-              [readers].var_block_before (last before requested time)
-              [readers].var_block_after (first after requested time)
-              - lists of one ReaderBlock per variable group: time, x, y, [vars]
-
-      Returns:
-          environment: recarray with variables as named attributes,
-                       interpolated to requested positions/time.
-
-
-
-   .. py:method:: get_variables_along_trajectory(variables, lons, lats, times)
 
 
    .. py:method:: num_elements_active()
@@ -519,9 +816,6 @@ Attributes
 
       Moving deactivated elements from self.elements
       to self.elements_deactivated.
-
-
-   .. py:method:: set_fallback_values(refresh=False)
 
 
    .. py:method:: run(time_step=None, steps=None, time_step_output=None, duration=None, end_time=None, outfile=None, export_variables=None, export_buffer_length=100, stop_on_error=False)
@@ -767,11 +1061,6 @@ Attributes
       returns  (lon,lat), variance
       where (lon,lat) are the coordinates of the center of mass as
       function of time
-
-
-   .. py:method:: reset()
-
-      Preparing OpenDrift object for new run
 
 
    .. py:method:: gui_postproc()
