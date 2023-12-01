@@ -131,10 +131,12 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">_kwargs</span> <span class="o">=</span> <span class="n">kwargs</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">initialised</span> <span class="o">=</span> <span class="kc">False</span>
 
+        <span class="c1"># Interpret if argument is a string (url, filename) or a prepared dataset</span>
         <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">args</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="nb">str</span><span class="p">):</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_lazyname</span> <span class="o">=</span> <span class="s1">&#39;LazyReader: &#39;</span> <span class="o">+</span> <span class="n">args</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_lazyname</span> <span class="o">=</span> <span class="s1">&#39;LazyReader: &#39;</span> <span class="o">+</span> <span class="n">kwargs</span><span class="p">[</span><span class="s1">&#39;name&#39;</span><span class="p">]</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_dataset</span> <span class="o">=</span> <span class="n">args</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
         <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;Delaying initialisation of &#39;</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">_lazyname</span><span class="p">)</span>
 
 <div class="viewcode-block" id="Reader.__getattr__">
@@ -163,14 +165,12 @@
 <a class="viewcode-back" href="../../../autoapi/opendrift/readers/reader_lazy/index.html#opendrift.readers.reader_lazy.Reader.initialise">[docs]</a>
     <span class="k">def</span> <span class="nf">initialise</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;Initialising: &#39;</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">_lazyname</span><span class="p">)</span>
-
         <span class="bp">self</span><span class="o">.</span><span class="n">reader</span> <span class="o">=</span> <span class="kc">None</span>
-        <span class="n">zarr_storage_options</span> <span class="o">=</span> <span class="kc">None</span>
 
-        <span class="k">if</span> <span class="n">zarr_storage_options</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_kwargs</span><span class="p">:</span>
+        <span class="c1"># Zarr is a special case, handle netCDF_CF_generic a prepared dataset and credentials</span>
+        <span class="k">if</span> <span class="s1">&#39;zarr_credentials&#39;</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_kwargs</span><span class="p">:</span>
             <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;Lazy reader seems to be zarr, calling reader_netCDF_CF_generic&#39;</span><span class="p">)</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">reader</span> <span class="o">=</span> <span class="n">reader_netCDF_CF_generic</span><span class="o">.</span><span class="n">Reader</span><span class="p">(</span><span class="n">filename</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_kwargs</span><span class="p">[</span><span class="s1">&#39;filename&#39;</span><span class="p">],</span> <span class="n">zarr_storage_options</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_kwargs</span><span class="p">[</span><span class="s1">&#39;zarr_storage_options&#39;</span><span class="p">],</span> <span class="n">name</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_lazyname</span><span class="p">)</span>
-
+            <span class="bp">self</span><span class="o">.</span><span class="n">reader</span> <span class="o">=</span> <span class="n">reader_netCDF_CF_generic</span><span class="o">.</span><span class="n">Reader</span><span class="p">(</span><span class="n">filename</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_dataset</span><span class="p">,</span> <span class="n">zarr_storage_options</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_kwargs</span><span class="p">[</span><span class="s1">&#39;zarr_credentials&#39;</span><span class="p">],</span> <span class="n">name</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_lazyname</span><span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">reader</span> <span class="o">=</span> <span class="n">reader_from_url</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_args</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
 
