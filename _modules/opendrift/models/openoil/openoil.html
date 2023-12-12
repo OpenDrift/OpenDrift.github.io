@@ -189,6 +189,9 @@
 <span class="kn">from</span> <span class="nn">opendrift.models.oceandrift</span> <span class="kn">import</span> <span class="n">OceanDrift</span><span class="p">,</span> <span class="n">Lagrangian3DArray</span>
 <span class="kn">from</span> <span class="nn">.</span> <span class="kn">import</span> <span class="n">noaa_oil_weathering</span> <span class="k">as</span> <span class="n">noaa</span>
 <span class="kn">from</span> <span class="nn">.</span> <span class="kn">import</span> <span class="n">adios</span>
+<span class="kn">from</span> <span class="nn">adios_db.computation.physical_properties</span> <span class="kn">import</span> <span class="n">KinematicViscosity</span><span class="p">,</span> <span class="n">Density</span>
+<span class="kn">from</span> <span class="nn">adios_db.computation</span> <span class="kn">import</span> <span class="n">gnome_oil</span>
+
 <span class="kn">from</span> <span class="nn">opendrift.models.physics_methods</span> <span class="kn">import</span> <span class="n">oil_wave_entrainment_rate_li2017</span>
 <span class="kn">from</span> <span class="nn">opendrift.config</span> <span class="kn">import</span> <span class="n">CONFIG_LEVEL_ESSENTIAL</span><span class="p">,</span> <span class="n">CONFIG_LEVEL_BASIC</span><span class="p">,</span> <span class="n">CONFIG_LEVEL_ADVANCED</span>
 
@@ -786,14 +789,13 @@
         <span class="c1">#########################################################</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">timer_start</span><span class="p">(</span>
             <span class="s1">&#39;main loop:updating elements:oil weathering:updating viscosities&#39;</span><span class="p">)</span>
-        <span class="n">oil_viscosity</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">oiltype</span><span class="o">.</span><span class="n">kvis_at_temp</span><span class="p">(</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">environment</span><span class="o">.</span><span class="n">sea_water_temperature</span><span class="p">)</span>
+        <span class="n">oil_viscosity</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">KinematicViscosity</span><span class="o">.</span><span class="n">at_temp</span><span class="p">(</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">environment</span><span class="o">.</span><span class="n">sea_water_temperature</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">timer_end</span><span class="p">(</span>
             <span class="s1">&#39;main loop:updating elements:oil weathering:updating viscosities&#39;</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">timer_start</span><span class="p">(</span>
             <span class="s1">&#39;main loop:updating elements:oil weathering:updating densities&#39;</span><span class="p">)</span>
-        <span class="n">oil_density</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">oiltype</span><span class="o">.</span><span class="n">density_at_temp</span><span class="p">(</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">environment</span><span class="o">.</span><span class="n">sea_water_temperature</span><span class="p">)</span>
+        <span class="n">oil_density</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">Density</span><span class="o">.</span><span class="n">at_temp</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">environment</span><span class="o">.</span><span class="n">sea_water_temperature</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">timer_end</span><span class="p">(</span>
             <span class="s1">&#39;main loop:updating elements:oil weathering:updating densities&#39;</span><span class="p">)</span>
 
@@ -1689,11 +1691,11 @@
 <span class="sd">        Sets the oil type by specifing a JSON dict. The format should be the same as the ADIOS database. See the `ADIOS database &lt;https://adios.orr.noaa.gov/oils&gt;`_ for a list.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">oil_weathering_model</span> <span class="o">==</span> <span class="s1">&#39;noaa&#39;</span><span class="p">:</span>
-            <span class="n">o</span> <span class="o">=</span> <span class="p">{</span> <span class="s1">&#39;data&#39;</span><span class="p">:</span> <span class="p">{</span> <span class="s1">&#39;attributes&#39;</span> <span class="p">:</span> <span class="n">json</span> <span class="p">}</span> <span class="p">}</span>
-            <span class="n">o</span><span class="p">[</span><span class="s1">&#39;data&#39;</span><span class="p">][</span><span class="s1">&#39;_id&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">o</span><span class="p">[</span><span class="s1">&#39;data&#39;</span><span class="p">][</span><span class="s1">&#39;attributes&#39;</span><span class="p">][</span><span class="s1">&#39;oil_id&#39;</span><span class="p">]</span>
-            <span class="n">o</span><span class="p">[</span><span class="s1">&#39;data&#39;</span><span class="p">][</span><span class="s1">&#39;attributes&#39;</span><span class="p">][</span><span class="s1">&#39;metadata&#39;</span><span class="p">][</span><span class="s1">&#39;location&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;NORWAY&#39;</span>
+            <span class="c1">#o = { &#39;data&#39;: { &#39;attributes&#39; : json } }</span>
+            <span class="c1">#o[&#39;data&#39;][&#39;_id&#39;] = o[&#39;data&#39;][&#39;attributes&#39;][&#39;oil_id&#39;]</span>
+            <span class="c1">#o[&#39;data&#39;][&#39;attributes&#39;][&#39;metadata&#39;][&#39;location&#39;] = &#39;Norway&#39;</span>
 
-            <span class="bp">self</span><span class="o">.</span><span class="n">oiltype</span> <span class="o">=</span> <span class="n">adios</span><span class="o">.</span><span class="n">oil</span><span class="o">.</span><span class="n">OpendriftOil</span><span class="p">(</span><span class="n">o</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">oiltype</span> <span class="o">=</span> <span class="n">adios</span><span class="o">.</span><span class="n">oil</span><span class="o">.</span><span class="n">OpendriftOil</span><span class="p">(</span><span class="n">json</span><span class="p">)</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">oil_name</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">oiltype</span><span class="o">.</span><span class="n">name</span>
             <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">oiltype</span><span class="o">.</span><span class="n">valid</span><span class="p">():</span>
                 <span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span>
@@ -1711,7 +1713,7 @@
 <span class="sd">        Sets the oil type by specifing a JSON file. The format should be the same as the ADIOS database. See the `ADIOS database &lt;https://adios.orr.noaa.gov/oils&gt;`_ for a list.</span>
 
 <span class="sd">        &gt;&gt;&gt; o = OpenOil()</span>
-<span class="sd">        &gt;&gt;&gt; o.set_oiltype_from_file(&#39;opendrift/models/openoil/adios/extra_oils/AD03128.json&#39;)</span>
+<span class="sd">        &gt;&gt;&gt; o.set_oiltype_from_file(&#39;opendrift/models/openoil/adios/extra_oils/AD04001.json&#39;)</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">oil_weathering_model</span> <span class="o">==</span> <span class="s1">&#39;noaa&#39;</span><span class="p">:</span>
             <span class="kn">import</span> <span class="nn">json</span>
@@ -1851,8 +1853,10 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">set_oiltype</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">get_config</span><span class="p">(</span><span class="s1">&#39;seed:oil_type&#39;</span><span class="p">))</span>
 
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">oil_weathering_model</span> <span class="o">==</span> <span class="s1">&#39;noaa&#39;</span><span class="p">:</span>
-            <span class="n">oil_density</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">oiltype</span><span class="o">.</span><span class="n">density_at_temp</span><span class="p">(</span><span class="mi">285</span><span class="p">)</span>
-            <span class="n">oil_viscosity</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">oiltype</span><span class="o">.</span><span class="n">kvis_at_temp</span><span class="p">(</span><span class="mi">285</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">Density</span> <span class="o">=</span> <span class="n">Density</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">oiltype</span><span class="o">.</span><span class="n">oil</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">KinematicViscosity</span> <span class="o">=</span> <span class="n">KinematicViscosity</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">oiltype</span><span class="o">.</span><span class="n">oil</span><span class="p">)</span>
+            <span class="n">oil_density</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">Density</span><span class="o">.</span><span class="n">at_temp</span><span class="p">(</span><span class="mi">285</span><span class="p">)</span>
+            <span class="n">oil_viscosity</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">KinematicViscosity</span><span class="o">.</span><span class="n">at_temp</span><span class="p">(</span><span class="mi">285</span><span class="p">)</span>
             <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span>
                 <span class="s1">&#39;Using density </span><span class="si">%s</span><span class="s1"> and viscosity </span><span class="si">%s</span><span class="s1"> of oiltype </span><span class="si">%s</span><span class="s1">&#39;</span> <span class="o">%</span>
                 <span class="p">(</span><span class="n">oil_density</span><span class="p">,</span> <span class="n">oil_viscosity</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_config</span><span class="p">(</span><span class="s1">&#39;seed:oil_type&#39;</span><span class="p">)))</span>
