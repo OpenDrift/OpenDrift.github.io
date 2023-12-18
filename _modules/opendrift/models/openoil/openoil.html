@@ -183,6 +183,8 @@
 <span class="kn">import</span> <span class="nn">pyproj</span>
 <span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="k">as</span> <span class="nn">plt</span>
 <span class="kn">import</span> <span class="nn">logging</span>
+<span class="kn">import</span> <span class="nn">json</span>
+<span class="kn">from</span> <span class="nn">importlib</span> <span class="kn">import</span> <span class="n">resources</span>
 
 <span class="n">logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span>
 
@@ -417,12 +419,6 @@
                   <span class="s1">&#39;SLEIPNER CONDENSATE, STATOIL&#39;</span><span class="p">,</span>
                   <span class="s1">&#39;STATFJORD BLEND, STATOIL&#39;</span><span class="p">,</span> <span class="s1">&#39;VARG, STATOIL&#39;</span><span class="p">]</span>
 
-    <span class="c1"># Workaround as ADIOS oil library uses</span>
-    <span class="c1"># max water fraction of 0.9 for all crude oils</span>
-    <span class="n">max_water_fraction</span> <span class="o">=</span> <span class="p">{</span>
-        <span class="s1">&#39;MARINE GAS OIL 500 ppm S 2017&#39;</span><span class="p">:</span> <span class="mf">0.1</span><span class="p">,</span>
-        <span class="s1">&#39;FENJA (PIL) 2015&#39;</span><span class="p">:</span> <span class="mf">.75</span>
-    <span class="p">}</span>
 
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">weathering_model</span><span class="o">=</span><span class="s1">&#39;noaa&#39;</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">oil_weathering_model</span> <span class="o">=</span> <span class="n">weathering_model</span>
@@ -439,6 +435,9 @@
             <span class="n">other_oiltypes</span> <span class="o">=</span> <span class="p">[</span><span class="n">o</span> <span class="k">for</span> <span class="n">o</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">oiltypes</span> <span class="k">if</span> <span class="n">o</span><span class="p">[</span><span class="mi">0</span><span class="p">:</span><span class="mi">7</span><span class="p">]</span> <span class="o">!=</span> <span class="s1">&#39;GENERIC&#39;</span><span class="p">]</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">oiltypes</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">([</span><span class="n">o</span> <span class="k">for</span> <span class="n">o</span> <span class="ow">in</span> <span class="n">generic_oiltypes</span><span class="p">])</span> <span class="o">+</span> <span class="nb">sorted</span><span class="p">([</span><span class="n">o</span> <span class="k">for</span> <span class="n">o</span> <span class="ow">in</span> <span class="n">other_oiltypes</span><span class="p">])</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">oiltypes</span> <span class="o">=</span> <span class="p">[</span><span class="n">ot</span> <span class="k">for</span> <span class="n">ot</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">oiltypes</span> <span class="k">if</span> <span class="n">ot</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">duplicate_oils</span><span class="p">]</span>
+
+            <span class="c1"># For Norwegian oils, max water fraction from Sintef is overriding NOAA value</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">max_water_fraction</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;Weathering model unknown: &#39;</span> <span class="o">+</span> <span class="n">weathering_model</span><span class="p">)</span>
 
@@ -770,7 +769,22 @@
             <span class="bp">self</span><span class="o">.</span><span class="n">oil_water_interfacial_tension</span> <span class="o">=</span> \
                 <span class="bp">self</span><span class="o">.</span><span class="n">oiltype</span><span class="o">.</span><span class="n">oil_water_surface_tension</span><span class="p">()</span>
             <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s1">&#39;Oil-water surface tension is </span><span class="si">%f</span><span class="s1"> Nm&#39;</span> <span class="o">%</span>
-                        <span class="bp">self</span><span class="o">.</span><span class="n">oil_water_interfacial_tension</span><span class="p">)</span></div>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">oil_water_interfacial_tension</span><span class="p">)</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">max_water_fractions</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">loads</span><span class="p">(</span>
+                    <span class="n">resources</span><span class="o">.</span><span class="n">read_text</span><span class="p">(</span><span class="s1">&#39;opendrift.models.openoil.adios&#39;</span><span class="p">,</span> <span class="s1">&#39;max_water_fraction.json&#39;</span><span class="p">))</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">oil_name</span> <span class="ow">in</span> <span class="n">max_water_fractions</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">max_water_fraction</span> <span class="o">=</span> <span class="n">max_water_fractions</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">oil_name</span><span class="p">]</span>
+                <span class="n">T</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">max_water_fraction</span><span class="p">[</span><span class="s1">&#39;temperatures&#39;</span><span class="p">]</span>
+                <span class="n">wf</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">max_water_fraction</span><span class="p">[</span><span class="s1">&#39;max_water_fraction&#39;</span><span class="p">]</span>
+                <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Using max water fractions </span><span class="si">{</span><span class="n">wf</span><span class="si">}</span><span class="s1"> for temperatures </span><span class="si">{</span><span class="n">T</span><span class="si">}</span><span class="s1"> for oiltype </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">oil_name</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
+                <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s1">&#39;Corresponding max water fraction from GNOME is &#39;</span>
+                            <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">oiltype</span><span class="o">.</span><span class="n">gnome_oil</span><span class="p">[</span><span class="s2">&quot;emulsion_water_fraction_max&quot;</span><span class="p">]</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Max water fraction not available for </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">oil_name</span><span class="si">}</span><span class="s1">, using default&#39;</span><span class="p">)</span>
+        <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="s1">&#39;Could not load max water content file&#39;</span><span class="p">)</span>
+            <span class="nb">print</span><span class="p">(</span><span class="n">e</span><span class="p">)</span></div>
 
 
 <div class="viewcode-block" id="OpenOil.oil_weathering_noaa">
@@ -925,28 +939,12 @@
 <a class="viewcode-back" href="../../../../autoapi/opendrift/models/openoil/openoil/index.html#opendrift.models.openoil.OpenOil.emulsification_noaa">[docs]</a>
     <span class="k">def</span> <span class="nf">emulsification_noaa</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="c1">#############################################</span>
-        <span class="c1"># Emulsification (surface only?)</span>
+        <span class="c1"># Emulsification (surface only)</span>
         <span class="c1">#############################################</span>
         <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;    Calculating emulsification - NOAA&#39;</span><span class="p">)</span>
         <span class="n">emul_time</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">oiltype</span><span class="o">.</span><span class="n">bulltime</span>
         <span class="n">emul_constant</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">oiltype</span><span class="o">.</span><span class="n">bullwinkle</span>
-        <span class="c1"># max water content fraction - get from database</span>
-        <span class="n">Y_max</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">oiltype</span><span class="o">.</span><span class="n">emulsion_water_fraction_max</span>
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">oil_name</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">max_water_fraction</span><span class="p">:</span>
-            <span class="n">max_water_fraction</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">max_water_fraction</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">oil_name</span><span class="p">]</span>
-            <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span>
-                <span class="s1">&#39;Overriding max water fraxtion with value </span><span class="si">%f</span><span class="s1"> instead of default </span><span class="si">%f</span><span class="s1">&#39;</span>
-                <span class="o">%</span> <span class="p">(</span><span class="n">max_water_fraction</span><span class="p">,</span> <span class="n">Y_max</span><span class="p">))</span>
-            <span class="n">Y_max</span> <span class="o">=</span> <span class="n">max_water_fraction</span>
-        <span class="c1"># emulsion</span>
-        <span class="k">if</span> <span class="n">Y_max</span> <span class="o">&lt;=</span> <span class="mi">0</span><span class="p">:</span>
-            <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;Oil does not emulsify, returning.&#39;</span><span class="p">)</span>
-            <span class="k">return</span>
-        <span class="c1"># Constants for droplets</span>
-        <span class="n">drop_min</span> <span class="o">=</span> <span class="mf">1.0e-6</span>
-        <span class="n">drop_max</span> <span class="o">=</span> <span class="mf">1.0e-5</span>
-        <span class="n">S_max</span> <span class="o">=</span> <span class="p">(</span><span class="mf">6.</span> <span class="o">/</span> <span class="n">drop_min</span><span class="p">)</span> <span class="o">*</span> <span class="p">(</span><span class="n">Y_max</span> <span class="o">/</span> <span class="p">(</span><span class="mf">1.0</span> <span class="o">-</span> <span class="n">Y_max</span><span class="p">))</span>
-        <span class="n">S_min</span> <span class="o">=</span> <span class="p">(</span><span class="mf">6.</span> <span class="o">/</span> <span class="n">drop_max</span><span class="p">)</span> <span class="o">*</span> <span class="p">(</span><span class="n">Y_max</span> <span class="o">/</span> <span class="p">(</span><span class="mf">1.0</span> <span class="o">-</span> <span class="n">Y_max</span><span class="p">))</span>
+
         <span class="c1"># Emulsify...</span>
         <span class="n">fraction_evaporated</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">elements</span><span class="o">.</span><span class="n">mass_evaporated</span> <span class="o">/</span> <span class="p">(</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">elements</span><span class="o">.</span><span class="n">mass_evaporated</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">elements</span><span class="o">.</span><span class="n">mass_oil</span><span class="p">)</span>
@@ -960,6 +958,34 @@
             <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;        Emulsification not yet started&#39;</span><span class="p">)</span>
             <span class="k">return</span>
 
+        <span class="c1"># max water content fraction - get from database</span>
+        <span class="n">Y_max</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">atleast_1d</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">oiltype</span><span class="o">.</span><span class="n">emulsion_water_fraction_max</span><span class="p">)</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">max_water_fraction</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">wf</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">max_water_fraction</span><span class="p">[</span><span class="s1">&#39;max_water_fraction&#39;</span><span class="p">]</span>
+            <span class="n">wft</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">max_water_fraction</span><span class="p">[</span><span class="s1">&#39;temperatures&#39;</span><span class="p">]</span>
+            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">wf</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+                <span class="n">wf</span> <span class="o">=</span> <span class="p">[</span><span class="n">wf</span><span class="p">,</span> <span class="n">wf</span><span class="p">]</span>
+                <span class="n">wft</span> <span class="o">=</span> <span class="p">[</span><span class="n">wft</span><span class="p">,</span> <span class="n">wft</span><span class="p">]</span>
+            <span class="n">swt</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">environment</span><span class="o">.</span><span class="n">sea_water_temperature</span><span class="p">[</span><span class="n">start_emulsion</span><span class="p">]</span> <span class="o">-</span> <span class="mf">273.15</span>  <span class="c1"># to Celcius</span>
+            <span class="n">weights</span> <span class="o">=</span> <span class="p">(</span><span class="n">wft</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">-</span> <span class="n">swt</span><span class="p">)</span> <span class="o">/</span> <span class="p">(</span><span class="n">wft</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">-</span> <span class="n">wft</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+            <span class="n">weights</span><span class="p">[</span><span class="n">swt</span><span class="o">&gt;</span><span class="n">wft</span><span class="p">[</span><span class="mi">1</span><span class="p">]]</span> <span class="o">=</span> <span class="mi">0</span>
+            <span class="n">weights</span><span class="p">[</span><span class="n">swt</span><span class="o">&lt;=</span><span class="n">wft</span><span class="p">[</span><span class="mi">0</span><span class="p">]]</span> <span class="o">=</span> <span class="mi">1</span>
+            <span class="n">max_water_fraction_sintef</span> <span class="o">=</span> <span class="n">weights</span><span class="o">*</span><span class="n">wf</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">+</span> <span class="p">(</span><span class="mi">1</span><span class="o">-</span><span class="n">weights</span><span class="p">)</span><span class="o">*</span><span class="n">wf</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+
+            <span class="k">if</span> <span class="p">(</span><span class="n">Y_max</span> <span class="o">-</span> <span class="n">max_water_fraction_sintef</span><span class="p">)</span><span class="o">.</span><span class="n">min</span><span class="p">()</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span>
+                    <span class="sa">f</span><span class="s1">&#39;Overriding max water fraction </span><span class="si">{</span><span class="n">Y_max</span><span class="si">}</span><span class="s1"> with linear fit to SINTEF max values:&#39;</span>
+                    <span class="sa">f</span><span class="s1">&#39; T: </span><span class="si">{</span><span class="n">wft</span><span class="si">}</span><span class="s1">, Fraction: </span><span class="si">{</span><span class="n">wf</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
+                <span class="n">Y_max</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">minimum</span><span class="p">(</span><span class="n">Y_max</span><span class="p">,</span> <span class="n">max_water_fraction_sintef</span><span class="p">))</span>
+        <span class="c1"># emulsion</span>
+        <span class="k">if</span> <span class="n">Y_max</span><span class="o">.</span><span class="n">max</span><span class="p">()</span> <span class="o">&lt;=</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;Oil does not emulsify, returning.&#39;</span><span class="p">)</span>
+            <span class="k">return</span>
+        <span class="c1"># Constants for droplets</span>
+        <span class="n">drop_min</span> <span class="o">=</span> <span class="mf">1.0e-6</span>
+        <span class="n">drop_max</span> <span class="o">=</span> <span class="mf">1.0e-5</span>
+        <span class="n">S_max</span> <span class="o">=</span> <span class="p">(</span><span class="mf">6.</span> <span class="o">/</span> <span class="n">drop_min</span><span class="p">)</span> <span class="o">*</span> <span class="p">(</span><span class="n">Y_max</span> <span class="o">/</span> <span class="p">(</span><span class="mf">1.0</span> <span class="o">-</span> <span class="n">Y_max</span><span class="p">))</span>
+        <span class="n">S_min</span> <span class="o">=</span> <span class="p">(</span><span class="mf">6.</span> <span class="o">/</span> <span class="n">drop_max</span><span class="p">)</span> <span class="o">*</span> <span class="p">(</span><span class="n">Y_max</span> <span class="o">/</span> <span class="p">(</span><span class="mf">1.0</span> <span class="o">-</span> <span class="n">Y_max</span><span class="p">))</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">oiltype</span><span class="o">.</span><span class="n">bulltime</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>  <span class="c1"># User has set value</span>
             <span class="n">start_time</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">oiltype</span><span class="o">.</span><span class="n">bulltime</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">ones</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">start_emulsion</span><span class="p">))</span>
         <span class="k">else</span><span class="p">:</span>
@@ -968,23 +994,17 @@
             <span class="n">start_time</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">elements</span><span class="o">.</span><span class="n">age_seconds</span><span class="p">[</span><span class="n">start_emulsion</span><span class="p">]</span> <span class="o">&gt;=</span>
                        <span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">elements</span><span class="o">.</span><span class="n">bulltime</span><span class="p">[</span><span class="n">start_emulsion</span><span class="p">]</span>
         <span class="c1"># Update droplet interfacial area</span>
-        <span class="n">k_emul</span> <span class="o">=</span> <span class="n">noaa</span><span class="o">.</span><span class="n">water_uptake_coefficient</span><span class="p">(</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">oiltype</span><span class="p">,</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">wind_speed</span><span class="p">()[</span><span class="n">start_emulsion</span><span class="p">])</span>
+        <span class="n">k_emul</span> <span class="o">=</span> <span class="n">noaa</span><span class="o">.</span><span class="n">water_uptake_coefficient</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">oiltype</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">wind_speed</span><span class="p">()[</span><span class="n">start_emulsion</span><span class="p">])</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">elements</span><span class="o">.</span><span class="n">interfacial_area</span><span class="p">[</span><span class="n">start_emulsion</span><span class="p">]</span> <span class="o">=</span> \
             <span class="bp">self</span><span class="o">.</span><span class="n">elements</span><span class="o">.</span><span class="n">interfacial_area</span><span class="p">[</span><span class="n">start_emulsion</span><span class="p">]</span> <span class="o">+</span> \
-            <span class="p">(</span><span class="n">k_emul</span><span class="o">*</span><span class="bp">self</span><span class="o">.</span><span class="n">time_step</span><span class="o">.</span><span class="n">total_seconds</span><span class="p">()</span><span class="o">*</span>
-             <span class="n">np</span><span class="o">.</span><span class="n">exp</span><span class="p">((</span><span class="o">-</span><span class="n">k_emul</span><span class="o">/</span><span class="n">S_max</span><span class="p">)</span><span class="o">*</span><span class="p">(</span>
+            <span class="p">(</span><span class="n">k_emul</span><span class="o">*</span><span class="bp">self</span><span class="o">.</span><span class="n">time_step</span><span class="o">.</span><span class="n">total_seconds</span><span class="p">()</span><span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">exp</span><span class="p">((</span><span class="o">-</span><span class="n">k_emul</span><span class="o">/</span><span class="n">S_max</span><span class="p">)</span><span class="o">*</span><span class="p">(</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">elements</span><span class="o">.</span><span class="n">age_seconds</span><span class="p">[</span><span class="n">start_emulsion</span><span class="p">]</span> <span class="o">-</span> <span class="n">start_time</span><span class="p">)))</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">elements</span><span class="o">.</span><span class="n">interfacial_area</span><span class="p">[</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">elements</span><span class="o">.</span><span class="n">interfacial_area</span> <span class="o">&gt;</span> <span class="n">S_max</span><span class="p">]</span> <span class="o">=</span> <span class="n">S_max</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">elements</span><span class="o">.</span><span class="n">interfacial_area</span><span class="p">[</span><span class="n">start_emulsion</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">minimum</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">elements</span><span class="o">.</span><span class="n">interfacial_area</span><span class="p">[</span><span class="n">start_emulsion</span><span class="p">],</span> <span class="n">S_max</span><span class="p">)</span>
         <span class="c1"># Update water fraction</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">elements</span><span class="o">.</span><span class="n">water_fraction</span><span class="p">[</span><span class="n">start_emulsion</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">elements</span><span class="o">.</span><span class="n">interfacial_area</span><span class="p">[</span><span class="n">start_emulsion</span><span class="p">]</span> <span class="o">*</span> <span class="n">drop_max</span> <span class="o">/</span>
-            <span class="p">(</span><span class="mf">6.0</span> <span class="o">+</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">elements</span><span class="o">.</span><span class="n">interfacial_area</span><span class="p">[</span><span class="n">start_emulsion</span><span class="p">]</span> <span class="o">*</span> <span class="n">drop_max</span> <span class="o">/</span> <span class="p">(</span><span class="mf">6.0</span> <span class="o">+</span>
              <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">elements</span><span class="o">.</span><span class="n">interfacial_area</span><span class="p">[</span><span class="n">start_emulsion</span><span class="p">]</span> <span class="o">*</span> <span class="n">drop_max</span><span class="p">)))</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">elements</span><span class="o">.</span><span class="n">water_fraction</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">elements</span><span class="o">.</span><span class="n">interfacial_area</span> <span class="o">&gt;=</span> <span class="p">(</span>
-            <span class="p">(</span><span class="mf">6.0</span> <span class="o">/</span> <span class="n">drop_max</span><span class="p">)</span> <span class="o">*</span> <span class="p">(</span><span class="n">Y_max</span> <span class="o">/</span> <span class="p">(</span><span class="mf">1.0</span> <span class="o">-</span> <span class="n">Y_max</span><span class="p">)))]</span> <span class="o">=</span> <span class="n">Y_max</span></div>
+        <span class="bp">self</span><span class="o">.</span><span class="n">elements</span><span class="o">.</span><span class="n">water_fraction</span><span class="p">[</span><span class="n">start_emulsion</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">minimum</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">elements</span><span class="o">.</span><span class="n">water_fraction</span><span class="p">[</span><span class="n">start_emulsion</span><span class="p">],</span> <span class="n">Y_max</span><span class="p">)</span></div>
 
 
 <div class="viewcode-block" id="OpenOil.update_terminal_velocity">
