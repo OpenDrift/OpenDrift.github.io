@@ -217,7 +217,7 @@
                 <span class="s1">&#39;dtype&#39;</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">float32</span><span class="p">,</span>
                 <span class="s1">&#39;units&#39;</span><span class="p">:</span> <span class="s1">&#39;m2/s&#39;</span><span class="p">,</span>
                 <span class="s1">&#39;seed&#39;</span><span class="p">:</span> <span class="kc">False</span><span class="p">,</span>  <span class="c1"># Taken from NOAA database</span>
-                <span class="s1">&#39;description&#39;</span><span class="p">:</span> <span class="s1">&#39;Kinematic viscosity of oil&#39;</span><span class="p">,</span>
+                <span class="s1">&#39;description&#39;</span><span class="p">:</span> <span class="s1">&#39;Kinematic viscosity of oil (emulsion)&#39;</span><span class="p">,</span>
                 <span class="s1">&#39;default&#39;</span><span class="p">:</span> <span class="mf">0.005</span>
             <span class="p">}),</span>
         <span class="p">(</span>
@@ -825,11 +825,13 @@
         <span class="n">kv1</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">oil_viscosity</span><span class="p">)</span> <span class="o">*</span> <span class="n">visc_curvfit_param</span>
         <span class="n">kv1</span><span class="p">[</span><span class="n">kv1</span> <span class="o">&lt;</span> <span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="mi">1</span>
         <span class="n">kv1</span><span class="p">[</span><span class="n">kv1</span> <span class="o">&gt;</span> <span class="mi">10</span><span class="p">]</span> <span class="o">=</span> <span class="mi">10</span>
+        <span class="c1"># NB: neglecting dispersed and biodegraded in calculation of fraction_evaporated</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">elements</span><span class="o">.</span><span class="n">fraction_evaporated</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">elements</span><span class="o">.</span><span class="n">mass_evaporated</span> <span class="o">/</span> <span class="p">(</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">elements</span><span class="o">.</span><span class="n">mass_oil</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">elements</span><span class="o">.</span><span class="n">mass_evaporated</span><span class="p">)</span>
+
         <span class="bp">self</span><span class="o">.</span><span class="n">elements</span><span class="o">.</span><span class="n">viscosity</span> <span class="o">=</span> <span class="p">(</span>
-            <span class="n">oil_viscosity</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="n">kv1</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">elements</span><span class="o">.</span><span class="n">fraction_evaporated</span><span class="p">)</span> <span class="o">*</span>
-            <span class="p">(</span><span class="mi">1</span> <span class="o">+</span> <span class="p">(</span><span class="n">fw_d_fref</span> <span class="o">/</span> <span class="p">(</span><span class="mf">1.187</span> <span class="o">-</span> <span class="n">fw_d_fref</span><span class="p">)))</span><span class="o">**</span><span class="mf">2.49</span><span class="p">)</span>
+            <span class="n">oil_viscosity</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="n">kv1</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">elements</span><span class="o">.</span><span class="n">fraction_evaporated</span><span class="p">)</span> <span class="o">*</span> 
+                <span class="p">(</span><span class="mi">1</span> <span class="o">+</span> <span class="p">(</span><span class="n">fw_d_fref</span> <span class="o">/</span> <span class="p">(</span><span class="mf">1.187</span> <span class="o">-</span> <span class="n">fw_d_fref</span><span class="p">)))</span><span class="o">**</span><span class="mf">2.49</span><span class="p">)</span>
 
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_config</span><span class="p">(</span><span class="s1">&#39;processes:evaporation&#39;</span><span class="p">)</span> <span class="ow">is</span> <span class="kc">True</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">timer_start</span><span class="p">(</span>
@@ -946,13 +948,11 @@
         <span class="n">emul_constant</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">oiltype</span><span class="o">.</span><span class="n">bullwinkle</span>
 
         <span class="c1"># Emulsify...</span>
-        <span class="n">fraction_evaporated</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">elements</span><span class="o">.</span><span class="n">mass_evaporated</span> <span class="o">/</span> <span class="p">(</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">elements</span><span class="o">.</span><span class="n">mass_evaporated</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">elements</span><span class="o">.</span><span class="n">mass_oil</span><span class="p">)</span>
         <span class="c1"># f ((le_age &gt;= emul_time &amp;&amp; emul_time &gt;= 0.) || frac_evap[i] &gt;= emul_C &amp;&amp; emul_C &gt; 0.)</span>
 
         <span class="n">start_emulsion</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">((</span>
             <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">elements</span><span class="o">.</span><span class="n">age_seconds</span> <span class="o">&gt;=</span> <span class="n">emul_time</span><span class="p">)</span> <span class="o">&amp;</span> <span class="p">(</span><span class="n">emul_time</span> <span class="o">&gt;=</span> <span class="mi">0</span><span class="p">))</span>
-                                  <span class="o">|</span> <span class="p">((</span><span class="n">fraction_evaporated</span> <span class="o">&gt;=</span> <span class="n">emul_constant</span><span class="p">)</span>
+                                  <span class="o">|</span> <span class="p">((</span><span class="bp">self</span><span class="o">.</span><span class="n">elements</span><span class="o">.</span><span class="n">fraction_evaporated</span> <span class="o">&gt;=</span> <span class="n">emul_constant</span><span class="p">)</span>
                                      <span class="o">&amp;</span> <span class="p">(</span><span class="n">emul_constant</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">)))[</span><span class="mi">0</span><span class="p">]</span>
         <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">start_emulsion</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
             <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;        Emulsification not yet started&#39;</span><span class="p">)</span>
@@ -1633,14 +1633,14 @@
                 <span class="n">dyn_viscosity_mean</span><span class="p">,</span>
                 <span class="s1">&#39;g&#39;</span><span class="p">,</span>
                 <span class="n">lw</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span>
-                <span class="n">label</span><span class="o">=</span><span class="s1">&#39;Dynamical viscosity&#39;</span><span class="p">)</span>
+                <span class="n">label</span><span class="o">=</span><span class="s1">&#39;Emulsion viscosity&#39;</span><span class="p">)</span>
         <span class="n">ax</span><span class="o">.</span><span class="n">fill_between</span><span class="p">(</span><span class="n">time</span><span class="p">,</span>
                         <span class="n">dyn_viscosity_mean</span> <span class="o">-</span> <span class="n">dyn_viscosity_std</span><span class="p">,</span>
                         <span class="n">dyn_viscosity_mean</span> <span class="o">+</span> <span class="n">dyn_viscosity_std</span><span class="p">,</span>
                         <span class="n">color</span><span class="o">=</span><span class="s1">&#39;g&#39;</span><span class="p">,</span>
                         <span class="n">alpha</span><span class="o">=</span><span class="mf">0.5</span><span class="p">)</span>
         <span class="n">ax</span><span class="o">.</span><span class="n">set_ylim</span><span class="p">([</span><span class="mi">0</span><span class="p">,</span> <span class="nb">max</span><span class="p">(</span><span class="n">dyn_viscosity_mean</span> <span class="o">+</span> <span class="n">dyn_viscosity_std</span><span class="p">)])</span>
-        <span class="n">ax</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="sa">r</span><span class="s1">&#39;Dynamical viscosity  [cPoise] / [mPas]&#39;</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s1">&#39;g&#39;</span><span class="p">)</span>
+        <span class="n">ax</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="sa">r</span><span class="s1">&#39;Emulsion viscosity  [cPoise] / [mPas]&#39;</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s1">&#39;g&#39;</span><span class="p">)</span>
         <span class="n">ax</span><span class="o">.</span><span class="n">tick_params</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="s1">&#39;y&#39;</span><span class="p">,</span> <span class="n">colors</span><span class="o">=</span><span class="s1">&#39;g&#39;</span><span class="p">)</span>
 
         <span class="n">axb</span> <span class="o">=</span> <span class="n">ax</span><span class="o">.</span><span class="n">twinx</span><span class="p">()</span>
