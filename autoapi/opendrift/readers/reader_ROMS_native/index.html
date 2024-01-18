@@ -134,7 +134,7 @@
 <table class="autosummary longtable docutils align-default">
 <tbody>
 <tr class="row-odd"><td><p><a class="reference internal" href="#opendrift.readers.reader_ROMS_native.Reader" title="opendrift.readers.reader_ROMS_native.Reader"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Reader</span></code></a></p></td>
-<td><p>An abstract reader. Implementors provide a method to read data and specify how it is interpolated.</p></td>
+<td><p>A reader for ROMS Output files. It can take a single file, a file pattern, a URL or an xarray Dataset.</p></td>
 </tr>
 </tbody>
 </table>
@@ -167,12 +167,51 @@
 <dt class="sig sig-object py" id="opendrift.readers.reader_ROMS_native.Reader">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">opendrift.readers.reader_ROMS_native.</span></span><span class="sig-name descname"><span class="pre">Reader</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">filename</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">gridfile</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">standard_name_mapping</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">{}</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../../_modules/opendrift/readers/reader_ROMS_native.html#Reader"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#opendrift.readers.reader_ROMS_native.Reader" title="Link to this definition"></a></dt>
 <dd><p>Bases: <a class="reference internal" href="../basereader/index.html#opendrift.readers.basereader.BaseReader" title="opendrift.readers.basereader.BaseReader"><code class="xref py py-obj docutils literal notranslate"><span class="pre">opendrift.readers.basereader.BaseReader</span></code></a>, <a class="reference internal" href="../basereader/index.html#opendrift.readers.basereader.StructuredReader" title="opendrift.readers.basereader.StructuredReader"><code class="xref py py-obj docutils literal notranslate"><span class="pre">opendrift.readers.basereader.StructuredReader</span></code></a></p>
-<p>An abstract reader. Implementors provide a method to read data and specify how it is interpolated.</p>
-<p>This class inherits <a class="reference internal" href="../basereader/variables/index.html#opendrift.readers.basereader.variables.Variables" title="opendrift.readers.basereader.variables.Variables"><code class="xref py py-class docutils literal notranslate"><span class="pre">variables.Variables</span></code></a> which inherits <a class="reference internal" href="../basereader/variables/index.html#opendrift.readers.basereader.variables.ReaderDomain" title="opendrift.readers.basereader.variables.ReaderDomain"><code class="xref py py-class docutils literal notranslate"><span class="pre">variables.ReaderDomain</span></code></a>. <cite>ReaderDomain</cite> is responsible for the extent and domain of the reader, including checking for out-of-bounds and projection conversion. <cite>Variables</cite> is responsible for returning interpolated data at the requests positions or profiles. Apart from coercing the returned data into the right type for <a class="reference internal" href="../../models/basemodel/index.html#module-opendrift.models.basemodel" title="opendrift.models.basemodel"><code class="xref py py-mod docutils literal notranslate"><span class="pre">opendrift.models.basemodel</span></code></a>, it defines the abstract interface to <a class="reference internal" href="../basereader/variables/index.html#opendrift.readers.basereader.variables.Variables._get_variables_interpolated_" title="opendrift.readers.basereader.variables.Variables._get_variables_interpolated_"><code class="xref py py-meth docutils literal notranslate"><span class="pre">variables.Variables._get_variables_interpolated_()</span></code></a> which reader-implementations must provide (_usually_ through one of the main reader-types, see: <a class="reference internal" href="../index.html#module-opendrift.readers" title="opendrift.readers"><code class="xref py py-mod docutils literal notranslate"><span class="pre">opendrift.readers</span></code></a>).</p>
-<div class="admonition seealso">
-<p class="admonition-title">See also</p>
-<p><a class="reference internal" href="../index.html#module-opendrift.readers" title="opendrift.readers"><code class="xref py py-mod docutils literal notranslate"><span class="pre">opendrift.readers</span></code></a>.</p>
-<p><a class="reference internal" href="../basereader/variables/index.html#module-opendrift.readers.basereader.variables" title="opendrift.readers.basereader.variables"><code class="xref py py-mod docutils literal notranslate"><span class="pre">variables</span></code></a>.</p>
+<p>A reader for ROMS Output files. It can take a single file, a file pattern, a URL or an xarray Dataset.</p>
+<dl class="simple">
+<dt>Args:</dt><dd><dl class="field-list simple">
+<dt class="field-odd">param filename<span class="colon">:</span></dt>
+<dd class="field-odd"><p>A single netCDF file, a pattern of files, or a xr.Dataset. The
+netCDF file can also be an URL to an OPeNDAP server.</p>
+</dd>
+<dt class="field-even">type filename<span class="colon">:</span></dt>
+<dd class="field-even"><p>string, xr.Dataset (required).</p>
+</dd>
+<dt class="field-odd">param name<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Name of reader</p>
+</dd>
+<dt class="field-even">type name<span class="colon">:</span></dt>
+<dd class="field-even"><p>string, optional</p>
+</dd>
+<dt class="field-odd">param proj4<span class="colon">:</span></dt>
+<dd class="field-odd"><p>PROJ.4 string describing projection of data.</p>
+</dd>
+<dt class="field-even">type proj4<span class="colon">:</span></dt>
+<dd class="field-even"><p>string, optional</p>
+</dd>
+</dl>
+</dd>
+</dl>
+<p>Example:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">opendrift.readers.reader_ROMS_native</span> <span class="kn">import</span> <span class="n">Reader</span>
+<span class="n">r</span> <span class="o">=</span> <span class="n">Reader</span><span class="p">(</span><span class="s2">&quot;roms.nc&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>Several files can be specified by using a pattern:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">opendrift.readers.reader_ROMS_native</span> <span class="kn">import</span> <span class="n">Reader</span>
+<span class="n">r</span> <span class="o">=</span> <span class="n">Reader</span><span class="p">(</span><span class="s2">&quot;*.nc&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>An OPeNDAP URL can be used:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">opendrift.readers.reader_ROMS_native</span> <span class="kn">import</span> <span class="n">Reader</span>
+<span class="n">r</span> <span class="o">=</span> <span class="n">Reader</span><span class="p">(</span><span class="s1">&#39;https://thredds.met.no/thredds/dodsC/mepslatest/meps_lagged_6_h_latest_2_5km_latest.nc&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>A xr.Dataset can be used:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">opendrift.readers.reader_ROMS_native</span> <span class="kn">import</span> <span class="n">Reader</span>
+<span class="n">ds</span> <span class="o">=</span> <span class="n">xr</span><span class="o">.</span><span class="n">open_dataset</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="n">decode_times</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+<span class="n">r</span> <span class="o">=</span> <span class="n">Reader</span><span class="p">(</span><span class="n">ds</span><span class="p">)</span>
+</pre></div>
 </div>
 <p>Common constructor for all readers</p>
 <dl class="py method">

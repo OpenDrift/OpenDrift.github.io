@@ -130,6 +130,49 @@
 <div class="viewcode-block" id="Reader">
 <a class="viewcode-back" href="../../../autoapi/opendrift/readers/reader_ROMS_native/index.html#opendrift.readers.reader_ROMS_native.Reader">[docs]</a>
 <span class="k">class</span> <span class="nc">Reader</span><span class="p">(</span><span class="n">BaseReader</span><span class="p">,</span> <span class="n">StructuredReader</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    A reader for ROMS Output files. It can take a single file, a file pattern, a URL or an xarray Dataset.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        :param filename: A single netCDF file, a pattern of files, or a xr.Dataset. The</span>
+<span class="sd">                         netCDF file can also be an URL to an OPeNDAP server.</span>
+<span class="sd">        :type filename: string, xr.Dataset (required).</span>
+
+<span class="sd">        :param name: Name of reader</span>
+<span class="sd">        :type name: string, optional</span>
+
+<span class="sd">        :param proj4: PROJ.4 string describing projection of data.</span>
+<span class="sd">        :type proj4: string, optional</span>
+
+<span class="sd">    Example:</span>
+
+<span class="sd">    .. code::</span>
+
+<span class="sd">       from opendrift.readers.reader_ROMS_native import Reader</span>
+<span class="sd">       r = Reader(&quot;roms.nc&quot;)</span>
+
+<span class="sd">    Several files can be specified by using a pattern:</span>
+
+<span class="sd">    .. code::</span>
+
+<span class="sd">       from opendrift.readers.reader_ROMS_native import Reader</span>
+<span class="sd">       r = Reader(&quot;*.nc&quot;)</span>
+
+<span class="sd">    An OPeNDAP URL can be used:</span>
+
+<span class="sd">    .. code::</span>
+
+<span class="sd">       from opendrift.readers.reader_ROMS_native import Reader</span>
+<span class="sd">       r = Reader(&#39;https://thredds.met.no/thredds/dodsC/mepslatest/meps_lagged_6_h_latest_2_5km_latest.nc&#39;)</span>
+
+<span class="sd">    A xr.Dataset can be used:</span>
+
+<span class="sd">    .. code::</span>
+
+<span class="sd">        from opendrift.readers.reader_ROMS_native import Reader</span>
+<span class="sd">        ds = xr.open_dataset(filename, decode_times=False)</span>
+<span class="sd">        r = Reader(ds)</span>
+<span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">filename</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">gridfile</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">standard_name_mapping</span><span class="o">=</span><span class="p">{}):</span>
 
@@ -181,35 +224,44 @@
 
         <span class="n">gls_param</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;gls_cmu0&#39;</span><span class="p">,</span> <span class="s1">&#39;gls_p&#39;</span><span class="p">,</span> <span class="s1">&#39;gls_m&#39;</span><span class="p">,</span> <span class="s1">&#39;gls_n&#39;</span><span class="p">]</span>
 
-        <span class="n">filestr</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">filename</span><span class="p">)</span>
-        <span class="k">if</span> <span class="n">name</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="n">filestr</span>
-        <span class="k">else</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="n">name</span>
-
-        <span class="k">try</span><span class="p">:</span>
-            <span class="c1"># Open file, check that everything is ok</span>
-            <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s1">&#39;Opening dataset: &#39;</span> <span class="o">+</span> <span class="n">filestr</span><span class="p">)</span>
-            <span class="k">if</span> <span class="p">(</span><span class="s1">&#39;*&#39;</span> <span class="ow">in</span> <span class="n">filestr</span><span class="p">)</span> <span class="ow">or</span> <span class="p">(</span><span class="s1">&#39;?&#39;</span> <span class="ow">in</span> <span class="n">filestr</span><span class="p">)</span> <span class="ow">or</span> <span class="p">(</span><span class="s1">&#39;[&#39;</span> <span class="ow">in</span> <span class="n">filestr</span><span class="p">):</span>
-                <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s1">&#39;Opening files with MFDataset&#39;</span><span class="p">)</span>
-                <span class="k">def</span> <span class="nf">drop_non_essential_vars_pop</span><span class="p">(</span><span class="n">ds</span><span class="p">):</span>
-                    <span class="n">dropvars</span> <span class="o">=</span> <span class="p">[</span><span class="n">v</span> <span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">ds</span><span class="o">.</span><span class="n">variables</span> <span class="k">if</span> <span class="n">v</span> <span class="ow">not</span> <span class="ow">in</span>
-                                <span class="nb">list</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">ROMS_variable_mapping</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span> <span class="o">+</span> <span class="n">gls_param</span> <span class="o">+</span>
-                                <span class="p">[</span><span class="s1">&#39;ocean_time&#39;</span><span class="p">,</span> <span class="s1">&#39;time&#39;</span><span class="p">,</span> <span class="s1">&#39;bulk_time&#39;</span><span class="p">,</span> <span class="s1">&#39;s_rho&#39;</span><span class="p">,</span>
-                                 <span class="s1">&#39;Cs_r&#39;</span><span class="p">,</span> <span class="s1">&#39;hc&#39;</span><span class="p">,</span> <span class="s1">&#39;angle&#39;</span><span class="p">,</span> <span class="s1">&#39;Vtransform&#39;</span><span class="p">]</span>
-                                <span class="ow">and</span> <span class="n">v</span><span class="p">[</span><span class="mi">0</span><span class="p">:</span><span class="mi">3</span><span class="p">]</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">[</span><span class="s1">&#39;lon&#39;</span><span class="p">,</span> <span class="s1">&#39;lat&#39;</span><span class="p">,</span> <span class="s1">&#39;mas&#39;</span><span class="p">]]</span>
-                    <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;Dropping variables: </span><span class="si">%s</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="n">dropvars</span><span class="p">)</span>
-                    <span class="n">ds</span> <span class="o">=</span> <span class="n">ds</span><span class="o">.</span><span class="n">drop_vars</span><span class="p">(</span><span class="n">dropvars</span><span class="p">)</span>
-                    <span class="k">return</span> <span class="n">ds</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">Dataset</span> <span class="o">=</span> <span class="n">xr</span><span class="o">.</span><span class="n">open_mfdataset</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span>
-                    <span class="n">chunks</span><span class="o">=</span><span class="p">{</span><span class="s1">&#39;ocean_time&#39;</span><span class="p">:</span> <span class="mi">1</span><span class="p">},</span> <span class="n">compat</span><span class="o">=</span><span class="s1">&#39;override&#39;</span><span class="p">,</span> <span class="n">decode_times</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
-                    <span class="n">preprocess</span><span class="o">=</span><span class="n">drop_non_essential_vars_pop</span><span class="p">,</span>
-                    <span class="n">data_vars</span><span class="o">=</span><span class="s1">&#39;minimal&#39;</span><span class="p">,</span> <span class="n">coords</span><span class="o">=</span><span class="s1">&#39;minimal&#39;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="n">xr</span><span class="o">.</span><span class="n">Dataset</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">Dataset</span> <span class="o">=</span> <span class="n">filename</span>
+            <span class="k">if</span> <span class="n">name</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="n">name</span>
             <span class="k">else</span><span class="p">:</span>
-                <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s1">&#39;Opening file with Dataset&#39;</span><span class="p">)</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">Dataset</span> <span class="o">=</span> <span class="n">xr</span><span class="o">.</span><span class="n">open_dataset</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="n">decode_times</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
-        <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="n">e</span><span class="p">)</span>
+                <span class="kn">import</span> <span class="nn">re</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">sub</span><span class="p">(</span><span class="s1">&#39;[^0-9a-zA-Z]+&#39;</span><span class="p">,</span> <span class="s1">&#39;_&#39;</span><span class="p">,</span> <span class="n">filename</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s1">&#39;title&#39;</span><span class="p">])</span>
+        <span class="k">else</span><span class="p">:</span>
+
+            <span class="n">filestr</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">filename</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">name</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="n">filestr</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="n">name</span>
+
+            <span class="k">try</span><span class="p">:</span>
+                <span class="c1"># Open file, check that everything is ok</span>
+                <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s1">&#39;Opening dataset: &#39;</span> <span class="o">+</span> <span class="n">filestr</span><span class="p">)</span>
+                <span class="k">if</span> <span class="p">(</span><span class="s1">&#39;*&#39;</span> <span class="ow">in</span> <span class="n">filestr</span><span class="p">)</span> <span class="ow">or</span> <span class="p">(</span><span class="s1">&#39;?&#39;</span> <span class="ow">in</span> <span class="n">filestr</span><span class="p">)</span> <span class="ow">or</span> <span class="p">(</span><span class="s1">&#39;[&#39;</span> <span class="ow">in</span> <span class="n">filestr</span><span class="p">):</span>
+                    <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s1">&#39;Opening files with MFDataset&#39;</span><span class="p">)</span>
+                    <span class="k">def</span> <span class="nf">drop_non_essential_vars_pop</span><span class="p">(</span><span class="n">ds</span><span class="p">):</span>
+                        <span class="n">dropvars</span> <span class="o">=</span> <span class="p">[</span><span class="n">v</span> <span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">ds</span><span class="o">.</span><span class="n">variables</span> <span class="k">if</span> <span class="n">v</span> <span class="ow">not</span> <span class="ow">in</span>
+                                    <span class="nb">list</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">ROMS_variable_mapping</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span> <span class="o">+</span> <span class="n">gls_param</span> <span class="o">+</span>
+                                    <span class="p">[</span><span class="s1">&#39;ocean_time&#39;</span><span class="p">,</span> <span class="s1">&#39;time&#39;</span><span class="p">,</span> <span class="s1">&#39;bulk_time&#39;</span><span class="p">,</span> <span class="s1">&#39;s_rho&#39;</span><span class="p">,</span>
+                                     <span class="s1">&#39;Cs_r&#39;</span><span class="p">,</span> <span class="s1">&#39;hc&#39;</span><span class="p">,</span> <span class="s1">&#39;angle&#39;</span><span class="p">,</span> <span class="s1">&#39;Vtransform&#39;</span><span class="p">]</span>
+                                    <span class="ow">and</span> <span class="n">v</span><span class="p">[</span><span class="mi">0</span><span class="p">:</span><span class="mi">3</span><span class="p">]</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">[</span><span class="s1">&#39;lon&#39;</span><span class="p">,</span> <span class="s1">&#39;lat&#39;</span><span class="p">,</span> <span class="s1">&#39;mas&#39;</span><span class="p">]]</span>
+                        <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;Dropping variables: </span><span class="si">%s</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="n">dropvars</span><span class="p">)</span>
+                        <span class="n">ds</span> <span class="o">=</span> <span class="n">ds</span><span class="o">.</span><span class="n">drop_vars</span><span class="p">(</span><span class="n">dropvars</span><span class="p">)</span>
+                        <span class="k">return</span> <span class="n">ds</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">Dataset</span> <span class="o">=</span> <span class="n">xr</span><span class="o">.</span><span class="n">open_mfdataset</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span>
+                        <span class="n">chunks</span><span class="o">=</span><span class="p">{</span><span class="s1">&#39;ocean_time&#39;</span><span class="p">:</span> <span class="mi">1</span><span class="p">},</span> <span class="n">compat</span><span class="o">=</span><span class="s1">&#39;override&#39;</span><span class="p">,</span> <span class="n">decode_times</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+                        <span class="n">preprocess</span><span class="o">=</span><span class="n">drop_non_essential_vars_pop</span><span class="p">,</span>
+                        <span class="n">data_vars</span><span class="o">=</span><span class="s1">&#39;minimal&#39;</span><span class="p">,</span> <span class="n">coords</span><span class="o">=</span><span class="s1">&#39;minimal&#39;</span><span class="p">)</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s1">&#39;Opening file with Dataset&#39;</span><span class="p">)</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">Dataset</span> <span class="o">=</span> <span class="n">xr</span><span class="o">.</span><span class="n">open_dataset</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="n">decode_times</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+            <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="n">e</span><span class="p">)</span>
 
         <span class="k">if</span> <span class="n">gridfile</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>  <span class="c1"># Merging gridfile dataset with main dataset</span>
             <span class="n">gf</span> <span class="o">=</span> <span class="n">xr</span><span class="o">.</span><span class="n">open_dataset</span><span class="p">(</span><span class="n">gridfile</span><span class="p">)</span>
