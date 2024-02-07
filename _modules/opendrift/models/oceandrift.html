@@ -306,13 +306,43 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">machine_learning_correction</span><span class="p">()</span></div>
 
 
+<div class="viewcode-block" id="OceanDrift.simulate_trajectories">
+<a class="viewcode-back" href="../../../autoapi/opendrift/models/openoil/index.html#opendrift.models.oceandrift.OceanDrift.simulate_trajectories">[docs]</a>
+    <span class="k">def</span> <span class="nf">simulate_trajectories</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">outfile</span><span class="p">,</span> <span class="n">trajectories</span><span class="p">,</span>
+                              <span class="n">wind_drift_factors</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">current_drift_factors</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                              <span class="n">time_step</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">time_step_output</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                              <span class="n">simulation_duration</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">simulation_interval</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+
+        <span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
+        <span class="n">time_step_output</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">Timedelta</span><span class="p">(</span><span class="n">time_step_output</span><span class="p">)</span>
+        <span class="n">simulation_interval</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">Timedelta</span><span class="p">(</span><span class="n">simulation_interval</span><span class="p">)</span>
+        <span class="c1"># Interpolate trajectories to output time step</span>
+        <span class="n">trajectories</span> <span class="o">=</span> <span class="n">trajectories</span><span class="o">.</span><span class="n">traj</span><span class="o">.</span><span class="n">gridtime</span><span class="p">(</span><span class="n">time_step_output</span><span class="p">)</span>
+        <span class="c1"># Find all seed combinations: position, time, wdf, cdf</span>
+        <span class="c1">#  Loop også over trajektorier -&gt; origin_marker</span>
+        <span class="n">step</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">simulation_interval</span> <span class="o">/</span> <span class="n">time_step_output</span><span class="p">)</span>
+        <span class="n">tind</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">trajectories</span><span class="o">.</span><span class="n">sizes</span><span class="p">[</span><span class="s1">&#39;time&#39;</span><span class="p">],</span> <span class="n">step</span><span class="p">)</span>
+        <span class="n">start_lons</span> <span class="o">=</span> <span class="n">trajectories</span><span class="o">.</span><span class="n">isel</span><span class="p">(</span><span class="n">time</span><span class="o">=</span><span class="n">tind</span><span class="p">)</span><span class="o">.</span><span class="n">isel</span><span class="p">(</span><span class="n">trajectory</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span><span class="o">.</span><span class="n">lon</span><span class="o">.</span><span class="n">values</span>
+        <span class="n">start_lats</span> <span class="o">=</span> <span class="n">trajectories</span><span class="o">.</span><span class="n">isel</span><span class="p">(</span><span class="n">time</span><span class="o">=</span><span class="n">tind</span><span class="p">)</span><span class="o">.</span><span class="n">isel</span><span class="p">(</span><span class="n">trajectory</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span><span class="o">.</span><span class="n">lat</span><span class="o">.</span><span class="n">values</span>
+        <span class="n">start_times</span> <span class="o">=</span> <span class="n">trajectories</span><span class="o">.</span><span class="n">time</span><span class="p">[</span><span class="n">tind</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">set_config</span><span class="p">(</span><span class="s1">&#39;drift:max_age_seconds&#39;</span><span class="p">,</span> <span class="n">simulation_duration</span><span class="o">.</span><span class="n">total_seconds</span><span class="p">())</span>
+        <span class="k">for</span> <span class="p">(</span><span class="n">lo</span><span class="p">,</span><span class="n">la</span><span class="p">,</span><span class="n">ti</span><span class="p">)</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">start_lons</span><span class="p">,</span> <span class="n">start_lats</span><span class="p">,</span> <span class="n">start_times</span><span class="p">):</span>
+            <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">isnan</span><span class="p">(</span><span class="n">lo</span><span class="p">):</span>
+                <span class="k">continue</span>
+            <span class="n">ti</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">Timestamp</span><span class="p">(</span><span class="n">ti</span><span class="o">.</span><span class="n">values</span><span class="p">)</span><span class="o">.</span><span class="n">to_pydatetime</span><span class="p">()</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">seed_elements</span><span class="p">(</span><span class="n">lon</span><span class="o">=</span><span class="n">lo</span><span class="p">,</span> <span class="n">lat</span><span class="o">=</span><span class="n">la</span><span class="p">,</span> <span class="n">time</span><span class="o">=</span><span class="n">ti</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">outfile</span><span class="o">=</span><span class="n">outfile</span><span class="p">,</span> <span class="n">end_time</span><span class="o">=</span><span class="n">pd</span><span class="o">.</span><span class="n">Timestamp</span><span class="p">(</span><span class="n">start_times</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">values</span><span class="p">)</span><span class="o">.</span><span class="n">to_pydatetime</span><span class="p">()</span><span class="o">+</span><span class="n">simulation_duration</span><span class="p">)</span></div>
+
+        <span class="c1"># Simulate and save to file</span>
+
 <div class="viewcode-block" id="OceanDrift.wind_drift_factor_from_trajectory_lw">
 <a class="viewcode-back" href="../../../autoapi/opendrift/models/openoil/index.html#opendrift.models.oceandrift.OceanDrift.wind_drift_factor_from_trajectory_lw">[docs]</a>
     <span class="k">def</span> <span class="nf">wind_drift_factor_from_trajectory_lw</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">drifters</span><span class="p">,</span> <span class="n">wind_drift_factors</span><span class="p">,</span>
                                              <span class="n">simulation_length</span><span class="p">,</span> <span class="n">simulation_interval</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Perform simulations and use skillscore to optimize wind_drift_factor</span>
 
-<span class="sd">        drifters: list of disctionaries with numpy arrays of &#39;lon&#39; and &#39;lat&#39;</span>
+<span class="sd">        drifters: list of dictionaries with numpy arrays of &#39;lon&#39; and &#39;lat&#39;</span>
 <span class="sd">                    and list of datetimes</span>
 <span class="sd">        wind_drift_factors: the wind_drift_factors to use for simulations/optimalizations</span>
 <span class="sd">        &quot;&quot;&quot;</span>
