@@ -141,6 +141,12 @@
 <span class="sd">        :param name: Name of reader</span>
 <span class="sd">        :type name: string, optional</span>
 
+<span class="sd">        :param save_interpolator: Whether or not to save the interpolator that goes from lon/lat to x/y (calculated in structured.py)</span>
+<span class="sd">        :type save_interpolator: bool</span>
+
+<span class="sd">        :param interpolator_path: If save_interpolator is True, user can input this string to control where interpolator is saved.</span>
+<span class="sd">        :type interpolator_path: Path, str, optional</span>
+
 <span class="sd">    Example:</span>
 
 <span class="sd">    .. code::</span>
@@ -171,7 +177,8 @@
 <span class="sd">        r = Reader(ds)</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">filename</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">gridfile</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">standard_name_mapping</span><span class="o">=</span><span class="p">{}):</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">filename</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">gridfile</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">standard_name_mapping</span><span class="o">=</span><span class="p">{},</span>
+                 <span class="n">save_interpolator</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">interpolator_path</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
 
         <span class="k">if</span> <span class="n">filename</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;Need filename as argument to constructor&#39;</span><span class="p">)</span>
@@ -220,21 +227,14 @@
             <span class="o">-</span><span class="mi">6500</span><span class="p">,</span> <span class="o">-</span><span class="mi">7000</span><span class="p">,</span> <span class="o">-</span><span class="mi">7500</span><span class="p">,</span> <span class="o">-</span><span class="mi">8000</span><span class="p">])</span>
 
         <span class="n">gls_param</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;gls_cmu0&#39;</span><span class="p">,</span> <span class="s1">&#39;gls_p&#39;</span><span class="p">,</span> <span class="s1">&#39;gls_m&#39;</span><span class="p">,</span> <span class="s1">&#39;gls_n&#39;</span><span class="p">]</span>
+        
+        <span class="bp">self</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="n">name</span> <span class="ow">or</span> <span class="s1">&#39;roms native&#39;</span>
 
         <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="n">xr</span><span class="o">.</span><span class="n">Dataset</span><span class="p">):</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">Dataset</span> <span class="o">=</span> <span class="n">filename</span>
-            <span class="k">if</span> <span class="n">name</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="n">name</span>
-            <span class="k">else</span><span class="p">:</span>
-                <span class="kn">import</span> <span class="nn">re</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">sub</span><span class="p">(</span><span class="s1">&#39;[^0-9a-zA-Z]+&#39;</span><span class="p">,</span> <span class="s1">&#39;_&#39;</span><span class="p">,</span> <span class="n">filename</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s1">&#39;title&#39;</span><span class="p">])</span>
         <span class="k">else</span><span class="p">:</span>
 
             <span class="n">filestr</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">filename</span><span class="p">)</span>
-            <span class="k">if</span> <span class="n">name</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="n">filestr</span>
-            <span class="k">else</span><span class="p">:</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="n">name</span>
 
             <span class="k">try</span><span class="p">:</span>
                 <span class="c1"># Open file, check that everything is ok</span>
@@ -259,6 +259,10 @@
                     <span class="bp">self</span><span class="o">.</span><span class="n">Dataset</span> <span class="o">=</span> <span class="n">xr</span><span class="o">.</span><span class="n">open_dataset</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="n">decode_times</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
             <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
                 <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="n">e</span><span class="p">)</span>
+
+        <span class="c1"># this is an opporunity to save interpolators to pickle to save sim time</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">save_interpolator</span> <span class="o">=</span> <span class="n">save_interpolator</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">interpolator_path</span> <span class="o">=</span> <span class="n">interpolator_path</span> <span class="ow">or</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s1">_interpolators&#39;</span>
 
         <span class="k">if</span> <span class="n">gridfile</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>  <span class="c1"># Merging gridfile dataset with main dataset</span>
             <span class="n">gf</span> <span class="o">=</span> <span class="n">xr</span><span class="o">.</span><span class="n">open_dataset</span><span class="p">(</span><span class="n">gridfile</span><span class="p">)</span>
@@ -357,8 +361,6 @@
             <span class="bp">self</span><span class="o">.</span><span class="n">time_step</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">times</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">times</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">time_step</span> <span class="o">=</span> <span class="kc">None</span>
-
-        <span class="bp">self</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="s1">&#39;roms native&#39;</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">precalculate_s2z_coefficients</span> <span class="o">=</span> <span class="kc">True</span>
 
