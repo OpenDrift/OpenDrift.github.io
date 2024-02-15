@@ -144,8 +144,8 @@
 <span class="sd">        :param save_interpolator: Whether or not to save the interpolator that goes from lon/lat to x/y (calculated in structured.py)</span>
 <span class="sd">        :type save_interpolator: bool</span>
 
-<span class="sd">        :param interpolator_path: If save_interpolator is True, user can input this string to control where interpolator is saved.</span>
-<span class="sd">        :type interpolator_path: Path, str, optional</span>
+<span class="sd">        :param interpolator_filename: If save_interpolator is True, user can input this string to control where interpolator is saved.</span>
+<span class="sd">        :type interpolator_filename: Path, str, optional</span>
 
 <span class="sd">    Example:</span>
 
@@ -178,7 +178,16 @@
 <span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">filename</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">gridfile</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">standard_name_mapping</span><span class="o">=</span><span class="p">{},</span>
-                 <span class="n">save_interpolator</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">interpolator_path</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+                 <span class="n">save_interpolator</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">interpolator_filename</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        
+        <span class="bp">self</span><span class="o">.</span><span class="n">_mask_rho</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_mask_u</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_mask_v</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">land_binary_mask</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">sea_floor_depth_below_sea_level</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">z_rho_tot</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">s2z_A</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">angle_xi_east</span> <span class="o">=</span> <span class="kc">None</span>
 
         <span class="k">if</span> <span class="n">filename</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;Need filename as argument to constructor&#39;</span><span class="p">)</span>
@@ -262,7 +271,7 @@
 
         <span class="c1"># this is an opporunity to save interpolators to pickle to save sim time</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">save_interpolator</span> <span class="o">=</span> <span class="n">save_interpolator</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">interpolator_path</span> <span class="o">=</span> <span class="n">interpolator_path</span> <span class="ow">or</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s1">_interpolators&#39;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">interpolator_filename</span> <span class="o">=</span> <span class="n">interpolator_filename</span> <span class="ow">or</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s1">_interpolators&#39;</span>
 
         <span class="k">if</span> <span class="n">gridfile</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>  <span class="c1"># Merging gridfile dataset with main dataset</span>
             <span class="n">gf</span> <span class="o">=</span> <span class="n">xr</span><span class="o">.</span><span class="n">open_dataset</span><span class="p">(</span><span class="n">gridfile</span><span class="p">)</span>
@@ -302,9 +311,12 @@
                 <span class="bp">self</span><span class="o">.</span><span class="n">hc</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">Dataset</span><span class="o">.</span><span class="n">variables</span><span class="p">[</span><span class="s1">&#39;hc&#39;</span><span class="p">][:]</span>
             <span class="k">except</span><span class="p">:</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">hc</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">Dataset</span><span class="o">.</span><span class="n">variables</span><span class="p">[</span><span class="s1">&#39;hc&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">data</span>  <span class="c1"># scalar</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">hc</span> <span class="o">=</span> <span class="kc">None</span>
 
             <span class="bp">self</span><span class="o">.</span><span class="n">num_layers</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">sigma</span><span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="s2">&quot;2D dataset, so deleting u and v from ROMS_variable_mapping&quot;</span><span class="p">)</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">num_layers</span> <span class="o">=</span> <span class="mi">1</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">ROMS_variable_mapping</span><span class="p">[</span><span class="s1">&#39;ubar&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;x_sea_water_velocity&#39;</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">ROMS_variable_mapping</span><span class="p">[</span><span class="s1">&#39;vbar&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;y_sea_water_velocity&#39;</span>
@@ -395,7 +407,7 @@
 <span class="sd">        If this mask is 2D, read it in this one time and use going forward in simulation. If 3D,</span>
 <span class="sd">        will read in parts of the mask each loop.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">if</span> <span class="ow">not</span> <span class="nb">hasattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s1">&#39;_mask_rho&#39;</span><span class="p">):</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_mask_rho</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="k">if</span> <span class="s1">&#39;wetdry_mask_rho&#39;</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">Dataset</span><span class="o">.</span><span class="n">data_vars</span><span class="p">:</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">_mask_rho</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">Dataset</span><span class="o">.</span><span class="n">variables</span><span class="p">[</span><span class="s1">&#39;wetdry_mask_rho&#39;</span><span class="p">]</span>
                 <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Using wetdry_mask_rho for mask_rho&quot;</span><span class="p">)</span>
@@ -403,7 +415,7 @@
                 <span class="c1"># Read landmask for whole domain, for later re-use</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">_mask_rho</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">Dataset</span><span class="o">.</span><span class="n">variables</span><span class="p">[</span><span class="s1">&#39;mask_rho&#39;</span><span class="p">][:]</span>
                 <span class="c1"># load in once if static mask</span>
-                <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_mask_rho</span><span class="p">,</span> <span class="s2">&quot;chunks&quot;</span><span class="p">):</span>  <span class="c1"># to see if dask array</span>
+                <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_mask_rho</span><span class="o">.</span><span class="n">chunks</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>  <span class="c1"># to see if dask array</span>
                     <span class="bp">self</span><span class="o">.</span><span class="n">_mask_rho</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_mask_rho</span><span class="o">.</span><span class="n">compute</span><span class="p">()</span>
                 <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Using mask_rho for mask_rho&quot;</span><span class="p">)</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_mask_rho</span>
@@ -416,7 +428,7 @@
 <span class="sd">        If this mask is 2D, read it in this one time and use going forward in simulation. If 3D,</span>
 <span class="sd">        will read in parts of the mask each loop.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">if</span> <span class="ow">not</span> <span class="nb">hasattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s1">&#39;_mask_u&#39;</span><span class="p">):</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_mask_u</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="k">if</span> <span class="s1">&#39;wetdry_mask_u&#39;</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">Dataset</span><span class="o">.</span><span class="n">data_vars</span><span class="p">:</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">_mask_u</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">Dataset</span><span class="o">.</span><span class="n">variables</span><span class="p">[</span><span class="s1">&#39;wetdry_mask_u&#39;</span><span class="p">]</span>
                 <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Using wetdry_mask_u for mask_u&quot;</span><span class="p">)</span>
@@ -424,7 +436,7 @@
                 <span class="c1"># Read landmask for whole domain, for later re-use</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">_mask_u</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">Dataset</span><span class="o">.</span><span class="n">variables</span><span class="p">[</span><span class="s1">&#39;mask_u&#39;</span><span class="p">][:]</span>
                 <span class="c1"># load in once if static mask</span>
-                <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_mask_u</span><span class="p">,</span> <span class="s2">&quot;chunks&quot;</span><span class="p">):</span>  <span class="c1"># to see if dask array</span>
+                <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_mask_u</span><span class="o">.</span><span class="n">chunks</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>  <span class="c1"># to see if dask array</span>
                     <span class="bp">self</span><span class="o">.</span><span class="n">_mask_u</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_mask_u</span><span class="o">.</span><span class="n">compute</span><span class="p">()</span>
                 <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Using mask_u for mask_u&quot;</span><span class="p">)</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_mask_u</span>
@@ -437,7 +449,7 @@
 <span class="sd">        If this mask is 2D, read it in this one time and use going forward in simulation. If 3D,</span>
 <span class="sd">        will read in parts of the mask each loop.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">if</span> <span class="ow">not</span> <span class="nb">hasattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s1">&#39;_mask_v&#39;</span><span class="p">):</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_mask_v</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="k">if</span> <span class="s1">&#39;wetdry_mask_v&#39;</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">Dataset</span><span class="o">.</span><span class="n">data_vars</span><span class="p">:</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">_mask_v</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">Dataset</span><span class="o">.</span><span class="n">variables</span><span class="p">[</span><span class="s1">&#39;wetdry_mask_v&#39;</span><span class="p">]</span>
                 <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Using wetdry_mask_v for mask_v&quot;</span><span class="p">)</span>
@@ -445,7 +457,7 @@
                 <span class="c1"># Read landmask for whole domain, for later re-use</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">_mask_v</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">Dataset</span><span class="o">.</span><span class="n">variables</span><span class="p">[</span><span class="s1">&#39;mask_v&#39;</span><span class="p">][:]</span>
                 <span class="c1"># load in once if static mask</span>
-                <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_mask_v</span><span class="p">,</span> <span class="s2">&quot;chunks&quot;</span><span class="p">):</span>  <span class="c1"># to see if dask array</span>
+                <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_mask_v</span><span class="o">.</span><span class="n">chunks</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>  <span class="c1"># to see if dask array</span>
                     <span class="bp">self</span><span class="o">.</span><span class="n">_mask_v</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_mask_v</span><span class="o">.</span><span class="n">compute</span><span class="p">()</span>
                 <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Using mask_v for mask_v&quot;</span><span class="p">)</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_mask_v</span>
@@ -459,11 +471,10 @@
             <span class="n">requested_variables</span><span class="p">,</span> <span class="n">time</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">z</span><span class="p">)</span>
 
         <span class="c1"># land_binary_mask should be based on the rho grid</span>
-        <span class="k">if</span> <span class="s1">&#39;land_binary_mask&#39;</span> <span class="ow">in</span> <span class="n">requested_variables</span> <span class="ow">and</span> <span class="ow">not</span> <span class="nb">hasattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s1">&#39;land_binary_mask&#39;</span><span class="p">):</span>
+        <span class="k">if</span> <span class="s1">&#39;land_binary_mask&#39;</span> <span class="ow">in</span> <span class="n">requested_variables</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">land_binary_mask</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">land_binary_mask</span> <span class="o">=</span> <span class="mi">1</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">mask_rho</span>
 
-        <span class="k">if</span> <span class="s1">&#39;sea_floor_depth_below_sea_level&#39;</span> <span class="ow">in</span> <span class="n">requested_variables</span> <span class="ow">and</span> <span class="ow">not</span> <span class="nb">hasattr</span><span class="p">(</span>
-                    <span class="bp">self</span><span class="p">,</span> <span class="s1">&#39;sea_floor_depth_below_sea_level&#39;</span><span class="p">):</span>
+        <span class="k">if</span> <span class="s1">&#39;sea_floor_depth_below_sea_level&#39;</span> <span class="ow">in</span> <span class="n">requested_variables</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">sea_floor_depth_below_sea_level</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">sea_floor_depth_below_sea_level</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">Dataset</span><span class="o">.</span><span class="n">variables</span><span class="p">[</span><span class="s1">&#39;h&#39;</span><span class="p">][:]</span>
 
         <span class="c1"># If one vector component is requested, but not the other</span>
@@ -485,7 +496,7 @@
             <span class="n">z</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">atleast_1d</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
 
         <span class="c1"># Find horizontal indices corresponding to requested x and y</span>
-        <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s1">&#39;clipped&#39;</span><span class="p">):</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">clipped</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
             <span class="n">clipped</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">clipped</span>
         <span class="k">else</span><span class="p">:</span> <span class="n">clipped</span> <span class="o">=</span> <span class="mi">0</span>
         <span class="n">indx</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">floor</span><span class="p">((</span><span class="n">x</span><span class="o">-</span><span class="bp">self</span><span class="o">.</span><span class="n">xmin</span><span class="p">)</span><span class="o">/</span><span class="bp">self</span><span class="o">.</span><span class="n">delta_x</span><span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">int</span><span class="p">)</span> <span class="o">+</span> <span class="n">clipped</span>
@@ -504,18 +515,18 @@
                             <span class="n">np</span><span class="o">.</span><span class="n">min</span><span class="p">([</span><span class="n">indy</span><span class="o">.</span><span class="n">max</span><span class="p">()</span><span class="o">+</span><span class="n">buffer</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">lon</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">-</span><span class="mi">1</span><span class="p">]))</span>
 
         <span class="c1"># Find depth levels covering all elements</span>
-        <span class="k">if</span> <span class="n">z</span><span class="o">.</span><span class="n">min</span><span class="p">()</span> <span class="o">==</span> <span class="mi">0</span> <span class="ow">or</span> <span class="ow">not</span> <span class="nb">hasattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s1">&#39;hc&#39;</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">z</span><span class="o">.</span><span class="n">min</span><span class="p">()</span> <span class="o">==</span> <span class="mi">0</span> <span class="ow">or</span> <span class="bp">self</span><span class="o">.</span><span class="n">hc</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="n">indz</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">num_layers</span> <span class="o">-</span> <span class="mi">1</span>  <span class="c1"># surface layer</span>
             <span class="n">variables</span><span class="p">[</span><span class="s1">&#39;z&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="mi">0</span>
 
         <span class="k">else</span><span class="p">:</span>
             <span class="c1"># Find the range of indices covering given z-values</span>
-            <span class="k">if</span> <span class="ow">not</span> <span class="nb">hasattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s1">&#39;sea_floor_depth_below_sea_level&#39;</span><span class="p">):</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">sea_floor_depth_below_sea_level</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
                 <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;Reading sea floor depth...&#39;</span><span class="p">)</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">sea_floor_depth_below_sea_level</span> <span class="o">=</span> \
                     <span class="bp">self</span><span class="o">.</span><span class="n">Dataset</span><span class="o">.</span><span class="n">variables</span><span class="p">[</span><span class="s1">&#39;h&#39;</span><span class="p">][:]</span>
 
-            <span class="k">if</span> <span class="ow">not</span> <span class="nb">hasattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s1">&#39;z_rho_tot&#39;</span><span class="p">):</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">z_rho_tot</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
                 <span class="n">Htot</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">sea_floor_depth_below_sea_level</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">z_rho_tot</span> <span class="o">=</span> <span class="n">depth</span><span class="o">.</span><span class="n">sdepth</span><span class="p">(</span><span class="n">Htot</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">hc</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">Cs_r</span><span class="p">,</span>
                                               <span class="n">Vtransform</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">Vtransform</span><span class="p">)</span>
@@ -614,7 +625,7 @@
                         <span class="n">M</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">sea_floor_depth_below_sea_level</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
                         <span class="n">N</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">sea_floor_depth_below_sea_level</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
                         <span class="n">O</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">z_rho_tot</span><span class="p">)</span>
-                        <span class="k">if</span> <span class="ow">not</span> <span class="nb">hasattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s1">&#39;s2z_A&#39;</span><span class="p">):</span>
+                        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">s2z_A</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
                             <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;Calculating sigma2z-coefficients for whole domain&#39;</span><span class="p">)</span>
                             <span class="n">starttime</span> <span class="o">=</span> <span class="n">datetime</span><span class="o">.</span><span class="n">now</span><span class="p">()</span>
                             <span class="n">dummyvar</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">ones</span><span class="p">((</span><span class="n">O</span><span class="p">,</span> <span class="n">M</span><span class="p">,</span> <span class="n">N</span><span class="p">))</span>
@@ -737,7 +748,7 @@
             <span class="s1">&#39;sea_ice_x_velocity&#39;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">do_not_rotate</span> <span class="ow">and</span> \
             <span class="s1">&#39;x_wind&#39;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">do_not_rotate</span><span class="p">:</span>
             <span class="c1"># We must rotate current vectors</span>
-            <span class="k">if</span> <span class="ow">not</span> <span class="nb">hasattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s1">&#39;angle_xi_east&#39;</span><span class="p">):</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">angle_xi_east</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
                 <span class="k">if</span> <span class="s1">&#39;angle&#39;</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">Dataset</span><span class="o">.</span><span class="n">variables</span><span class="p">:</span>
                     <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;Reading angle between xi and east...&#39;</span><span class="p">)</span>
                     <span class="bp">self</span><span class="o">.</span><span class="n">angle_xi_east</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">Dataset</span><span class="o">.</span><span class="n">variables</span><span class="p">[</span><span class="s1">&#39;angle&#39;</span><span class="p">][:]</span>
