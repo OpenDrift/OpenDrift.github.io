@@ -2737,6 +2737,7 @@
                   <span class="n">compare</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
                   <span class="n">compare_marker</span><span class="o">=</span><span class="s1">&#39;o&#39;</span><span class="p">,</span>
                   <span class="n">background</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                  <span class="n">alpha</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
                   <span class="n">bgalpha</span><span class="o">=</span><span class="mf">.5</span><span class="p">,</span>
                   <span class="n">vmin</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
                   <span class="n">vmax</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
@@ -2758,7 +2759,7 @@
                   <span class="n">lcs</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
                   <span class="n">surface_only</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
                   <span class="n">markersize</span><span class="o">=</span><span class="mi">20</span><span class="p">,</span>
-                  <span class="n">markersize_scaling</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
+                  <span class="n">markersize_scaling</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
                   <span class="n">origin_marker</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
                   <span class="n">legend</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
                   <span class="n">legend_loc</span><span class="o">=</span><span class="s1">&#39;best&#39;</span><span class="p">,</span>
@@ -2881,8 +2882,9 @@
                           <span class="n">y_deactive</span><span class="p">[</span><span class="n">index_of_last_deactivated</span> <span class="o">&lt;</span> <span class="n">i</span><span class="p">]])</span>
 
                 <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">markersize</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
-                    <span class="n">points</span><span class="o">.</span><span class="n">set_sizes</span><span class="p">(</span><span class="n">markersize_scaling</span> <span class="o">*</span>
-                            <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">history</span><span class="p">[</span><span class="n">markersize</span><span class="p">][:,</span> <span class="n">i</span><span class="p">]</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">history</span><span class="p">[</span><span class="n">markersize</span><span class="p">]</span><span class="o">.</span><span class="n">compressed</span><span class="p">()[</span><span class="mi">0</span><span class="p">]))</span>
+                    <span class="n">points</span><span class="o">.</span><span class="n">set_sizes</span><span class="p">(</span><span class="n">markersize_scaling</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">history</span><span class="p">[</span><span class="n">markersize</span><span class="p">][:,</span> <span class="n">i</span><span class="p">]))</span>
+                    <span class="c1">#points.set_sizes(markersize_scaling *</span>
+                    <span class="c1">#                 np.abs((self.history[markersize][:, i] / self.history[markersize].compressed()[0])))</span>
 
                 <span class="k">if</span> <span class="n">color</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">False</span><span class="p">:</span>  <span class="c1"># Update colors</span>
                     <span class="n">points</span><span class="o">.</span><span class="n">set_array</span><span class="p">(</span><span class="n">colorarray</span><span class="p">[:,</span> <span class="n">i</span><span class="p">])</span>
@@ -3009,12 +3011,17 @@
             <span class="n">c</span> <span class="o">=</span> <span class="p">[]</span>
 
         <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">markersize</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
+            <span class="k">if</span> <span class="n">markersize_scaling</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="n">markersize_scaling</span> <span class="o">=</span> <span class="mi">20</span>
+            <span class="n">markersize_scaling</span> <span class="o">=</span> <span class="n">markersize_scaling</span> <span class="o">/</span> <span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">history</span><span class="p">[</span><span class="n">markersize</span><span class="p">])</span><span class="o">.</span><span class="n">max</span><span class="p">()</span>
+
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">markersize</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
             <span class="n">points</span> <span class="o">=</span> <span class="n">ax</span><span class="o">.</span><span class="n">scatter</span><span class="p">([],</span> <span class="p">[],</span>
                                 <span class="n">c</span><span class="o">=</span><span class="n">c</span><span class="p">,</span>
                                 <span class="n">zorder</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span>
                                 <span class="n">edgecolor</span><span class="o">=</span><span class="p">[],</span>
                                 <span class="n">cmap</span><span class="o">=</span><span class="n">cmap</span><span class="p">,</span>
-                                <span class="n">alpha</span><span class="o">=</span><span class="mf">.4</span><span class="p">,</span>
+                                <span class="n">alpha</span><span class="o">=</span><span class="n">alpha</span><span class="p">,</span>
                                 <span class="n">vmin</span><span class="o">=</span><span class="n">vmin</span><span class="p">,</span>
                                 <span class="n">vmax</span><span class="o">=</span><span class="n">vmax</span><span class="p">,</span>
                                 <span class="n">label</span><span class="o">=</span><span class="n">legend</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span>
@@ -3025,6 +3032,7 @@
                                 <span class="n">zorder</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span>
                                 <span class="n">edgecolor</span><span class="o">=</span><span class="p">[],</span>
                                 <span class="n">cmap</span><span class="o">=</span><span class="n">cmap</span><span class="p">,</span>
+                                <span class="n">alpha</span><span class="o">=</span><span class="n">alpha</span><span class="p">,</span>
                                 <span class="n">s</span><span class="o">=</span><span class="n">markersize</span><span class="p">,</span>
                                 <span class="n">vmin</span><span class="o">=</span><span class="n">vmin</span><span class="p">,</span>
                                 <span class="n">vmax</span><span class="o">=</span><span class="n">vmax</span><span class="p">,</span>
@@ -3240,13 +3248,15 @@
     <span class="k">def</span> <span class="nf">animation_profile</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span>
                           <span class="n">filename</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
                           <span class="n">compare</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
-                          <span class="n">legend</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="s1">&#39;&#39;</span><span class="p">],</span>
-                          <span class="n">markersize</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span>
+                          <span class="n">markersize</span><span class="o">=</span><span class="mi">20</span><span class="p">,</span>
+                          <span class="n">markersize_scaling</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                          <span class="n">alpha</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
                           <span class="n">fps</span><span class="o">=</span><span class="mi">20</span><span class="p">,</span>
                           <span class="n">color</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
                           <span class="n">cmap</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
                           <span class="n">vmin</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
                           <span class="n">vmax</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                          <span class="n">legend</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
                           <span class="n">legend_loc</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Animate vertical profile of the last run.&quot;&quot;&quot;</span>
 
@@ -3254,42 +3264,46 @@
 
         <span class="k">def</span> <span class="nf">plot_timestep</span><span class="p">(</span><span class="n">i</span><span class="p">):</span>
 <span class="w">            </span><span class="sd">&quot;&quot;&quot;Sub function needed for matplotlib animation.&quot;&quot;&quot;</span>
-            <span class="c1">#plt.gcf().gca().set_title(str(i))</span>
             <span class="n">ax</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="s1">&#39;</span><span class="si">%s</span><span class="s1"> UTC&#39;</span> <span class="o">%</span> <span class="n">times</span><span class="p">[</span><span class="n">i</span><span class="p">])</span>
-            <span class="k">if</span> <span class="n">PlotColors</span><span class="p">:</span>
-                <span class="n">points</span><span class="o">.</span><span class="n">set_offsets</span><span class="p">(</span>
-                    <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span>
-                        <span class="p">[</span><span class="n">x</span><span class="p">[</span><span class="nb">range</span><span class="p">(</span><span class="n">x</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]),</span> <span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">T</span><span class="p">,</span> <span class="n">z</span><span class="p">[</span><span class="nb">range</span><span class="p">(</span><span class="n">x</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]),</span>
-                                                      <span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">T</span><span class="p">])</span><span class="o">.</span><span class="n">T</span><span class="p">)</span>
+            <span class="n">points</span><span class="o">.</span><span class="n">set_offsets</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">c_</span><span class="p">[</span><span class="n">x</span><span class="p">[</span><span class="nb">range</span><span class="p">(</span><span class="n">x</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]),</span> <span class="n">i</span><span class="p">],</span> <span class="n">z</span><span class="p">[</span><span class="nb">range</span><span class="p">(</span><span class="n">x</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]),</span> <span class="n">i</span><span class="p">]])</span>
+            <span class="k">if</span> <span class="n">color</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">compare</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
                 <span class="n">points</span><span class="o">.</span><span class="n">set_array</span><span class="p">(</span><span class="n">colorarray</span><span class="p">[:,</span> <span class="n">i</span><span class="p">])</span>
-            <span class="k">else</span><span class="p">:</span>
-                <span class="n">points</span><span class="o">.</span><span class="n">set_data</span><span class="p">(</span><span class="n">x</span><span class="p">[</span><span class="nb">range</span><span class="p">(</span><span class="n">x</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]),</span> <span class="n">i</span><span class="p">],</span> <span class="n">z</span><span class="p">[</span><span class="nb">range</span><span class="p">(</span><span class="n">x</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]),</span>
-                                                           <span class="n">i</span><span class="p">])</span>
 
-            <span class="n">points_deactivated</span><span class="o">.</span><span class="n">set_data</span><span class="p">(</span>
+            <span class="n">points_deactivated</span><span class="o">.</span><span class="n">set_offsets</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">c_</span><span class="p">[</span>
                 <span class="n">x_deactive</span><span class="p">[</span><span class="n">index_of_last_deactivated</span> <span class="o">&lt;</span> <span class="n">i</span><span class="p">],</span>
-                <span class="n">z_deactive</span><span class="p">[</span><span class="n">index_of_last_deactivated</span> <span class="o">&lt;</span> <span class="n">i</span><span class="p">])</span>
+                <span class="n">z_deactive</span><span class="p">[</span><span class="n">index_of_last_deactivated</span> <span class="o">&lt;</span> <span class="n">i</span><span class="p">]])</span>
+
+            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">markersize</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
+                <span class="n">points</span><span class="o">.</span><span class="n">set_sizes</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">markersize_scaling</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">history</span><span class="p">[</span><span class="n">markersize</span><span class="p">][:,</span> <span class="n">i</span><span class="p">]))</span>
+                <span class="c1">#points.set_sizes(np.abs(markersize_scaling *</span>
+                <span class="c1">#            (self.history[markersize][:, i] / self.history[markersize].compressed()[0])))</span>
 
             <span class="k">if</span> <span class="n">compare</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-                <span class="n">points_other</span><span class="o">.</span><span class="n">set_data</span><span class="p">(</span><span class="n">x_other</span><span class="p">[</span><span class="nb">range</span><span class="p">(</span><span class="n">x_other</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]),</span> <span class="n">i</span><span class="p">],</span>
-                                      <span class="n">z_other</span><span class="p">[</span><span class="nb">range</span><span class="p">(</span><span class="n">x_other</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]),</span> <span class="n">i</span><span class="p">])</span>
-                <span class="n">points_other_deactivated</span><span class="o">.</span><span class="n">set_data</span><span class="p">(</span>
-                    <span class="n">x_other_deactive</span><span class="p">[</span><span class="n">index_of_last_deactivated_other</span> <span class="o">&lt;</span> <span class="n">i</span><span class="p">],</span>
-                    <span class="n">z_other_deactive</span><span class="p">[</span><span class="n">index_of_last_deactivated_other</span> <span class="o">&lt;</span> <span class="n">i</span><span class="p">])</span>
+                <span class="n">points_other</span><span class="o">.</span><span class="n">set_offsets</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">c_</span><span class="p">[</span><span class="n">x_other</span><span class="p">[</span><span class="nb">range</span><span class="p">(</span><span class="n">x_other</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]),</span> <span class="n">i</span><span class="p">],</span>
+                                               <span class="n">z_other</span><span class="p">[</span><span class="nb">range</span><span class="p">(</span><span class="n">x_other</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]),</span> <span class="n">i</span><span class="p">]])</span>
+                <span class="n">points_other_deactivated</span><span class="o">.</span><span class="n">set_offsets</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">c_</span><span class="p">[</span>
+                     <span class="n">x_other_deactive</span><span class="p">[</span><span class="n">index_of_last_deactivated_other</span> <span class="o">&lt;</span> <span class="n">i</span><span class="p">],</span>
+                     <span class="n">z_other_deactive</span><span class="p">[</span><span class="n">index_of_last_deactivated_other</span> <span class="o">&lt;</span> <span class="n">i</span><span class="p">]])</span>
                 <span class="k">return</span> <span class="n">points</span><span class="p">,</span> <span class="n">points_deactivated</span><span class="p">,</span> <span class="n">points_other</span><span class="p">,</span>
             <span class="k">else</span><span class="p">:</span>
                 <span class="k">return</span> <span class="n">points</span><span class="p">,</span> <span class="n">points_deactivated</span><span class="p">,</span>
 
-        <span class="n">PlotColors</span> <span class="o">=</span> <span class="p">(</span><span class="n">compare</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">)</span> <span class="ow">and</span> <span class="p">(</span><span class="n">legend</span> <span class="o">!=</span> <span class="p">[</span><span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="s1">&#39;&#39;</span><span class="p">])</span>
-        <span class="k">if</span> <span class="n">PlotColors</span><span class="p">:</span>
-            <span class="k">if</span> <span class="n">cmap</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-                <span class="n">cmap</span> <span class="o">=</span> <span class="s1">&#39;jet&#39;</span>
-            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">cmap</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
-                <span class="n">cmap</span> <span class="o">=</span> <span class="n">matplotlib</span><span class="o">.</span><span class="n">cm</span><span class="o">.</span><span class="n">get_cmap</span><span class="p">(</span><span class="n">cmap</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">cmap</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">cmap</span> <span class="o">=</span> <span class="s1">&#39;jet&#39;</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">cmap</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
+            <span class="n">cmap</span> <span class="o">=</span> <span class="n">matplotlib</span><span class="o">.</span><span class="n">cm</span><span class="o">.</span><span class="n">get_cmap</span><span class="p">(</span><span class="n">cmap</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">color</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">False</span><span class="p">:</span>
+            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">color</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
+                <span class="n">colorarray</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_property</span><span class="p">(</span><span class="n">color</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">T</span>
+                <span class="k">if</span> <span class="n">vmin</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                    <span class="n">vmin</span> <span class="o">=</span> <span class="n">colorarray</span><span class="o">.</span><span class="n">min</span><span class="p">()</span>
+                    <span class="n">vmax</span> <span class="o">=</span> <span class="n">colorarray</span><span class="o">.</span><span class="n">max</span><span class="p">()</span>
 
-            <span class="k">if</span> <span class="n">color</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">False</span><span class="p">:</span>
-                <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">color</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
-                    <span class="n">colorarray</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_property</span><span class="p">(</span><span class="n">color</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">T</span>
+        <span class="n">markercolor</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">plot_comparison_colors</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="k">if</span> <span class="n">color</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">c</span> <span class="o">=</span> <span class="n">markercolor</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">c</span> <span class="o">=</span> <span class="p">[]</span>
 
         <span class="c1"># Set up plot</span>
         <span class="n">index_of_first</span><span class="p">,</span> <span class="n">index_of_last</span> <span class="o">=</span> \
@@ -3306,40 +3320,50 @@
         <span class="n">times</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_time_array</span><span class="p">()[</span><span class="mi">0</span><span class="p">]</span>
         <span class="n">index_of_last_deactivated</span> <span class="o">=</span> \
             <span class="n">index_of_last</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">elements_deactivated</span><span class="o">.</span><span class="n">ID</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
-        <span class="k">if</span> <span class="n">PlotColors</span><span class="p">:</span>
-            <span class="n">points</span> <span class="o">=</span> <span class="n">ax</span><span class="o">.</span><span class="n">scatter</span><span class="p">([],</span> <span class="p">[],</span>
-                                <span class="n">c</span><span class="o">=</span><span class="p">[],</span>
-                                <span class="n">zorder</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span>
-                                <span class="n">edgecolor</span><span class="o">=</span><span class="p">[],</span>
-                                <span class="n">cmap</span><span class="o">=</span><span class="n">cmap</span><span class="p">,</span>
-                                <span class="n">s</span><span class="o">=</span><span class="n">markersize</span><span class="p">,</span>
-                                <span class="n">vmin</span><span class="o">=</span><span class="n">vmin</span><span class="p">,</span>
-                                <span class="n">vmax</span><span class="o">=</span><span class="n">vmax</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">legend</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">compare</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="n">legs</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="s1">&#39;&#39;</span><span class="p">]</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">legs</span> <span class="o">=</span> <span class="n">legend</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">markersize</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
+            <span class="n">ms</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">ms</span> <span class="o">=</span> <span class="n">markersize</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">markersize</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
+            <span class="k">if</span> <span class="n">markersize_scaling</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="n">markersize_scaling</span> <span class="o">=</span> <span class="mi">20</span>
+            <span class="n">markersize_scaling</span> <span class="o">=</span> <span class="n">markersize_scaling</span> <span class="o">/</span> <span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">history</span><span class="p">[</span><span class="n">markersize</span><span class="p">])</span><span class="o">.</span><span class="n">max</span><span class="p">()</span>
 
-            <span class="n">markers</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">points</span> <span class="o">=</span> <span class="n">ax</span><span class="o">.</span><span class="n">scatter</span><span class="p">([],</span> <span class="p">[],</span>
+                            <span class="n">c</span><span class="o">=</span><span class="n">c</span><span class="p">,</span>
+                            <span class="n">zorder</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span>
+                            <span class="n">edgecolor</span><span class="o">=</span><span class="p">[],</span>
+                            <span class="n">alpha</span><span class="o">=</span><span class="n">alpha</span><span class="p">,</span>
+                            <span class="n">cmap</span><span class="o">=</span><span class="n">cmap</span><span class="p">,</span>
+                            <span class="n">s</span><span class="o">=</span><span class="n">ms</span><span class="p">,</span>
+                            <span class="n">label</span><span class="o">=</span><span class="n">legs</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span>
+                            <span class="n">vmin</span><span class="o">=</span><span class="n">vmin</span><span class="p">,</span>
+                            <span class="n">vmax</span><span class="o">=</span><span class="n">vmax</span><span class="p">)</span>
+
+        <span class="n">markers</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">if</span> <span class="n">compare</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">legend</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>  <span class="c1"># Empty points to get legend</span>
             <span class="k">for</span> <span class="n">legend_index</span> <span class="ow">in</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">legend</span><span class="p">)):</span>
                 <span class="k">if</span> <span class="n">legend</span><span class="p">[</span><span class="n">legend_index</span><span class="p">]</span> <span class="o">!=</span> <span class="s1">&#39;&#39;</span><span class="p">:</span>
                     <span class="n">markers</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
                         <span class="n">matplotlib</span><span class="o">.</span><span class="n">lines</span><span class="o">.</span><span class="n">Line2D</span><span class="p">(</span>
-                            <span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="p">[</span><span class="mi">0</span><span class="p">],</span>
-                            <span class="n">marker</span><span class="o">=</span><span class="s1">&#39;o&#39;</span><span class="p">,</span>
-                            <span class="n">linewidth</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span>
-                            <span class="n">markeredgewidth</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span>
-                            <span class="n">markerfacecolor</span><span class="o">=</span><span class="n">cmap</span><span class="p">(</span><span class="n">legend_index</span> <span class="o">/</span>
-                                                 <span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">legend</span><span class="p">)</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)),</span>
-                            <span class="n">markersize</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span>
-                            <span class="n">label</span><span class="o">=</span><span class="n">legend</span><span class="p">[</span><span class="n">legend_index</span><span class="p">]))</span>
+                            <span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">marker</span><span class="o">=</span><span class="s1">&#39;o&#39;</span><span class="p">,</span> <span class="n">linewidth</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">markeredgewidth</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span>
+                        <span class="n">markerfacecolor</span><span class="o">=</span><span class="n">cmap</span><span class="p">(</span><span class="n">legend_index</span> <span class="o">/</span>
+                                             <span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">legend</span><span class="p">)</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)),</span>
+                        <span class="n">markersize</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span>
+                        <span class="n">label</span><span class="o">=</span><span class="n">legend</span><span class="p">[</span><span class="n">legend_index</span><span class="p">]))</span>
+
             <span class="n">legend</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="nb">filter</span><span class="p">(</span><span class="kc">None</span><span class="p">,</span> <span class="n">legend</span><span class="p">))</span>
             <span class="n">leg</span> <span class="o">=</span> <span class="n">ax</span><span class="o">.</span><span class="n">legend</span><span class="p">(</span><span class="n">markers</span><span class="p">,</span> <span class="n">legend</span><span class="p">,</span> <span class="n">loc</span><span class="o">=</span><span class="n">legend_loc</span><span class="p">)</span>
             <span class="n">leg</span><span class="o">.</span><span class="n">set_zorder</span><span class="p">(</span><span class="mi">20</span><span class="p">)</span>
-        <span class="k">else</span><span class="p">:</span>
-            <span class="n">points</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">([],</span> <span class="p">[],</span>
-                              <span class="s1">&#39;.k&#39;</span><span class="p">,</span>
-                              <span class="n">label</span><span class="o">=</span><span class="n">legend</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span>
-                              <span class="n">markersize</span><span class="o">=</span><span class="n">markersize</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
 
         <span class="c1"># Plot deactivated elements, with transparency</span>
-        <span class="n">points_deactivated</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">([],</span> <span class="p">[],</span> <span class="s1">&#39;.k&#39;</span><span class="p">,</span> <span class="n">alpha</span><span class="o">=</span><span class="mf">.3</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="n">points_deactivated</span> <span class="o">=</span> <span class="n">ax</span><span class="o">.</span><span class="n">scatter</span><span class="p">([],</span> <span class="p">[],</span> <span class="n">c</span><span class="o">=</span><span class="p">[],</span> <span class="n">zorder</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span> <span class="n">edgecolor</span><span class="o">=</span><span class="p">[],</span>
+                                        <span class="n">cmap</span><span class="o">=</span><span class="n">cmap</span><span class="p">,</span> <span class="n">s</span><span class="o">=</span><span class="n">ms</span><span class="p">,</span> <span class="n">vmin</span><span class="o">=</span><span class="n">vmin</span><span class="p">,</span> <span class="n">vmax</span><span class="o">=</span><span class="n">vmax</span><span class="p">)</span>
         <span class="n">x_deactive</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">elements_deactivated</span><span class="o">.</span><span class="n">lon</span>
         <span class="n">z_deactive</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">elements_deactivated</span><span class="o">.</span><span class="n">z</span>
 
@@ -3353,13 +3377,19 @@
                 <span class="n">other</span> <span class="o">=</span> <span class="n">compare</span>
             <span class="n">z_other</span> <span class="o">=</span> <span class="n">other</span><span class="o">.</span><span class="n">get_property</span><span class="p">(</span><span class="s1">&#39;z&#39;</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">T</span>
             <span class="n">x_other</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_property</span><span class="p">(</span><span class="s1">&#39;lon&#39;</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">T</span>
-            <span class="n">points_other</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">x_other</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span>
-                                    <span class="n">z_other</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span>
-                                    <span class="s1">&#39;.r&#39;</span><span class="p">,</span>
-                                    <span class="n">label</span><span class="o">=</span><span class="n">legend</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span>
-                                    <span class="n">markersize</span><span class="o">=</span><span class="n">markersize</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+            <span class="n">points_other</span> <span class="o">=</span> <span class="n">ax</span><span class="o">.</span><span class="n">scatter</span><span class="p">([],</span> <span class="p">[],</span>
+                            <span class="n">c</span><span class="o">=</span><span class="s1">&#39;r&#39;</span><span class="p">,</span>
+                            <span class="n">zorder</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span>
+                            <span class="n">alpha</span><span class="o">=</span><span class="n">alpha</span><span class="p">,</span>
+                            <span class="n">edgecolor</span><span class="o">=</span><span class="p">[],</span>
+                            <span class="n">cmap</span><span class="o">=</span><span class="n">cmap</span><span class="p">,</span>
+                            <span class="n">s</span><span class="o">=</span><span class="n">markersize</span><span class="p">,</span>
+                            <span class="n">label</span><span class="o">=</span><span class="n">legs</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span>
+                            <span class="n">vmin</span><span class="o">=</span><span class="n">vmin</span><span class="p">,</span>
+                            <span class="n">vmax</span><span class="o">=</span><span class="n">vmax</span><span class="p">)</span>
+
             <span class="c1"># Plot deactivated elements, with transparency</span>
-            <span class="n">points_other_deactivated</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">([],</span> <span class="p">[],</span> <span class="s1">&#39;.r&#39;</span><span class="p">,</span> <span class="n">alpha</span><span class="o">=</span><span class="mf">.3</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+            <span class="n">points_other_deactivated</span> <span class="o">=</span> <span class="n">ax</span><span class="o">.</span><span class="n">scatter</span><span class="p">([],</span> <span class="p">[],</span> <span class="n">c</span><span class="o">=</span><span class="s1">&#39;r&#39;</span><span class="p">,</span> <span class="n">cmap</span><span class="o">=</span><span class="n">cmap</span><span class="p">,</span> <span class="n">s</span><span class="o">=</span><span class="n">markersize</span><span class="p">,</span> <span class="n">alpha</span><span class="o">=</span><span class="mf">.3</span><span class="p">)</span>
             <span class="n">x_other_deactive</span> <span class="o">=</span> <span class="n">other</span><span class="o">.</span><span class="n">elements_deactivated</span><span class="o">.</span><span class="n">lon</span>
             <span class="n">z_other_deactive</span> <span class="o">=</span> <span class="n">other</span><span class="o">.</span><span class="n">elements_deactivated</span><span class="o">.</span><span class="n">z</span>
             <span class="n">firstlast</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">ma</span><span class="o">.</span><span class="n">notmasked_edges</span><span class="p">(</span><span class="n">x_other</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
@@ -3388,7 +3418,7 @@
                           <span class="o">-</span><span class="n">zmin</span><span class="p">,</span>
                           <span class="n">color</span><span class="o">=</span><span class="s1">&#39;cornflowerblue&#39;</span><span class="p">))</span>
 
-        <span class="k">if</span> <span class="n">legend</span> <span class="o">!=</span> <span class="p">[</span><span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="s1">&#39;&#39;</span><span class="p">]</span> <span class="ow">and</span> <span class="n">PlotColors</span> <span class="ow">is</span> <span class="kc">False</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">legend</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">compare</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
             <span class="n">plt</span><span class="o">.</span><span class="n">legend</span><span class="p">(</span><span class="n">loc</span><span class="o">=</span><span class="mi">4</span><span class="p">)</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">__save_or_plot_animation__</span><span class="p">(</span><span class="n">plt</span><span class="o">.</span><span class="n">gcf</span><span class="p">(),</span>
@@ -4847,7 +4877,6 @@
 
         <span class="k">if</span> <span class="n">writer</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
             <span class="k">with</span> <span class="n">writer</span><span class="o">.</span><span class="n">saving</span><span class="p">(</span><span class="n">fig</span><span class="p">,</span> <span class="n">filename</span><span class="p">,</span> <span class="kc">None</span><span class="p">):</span>
-                <span class="nb">print</span><span class="p">(</span><span class="n">frames</span><span class="p">)</span>
                 <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">frames</span> <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">frames</span><span class="p">,</span> <span class="p">(</span><span class="nb">list</span><span class="p">,</span> <span class="nb">range</span><span class="p">))</span> <span class="k">else</span> <span class="nb">range</span><span class="p">(</span><span class="n">frames</span><span class="p">):</span>
                     <span class="n">plot_timestep</span><span class="p">(</span><span class="n">i</span><span class="p">)</span>
                     <span class="n">writer</span><span class="o">.</span><span class="n">grab_frame</span><span class="p">()</span>
