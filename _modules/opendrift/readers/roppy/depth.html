@@ -126,11 +126,14 @@
 
 <div class="viewcode-block" id="sdepth">
 <a class="viewcode-back" href="../../../../autoapi/opendrift/readers/roppy/depth/index.html#opendrift.readers.roppy.depth.sdepth">[docs]</a>
-<span class="k">def</span> <span class="nf">sdepth</span><span class="p">(</span><span class="n">H</span><span class="p">,</span> <span class="n">Hc</span><span class="p">,</span> <span class="n">C</span><span class="p">,</span> <span class="n">stagger</span><span class="o">=</span><span class="s2">&quot;rho&quot;</span><span class="p">,</span> <span class="n">Vtransform</span><span class="o">=</span><span class="mi">1</span><span class="p">):</span>
+<span class="k">def</span> <span class="nf">sdepth</span><span class="p">(</span><span class="n">H</span><span class="p">,</span> <span class="n">zeta</span><span class="p">,</span> <span class="n">Hc</span><span class="p">,</span> <span class="n">C</span><span class="p">,</span> <span class="n">stagger</span><span class="o">=</span><span class="s2">&quot;rho&quot;</span><span class="p">,</span> <span class="n">Vtransform</span><span class="o">=</span><span class="mi">1</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Depth of s-levels</span>
 
 <span class="sd">    *H* : arraylike</span>
 <span class="sd">      Bottom depths [meter, positive]</span>
+<span class="sd">    </span>
+<span class="sd">    *zeta* : scalar, arraylike</span>
+<span class="sd">      Surface elevation [meter]</span>
 
 <span class="sd">    *Hc* : scalar</span>
 <span class="sd">       Critical depth</span>
@@ -153,14 +156,16 @@
 
 <span class="sd">        fid = Dataset(roms_file)</span>
 <span class="sd">        H = fid.variables[&#39;h&#39;][:, :]</span>
+<span class="sd">        zeta = fid.variables[&#39;zeta&#39;][:, :]</span>
 <span class="sd">        C = fid.variables[&#39;Cs_r&#39;][:]</span>
 <span class="sd">        Hc = fid.variables[&#39;hc&#39;].getValue()</span>
-<span class="sd">        z_rho = sdepth(H, Hc, C)</span>
+<span class="sd">        z_rho = sdepth(H, zeta, Hc, C)</span>
 
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">H</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">H</span><span class="p">)</span>
+    <span class="n">zeta</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">zeta</span><span class="p">)</span>
     <span class="n">Hshape</span> <span class="o">=</span> <span class="n">H</span><span class="o">.</span><span class="n">shape</span>      <span class="c1"># Save the shape of H</span>
-    <span class="n">H</span> <span class="o">=</span> <span class="n">H</span><span class="o">.</span><span class="n">ravel</span><span class="p">()</span>         <span class="c1"># and make H 1D for easy shape maniplation</span>
+    <span class="n">Hflat</span> <span class="o">=</span> <span class="n">H</span><span class="o">.</span><span class="n">ravel</span><span class="p">()</span>         <span class="c1"># and make H 1D for easy shape manipulation</span>
     <span class="n">C</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">C</span><span class="p">)</span>
     <span class="n">N</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">C</span><span class="p">)</span>
     <span class="n">outshape</span> <span class="o">=</span> <span class="p">(</span><span class="n">N</span><span class="p">,)</span> <span class="o">+</span> <span class="n">Hshape</span>       <span class="c1"># Shape of output</span>
@@ -171,15 +176,20 @@
     <span class="k">else</span><span class="p">:</span>
         <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;stagger must be &#39;rho&#39; or &#39;w&#39;&quot;</span><span class="p">)</span>
 
+    <span class="c1"># https://cfconventions.org/Data/cf-conventions/cf-conventions-1.8/cf-conventions.html#_ocean_s_coordinate_generic_form_1</span>
     <span class="k">if</span> <span class="n">Vtransform</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>         <span class="c1"># Default transform by Song and Haidvogel</span>
         <span class="n">A</span> <span class="o">=</span> <span class="n">Hc</span> <span class="o">*</span> <span class="p">(</span><span class="n">S</span> <span class="o">-</span> <span class="n">C</span><span class="p">)[:,</span> <span class="kc">None</span><span class="p">]</span>
         <span class="n">B</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">outer</span><span class="p">(</span><span class="n">C</span><span class="p">,</span> <span class="n">H</span><span class="p">)</span>
-        <span class="k">return</span> <span class="p">(</span><span class="n">A</span> <span class="o">+</span> <span class="n">B</span><span class="p">)</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="n">outshape</span><span class="p">)</span>
+        <span class="n">Zo_rho</span> <span class="o">=</span> <span class="p">(</span><span class="n">A</span> <span class="o">+</span> <span class="n">B</span><span class="p">)</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="n">outshape</span><span class="p">)</span>
+        <span class="n">z_rho</span> <span class="o">=</span> <span class="n">Zo_rho</span> <span class="o">+</span> <span class="n">zeta</span> <span class="o">*</span> <span class="p">(</span><span class="mi">1</span> <span class="o">+</span> <span class="n">Zo_rho</span> <span class="o">/</span> <span class="n">H</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">z_rho</span>
 
+    <span class="c1"># https://cfconventions.org/Data/cf-conventions/cf-conventions-1.8/cf-conventions.html#_ocean_s_coordinate_generic_form_2</span>
     <span class="k">elif</span> <span class="n">Vtransform</span> <span class="o">==</span> <span class="mi">2</span><span class="p">:</span>       <span class="c1"># New transform by Shchepetkin</span>
-        <span class="n">N</span> <span class="o">=</span> <span class="n">Hc</span><span class="o">*</span><span class="n">S</span><span class="p">[:,</span> <span class="kc">None</span><span class="p">]</span> <span class="o">+</span> <span class="n">np</span><span class="o">.</span><span class="n">outer</span><span class="p">(</span><span class="n">C</span><span class="p">,</span> <span class="n">H</span><span class="p">)</span>
-        <span class="n">D</span> <span class="o">=</span> <span class="p">(</span><span class="mf">1.0</span> <span class="o">+</span> <span class="n">Hc</span><span class="o">/</span><span class="n">H</span><span class="p">)</span>
-        <span class="k">return</span> <span class="p">(</span><span class="n">N</span><span class="o">/</span><span class="n">D</span><span class="p">)</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="n">outshape</span><span class="p">)</span>
+        <span class="n">N</span> <span class="o">=</span> <span class="n">Hc</span><span class="o">*</span><span class="n">S</span><span class="p">[:,</span> <span class="kc">None</span><span class="p">]</span> <span class="o">+</span> <span class="n">np</span><span class="o">.</span><span class="n">outer</span><span class="p">(</span><span class="n">C</span><span class="p">,</span> <span class="n">Hflat</span><span class="p">)</span>
+        <span class="n">D</span> <span class="o">=</span> <span class="p">(</span><span class="n">Hflat</span> <span class="o">+</span> <span class="n">Hc</span><span class="p">)</span>
+        <span class="n">z_rho</span> <span class="o">=</span> <span class="n">zeta</span> <span class="o">+</span> <span class="p">(</span><span class="n">zeta</span> <span class="o">+</span> <span class="n">H</span><span class="p">)</span> <span class="o">*</span> <span class="p">(</span><span class="n">N</span><span class="o">/</span><span class="n">D</span><span class="p">)</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="n">outshape</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">z_rho</span>
 
     <span class="k">else</span><span class="p">:</span>
         <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Unknown Vtransform&quot;</span><span class="p">)</span></div>
