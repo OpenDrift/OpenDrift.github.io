@@ -121,6 +121,7 @@
 <span class="kn">import</span> <span class="nn">traceback</span>
 <span class="kn">import</span> <span class="nn">inspect</span>
 <span class="kn">import</span> <span class="nn">logging</span>
+<span class="kn">import</span> <span class="nn">psutil</span>
 
 <span class="kn">from</span> <span class="nn">opendrift.models.basemodel.environment</span> <span class="kn">import</span> <span class="n">Environment</span>
 <span class="kn">from</span> <span class="nn">opendrift.readers</span> <span class="kn">import</span> <span class="n">reader_global_landmask</span>
@@ -2172,7 +2173,9 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">add_metadata</span><span class="p">(</span><span class="s1">&#39;simulation_time&#39;</span><span class="p">,</span> <span class="n">datetime</span><span class="o">.</span><span class="n">now</span><span class="p">())</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">timer_end</span><span class="p">(</span><span class="s1">&#39;preparing main loop&#39;</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">timer_start</span><span class="p">(</span><span class="s1">&#39;main loop&#39;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">memory_usage</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([])</span>
         <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">expected_steps_calculation</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">memory_usage</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">memory_usage</span><span class="p">,</span> <span class="n">psutil</span><span class="o">.</span><span class="n">virtual_memory</span><span class="p">()</span><span class="o">.</span><span class="n">used</span> <span class="o">/</span> <span class="p">(</span><span class="mf">1024.0</span><span class="o">**</span><span class="mi">3</span><span class="p">))</span>
             <span class="k">try</span><span class="p">:</span>
                 <span class="c1"># Release elements</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">release_elements</span><span class="p">()</span>
@@ -4706,6 +4709,19 @@
             <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s1">&#39;Invalid new coordinates:&#39;</span><span class="p">)</span>
             <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">elements</span><span class="p">)</span>
             <span class="n">sys</span><span class="o">.</span><span class="n">exit</span><span class="p">(</span><span class="s1">&#39;Quitting&#39;</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="OpenDriftSimulation.plot_memory_usage">
+<a class="viewcode-back" href="../../../autoapi/opendrift/models/basemodel/index.html#opendrift.models.basemodel.OpenDriftSimulation.plot_memory_usage">[docs]</a>
+    <span class="k">def</span> <span class="nf">plot_memory_usage</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">filename</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">memory_usage</span><span class="p">)</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">ylabel</span><span class="p">(</span><span class="s1">&#39;Virtual memory  [GB]&#39;</span><span class="p">)</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">xlabel</span><span class="p">(</span><span class="s1">&#39;Calculation time step&#39;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">filename</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">plt</span><span class="o">.</span><span class="n">savefig</span><span class="p">(</span><span class="n">filename</span><span class="p">)</span>
+            <span class="n">plt</span><span class="o">.</span><span class="n">close</span><span class="p">()</span></div>
 
 
 <div class="viewcode-block" id="OpenDriftSimulation.__repr__">
