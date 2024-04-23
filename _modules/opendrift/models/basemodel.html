@@ -837,11 +837,14 @@
         <span class="k">if</span> <span class="s1">&#39;sea_floor_depth_below_sea_level&#39;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">env</span><span class="o">.</span><span class="n">priority_list</span><span class="p">:</span>
             <span class="k">return</span>
 
-        <span class="k">if</span> <span class="ow">not</span> <span class="nb">hasattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s1">&#39;environment&#39;</span><span class="p">)</span> <span class="ow">or</span> <span class="ow">not</span> <span class="nb">hasattr</span><span class="p">(</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">environment</span><span class="p">,</span> <span class="s1">&#39;sea_surface_height&#39;</span><span class="p">):</span>
-            <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="s1">&#39;Seafloor check not being run because sea_surface_height is missing. &#39;</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">hasattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s1">&#39;environment&#39;</span><span class="p">):</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="s1">&#39;Seafloor check not being run because environment is missing. &#39;</span>
                            <span class="s1">&#39;This will happen the first time the function is run but if it happens &#39;</span>
                            <span class="s1">&#39;subsequently there is probably a problem.&#39;</span><span class="p">)</span>
+            <span class="k">return</span>
+
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">hasattr</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">environment</span><span class="p">,</span> <span class="s1">&#39;sea_surface_height&#39;</span><span class="p">):</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="s1">&#39;Seafloor check not being run because sea_surface_height is missing. &#39;</span><span class="p">)</span>
             <span class="k">return</span>
 
         <span class="c1"># the shape of these is different than the original arrays</span>
@@ -850,9 +853,8 @@
         <span class="n">sea_surface_height</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">sea_surface_height</span><span class="p">()</span>
 
         <span class="c1"># Check if any elements are below sea floor</span>
-        <span class="c1"># But remember that the water column is the sea floor depth + sea surface height + parameter Dcrit</span>
-        <span class="n">Dcrit</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_config</span><span class="p">(</span><span class="s1">&#39;general:seafloor_action_dcrit&#39;</span><span class="p">)</span>
-        <span class="n">ibelow</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">elements</span><span class="o">.</span><span class="n">z</span> <span class="o">&lt;</span> <span class="o">-</span><span class="p">(</span><span class="n">sea_floor_depth</span> <span class="o">+</span> <span class="n">sea_surface_height</span> <span class="o">+</span> <span class="n">Dcrit</span><span class="p">)</span>
+        <span class="c1"># But remember that the water column is the sea floor depth + sea surface height</span>
+        <span class="n">ibelow</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">elements</span><span class="o">.</span><span class="n">z</span> <span class="o">&lt;</span> <span class="o">-</span><span class="p">(</span><span class="n">sea_floor_depth</span> <span class="o">+</span> <span class="n">sea_surface_height</span><span class="p">)</span>
         <span class="n">below</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">ibelow</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
 
         <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">below</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>

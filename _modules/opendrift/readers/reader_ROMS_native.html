@@ -224,7 +224,8 @@
             <span class="s1">&#39;uwind&#39;</span><span class="p">:</span> <span class="s1">&#39;x_wind&#39;</span><span class="p">,</span>
             <span class="s1">&#39;vwind&#39;</span><span class="p">:</span> <span class="s1">&#39;y_wind&#39;</span><span class="p">,</span>
             <span class="s1">&#39;Uwind&#39;</span><span class="p">:</span> <span class="s1">&#39;x_wind&#39;</span><span class="p">,</span>
-            <span class="s1">&#39;Vwind&#39;</span><span class="p">:</span> <span class="s1">&#39;y_wind&#39;</span><span class="p">}</span>
+            <span class="s1">&#39;Vwind&#39;</span><span class="p">:</span> <span class="s1">&#39;y_wind&#39;</span><span class="p">,</span>
+            <span class="p">}</span>
 
         <span class="c1"># Add user provided variable mappings</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">ROMS_variable_mapping</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">standard_name_mapping</span><span class="p">)</span>
@@ -587,8 +588,13 @@
             <span class="c1"># Transform z_rho to match convention of z.</span>
             <span class="n">z_rho</span> <span class="o">-=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">zeta</span><span class="p">)[</span><span class="n">np</span><span class="o">.</span><span class="n">newaxis</span><span class="p">]</span>
 
+            <span class="c1"># Check for positive values in z_rho</span>
+            <span class="c1"># if there are any, nan them out since they are above</span>
+            <span class="c1"># the surface and therefore the cell is dry</span>
+            <span class="c1"># this should only come up for wet/dry simulations</span>
             <span class="k">if</span> <span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">nanmax</span><span class="p">(</span><span class="n">z_rho</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">)</span><span class="o">.</span><span class="n">any</span><span class="p">():</span>
-                <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="s1">&#39;z_rho is positive, but should be negative or 0.&#39;</span><span class="p">)</span>
+                <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;z_rho had positive values that are now nans.&#39;</span><span class="p">)</span>
+                <span class="n">z_rho</span><span class="p">[</span><span class="n">z_rho</span><span class="o">&gt;</span><span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span>
 
             <span class="c1"># Element indices must be relative to extracted subset</span>
             <span class="n">indx_el</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">clip</span><span class="p">(</span><span class="n">indx_el</span> <span class="o">-</span> <span class="n">indx</span><span class="o">.</span><span class="n">min</span><span class="p">(),</span> <span class="mi">0</span><span class="p">,</span> <span class="n">z_rho</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span>
@@ -647,7 +653,7 @@
                 <span class="n">variables</span><span class="p">[</span><span class="n">par</span><span class="p">]</span> <span class="o">=</span> <span class="n">var</span><span class="p">[</span><span class="n">itzxy</span><span class="p">]</span>
             <span class="k">else</span><span class="p">:</span>
                 <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s1">&#39;Wrong dimension of variable: &#39;</span> <span class="o">+</span>
-                                <span class="bp">self</span><span class="o">.</span><span class="n">variable_mapping</span><span class="p">[</span><span class="n">par</span><span class="p">])</span>
+                                <span class="bp">self</span><span class="o">.</span><span class="n">ROMS_variable_mapping</span><span class="p">[</span><span class="n">par</span><span class="p">])</span>
 
             <span class="c1"># If Xarray, load in so can be used in future loop iterations too</span>
             <span class="n">variables</span><span class="p">[</span><span class="n">par</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">variables</span><span class="p">[</span><span class="n">par</span><span class="p">])</span>            
