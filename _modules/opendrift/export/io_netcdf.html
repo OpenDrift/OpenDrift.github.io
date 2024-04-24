@@ -175,7 +175,11 @@
             <span class="n">dtype</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">history</span><span class="o">.</span><span class="n">dtype</span><span class="p">[</span><span class="n">prop</span><span class="p">]</span>
         <span class="k">except</span><span class="p">:</span>
             <span class="n">dtype</span> <span class="o">=</span> <span class="s1">&#39;f4&#39;</span>
-        <span class="n">var</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">outfile</span><span class="o">.</span><span class="n">createVariable</span><span class="p">(</span><span class="n">prop</span><span class="p">,</span> <span class="n">dtype</span><span class="p">,</span> <span class="p">(</span><span class="s1">&#39;trajectory&#39;</span><span class="p">,</span> <span class="s1">&#39;time&#39;</span><span class="p">))</span>
+        <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">issubdtype</span><span class="p">(</span><span class="n">dtype</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">integer</span><span class="p">):</span>
+            <span class="n">fill</span><span class="o">=-</span><span class="mi">999</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">fill</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span>
+        <span class="n">var</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">outfile</span><span class="o">.</span><span class="n">createVariable</span><span class="p">(</span><span class="n">prop</span><span class="p">,</span> <span class="n">dtype</span><span class="p">,</span> <span class="p">(</span><span class="s1">&#39;trajectory&#39;</span><span class="p">,</span> <span class="s1">&#39;time&#39;</span><span class="p">),</span> <span class="n">fill_value</span><span class="o">=</span><span class="n">fill</span><span class="p">)</span>
         <span class="k">for</span> <span class="n">subprop</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">history_metadata</span><span class="p">[</span><span class="n">prop</span><span class="p">]</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
             <span class="k">if</span> <span class="n">subprop</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">[</span><span class="s1">&#39;dtype&#39;</span><span class="p">,</span> <span class="s1">&#39;constant&#39;</span><span class="p">,</span> <span class="s1">&#39;default&#39;</span><span class="p">,</span> <span class="s1">&#39;seed&#39;</span><span class="p">]:</span>
                 <span class="c1"># Apparently axis attribute shall not be given for lon and lat:</span>
@@ -291,8 +295,12 @@
                     <span class="n">dst</span><span class="o">.</span><span class="n">createDimension</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">dimension</span><span class="p">))</span>
 
             <span class="k">for</span> <span class="n">name</span><span class="p">,</span> <span class="n">variable</span> <span class="ow">in</span> <span class="n">src</span><span class="o">.</span><span class="n">variables</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+                <span class="k">if</span> <span class="s1">&#39;_FillValue&#39;</span> <span class="ow">in</span> <span class="n">variable</span><span class="o">.</span><span class="n">ncattrs</span><span class="p">():</span>
+                    <span class="n">fill</span> <span class="o">=</span> <span class="n">variable</span><span class="o">.</span><span class="n">getncattr</span><span class="p">(</span><span class="s1">&#39;_FillValue&#39;</span><span class="p">)</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">fill</span> <span class="o">=</span> <span class="kc">None</span>
                 <span class="n">dstVar</span> <span class="o">=</span> <span class="n">dst</span><span class="o">.</span><span class="n">createVariable</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">variable</span><span class="o">.</span><span class="n">datatype</span><span class="p">,</span>
-                                             <span class="n">variable</span><span class="o">.</span><span class="n">dimensions</span><span class="p">)</span>
+                                             <span class="n">variable</span><span class="o">.</span><span class="n">dimensions</span><span class="p">,</span> <span class="n">fill_value</span><span class="o">=</span><span class="n">fill</span><span class="p">)</span>
                 <span class="n">srcVar</span> <span class="o">=</span> <span class="n">src</span><span class="o">.</span><span class="n">variables</span><span class="p">[</span><span class="n">name</span><span class="p">]</span>
                 <span class="c1"># Truncate data to number actually seeded</span>
                 <span class="k">if</span> <span class="s1">&#39;trajectory&#39;</span> <span class="ow">in</span> <span class="n">variable</span><span class="o">.</span><span class="n">dimensions</span><span class="p">:</span>
@@ -307,6 +315,8 @@
                     <span class="n">dstVar</span><span class="p">[:]</span> <span class="o">=</span> <span class="n">srcVar</span><span class="p">[:]</span>
                 <span class="k">for</span> <span class="n">att</span> <span class="ow">in</span> <span class="n">src</span><span class="o">.</span><span class="n">variables</span><span class="p">[</span><span class="n">name</span><span class="p">]</span><span class="o">.</span><span class="n">ncattrs</span><span class="p">():</span>
                     <span class="c1"># Copy variable attributes</span>
+                    <span class="k">if</span> <span class="n">att</span> <span class="ow">in</span> <span class="p">[</span><span class="s1">&#39;_FillValue&#39;</span><span class="p">]:</span>
+                        <span class="k">continue</span>
                     <span class="n">dstVar</span><span class="o">.</span><span class="n">setncattr</span><span class="p">(</span><span class="n">att</span><span class="p">,</span> <span class="n">srcVar</span><span class="o">.</span><span class="n">getncattr</span><span class="p">(</span><span class="n">att</span><span class="p">))</span>
 
             <span class="k">for</span> <span class="n">att</span> <span class="ow">in</span> <span class="n">src</span><span class="o">.</span><span class="n">ncattrs</span><span class="p">():</span>  <span class="c1"># Copy global attributes</span>
