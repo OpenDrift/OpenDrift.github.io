@@ -119,11 +119,29 @@
 <span class="sd">    See :class:`.basereader.BaseReader` for how readers work internally.</span>
 <span class="sd">&quot;&quot;&quot;</span>
 
+<span class="kn">from</span> <span class="nn">datetime</span> <span class="kn">import</span> <span class="n">datetime</span><span class="p">,</span> <span class="n">timedelta</span>
 <span class="kn">import</span> <span class="nn">importlib</span>
 <span class="kn">import</span> <span class="nn">logging</span><span class="p">;</span> <span class="n">logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span>
 <span class="kn">import</span> <span class="nn">glob</span>
 <span class="kn">import</span> <span class="nn">json</span>
 <span class="kn">import</span> <span class="nn">opendrift</span>
+<span class="kn">import</span> <span class="nn">xarray</span> <span class="k">as</span> <span class="nn">xr</span>
+
+<div class="viewcode-block" id="open_mfdataset_overlap">
+<a class="viewcode-back" href="../../autoapi/opendrift/readers/index.html#opendrift.readers.open_mfdataset_overlap">[docs]</a>
+<span class="k">def</span> <span class="nf">open_mfdataset_overlap</span><span class="p">(</span><span class="n">url_base</span><span class="p">,</span> <span class="n">time_series</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">start_time</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">end_time</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">freq</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">timedim</span><span class="o">=</span><span class="s1">&#39;time&#39;</span><span class="p">):</span>
+    <span class="k">if</span> <span class="n">time_series</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">construct_from_times</span>
+    <span class="n">urls</span> <span class="o">=</span> <span class="p">[</span><span class="n">t</span><span class="o">.</span><span class="n">strftime</span><span class="p">(</span><span class="n">url_base</span><span class="p">)</span> <span class="k">for</span> <span class="n">t</span> <span class="ow">in</span> <span class="n">time_series</span><span class="p">]</span>
+    <span class="n">time_step</span> <span class="o">=</span> <span class="n">time_series</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">-</span> <span class="n">time_series</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Opening individual URLs...&#39;</span><span class="p">)</span>
+    <span class="n">datasets</span> <span class="o">=</span> <span class="p">[</span><span class="n">xr</span><span class="o">.</span><span class="n">open_dataset</span><span class="p">(</span><span class="n">u</span><span class="p">,</span> <span class="n">chunks</span><span class="o">=</span><span class="s1">&#39;auto&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">sel</span><span class="p">({</span><span class="n">timedim</span><span class="p">:</span> <span class="nb">slice</span><span class="p">(</span><span class="n">t</span><span class="p">,</span> <span class="n">t</span><span class="o">+</span><span class="n">time_step</span><span class="o">-</span><span class="n">timedelta</span><span class="p">(</span><span class="n">seconds</span><span class="o">=</span><span class="mi">1</span><span class="p">))})</span>
+                <span class="k">for</span> <span class="n">u</span><span class="p">,</span><span class="n">t</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">urls</span><span class="p">,</span> <span class="n">time_series</span><span class="p">)]</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Concatenating...&#39;</span><span class="p">)</span>
+    <span class="n">ds</span> <span class="o">=</span> <span class="n">xr</span><span class="o">.</span><span class="n">concat</span><span class="p">(</span><span class="n">datasets</span><span class="p">,</span> <span class="n">dim</span><span class="o">=</span><span class="n">timedim</span><span class="p">,</span>
+                   <span class="n">compat</span><span class="o">=</span><span class="s1">&#39;override&#39;</span><span class="p">,</span> <span class="n">combine_attrs</span><span class="o">=</span><span class="s1">&#39;override&#39;</span><span class="p">,</span> <span class="n">join</span><span class="o">=</span><span class="s1">&#39;override&#39;</span><span class="p">,</span> <span class="n">coords</span><span class="o">=</span><span class="s1">&#39;all&#39;</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">ds</span></div>
+
 
 <div class="viewcode-block" id="reader_from_url">
 <a class="viewcode-back" href="../../autoapi/opendrift/readers/index.html#opendrift.readers.reader_from_url">[docs]</a>
