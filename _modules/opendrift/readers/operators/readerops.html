@@ -100,6 +100,7 @@
   <h1>Source code for opendrift.readers.operators.readerops</h1><div class="highlight"><pre>
 <span></span><span class="kn">from</span> <span class="nn">types</span> <span class="kn">import</span> <span class="n">LambdaType</span>
 <span class="kn">from</span> <span class="nn">..basereader</span> <span class="kn">import</span> <span class="n">BaseReader</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
 
 <div class="viewcode-block" id="none_or_cmp">
 <a class="viewcode-back" href="../../../../autoapi/opendrift/readers/operators/readerops/index.html#opendrift.readers.operators.readerops.none_or_cmp">[docs]</a>
@@ -145,7 +146,7 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39;Combined(</span><span class="si">{</span><span class="n">a</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s1"> | </span><span class="si">{</span><span class="n">b</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s1">)&#39;</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">proj4</span> <span class="o">=</span> <span class="s1">&#39;+proj=latlong&#39;</span>
-
+        <span class="bp">self</span><span class="o">.</span><span class="n">projected</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
 
 <div class="viewcode-block" id="Combined.covers_positions">
@@ -168,9 +169,7 @@
         <span class="n">env_a</span><span class="p">,</span> <span class="n">env_profiles_a</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">a</span><span class="o">.</span><span class="n">get_variables_interpolated</span><span class="p">(</span><span class="n">variables</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
         <span class="n">env_b</span><span class="p">,</span> <span class="n">env_profiles_b</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">b</span><span class="o">.</span><span class="n">get_variables_interpolated</span><span class="p">(</span><span class="n">variables</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
 
-        <span class="n">variables</span> <span class="o">=</span> <span class="p">[</span>
-            <span class="n">var</span> <span class="k">for</span> <span class="n">var</span> <span class="ow">in</span> <span class="n">env_a</span><span class="o">.</span><span class="n">keys</span><span class="p">()</span> <span class="k">if</span> <span class="n">var</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">[</span><span class="s1">&#39;x&#39;</span><span class="p">,</span> <span class="s1">&#39;y&#39;</span><span class="p">,</span> <span class="s1">&#39;z&#39;</span><span class="p">,</span> <span class="s1">&#39;time&#39;</span><span class="p">]</span>
-        <span class="p">]</span>
+        <span class="n">variables</span> <span class="o">=</span> <span class="p">[</span> <span class="n">var</span> <span class="k">for</span> <span class="n">var</span> <span class="ow">in</span> <span class="n">env_a</span><span class="o">.</span><span class="n">keys</span><span class="p">()</span> <span class="k">if</span> <span class="n">var</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">[</span><span class="s1">&#39;x&#39;</span><span class="p">,</span> <span class="s1">&#39;y&#39;</span><span class="p">,</span> <span class="s1">&#39;z&#39;</span><span class="p">,</span> <span class="s1">&#39;time&#39;</span><span class="p">]</span> <span class="p">]</span>
 
 	<span class="c1">#Making disctinction between easy functions or more complex ones that need some external parameters</span>
         <span class="k">for</span> <span class="n">var</span> <span class="ow">in</span> <span class="n">variables</span><span class="p">:</span>
@@ -186,13 +185,49 @@
                 <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;Op_type not recognised. You should verify the definition of the Reader operator you are using.&#39;</span><span class="p">)</span>
 
         <span class="k">if</span> <span class="n">env_profiles_a</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="n">variables</span> <span class="o">=</span> <span class="p">[</span>
-                <span class="n">var</span> <span class="k">for</span> <span class="n">var</span> <span class="ow">in</span> <span class="n">env_profiles_a</span><span class="o">.</span><span class="n">keys</span><span class="p">()</span> <span class="k">if</span> <span class="n">var</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">[</span><span class="s1">&#39;x&#39;</span><span class="p">,</span> <span class="s1">&#39;y&#39;</span><span class="p">,</span> <span class="s1">&#39;z&#39;</span><span class="p">,</span> <span class="s1">&#39;time&#39;</span><span class="p">]</span>
-            <span class="p">]</span>
+            <span class="n">variables</span> <span class="o">=</span> <span class="p">[</span> <span class="n">var</span> <span class="k">for</span> <span class="n">var</span> <span class="ow">in</span> <span class="n">env_profiles_a</span><span class="o">.</span><span class="n">keys</span><span class="p">()</span> <span class="k">if</span> <span class="n">var</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">[</span><span class="s1">&#39;x&#39;</span><span class="p">,</span> <span class="s1">&#39;y&#39;</span><span class="p">,</span> <span class="s1">&#39;z&#39;</span><span class="p">,</span> <span class="s1">&#39;time&#39;</span><span class="p">]</span> <span class="p">]</span>
             <span class="k">for</span> <span class="n">var</span> <span class="ow">in</span> <span class="n">variables</span><span class="p">:</span>
                 <span class="n">env_profiles_a</span><span class="p">[</span><span class="n">var</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">op</span><span class="p">(</span><span class="n">env_profiles_a</span><span class="p">[</span><span class="n">var</span><span class="p">],</span> <span class="n">env_profiles_b</span><span class="p">[</span><span class="n">var</span><span class="p">])</span>
 
         <span class="k">return</span> <span class="n">env_a</span><span class="p">,</span> <span class="n">env_profiles_a</span></div>
+
+
+<div class="viewcode-block" id="Combined.get_variables">
+<a class="viewcode-back" href="../../../../autoapi/opendrift/readers/operators/readerops/index.html#opendrift.readers.operators.readerops.Combined.get_variables">[docs]</a>
+    <span class="k">def</span> <span class="nf">get_variables</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">requested_variables</span><span class="p">,</span> <span class="n">time</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                      <span class="n">x</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">y</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">z</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+
+        <span class="n">pm1</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">a</span><span class="o">.</span><span class="n">pixel_size</span><span class="p">()</span>
+        <span class="n">pm2</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">b</span><span class="o">.</span><span class="n">pixel_size</span><span class="p">()</span>
+
+        <span class="nb">print</span><span class="p">(</span><span class="n">pm1</span><span class="p">,</span> <span class="n">pm2</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">pm1</span> <span class="o">==</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">pm2</span> <span class="o">==</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s2">&quot;Neither </span><span class="si">{}</span><span class="s2"> or </span><span class="si">{}</span><span class="s2"> in </span><span class="si">{}</span><span class="s2"> have pixel_size well defined. Plot is not possible.&quot;</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="n">pm1</span> <span class="o">==</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">pm</span><span class="o">=</span><span class="n">pm2</span>
+        <span class="k">elif</span> <span class="n">pm2</span> <span class="o">==</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">pm</span><span class="o">=</span><span class="n">pm1</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">pm</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">lcm</span><span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="n">pm1</span><span class="p">),</span> <span class="nb">int</span><span class="p">(</span><span class="n">pm2</span><span class="p">))</span>
+
+        <span class="n">delta_x</span> <span class="o">=</span> <span class="n">pm</span><span class="o">/</span><span class="mi">111000</span>
+        <span class="n">delta_y</span> <span class="o">=</span> <span class="n">pm</span><span class="o">/</span> <span class="mi">111000</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">cos</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">radians</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">y</span><span class="p">))))</span>
+
+        <span class="n">x</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">min</span><span class="p">(</span><span class="n">x</span><span class="p">),</span> <span class="n">np</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="n">x</span><span class="p">),</span> <span class="n">delta_x</span><span class="p">)</span>
+        <span class="n">y</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">min</span><span class="p">(</span><span class="n">y</span><span class="p">),</span> <span class="n">np</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="n">y</span><span class="p">),</span> <span class="n">delta_y</span><span class="p">)</span>
+
+        <span class="n">X</span><span class="p">,</span> <span class="n">Y</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">meshgrid</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">)</span>
+        <span class="n">shape</span> <span class="o">=</span> <span class="n">X</span><span class="o">.</span><span class="n">shape</span>
+        <span class="n">X</span> <span class="o">=</span> <span class="n">X</span><span class="o">.</span><span class="n">flatten</span><span class="p">()</span>
+        <span class="n">Y</span> <span class="o">=</span> <span class="n">Y</span><span class="o">.</span><span class="n">flatten</span><span class="p">()</span>
+
+        <span class="n">variables</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_variables_interpolated</span><span class="p">(</span><span class="n">requested_variables</span><span class="p">,</span> <span class="n">lon</span> <span class="o">=</span> <span class="n">X</span><span class="p">,</span> <span class="n">lat</span> <span class="o">=</span> <span class="n">Y</span><span class="p">,</span> <span class="n">time</span> <span class="o">=</span> <span class="n">time</span><span class="p">,</span> <span class="n">z</span> <span class="o">=</span> <span class="n">z</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">variables</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+            <span class="n">variables</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="n">variables</span><span class="p">[</span><span class="n">key</span><span class="p">],</span> <span class="n">shape</span><span class="p">)</span>
+        <span class="n">variables</span><span class="p">[</span><span class="s1">&#39;x&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">x</span>
+        <span class="n">variables</span><span class="p">[</span><span class="s1">&#39;y&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">y</span>
+
+        <span class="k">return</span> <span class="n">variables</span></div>
 </div>
 
 
