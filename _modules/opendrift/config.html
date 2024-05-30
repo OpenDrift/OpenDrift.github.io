@@ -150,6 +150,8 @@
 
                 <span class="k">if</span> <span class="n">i</span><span class="p">[</span><span class="s1">&#39;type&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="s1">&#39;bool&#39;</span><span class="p">:</span>
                     <span class="n">rang</span> <span class="o">=</span> <span class="s1">&#39;&#39;</span>
+                <span class="k">elif</span> <span class="n">i</span><span class="p">[</span><span class="s1">&#39;type&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="s1">&#39;str&#39;</span><span class="p">:</span>
+                    <span class="n">rang</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39;min length </span><span class="si">{</span><span class="n">i</span><span class="p">[</span><span class="s2">&quot;min_length&quot;</span><span class="p">]</span><span class="si">}</span><span class="s1">, max length </span><span class="si">{</span><span class="n">i</span><span class="p">[</span><span class="s2">&quot;max_length&quot;</span><span class="p">]</span><span class="si">}</span><span class="s1">&#39;</span>
                 <span class="k">elif</span> <span class="n">i</span><span class="p">[</span><span class="s1">&#39;type&#39;</span><span class="p">]</span> <span class="ow">in</span> <span class="p">[</span><span class="s1">&#39;float&#39;</span><span class="p">,</span> <span class="s1">&#39;int&#39;</span><span class="p">]:</span>
                     <span class="n">rang</span> <span class="o">=</span> <span class="s1">&#39;min: </span><span class="si">%s</span><span class="s1">, max: </span><span class="si">%s</span><span class="s1"> [</span><span class="si">%s</span><span class="s1">]&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">i</span><span class="p">[</span><span class="s1">&#39;min&#39;</span><span class="p">],</span> <span class="n">i</span><span class="p">[</span><span class="s1">&#39;max&#39;</span><span class="p">],</span>
                                                       <span class="n">i</span><span class="p">[</span><span class="s1">&#39;units&#39;</span><span class="p">])</span>
@@ -197,6 +199,9 @@
                 <span class="n">value</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
             <span class="k">elif</span> <span class="n">i</span><span class="p">[</span><span class="s1">&#39;type&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="s1">&#39;int&#39;</span> <span class="ow">and</span> <span class="n">value</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
                 <span class="n">value</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="n">i</span><span class="p">[</span><span class="s1">&#39;type&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="s1">&#39;str&#39;</span><span class="p">:</span>
+            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">value</span><span class="p">)</span> <span class="o">&lt;</span> <span class="n">i</span><span class="p">[</span><span class="s2">&quot;min_length&quot;</span><span class="p">]</span> <span class="ow">or</span> <span class="nb">len</span><span class="p">(</span><span class="n">value</span><span class="p">)</span> <span class="o">&gt;</span> <span class="n">i</span><span class="p">[</span><span class="s2">&quot;max_length&quot;</span><span class="p">]:</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;String </span><span class="si">{</span><span class="n">key</span><span class="si">}</span><span class="s1"> length must be between </span><span class="si">{</span><span class="n">i</span><span class="p">[</span><span class="s2">&quot;min_length&quot;</span><span class="p">]</span><span class="si">}</span><span class="s1"> and </span><span class="si">{</span><span class="n">i</span><span class="p">[</span><span class="s2">&quot;max_length&quot;</span><span class="p">]</span><span class="si">}</span><span class="s1"> characters&#39;</span><span class="p">)</span>
         <span class="k">elif</span> <span class="n">i</span><span class="p">[</span><span class="s1">&#39;type&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="s1">&#39;enum&#39;</span><span class="p">:</span>
             <span class="k">if</span> <span class="n">value</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">i</span><span class="p">[</span><span class="s1">&#39;enum&#39;</span><span class="p">]:</span>
                 <span class="n">suggestion</span> <span class="o">=</span> <span class="s1">&#39;&#39;</span>
@@ -245,11 +250,13 @@
 <span class="sd">        config is a dictionary where keys are configuration keywords,</span>
 <span class="sd">        and values are dictionaries with the following contents:</span>
 
-<span class="sd">        type (string): &#39;float&#39;, &#39;int&#39;, &#39;bool&#39; or &#39;enum&#39;</span>
+<span class="sd">        type (string): &#39;float&#39;, &#39;int&#39;, &#39;str&#39;, &#39;bool&#39; or &#39;enum&#39;</span>
 
 <span class="sd">        min, max (float/int/None): (only when type is &#39;float&#39; or &#39;int&#39;)</span>
 <span class="sd">            The minimum and maximum allowed values for this setting.</span>
 <span class="sd">            May also be None if there are no upper/lowe limits.</span>
+
+<span class="sd">        min_length, max_length (int): minimum and maximum length of string</span>
 
 <span class="sd">        units (string): (only when type is &#39;float&#39; or &#39;int&#39;)</span>
 <span class="sd">            The units of this config setting.</span>
@@ -307,12 +314,17 @@
                     <span class="k">if</span> <span class="n">p</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">i</span><span class="p">:</span>
                         <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
                             <span class="s1">&#39;&quot;</span><span class="si">%s</span><span class="s1">&quot; not provided for config item </span><span class="si">%s</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">p</span><span class="p">,</span> <span class="n">c</span><span class="p">))</span>
+            <span class="k">elif</span> <span class="n">i</span><span class="p">[</span><span class="s1">&#39;type&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="s1">&#39;str&#39;</span><span class="p">:</span>
+                <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="p">[</span><span class="s1">&#39;min_length&#39;</span><span class="p">,</span> <span class="s1">&#39;max_length&#39;</span><span class="p">]:</span>
+                    <span class="k">if</span> <span class="n">p</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">i</span><span class="p">:</span>
+                        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                            <span class="s1">&#39;&quot;</span><span class="si">%s</span><span class="s1">&quot; not provided for config item </span><span class="si">%s</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">p</span><span class="p">,</span> <span class="n">c</span><span class="p">))</span>
             <span class="k">elif</span> <span class="n">i</span><span class="p">[</span><span class="s1">&#39;type&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="s1">&#39;bool&#39;</span><span class="p">:</span>
                 <span class="k">pass</span>  <span class="c1"># no check for bool</span>
             <span class="k">else</span><span class="p">:</span>
                 <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
                     <span class="s1">&#39;Config type &quot;</span><span class="si">%s</span><span class="s1">&quot; (</span><span class="si">%s</span><span class="s1">) is not defined. Valid options are: &#39;</span>
-                    <span class="s1">&#39;float, int, enum, bool&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">i</span><span class="p">[</span><span class="s1">&#39;type&#39;</span><span class="p">],</span> <span class="n">c</span><span class="p">))</span>
+                    <span class="s1">&#39;float, int, str, enum, bool&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">i</span><span class="p">[</span><span class="s1">&#39;type&#39;</span><span class="p">],</span> <span class="n">c</span><span class="p">))</span>
             <span class="k">if</span> <span class="s1">&#39;default&#39;</span> <span class="ow">in</span> <span class="n">i</span><span class="p">:</span>
                 <span class="n">i</span><span class="p">[</span><span class="s1">&#39;value&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">i</span><span class="p">[</span><span class="s1">&#39;default&#39;</span><span class="p">]</span>
         <span class="k">for</span> <span class="n">r</span> <span class="ow">in</span> <span class="n">remove</span><span class="p">:</span>
