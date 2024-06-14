@@ -104,6 +104,8 @@
 <span class="kn">from</span> <span class="nn">adios_db.models.oil.oil</span> <span class="kn">import</span> <span class="n">Oil</span>
 <span class="kn">from</span> <span class="nn">adios_db.computation</span> <span class="kn">import</span> <span class="n">gnome_oil</span>
 
+<span class="c1"># Oils marked as gnome_suitable, but can not be converted to ADIOS object</span>
+<span class="n">blacklist</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;AD02384&#39;</span><span class="p">]</span>
 
 <div class="viewcode-block" id="download">
 <a class="viewcode-back" href="../../../../../autoapi/opendrift/models/openoil/adios/harvest_oils/index.html#opendrift.models.openoil.adios.harvest_oils.download">[docs]</a>
@@ -115,6 +117,13 @@
     <span class="n">tar</span> <span class="o">=</span> <span class="n">tarfile</span><span class="o">.</span><span class="n">open</span><span class="p">(</span><span class="n">fileobj</span><span class="o">=</span><span class="n">response</span><span class="o">.</span><span class="n">raw</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="s1">&#39;r|gz&#39;</span><span class="p">)</span>
     <span class="k">for</span> <span class="n">file</span> <span class="ow">in</span> <span class="n">tar</span><span class="p">:</span>
         <span class="k">if</span> <span class="n">file</span><span class="o">.</span><span class="n">isfile</span><span class="p">()</span> <span class="ow">and</span> <span class="n">file</span><span class="o">.</span><span class="n">name</span><span class="o">.</span><span class="n">endswith</span><span class="p">(</span><span class="s1">&#39;.json&#39;</span><span class="p">):</span>
+            <span class="n">gnome_suitable</span> <span class="o">=</span> <span class="kc">True</span>
+            <span class="k">for</span> <span class="n">b</span> <span class="ow">in</span> <span class="n">blacklist</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">b</span> <span class="ow">in</span> <span class="n">file</span><span class="o">.</span><span class="n">name</span><span class="p">:</span>
+                    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Discarding </span><span class="si">{</span><span class="n">b</span><span class="si">}</span><span class="s1">, from blacklist (not GNOME suitable)&#39;</span><span class="p">)</span>
+                    <span class="n">gnome_suitable</span> <span class="o">=</span> <span class="kc">False</span>
+            <span class="k">if</span> <span class="n">gnome_suitable</span> <span class="ow">is</span> <span class="kc">False</span><span class="p">:</span>
+                <span class="k">continue</span>
             <span class="n">f</span> <span class="o">=</span> <span class="n">tar</span><span class="o">.</span><span class="n">extractfile</span><span class="p">(</span><span class="n">file</span><span class="p">)</span>  
             <span class="n">o</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">f</span><span class="o">.</span><span class="n">raw</span><span class="p">)</span>
             <span class="n">AO</span> <span class="o">=</span> <span class="n">Oil</span><span class="o">.</span><span class="n">from_py_json</span><span class="p">(</span><span class="n">o</span><span class="p">)</span>
@@ -129,8 +138,24 @@
         <span class="n">json</span><span class="o">.</span><span class="n">dump</span><span class="p">(</span><span class="n">oils</span><span class="p">,</span> <span class="n">c</span><span class="p">)</span></div>
 
 
+<div class="viewcode-block" id="list_oils">
+<a class="viewcode-back" href="../../../../../autoapi/opendrift/models/openoil/adios/harvest_oils/index.html#opendrift.models.openoil.adios.harvest_oils.list_oils">[docs]</a>
+<span class="k">def</span> <span class="nf">list_oils</span><span class="p">():</span>
+    <span class="kn">from</span> <span class="nn">importlib</span> <span class="kn">import</span> <span class="n">resources</span>
+    <span class="kn">import</span> <span class="nn">lzma</span>
+    <span class="k">with</span> <span class="n">resources</span><span class="o">.</span><span class="n">open_binary</span><span class="p">(</span><span class="s1">&#39;opendrift.models.openoil.adios&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;oils.xz&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">archive</span><span class="p">:</span>
+        <span class="k">with</span> <span class="n">lzma</span><span class="o">.</span><span class="n">open</span><span class="p">(</span><span class="n">archive</span><span class="p">,</span> <span class="s1">&#39;rt&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">c</span><span class="p">:</span>
+            <span class="n">oils</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">c</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="n">oils</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">oils</span><span class="p">))</span>
+    <span class="k">for</span> <span class="n">o</span> <span class="ow">in</span> <span class="n">oils</span><span class="p">:</span>
+        <span class="nb">print</span><span class="p">(</span><span class="n">o</span><span class="p">[</span><span class="s1">&#39;oil_id&#39;</span><span class="p">],</span> <span class="n">o</span><span class="p">[</span><span class="s1">&#39;metadata&#39;</span><span class="p">][</span><span class="s1">&#39;name&#39;</span><span class="p">])</span></div>
+
+
 <span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s1">&#39;__main__&#39;</span><span class="p">:</span>
     <span class="n">download</span><span class="p">()</span>
+    <span class="c1">#list_oils()</span>
 </pre></div>
 
            </div>
