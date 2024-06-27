@@ -21,7 +21,7 @@
 Using wind measurements
 ===============
 
-.. GENERATED FROM PYTHON SOURCE LINES 6-22
+.. GENERATED FROM PYTHON SOURCE LINES 6-31
 
 .. code-block:: Python
 
@@ -38,8 +38,15 @@ Using wind measurements
     import matplotlib.pyplot as plt
     import matplotlib as mpl
 
+    # Preparation of figsize, dpi, fontsize and font style
+    # Could also be done using mpl style sheet
+    # https://matplotlib.org/stable/users/explain/customizing.html
     mpl.rcParams['figure.figsize'] = (5, 5)
     mpl.rcParams['savefig.dpi'] = 300
+    mpl.rcParams['font.family'] = "sans-serif"
+    mpl.rcParams['font.sans-serif'] = "DejaVu Sans"
+    mpl.rcParams['font.size'] = 22
+    mpl.rcParams['mathtext.fontset'] = "dejavusans"
 
 
 
@@ -48,25 +55,29 @@ Using wind measurements
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 23-26
+
+
+.. GENERATED FROM PYTHON SOURCE LINES 32-35
 
 This example shows how to use wind or currents measurments 
 combined with an ocean model to improove the drift
 calculation arround the measurment station.
 
-.. GENERATED FROM PYTHON SOURCE LINES 29-32
+.. GENERATED FROM PYTHON SOURCE LINES 38-41
 
-We import two times the same model, because one
+Fisrt, we import two times the same model, because one
 will be used for the usual simulation, and one will
 be used for the measurement combined simulation.
 
-.. GENERATED FROM PYTHON SOURCE LINES 32-38
+.. GENERATED FROM PYTHON SOURCE LINES 41-49
 
 .. code-block:: Python
 
 
     reader_norkyst = reader_netCDF_CF_generic.Reader('https://thredds.met.no/thredds/dodsC/sea/norkyst800m/1h/aggregate_be')
     reader_norkyst2 = reader_netCDF_CF_generic.Reader('https://thredds.met.no/thredds/dodsC/sea/norkyst800m/1h/aggregate_be')
+
+    #Verification
     print(reader_norkyst)
 
 
@@ -96,8 +107,8 @@ be used for the measurement combined simulation.
       [   -0.    -3.   -10.   -15.   -25.   -50.   -75.  -100.  -150.  -200.
       -250.  -300.  -500. -1000. -2000. -3000.]
     Available time range:
-      start: 2017-02-20 00:00:00   end: 2024-07-01 00:00:00   step: 1:00:00
-        64513 times (3372 missing)
+      start: 2017-02-20 00:00:00   end: 2024-07-02 00:00:00   step: 1:00:00
+        64537 times (3372 missing)
     Variables:
       sea_floor_depth_below_sea_level
       latitude
@@ -120,14 +131,14 @@ be used for the measurement combined simulation.
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 39-43
+.. GENERATED FROM PYTHON SOURCE LINES 50-54
 
-We import wind measurement data, 
+We then import wind measurement data,
 that will be stored in a timeserie reader.
 Don't forget to give the lon and lat of the 
 measurement station.
 
-.. GENERATED FROM PYTHON SOURCE LINES 43-49
+.. GENERATED FROM PYTHON SOURCE LINES 54-88
 
 .. code-block:: Python
 
@@ -138,40 +149,15 @@ measurement station.
 
 
 
+    # Alternative if data are in a csv file
 
-
-
-
-
-
-.. GENERATED FROM PYTHON SOURCE LINES 50-53
-
-File stored wind measurement data
-Get this type of file with printobs 
-https://github.com/bohlinger/printobs
-
-.. GENERATED FROM PYTHON SOURCE LINES 53-61
-
-.. code-block:: Python
-
-
-    #data_wind_bridge = np.genfromtxt("Simulation_data/data_wind_21_mai_2024.txt", dtype = '<U10', skip_header=1)
-    #temporal_time = np.array([data_wind_bridge[i, 0] + "T" + data_wind_bridge[i, 1] for i in range(len(data_wind_bridge))])
-    #time_list = [datetime.fromisoformat(temporal_time[i]) for i in range(len(temporal_time))]
-    #wind_speed_array = data_wind_bridge[:, 3]
-    #wind_speed_angle = data_wind_bridge[:, 5]
-    #wind_speed_array = wind_speed_array.astype(float)
-    #wind_speed_angle = wind_speed_angle.astype(float)
-
-
-
-
-
-
-
-.. GENERATED FROM PYTHON SOURCE LINES 62-74
-
-.. code-block:: Python
+    # data_wind_bridge = np.genfromtxt("Simulation_data/data_wind_21_mai_2024.txt", dtype = '<U10', skip_header=1)
+    # temporal_time = np.array([data_wind_bridge[i, 0] + "T" + data_wind_bridge[i, 1] for i in range(len(data_wind_bridge))])
+    # time_list = [datetime.fromisoformat(temporal_time[i]) for i in range(len(temporal_time))]
+    # wind_speed_array = data_wind_bridge[:, 3]
+    # wind_speed_angle = data_wind_bridge[:, 5]
+    # wind_speed_array = wind_speed_array.astype(float)
+    # wind_speed_angle = wind_speed_angle.astype(float)
 
 
     #Calculation of wind_x and wind_y
@@ -183,6 +169,11 @@ https://github.com/bohlinger/printobs
     lon, lat = 5.17, 60.37
     parameter_value_map = {'time': time_list, 'wind_speed': wind_speed_array, 'x_wind': wind_x, 'y_wind':  wind_y, 'lon':lon, 'lat':lat}
     wind_obs_reader = reader_timeseries.Reader(parameter_value_map)
+
+    #Preparing future plots
+    text = [{'s': '* Station', 'x': lon, 'y': lat, 'fontsize': 20, 'color': 'k', 'backgroundcolor': 'white', 'bbox': dict(facecolor='none', edgecolor='none', alpha=0.4), 'zorder': 1000}]
+
+    #Verification
     print(wind_obs_reader)
 
 
@@ -220,13 +211,13 @@ https://github.com/bohlinger/printobs
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 75-78
+.. GENERATED FROM PYTHON SOURCE LINES 89-92
 
 Now we combine the second norkyst reader 
 with the measurement one, using a gaussian 
 combined reader.
 
-.. GENERATED FROM PYTHON SOURCE LINES 78-83
+.. GENERATED FROM PYTHON SOURCE LINES 92-97
 
 .. code-block:: Python
 
@@ -258,8 +249,8 @@ combined reader.
     Available time range:
       start: 2024-05-27 06:00:00   end: 2024-05-27 07:00:00   step: None
     Variables:
-      y_wind
       x_wind
+      y_wind
       wind_speed
     ===========================
 
@@ -267,11 +258,11 @@ combined reader.
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 84-85
+.. GENERATED FROM PYTHON SOURCE LINES 98-99
 
 Configuration of the simulations
 
-.. GENERATED FROM PYTHON SOURCE LINES 85-101
+.. GENERATED FROM PYTHON SOURCE LINES 99-115
 
 .. code-block:: Python
 
@@ -282,7 +273,7 @@ Configuration of the simulations
     time_step = 150
     time_step_output = 150
 
-    #Seeding configuration
+    # Seeding configuration
     lon = 5.187
     lat = 60.385
     radius = 0
@@ -298,11 +289,11 @@ Configuration of the simulations
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 102-103
+.. GENERATED FROM PYTHON SOURCE LINES 116-117
 
 Usual simulation
 
-.. GENERATED FROM PYTHON SOURCE LINES 103-114
+.. GENERATED FROM PYTHON SOURCE LINES 117-128
 
 .. code-block:: Python
 
@@ -310,18 +301,18 @@ Usual simulation
     o = OceanDrift(loglevel=20)
     o.add_reader([reader_norkyst])
 
-    #o.set_config('drift:current_uncertainty', .1)
-    #o.set_config('drift:wind_uncertainty', 1)
+    # o.set_config('drift:current_uncertainty', .1)
+    # o.set_config('drift:wind_uncertainty', 1)
 
     o.seed_elements(lon=lon, lat=lat, radius=radius, number=number, time=time_start, wind_drift_factor=wind_drift_factor)
     o.run(end_time=time_end, time_step=time_step, time_step_output=time_step_output)
-    o.plot(fast=False, background=['x_sea_water_velocity', 'y_sea_water_velocity'], buffer = .02) 
+    o.plot(fast = False, background=['x_sea_water_velocity', 'y_sea_water_velocity'], legend=['Norkyst only', 'Gaussian measurement'], buffer = .023, markersize = 150, linewidth = 3, title = "", xlocs = mpl.ticker.MaxNLocator(5), ylocs = mpl.ticker.MaxNLocator(5), clabel = r"Wind speed $\mathrm{(m.s^{-1})}$", cpad = 0.08, text=text)
 
 
 
 
 .. image-sg:: /gallery/images/sphx_glr_example_wind_measurements_001.png
-   :alt: OpenDrift - OceanDrift 2024-05-27 06:00 to 2024-05-27 08:00 UTC (49 steps)
+   :alt: example wind measurements
    :srcset: /gallery/images/sphx_glr_example_wind_measurements_001.png
    :class: sphx-glr-single-img
 
@@ -330,91 +321,91 @@ Usual simulation
 
  .. code-block:: none
 
-    19:47:03 INFO    opendrift.models.basemodel:507: OpenDriftSimulation initialised (version 1.11.8 / v1.11.8-12-g65d2ed0)
-    19:47:03 INFO    opendrift.models.basemodel.environment:218: Adding a dynamical landmask with max. priority based on assumed maximum speed of 2.0 m/s. Adding a customised landmask may be faster...
-    19:47:08 INFO    opendrift.models.basemodel.environment:245: Fallback values will be used for the following variables which have no readers: 
-    19:47:08 INFO    opendrift.models.basemodel.environment:248:    sea_surface_height: 0.000000
-    19:47:08 INFO    opendrift.models.basemodel.environment:248:    ocean_vertical_diffusivity: 0.000000
-    19:47:08 INFO    opendrift.models.basemodel.environment:248:    sea_surface_wave_significant_height: 0.000000
-    19:47:08 INFO    opendrift.models.basemodel.environment:248:    sea_surface_wave_stokes_drift_x_velocity: 0.000000
-    19:47:08 INFO    opendrift.models.basemodel.environment:248:    sea_surface_wave_stokes_drift_y_velocity: 0.000000
-    19:47:08 INFO    opendrift.models.basemodel.environment:248:    sea_surface_wave_period_at_variance_spectral_density_maximum: 0.000000
-    19:47:08 INFO    opendrift.models.basemodel.environment:248:    sea_surface_wave_mean_period_from_variance_spectral_density_second_frequency_moment: 0.000000
-    19:47:08 INFO    opendrift.models.basemodel.environment:248:    sea_surface_swell_wave_to_direction: 0.000000
-    19:47:08 INFO    opendrift.models.basemodel.environment:248:    sea_surface_swell_wave_peak_period_from_variance_spectral_density: 0.000000
-    19:47:08 INFO    opendrift.models.basemodel.environment:248:    sea_surface_swell_wave_significant_height: 0.000000
-    19:47:08 INFO    opendrift.models.basemodel.environment:248:    sea_surface_wind_wave_to_direction: 0.000000
-    19:47:08 INFO    opendrift.models.basemodel.environment:248:    sea_surface_wind_wave_mean_period: 0.000000
-    19:47:08 INFO    opendrift.models.basemodel.environment:248:    sea_surface_wind_wave_significant_height: 0.000000
-    19:47:08 INFO    opendrift.models.basemodel.environment:248:    surface_downward_x_stress: 0.000000
-    19:47:08 INFO    opendrift.models.basemodel.environment:248:    surface_downward_y_stress: 0.000000
-    19:47:08 INFO    opendrift.models.basemodel.environment:248:    turbulent_kinetic_energy: 0.000000
-    19:47:08 INFO    opendrift.models.basemodel.environment:248:    turbulent_generic_length_scale: 0.000000
-    19:47:08 INFO    opendrift.models.basemodel.environment:248:    ocean_mixed_layer_thickness: 50.000000
-    19:47:09 INFO    opendrift.models.basemodel:885: Using existing reader for land_binary_mask
-    19:47:09 INFO    opendrift.models.basemodel:896: All points are in ocean
-    19:47:09 WARNING opendrift.models.basemodel:679: Seafloor check not being run because environment is missing. This will happen the first time the function is run but if it happens subsequently there is probably a problem.
-    19:47:09 INFO    opendrift.models.basemodel:1987: 2024-05-27 06:00:00 - step 1 of 48 - 1 active elements (0 deactivated)
+    12:37:26 INFO    opendrift.models.basemodel:507: OpenDriftSimulation initialised (version 1.11.9 / v1.11.9-3-g38f858e)
+    12:37:26 INFO    opendrift.models.basemodel.environment:218: Adding a dynamical landmask with max. priority based on assumed maximum speed of 2.0 m/s. Adding a customised landmask may be faster...
+    12:37:31 INFO    opendrift.models.basemodel.environment:245: Fallback values will be used for the following variables which have no readers: 
+    12:37:31 INFO    opendrift.models.basemodel.environment:248:    sea_surface_height: 0.000000
+    12:37:31 INFO    opendrift.models.basemodel.environment:248:    ocean_vertical_diffusivity: 0.000000
+    12:37:31 INFO    opendrift.models.basemodel.environment:248:    sea_surface_wave_significant_height: 0.000000
+    12:37:31 INFO    opendrift.models.basemodel.environment:248:    sea_surface_wave_stokes_drift_x_velocity: 0.000000
+    12:37:31 INFO    opendrift.models.basemodel.environment:248:    sea_surface_wave_stokes_drift_y_velocity: 0.000000
+    12:37:31 INFO    opendrift.models.basemodel.environment:248:    sea_surface_wave_period_at_variance_spectral_density_maximum: 0.000000
+    12:37:31 INFO    opendrift.models.basemodel.environment:248:    sea_surface_wave_mean_period_from_variance_spectral_density_second_frequency_moment: 0.000000
+    12:37:31 INFO    opendrift.models.basemodel.environment:248:    sea_surface_swell_wave_to_direction: 0.000000
+    12:37:31 INFO    opendrift.models.basemodel.environment:248:    sea_surface_swell_wave_peak_period_from_variance_spectral_density: 0.000000
+    12:37:31 INFO    opendrift.models.basemodel.environment:248:    sea_surface_swell_wave_significant_height: 0.000000
+    12:37:31 INFO    opendrift.models.basemodel.environment:248:    sea_surface_wind_wave_to_direction: 0.000000
+    12:37:31 INFO    opendrift.models.basemodel.environment:248:    sea_surface_wind_wave_mean_period: 0.000000
+    12:37:31 INFO    opendrift.models.basemodel.environment:248:    sea_surface_wind_wave_significant_height: 0.000000
+    12:37:31 INFO    opendrift.models.basemodel.environment:248:    surface_downward_x_stress: 0.000000
+    12:37:31 INFO    opendrift.models.basemodel.environment:248:    surface_downward_y_stress: 0.000000
+    12:37:31 INFO    opendrift.models.basemodel.environment:248:    turbulent_kinetic_energy: 0.000000
+    12:37:31 INFO    opendrift.models.basemodel.environment:248:    turbulent_generic_length_scale: 0.000000
+    12:37:31 INFO    opendrift.models.basemodel.environment:248:    ocean_mixed_layer_thickness: 50.000000
+    12:37:32 INFO    opendrift.models.basemodel:885: Using existing reader for land_binary_mask
+    12:37:32 INFO    opendrift.models.basemodel:896: All points are in ocean
+    12:37:32 WARNING opendrift.models.basemodel:679: Seafloor check not being run because environment is missing. This will happen the first time the function is run but if it happens subsequently there is probably a problem.
+    12:37:32 INFO    opendrift.models.basemodel:1987: 2024-05-27 06:00:00 - step 1 of 48 - 1 active elements (0 deactivated)
     /root/project/opendrift/readers/interpolation/interpolators.py:17: RuntimeWarning: overflow encountered in cast
       data[mask] = np.finfo(np.float64).min
-    19:47:11 INFO    opendrift.models.basemodel:1987: 2024-05-27 06:02:30 - step 2 of 48 - 1 active elements (0 deactivated)
-    19:47:12 INFO    opendrift.models.basemodel:1987: 2024-05-27 06:05:00 - step 3 of 48 - 1 active elements (0 deactivated)
-    19:47:12 INFO    opendrift.models.basemodel:1987: 2024-05-27 06:07:30 - step 4 of 48 - 1 active elements (0 deactivated)
-    19:47:12 INFO    opendrift.models.basemodel:1987: 2024-05-27 06:10:00 - step 5 of 48 - 1 active elements (0 deactivated)
-    19:47:12 INFO    opendrift.models.basemodel:1987: 2024-05-27 06:12:30 - step 6 of 48 - 1 active elements (0 deactivated)
-    19:47:12 INFO    opendrift.models.basemodel:1987: 2024-05-27 06:15:00 - step 7 of 48 - 1 active elements (0 deactivated)
-    19:47:12 INFO    opendrift.models.basemodel:1987: 2024-05-27 06:17:30 - step 8 of 48 - 1 active elements (0 deactivated)
-    19:47:12 INFO    opendrift.models.basemodel:1987: 2024-05-27 06:20:00 - step 9 of 48 - 1 active elements (0 deactivated)
-    19:47:12 INFO    opendrift.models.basemodel:1987: 2024-05-27 06:22:30 - step 10 of 48 - 1 active elements (0 deactivated)
-    19:47:12 INFO    opendrift.models.basemodel:1987: 2024-05-27 06:25:00 - step 11 of 48 - 1 active elements (0 deactivated)
-    19:47:12 INFO    opendrift.models.basemodel:1987: 2024-05-27 06:27:30 - step 12 of 48 - 1 active elements (0 deactivated)
-    19:47:12 INFO    opendrift.models.basemodel:1987: 2024-05-27 06:30:00 - step 13 of 48 - 1 active elements (0 deactivated)
-    19:47:12 INFO    opendrift.models.basemodel:1987: 2024-05-27 06:32:30 - step 14 of 48 - 1 active elements (0 deactivated)
-    19:47:12 INFO    opendrift.models.basemodel:1987: 2024-05-27 06:35:00 - step 15 of 48 - 1 active elements (0 deactivated)
-    19:47:12 INFO    opendrift.models.basemodel:1987: 2024-05-27 06:37:30 - step 16 of 48 - 1 active elements (0 deactivated)
-    19:47:12 INFO    opendrift.models.basemodel:1987: 2024-05-27 06:40:00 - step 17 of 48 - 1 active elements (0 deactivated)
-    19:47:12 INFO    opendrift.models.basemodel:1987: 2024-05-27 06:42:30 - step 18 of 48 - 1 active elements (0 deactivated)
-    19:47:12 INFO    opendrift.models.basemodel:1987: 2024-05-27 06:45:00 - step 19 of 48 - 1 active elements (0 deactivated)
-    19:47:12 INFO    opendrift.models.basemodel:1987: 2024-05-27 06:47:30 - step 20 of 48 - 1 active elements (0 deactivated)
-    19:47:12 INFO    opendrift.models.basemodel:1987: 2024-05-27 06:50:00 - step 21 of 48 - 1 active elements (0 deactivated)
-    19:47:13 INFO    opendrift.models.basemodel:1987: 2024-05-27 06:52:30 - step 22 of 48 - 1 active elements (0 deactivated)
-    19:47:13 INFO    opendrift.models.basemodel:1987: 2024-05-27 06:55:00 - step 23 of 48 - 1 active elements (0 deactivated)
-    19:47:13 INFO    opendrift.models.basemodel:1987: 2024-05-27 06:57:30 - step 24 of 48 - 1 active elements (0 deactivated)
-    19:47:13 INFO    opendrift.models.basemodel:1987: 2024-05-27 07:00:00 - step 25 of 48 - 1 active elements (0 deactivated)
-    19:47:13 INFO    opendrift.models.basemodel:1987: 2024-05-27 07:02:30 - step 26 of 48 - 1 active elements (0 deactivated)
-    19:47:14 INFO    opendrift.models.basemodel:1987: 2024-05-27 07:05:00 - step 27 of 48 - 1 active elements (0 deactivated)
-    19:47:14 INFO    opendrift.models.basemodel:1987: 2024-05-27 07:07:30 - step 28 of 48 - 1 active elements (0 deactivated)
-    19:47:14 INFO    opendrift.models.basemodel:1987: 2024-05-27 07:10:00 - step 29 of 48 - 1 active elements (0 deactivated)
-    19:47:14 INFO    opendrift.models.basemodel:1987: 2024-05-27 07:12:30 - step 30 of 48 - 1 active elements (0 deactivated)
-    19:47:14 INFO    opendrift.models.basemodel:1987: 2024-05-27 07:15:00 - step 31 of 48 - 1 active elements (0 deactivated)
-    19:47:14 INFO    opendrift.models.basemodel:1987: 2024-05-27 07:17:30 - step 32 of 48 - 1 active elements (0 deactivated)
-    19:47:14 INFO    opendrift.models.basemodel:1987: 2024-05-27 07:20:00 - step 33 of 48 - 1 active elements (0 deactivated)
-    19:47:14 INFO    opendrift.models.basemodel:1987: 2024-05-27 07:22:30 - step 34 of 48 - 1 active elements (0 deactivated)
-    19:47:14 INFO    opendrift.models.basemodel:1987: 2024-05-27 07:25:00 - step 35 of 48 - 1 active elements (0 deactivated)
-    19:47:14 INFO    opendrift.models.basemodel:1987: 2024-05-27 07:27:30 - step 36 of 48 - 1 active elements (0 deactivated)
-    19:47:14 INFO    opendrift.models.basemodel:1987: 2024-05-27 07:30:00 - step 37 of 48 - 1 active elements (0 deactivated)
-    19:47:14 INFO    opendrift.models.basemodel:1987: 2024-05-27 07:32:30 - step 38 of 48 - 1 active elements (0 deactivated)
-    19:47:14 INFO    opendrift.models.basemodel:1987: 2024-05-27 07:35:00 - step 39 of 48 - 1 active elements (0 deactivated)
-    19:47:14 INFO    opendrift.models.basemodel:1987: 2024-05-27 07:37:30 - step 40 of 48 - 1 active elements (0 deactivated)
-    19:47:14 INFO    opendrift.models.basemodel:1987: 2024-05-27 07:40:00 - step 41 of 48 - 1 active elements (0 deactivated)
-    19:47:14 INFO    opendrift.models.basemodel:1987: 2024-05-27 07:42:30 - step 42 of 48 - 1 active elements (0 deactivated)
-    19:47:14 INFO    opendrift.models.basemodel:1987: 2024-05-27 07:45:00 - step 43 of 48 - 1 active elements (0 deactivated)
-    19:47:14 INFO    opendrift.models.basemodel:1987: 2024-05-27 07:47:30 - step 44 of 48 - 1 active elements (0 deactivated)
-    19:47:14 INFO    opendrift.models.basemodel:1987: 2024-05-27 07:50:00 - step 45 of 48 - 1 active elements (0 deactivated)
-    19:47:14 INFO    opendrift.models.basemodel:1987: 2024-05-27 07:52:30 - step 46 of 48 - 1 active elements (0 deactivated)
-    19:47:14 INFO    opendrift.models.basemodel:1987: 2024-05-27 07:55:00 - step 47 of 48 - 1 active elements (0 deactivated)
-    19:47:14 INFO    opendrift.models.basemodel:1987: 2024-05-27 07:57:30 - step 48 of 48 - 1 active elements (0 deactivated)
+    12:37:33 INFO    opendrift.models.basemodel:1987: 2024-05-27 06:02:30 - step 2 of 48 - 1 active elements (0 deactivated)
+    12:37:34 INFO    opendrift.models.basemodel:1987: 2024-05-27 06:05:00 - step 3 of 48 - 1 active elements (0 deactivated)
+    12:37:34 INFO    opendrift.models.basemodel:1987: 2024-05-27 06:07:30 - step 4 of 48 - 1 active elements (0 deactivated)
+    12:37:34 INFO    opendrift.models.basemodel:1987: 2024-05-27 06:10:00 - step 5 of 48 - 1 active elements (0 deactivated)
+    12:37:34 INFO    opendrift.models.basemodel:1987: 2024-05-27 06:12:30 - step 6 of 48 - 1 active elements (0 deactivated)
+    12:37:34 INFO    opendrift.models.basemodel:1987: 2024-05-27 06:15:00 - step 7 of 48 - 1 active elements (0 deactivated)
+    12:37:34 INFO    opendrift.models.basemodel:1987: 2024-05-27 06:17:30 - step 8 of 48 - 1 active elements (0 deactivated)
+    12:37:34 INFO    opendrift.models.basemodel:1987: 2024-05-27 06:20:00 - step 9 of 48 - 1 active elements (0 deactivated)
+    12:37:34 INFO    opendrift.models.basemodel:1987: 2024-05-27 06:22:30 - step 10 of 48 - 1 active elements (0 deactivated)
+    12:37:34 INFO    opendrift.models.basemodel:1987: 2024-05-27 06:25:00 - step 11 of 48 - 1 active elements (0 deactivated)
+    12:37:34 INFO    opendrift.models.basemodel:1987: 2024-05-27 06:27:30 - step 12 of 48 - 1 active elements (0 deactivated)
+    12:37:34 INFO    opendrift.models.basemodel:1987: 2024-05-27 06:30:00 - step 13 of 48 - 1 active elements (0 deactivated)
+    12:37:34 INFO    opendrift.models.basemodel:1987: 2024-05-27 06:32:30 - step 14 of 48 - 1 active elements (0 deactivated)
+    12:37:34 INFO    opendrift.models.basemodel:1987: 2024-05-27 06:35:00 - step 15 of 48 - 1 active elements (0 deactivated)
+    12:37:34 INFO    opendrift.models.basemodel:1987: 2024-05-27 06:37:30 - step 16 of 48 - 1 active elements (0 deactivated)
+    12:37:34 INFO    opendrift.models.basemodel:1987: 2024-05-27 06:40:00 - step 17 of 48 - 1 active elements (0 deactivated)
+    12:37:34 INFO    opendrift.models.basemodel:1987: 2024-05-27 06:42:30 - step 18 of 48 - 1 active elements (0 deactivated)
+    12:37:34 INFO    opendrift.models.basemodel:1987: 2024-05-27 06:45:00 - step 19 of 48 - 1 active elements (0 deactivated)
+    12:37:34 INFO    opendrift.models.basemodel:1987: 2024-05-27 06:47:30 - step 20 of 48 - 1 active elements (0 deactivated)
+    12:37:34 INFO    opendrift.models.basemodel:1987: 2024-05-27 06:50:00 - step 21 of 48 - 1 active elements (0 deactivated)
+    12:37:34 INFO    opendrift.models.basemodel:1987: 2024-05-27 06:52:30 - step 22 of 48 - 1 active elements (0 deactivated)
+    12:37:34 INFO    opendrift.models.basemodel:1987: 2024-05-27 06:55:00 - step 23 of 48 - 1 active elements (0 deactivated)
+    12:37:34 INFO    opendrift.models.basemodel:1987: 2024-05-27 06:57:30 - step 24 of 48 - 1 active elements (0 deactivated)
+    12:37:34 INFO    opendrift.models.basemodel:1987: 2024-05-27 07:00:00 - step 25 of 48 - 1 active elements (0 deactivated)
+    12:37:34 INFO    opendrift.models.basemodel:1987: 2024-05-27 07:02:30 - step 26 of 48 - 1 active elements (0 deactivated)
+    12:37:39 INFO    opendrift.models.basemodel:1987: 2024-05-27 07:05:00 - step 27 of 48 - 1 active elements (0 deactivated)
+    12:37:39 INFO    opendrift.models.basemodel:1987: 2024-05-27 07:07:30 - step 28 of 48 - 1 active elements (0 deactivated)
+    12:37:39 INFO    opendrift.models.basemodel:1987: 2024-05-27 07:10:00 - step 29 of 48 - 1 active elements (0 deactivated)
+    12:37:39 INFO    opendrift.models.basemodel:1987: 2024-05-27 07:12:30 - step 30 of 48 - 1 active elements (0 deactivated)
+    12:37:39 INFO    opendrift.models.basemodel:1987: 2024-05-27 07:15:00 - step 31 of 48 - 1 active elements (0 deactivated)
+    12:37:39 INFO    opendrift.models.basemodel:1987: 2024-05-27 07:17:30 - step 32 of 48 - 1 active elements (0 deactivated)
+    12:37:39 INFO    opendrift.models.basemodel:1987: 2024-05-27 07:20:00 - step 33 of 48 - 1 active elements (0 deactivated)
+    12:37:39 INFO    opendrift.models.basemodel:1987: 2024-05-27 07:22:30 - step 34 of 48 - 1 active elements (0 deactivated)
+    12:37:39 INFO    opendrift.models.basemodel:1987: 2024-05-27 07:25:00 - step 35 of 48 - 1 active elements (0 deactivated)
+    12:37:39 INFO    opendrift.models.basemodel:1987: 2024-05-27 07:27:30 - step 36 of 48 - 1 active elements (0 deactivated)
+    12:37:39 INFO    opendrift.models.basemodel:1987: 2024-05-27 07:30:00 - step 37 of 48 - 1 active elements (0 deactivated)
+    12:37:39 INFO    opendrift.models.basemodel:1987: 2024-05-27 07:32:30 - step 38 of 48 - 1 active elements (0 deactivated)
+    12:37:40 INFO    opendrift.models.basemodel:1987: 2024-05-27 07:35:00 - step 39 of 48 - 1 active elements (0 deactivated)
+    12:37:40 INFO    opendrift.models.basemodel:1987: 2024-05-27 07:37:30 - step 40 of 48 - 1 active elements (0 deactivated)
+    12:37:40 INFO    opendrift.models.basemodel:1987: 2024-05-27 07:40:00 - step 41 of 48 - 1 active elements (0 deactivated)
+    12:37:40 INFO    opendrift.models.basemodel:1987: 2024-05-27 07:42:30 - step 42 of 48 - 1 active elements (0 deactivated)
+    12:37:40 INFO    opendrift.models.basemodel:1987: 2024-05-27 07:45:00 - step 43 of 48 - 1 active elements (0 deactivated)
+    12:37:40 INFO    opendrift.models.basemodel:1987: 2024-05-27 07:47:30 - step 44 of 48 - 1 active elements (0 deactivated)
+    12:37:40 INFO    opendrift.models.basemodel:1987: 2024-05-27 07:50:00 - step 45 of 48 - 1 active elements (0 deactivated)
+    12:37:40 INFO    opendrift.models.basemodel:1987: 2024-05-27 07:52:30 - step 46 of 48 - 1 active elements (0 deactivated)
+    12:37:40 INFO    opendrift.models.basemodel:1987: 2024-05-27 07:55:00 - step 47 of 48 - 1 active elements (0 deactivated)
+    12:37:40 INFO    opendrift.models.basemodel:1987: 2024-05-27 07:57:30 - step 48 of 48 - 1 active elements (0 deactivated)
 
-    (<GeoAxes: title={'center': 'OpenDrift - OceanDrift\n2024-05-27 06:00 to 2024-05-27 08:00 UTC (49 steps)'}>, <Figure size 1100x959.149 with 2 Axes>)
+    (<GeoAxes: >, <Figure size 1100x975.726 with 2 Axes>)
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 115-117
+.. GENERATED FROM PYTHON SOURCE LINES 129-131
 
 Measurement modified model simulation
 and comparison
 
-.. GENERATED FROM PYTHON SOURCE LINES 117-130
+.. GENERATED FROM PYTHON SOURCE LINES 131-143
 
 .. code-block:: Python
 
@@ -428,14 +419,13 @@ and comparison
     o2.seed_elements(lon=lon, lat=lat, radius=radius, number=number, time=time_start, wind_drift_factor=wind_drift_factor)
     o2.run(end_time=time_end, time_step=time_step, time_step_output=time_step_output)
 
-    o.plot(fast=False, compare=o2, background=['x_sea_water_velocity', 'y_sea_water_velocity'], legend=['Norkyst onlyt', 'Gaussian measurment'], buffer = .02, markersize = 70, linewidth = 1)
-
+    o.plot(fast = False, compare=o2, background=['x_sea_water_velocity', 'y_sea_water_velocity'], legend=['Norkyst only', 'Gaussian measurement'], buffer = .023, markersize = 150, linewidth = 3, title = "", xlocs = mpl.ticker.MaxNLocator(5), ylocs = mpl.ticker.MaxNLocator(5), clabel = r"Wind speed $\mathrm{(m.s^{-1})}$", cpad = 0.08, text=text)
 
 
 
 
 .. image-sg:: /gallery/images/sphx_glr_example_wind_measurements_002.png
-   :alt: OpenDrift - OceanDrift 2024-05-27 06:00 to 2024-05-27 08:00 UTC (49 steps)
+   :alt: example wind measurements
    :srcset: /gallery/images/sphx_glr_example_wind_measurements_002.png
    :class: sphx-glr-single-img
 
@@ -444,92 +434,92 @@ and comparison
 
  .. code-block:: none
 
-    19:48:54 INFO    opendrift.models.basemodel:507: OpenDriftSimulation initialised (version 1.11.8 / v1.11.8-12-g65d2ed0)
-    19:48:54 INFO    opendrift.models.basemodel.environment:218: Adding a dynamical landmask with max. priority based on assumed maximum speed of 10.0 m/s. Adding a customised landmask may be faster...
-    19:48:54 INFO    opendrift.models.basemodel.environment:245: Fallback values will be used for the following variables which have no readers: 
-    19:48:54 INFO    opendrift.models.basemodel.environment:248:    sea_surface_height: 0.000000
-    19:48:54 INFO    opendrift.models.basemodel.environment:248:    ocean_vertical_diffusivity: 0.000000
-    19:48:54 INFO    opendrift.models.basemodel.environment:248:    sea_surface_wave_significant_height: 0.000000
-    19:48:54 INFO    opendrift.models.basemodel.environment:248:    sea_surface_wave_stokes_drift_x_velocity: 0.000000
-    19:48:54 INFO    opendrift.models.basemodel.environment:248:    sea_surface_wave_stokes_drift_y_velocity: 0.000000
-    19:48:54 INFO    opendrift.models.basemodel.environment:248:    sea_surface_wave_period_at_variance_spectral_density_maximum: 0.000000
-    19:48:54 INFO    opendrift.models.basemodel.environment:248:    sea_surface_wave_mean_period_from_variance_spectral_density_second_frequency_moment: 0.000000
-    19:48:54 INFO    opendrift.models.basemodel.environment:248:    sea_surface_swell_wave_to_direction: 0.000000
-    19:48:54 INFO    opendrift.models.basemodel.environment:248:    sea_surface_swell_wave_peak_period_from_variance_spectral_density: 0.000000
-    19:48:54 INFO    opendrift.models.basemodel.environment:248:    sea_surface_swell_wave_significant_height: 0.000000
-    19:48:54 INFO    opendrift.models.basemodel.environment:248:    sea_surface_wind_wave_to_direction: 0.000000
-    19:48:54 INFO    opendrift.models.basemodel.environment:248:    sea_surface_wind_wave_mean_period: 0.000000
-    19:48:54 INFO    opendrift.models.basemodel.environment:248:    sea_surface_wind_wave_significant_height: 0.000000
-    19:48:54 INFO    opendrift.models.basemodel.environment:248:    surface_downward_x_stress: 0.000000
-    19:48:54 INFO    opendrift.models.basemodel.environment:248:    surface_downward_y_stress: 0.000000
-    19:48:54 INFO    opendrift.models.basemodel.environment:248:    turbulent_kinetic_energy: 0.000000
-    19:48:54 INFO    opendrift.models.basemodel.environment:248:    turbulent_generic_length_scale: 0.000000
-    19:48:54 INFO    opendrift.models.basemodel.environment:248:    ocean_mixed_layer_thickness: 50.000000
-    19:48:54 INFO    opendrift.models.basemodel:885: Using existing reader for land_binary_mask
-    19:48:54 INFO    opendrift.models.basemodel:896: All points are in ocean
-    19:48:54 WARNING opendrift.models.basemodel:679: Seafloor check not being run because environment is missing. This will happen the first time the function is run but if it happens subsequently there is probably a problem.
-    19:48:54 INFO    opendrift.models.basemodel:1987: 2024-05-27 06:00:00 - step 1 of 48 - 1 active elements (0 deactivated)
+    12:39:17 INFO    opendrift.models.basemodel:507: OpenDriftSimulation initialised (version 1.11.9 / v1.11.9-3-g38f858e)
+    12:39:17 INFO    opendrift.models.basemodel.environment:218: Adding a dynamical landmask with max. priority based on assumed maximum speed of 10.0 m/s. Adding a customised landmask may be faster...
+    12:39:17 INFO    opendrift.models.basemodel.environment:245: Fallback values will be used for the following variables which have no readers: 
+    12:39:17 INFO    opendrift.models.basemodel.environment:248:    sea_surface_height: 0.000000
+    12:39:17 INFO    opendrift.models.basemodel.environment:248:    ocean_vertical_diffusivity: 0.000000
+    12:39:17 INFO    opendrift.models.basemodel.environment:248:    sea_surface_wave_significant_height: 0.000000
+    12:39:17 INFO    opendrift.models.basemodel.environment:248:    sea_surface_wave_stokes_drift_x_velocity: 0.000000
+    12:39:17 INFO    opendrift.models.basemodel.environment:248:    sea_surface_wave_stokes_drift_y_velocity: 0.000000
+    12:39:17 INFO    opendrift.models.basemodel.environment:248:    sea_surface_wave_period_at_variance_spectral_density_maximum: 0.000000
+    12:39:17 INFO    opendrift.models.basemodel.environment:248:    sea_surface_wave_mean_period_from_variance_spectral_density_second_frequency_moment: 0.000000
+    12:39:17 INFO    opendrift.models.basemodel.environment:248:    sea_surface_swell_wave_to_direction: 0.000000
+    12:39:17 INFO    opendrift.models.basemodel.environment:248:    sea_surface_swell_wave_peak_period_from_variance_spectral_density: 0.000000
+    12:39:17 INFO    opendrift.models.basemodel.environment:248:    sea_surface_swell_wave_significant_height: 0.000000
+    12:39:17 INFO    opendrift.models.basemodel.environment:248:    sea_surface_wind_wave_to_direction: 0.000000
+    12:39:17 INFO    opendrift.models.basemodel.environment:248:    sea_surface_wind_wave_mean_period: 0.000000
+    12:39:17 INFO    opendrift.models.basemodel.environment:248:    sea_surface_wind_wave_significant_height: 0.000000
+    12:39:17 INFO    opendrift.models.basemodel.environment:248:    surface_downward_x_stress: 0.000000
+    12:39:17 INFO    opendrift.models.basemodel.environment:248:    surface_downward_y_stress: 0.000000
+    12:39:17 INFO    opendrift.models.basemodel.environment:248:    turbulent_kinetic_energy: 0.000000
+    12:39:17 INFO    opendrift.models.basemodel.environment:248:    turbulent_generic_length_scale: 0.000000
+    12:39:17 INFO    opendrift.models.basemodel.environment:248:    ocean_mixed_layer_thickness: 50.000000
+    12:39:17 INFO    opendrift.models.basemodel:885: Using existing reader for land_binary_mask
+    12:39:17 INFO    opendrift.models.basemodel:896: All points are in ocean
+    12:39:17 WARNING opendrift.models.basemodel:679: Seafloor check not being run because environment is missing. This will happen the first time the function is run but if it happens subsequently there is probably a problem.
+    12:39:17 INFO    opendrift.models.basemodel:1987: 2024-05-27 06:00:00 - step 1 of 48 - 1 active elements (0 deactivated)
     /root/project/opendrift/readers/interpolation/interpolators.py:17: RuntimeWarning: overflow encountered in cast
       data[mask] = np.finfo(np.float64).min
-    19:49:00 INFO    opendrift.models.basemodel:1987: 2024-05-27 06:02:30 - step 2 of 48 - 1 active elements (0 deactivated)
-    19:49:01 INFO    opendrift.models.basemodel:1987: 2024-05-27 06:05:00 - step 3 of 48 - 1 active elements (0 deactivated)
-    19:49:01 INFO    opendrift.models.basemodel:1987: 2024-05-27 06:07:30 - step 4 of 48 - 1 active elements (0 deactivated)
-    19:49:01 INFO    opendrift.models.basemodel:1987: 2024-05-27 06:10:00 - step 5 of 48 - 1 active elements (0 deactivated)
-    19:49:01 INFO    opendrift.models.basemodel:1987: 2024-05-27 06:12:30 - step 6 of 48 - 1 active elements (0 deactivated)
-    19:49:01 INFO    opendrift.models.basemodel:1987: 2024-05-27 06:15:00 - step 7 of 48 - 1 active elements (0 deactivated)
-    19:49:01 INFO    opendrift.models.basemodel:1987: 2024-05-27 06:17:30 - step 8 of 48 - 1 active elements (0 deactivated)
-    19:49:01 INFO    opendrift.models.basemodel:1987: 2024-05-27 06:20:00 - step 9 of 48 - 1 active elements (0 deactivated)
-    19:49:01 INFO    opendrift.models.basemodel:1987: 2024-05-27 06:22:30 - step 10 of 48 - 1 active elements (0 deactivated)
-    19:49:01 INFO    opendrift.models.basemodel:1987: 2024-05-27 06:25:00 - step 11 of 48 - 1 active elements (0 deactivated)
-    19:49:01 INFO    opendrift.models.basemodel:1987: 2024-05-27 06:27:30 - step 12 of 48 - 1 active elements (0 deactivated)
-    19:49:01 INFO    opendrift.models.basemodel:1987: 2024-05-27 06:30:00 - step 13 of 48 - 1 active elements (0 deactivated)
-    19:49:01 INFO    opendrift.models.basemodel:1987: 2024-05-27 06:32:30 - step 14 of 48 - 1 active elements (0 deactivated)
-    19:49:01 INFO    opendrift.models.basemodel:1987: 2024-05-27 06:35:00 - step 15 of 48 - 1 active elements (0 deactivated)
-    19:49:01 INFO    opendrift.models.basemodel:1987: 2024-05-27 06:37:30 - step 16 of 48 - 1 active elements (0 deactivated)
-    19:49:01 INFO    opendrift.models.basemodel:1987: 2024-05-27 06:40:00 - step 17 of 48 - 1 active elements (0 deactivated)
-    19:49:01 INFO    opendrift.models.basemodel:1987: 2024-05-27 06:42:30 - step 18 of 48 - 1 active elements (0 deactivated)
-    19:49:01 INFO    opendrift.models.basemodel:1987: 2024-05-27 06:45:00 - step 19 of 48 - 1 active elements (0 deactivated)
-    19:49:01 INFO    opendrift.models.basemodel:1987: 2024-05-27 06:47:30 - step 20 of 48 - 1 active elements (0 deactivated)
-    19:49:01 INFO    opendrift.models.basemodel:1987: 2024-05-27 06:50:00 - step 21 of 48 - 1 active elements (0 deactivated)
-    19:49:01 INFO    opendrift.models.basemodel:1987: 2024-05-27 06:52:30 - step 22 of 48 - 1 active elements (0 deactivated)
-    19:49:01 INFO    opendrift.models.basemodel:1987: 2024-05-27 06:55:00 - step 23 of 48 - 1 active elements (0 deactivated)
-    19:49:01 INFO    opendrift.models.basemodel:1987: 2024-05-27 06:57:30 - step 24 of 48 - 1 active elements (0 deactivated)
-    19:49:01 INFO    opendrift.models.basemodel:1987: 2024-05-27 07:00:00 - step 25 of 48 - 1 active elements (0 deactivated)
-    19:49:01 INFO    opendrift.models.basemodel:1987: 2024-05-27 07:02:30 - step 26 of 48 - 1 active elements (0 deactivated)
-    19:49:03 INFO    opendrift.models.basemodel:1987: 2024-05-27 07:05:00 - step 27 of 48 - 1 active elements (0 deactivated)
-    19:49:04 INFO    opendrift.models.basemodel:1987: 2024-05-27 07:07:30 - step 28 of 48 - 1 active elements (0 deactivated)
-    19:49:04 INFO    opendrift.models.basemodel:1987: 2024-05-27 07:10:00 - step 29 of 48 - 1 active elements (0 deactivated)
-    19:49:04 INFO    opendrift.models.basemodel:1987: 2024-05-27 07:12:30 - step 30 of 48 - 1 active elements (0 deactivated)
-    19:49:04 INFO    opendrift.models.basemodel:1987: 2024-05-27 07:15:00 - step 31 of 48 - 1 active elements (0 deactivated)
-    19:49:04 INFO    opendrift.models.basemodel:1987: 2024-05-27 07:17:30 - step 32 of 48 - 1 active elements (0 deactivated)
-    19:49:04 INFO    opendrift.models.basemodel:1987: 2024-05-27 07:20:00 - step 33 of 48 - 1 active elements (0 deactivated)
-    19:49:04 INFO    opendrift.models.basemodel:1987: 2024-05-27 07:22:30 - step 34 of 48 - 1 active elements (0 deactivated)
-    19:49:04 INFO    opendrift.models.basemodel:1987: 2024-05-27 07:25:00 - step 35 of 48 - 1 active elements (0 deactivated)
-    19:49:04 INFO    opendrift.models.basemodel:1987: 2024-05-27 07:27:30 - step 36 of 48 - 1 active elements (0 deactivated)
-    19:49:04 INFO    opendrift.models.basemodel:1987: 2024-05-27 07:30:00 - step 37 of 48 - 1 active elements (0 deactivated)
-    19:49:04 INFO    opendrift.models.basemodel:1987: 2024-05-27 07:32:30 - step 38 of 48 - 1 active elements (0 deactivated)
-    19:49:04 INFO    opendrift.models.basemodel:1987: 2024-05-27 07:35:00 - step 39 of 48 - 1 active elements (0 deactivated)
-    19:49:04 INFO    opendrift.models.basemodel:1987: 2024-05-27 07:37:30 - step 40 of 48 - 1 active elements (0 deactivated)
-    19:49:04 INFO    opendrift.models.basemodel:1987: 2024-05-27 07:40:00 - step 41 of 48 - 1 active elements (0 deactivated)
-    19:49:04 INFO    opendrift.models.basemodel:1987: 2024-05-27 07:42:30 - step 42 of 48 - 1 active elements (0 deactivated)
-    19:49:04 INFO    opendrift.models.basemodel:1987: 2024-05-27 07:45:00 - step 43 of 48 - 1 active elements (0 deactivated)
-    19:49:04 INFO    opendrift.models.basemodel:1987: 2024-05-27 07:47:30 - step 44 of 48 - 1 active elements (0 deactivated)
-    19:49:04 INFO    opendrift.models.basemodel:1987: 2024-05-27 07:50:00 - step 45 of 48 - 1 active elements (0 deactivated)
-    19:49:04 INFO    opendrift.models.basemodel:1987: 2024-05-27 07:52:30 - step 46 of 48 - 1 active elements (0 deactivated)
-    19:49:04 INFO    opendrift.models.basemodel:1987: 2024-05-27 07:55:00 - step 47 of 48 - 1 active elements (0 deactivated)
-    19:49:04 INFO    opendrift.models.basemodel:1987: 2024-05-27 07:57:30 - step 48 of 48 - 1 active elements (0 deactivated)
+    12:39:18 INFO    opendrift.models.basemodel:1987: 2024-05-27 06:02:30 - step 2 of 48 - 1 active elements (0 deactivated)
+    12:39:21 INFO    opendrift.models.basemodel:1987: 2024-05-27 06:05:00 - step 3 of 48 - 1 active elements (0 deactivated)
+    12:39:21 INFO    opendrift.models.basemodel:1987: 2024-05-27 06:07:30 - step 4 of 48 - 1 active elements (0 deactivated)
+    12:39:21 INFO    opendrift.models.basemodel:1987: 2024-05-27 06:10:00 - step 5 of 48 - 1 active elements (0 deactivated)
+    12:39:21 INFO    opendrift.models.basemodel:1987: 2024-05-27 06:12:30 - step 6 of 48 - 1 active elements (0 deactivated)
+    12:39:21 INFO    opendrift.models.basemodel:1987: 2024-05-27 06:15:00 - step 7 of 48 - 1 active elements (0 deactivated)
+    12:39:21 INFO    opendrift.models.basemodel:1987: 2024-05-27 06:17:30 - step 8 of 48 - 1 active elements (0 deactivated)
+    12:39:21 INFO    opendrift.models.basemodel:1987: 2024-05-27 06:20:00 - step 9 of 48 - 1 active elements (0 deactivated)
+    12:39:21 INFO    opendrift.models.basemodel:1987: 2024-05-27 06:22:30 - step 10 of 48 - 1 active elements (0 deactivated)
+    12:39:21 INFO    opendrift.models.basemodel:1987: 2024-05-27 06:25:00 - step 11 of 48 - 1 active elements (0 deactivated)
+    12:39:21 INFO    opendrift.models.basemodel:1987: 2024-05-27 06:27:30 - step 12 of 48 - 1 active elements (0 deactivated)
+    12:39:21 INFO    opendrift.models.basemodel:1987: 2024-05-27 06:30:00 - step 13 of 48 - 1 active elements (0 deactivated)
+    12:39:21 INFO    opendrift.models.basemodel:1987: 2024-05-27 06:32:30 - step 14 of 48 - 1 active elements (0 deactivated)
+    12:39:21 INFO    opendrift.models.basemodel:1987: 2024-05-27 06:35:00 - step 15 of 48 - 1 active elements (0 deactivated)
+    12:39:21 INFO    opendrift.models.basemodel:1987: 2024-05-27 06:37:30 - step 16 of 48 - 1 active elements (0 deactivated)
+    12:39:21 INFO    opendrift.models.basemodel:1987: 2024-05-27 06:40:00 - step 17 of 48 - 1 active elements (0 deactivated)
+    12:39:21 INFO    opendrift.models.basemodel:1987: 2024-05-27 06:42:30 - step 18 of 48 - 1 active elements (0 deactivated)
+    12:39:21 INFO    opendrift.models.basemodel:1987: 2024-05-27 06:45:00 - step 19 of 48 - 1 active elements (0 deactivated)
+    12:39:21 INFO    opendrift.models.basemodel:1987: 2024-05-27 06:47:30 - step 20 of 48 - 1 active elements (0 deactivated)
+    12:39:21 INFO    opendrift.models.basemodel:1987: 2024-05-27 06:50:00 - step 21 of 48 - 1 active elements (0 deactivated)
+    12:39:21 INFO    opendrift.models.basemodel:1987: 2024-05-27 06:52:30 - step 22 of 48 - 1 active elements (0 deactivated)
+    12:39:21 INFO    opendrift.models.basemodel:1987: 2024-05-27 06:55:00 - step 23 of 48 - 1 active elements (0 deactivated)
+    12:39:21 INFO    opendrift.models.basemodel:1987: 2024-05-27 06:57:30 - step 24 of 48 - 1 active elements (0 deactivated)
+    12:39:21 INFO    opendrift.models.basemodel:1987: 2024-05-27 07:00:00 - step 25 of 48 - 1 active elements (0 deactivated)
+    12:39:21 INFO    opendrift.models.basemodel:1987: 2024-05-27 07:02:30 - step 26 of 48 - 1 active elements (0 deactivated)
+    12:39:23 INFO    opendrift.models.basemodel:1987: 2024-05-27 07:05:00 - step 27 of 48 - 1 active elements (0 deactivated)
+    12:39:23 INFO    opendrift.models.basemodel:1987: 2024-05-27 07:07:30 - step 28 of 48 - 1 active elements (0 deactivated)
+    12:39:23 INFO    opendrift.models.basemodel:1987: 2024-05-27 07:10:00 - step 29 of 48 - 1 active elements (0 deactivated)
+    12:39:23 INFO    opendrift.models.basemodel:1987: 2024-05-27 07:12:30 - step 30 of 48 - 1 active elements (0 deactivated)
+    12:39:23 INFO    opendrift.models.basemodel:1987: 2024-05-27 07:15:00 - step 31 of 48 - 1 active elements (0 deactivated)
+    12:39:23 INFO    opendrift.models.basemodel:1987: 2024-05-27 07:17:30 - step 32 of 48 - 1 active elements (0 deactivated)
+    12:39:23 INFO    opendrift.models.basemodel:1987: 2024-05-27 07:20:00 - step 33 of 48 - 1 active elements (0 deactivated)
+    12:39:23 INFO    opendrift.models.basemodel:1987: 2024-05-27 07:22:30 - step 34 of 48 - 1 active elements (0 deactivated)
+    12:39:23 INFO    opendrift.models.basemodel:1987: 2024-05-27 07:25:00 - step 35 of 48 - 1 active elements (0 deactivated)
+    12:39:23 INFO    opendrift.models.basemodel:1987: 2024-05-27 07:27:30 - step 36 of 48 - 1 active elements (0 deactivated)
+    12:39:23 INFO    opendrift.models.basemodel:1987: 2024-05-27 07:30:00 - step 37 of 48 - 1 active elements (0 deactivated)
+    12:39:23 INFO    opendrift.models.basemodel:1987: 2024-05-27 07:32:30 - step 38 of 48 - 1 active elements (0 deactivated)
+    12:39:23 INFO    opendrift.models.basemodel:1987: 2024-05-27 07:35:00 - step 39 of 48 - 1 active elements (0 deactivated)
+    12:39:23 INFO    opendrift.models.basemodel:1987: 2024-05-27 07:37:30 - step 40 of 48 - 1 active elements (0 deactivated)
+    12:39:23 INFO    opendrift.models.basemodel:1987: 2024-05-27 07:40:00 - step 41 of 48 - 1 active elements (0 deactivated)
+    12:39:23 INFO    opendrift.models.basemodel:1987: 2024-05-27 07:42:30 - step 42 of 48 - 1 active elements (0 deactivated)
+    12:39:23 INFO    opendrift.models.basemodel:1987: 2024-05-27 07:45:00 - step 43 of 48 - 1 active elements (0 deactivated)
+    12:39:24 INFO    opendrift.models.basemodel:1987: 2024-05-27 07:47:30 - step 44 of 48 - 1 active elements (0 deactivated)
+    12:39:24 INFO    opendrift.models.basemodel:1987: 2024-05-27 07:50:00 - step 45 of 48 - 1 active elements (0 deactivated)
+    12:39:24 INFO    opendrift.models.basemodel:1987: 2024-05-27 07:52:30 - step 46 of 48 - 1 active elements (0 deactivated)
+    12:39:24 INFO    opendrift.models.basemodel:1987: 2024-05-27 07:55:00 - step 47 of 48 - 1 active elements (0 deactivated)
+    12:39:24 INFO    opendrift.models.basemodel:1987: 2024-05-27 07:57:30 - step 48 of 48 - 1 active elements (0 deactivated)
 
-    (<GeoAxes: title={'center': 'OpenDrift - OceanDrift\n2024-05-27 06:00 to 2024-05-27 08:00 UTC (49 steps)'}>, <Figure size 1100x948.251 with 2 Axes>)
+    (<GeoAxes: >, <Figure size 1100x965.822 with 2 Axes>)
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 131-134
+.. GENERATED FROM PYTHON SOURCE LINES 144-147
 
 Here, we generate more particles and look
 at the skillscore impact of the measurment 
 combined simulation
 
-.. GENERATED FROM PYTHON SOURCE LINES 134-161
+.. GENERATED FROM PYTHON SOURCE LINES 147-180
 
 .. code-block:: Python
 
@@ -548,7 +538,7 @@ combined simulation
     o2.seed_elements(lon=lon, lat=lat, radius=radius, number=number, time=time_start, wind_drift_factor=wind_drift_factor)
     o2.run(end_time=time_end, time_step=time_step, time_step_output=time_step_output)
 
-    o.plot(fast=False, compare=o2, background=['x_sea_water_velocity', 'y_sea_water_velocity'], legend=['Norkyst onlyt', 'Gaussian measurment'], buffer = .02, markersize = 70, linewidth = 1)
+    o.plot(fast = False, compare=o2, background=['x_sea_water_velocity', 'y_sea_water_velocity'], legend=['Norkyst only', 'Gaussian measurement'], buffer = .023, markersize = 70, linewidth = 1, title = "", xlocs = mpl.ticker.MaxNLocator(5), ylocs = mpl.ticker.MaxNLocator(5), clabel = r"Wind speed $\mathrm{(m.s^{-1})}$", cpad = 0.08, text=text)
 
     lon_drifters_1, lat_drifters_1 = o.get_lonlats()
     lon_drifters_2, lat_drifters_2 = o2.get_lonlats()
@@ -561,6 +551,12 @@ combined simulation
     plt.ylabel("Histogram (percentages)")
     plt.show()
 
+    plt.figure()
+    plt.hist(skillscores, bins = 100, range = (0.9, 0.95), facecolor = 'none', edgecolor = 'C0')
+    plt.xlabel("Skillscore")
+    plt.ylabel("Histogram (percentages)")
+    plt.show()
+
 
 
 .. rst-class:: sphx-glr-horizontal
@@ -569,7 +565,7 @@ combined simulation
     *
 
       .. image-sg:: /gallery/images/sphx_glr_example_wind_measurements_003.png
-         :alt: OpenDrift - OceanDrift 2024-05-27 06:00 to 2024-05-27 08:00 UTC (49 steps)
+         :alt: example wind measurements
          :srcset: /gallery/images/sphx_glr_example_wind_measurements_003.png
          :class: sphx-glr-multi-img
 
@@ -580,159 +576,166 @@ combined simulation
          :srcset: /gallery/images/sphx_glr_example_wind_measurements_004.png
          :class: sphx-glr-multi-img
 
+    *
+
+      .. image-sg:: /gallery/images/sphx_glr_example_wind_measurements_005.png
+         :alt: example wind measurements
+         :srcset: /gallery/images/sphx_glr_example_wind_measurements_005.png
+         :class: sphx-glr-multi-img
+
 
 .. rst-class:: sphx-glr-script-out
 
  .. code-block:: none
 
-    19:49:23 INFO    opendrift.models.basemodel:507: OpenDriftSimulation initialised (version 1.11.8 / v1.11.8-12-g65d2ed0)
-    19:49:23 INFO    opendrift.models.basemodel.environment:218: Adding a dynamical landmask with max. priority based on assumed maximum speed of 2.0 m/s. Adding a customised landmask may be faster...
-    19:49:23 INFO    opendrift.models.basemodel.environment:245: Fallback values will be used for the following variables which have no readers: 
-    19:49:23 INFO    opendrift.models.basemodel.environment:248:    sea_surface_height: 0.000000
-    19:49:23 INFO    opendrift.models.basemodel.environment:248:    ocean_vertical_diffusivity: 0.000000
-    19:49:23 INFO    opendrift.models.basemodel.environment:248:    sea_surface_wave_significant_height: 0.000000
-    19:49:23 INFO    opendrift.models.basemodel.environment:248:    sea_surface_wave_stokes_drift_x_velocity: 0.000000
-    19:49:23 INFO    opendrift.models.basemodel.environment:248:    sea_surface_wave_stokes_drift_y_velocity: 0.000000
-    19:49:23 INFO    opendrift.models.basemodel.environment:248:    sea_surface_wave_period_at_variance_spectral_density_maximum: 0.000000
-    19:49:23 INFO    opendrift.models.basemodel.environment:248:    sea_surface_wave_mean_period_from_variance_spectral_density_second_frequency_moment: 0.000000
-    19:49:23 INFO    opendrift.models.basemodel.environment:248:    sea_surface_swell_wave_to_direction: 0.000000
-    19:49:23 INFO    opendrift.models.basemodel.environment:248:    sea_surface_swell_wave_peak_period_from_variance_spectral_density: 0.000000
-    19:49:23 INFO    opendrift.models.basemodel.environment:248:    sea_surface_swell_wave_significant_height: 0.000000
-    19:49:23 INFO    opendrift.models.basemodel.environment:248:    sea_surface_wind_wave_to_direction: 0.000000
-    19:49:23 INFO    opendrift.models.basemodel.environment:248:    sea_surface_wind_wave_mean_period: 0.000000
-    19:49:23 INFO    opendrift.models.basemodel.environment:248:    sea_surface_wind_wave_significant_height: 0.000000
-    19:49:23 INFO    opendrift.models.basemodel.environment:248:    surface_downward_x_stress: 0.000000
-    19:49:23 INFO    opendrift.models.basemodel.environment:248:    surface_downward_y_stress: 0.000000
-    19:49:23 INFO    opendrift.models.basemodel.environment:248:    turbulent_kinetic_energy: 0.000000
-    19:49:23 INFO    opendrift.models.basemodel.environment:248:    turbulent_generic_length_scale: 0.000000
-    19:49:23 INFO    opendrift.models.basemodel.environment:248:    ocean_mixed_layer_thickness: 50.000000
-    19:49:23 INFO    opendrift.models.basemodel:885: Using existing reader for land_binary_mask
-    19:49:23 INFO    opendrift.models.basemodel:896: All points are in ocean
-    19:49:23 WARNING opendrift.models.basemodel:679: Seafloor check not being run because environment is missing. This will happen the first time the function is run but if it happens subsequently there is probably a problem.
-    19:49:23 INFO    opendrift.models.basemodel:1987: 2024-05-27 06:00:00 - step 1 of 48 - 100 active elements (0 deactivated)
+    12:39:37 INFO    opendrift.models.basemodel:507: OpenDriftSimulation initialised (version 1.11.9 / v1.11.9-3-g38f858e)
+    12:39:37 INFO    opendrift.models.basemodel.environment:218: Adding a dynamical landmask with max. priority based on assumed maximum speed of 2.0 m/s. Adding a customised landmask may be faster...
+    12:39:37 INFO    opendrift.models.basemodel.environment:245: Fallback values will be used for the following variables which have no readers: 
+    12:39:37 INFO    opendrift.models.basemodel.environment:248:    sea_surface_height: 0.000000
+    12:39:37 INFO    opendrift.models.basemodel.environment:248:    ocean_vertical_diffusivity: 0.000000
+    12:39:37 INFO    opendrift.models.basemodel.environment:248:    sea_surface_wave_significant_height: 0.000000
+    12:39:37 INFO    opendrift.models.basemodel.environment:248:    sea_surface_wave_stokes_drift_x_velocity: 0.000000
+    12:39:37 INFO    opendrift.models.basemodel.environment:248:    sea_surface_wave_stokes_drift_y_velocity: 0.000000
+    12:39:37 INFO    opendrift.models.basemodel.environment:248:    sea_surface_wave_period_at_variance_spectral_density_maximum: 0.000000
+    12:39:37 INFO    opendrift.models.basemodel.environment:248:    sea_surface_wave_mean_period_from_variance_spectral_density_second_frequency_moment: 0.000000
+    12:39:37 INFO    opendrift.models.basemodel.environment:248:    sea_surface_swell_wave_to_direction: 0.000000
+    12:39:37 INFO    opendrift.models.basemodel.environment:248:    sea_surface_swell_wave_peak_period_from_variance_spectral_density: 0.000000
+    12:39:37 INFO    opendrift.models.basemodel.environment:248:    sea_surface_swell_wave_significant_height: 0.000000
+    12:39:37 INFO    opendrift.models.basemodel.environment:248:    sea_surface_wind_wave_to_direction: 0.000000
+    12:39:37 INFO    opendrift.models.basemodel.environment:248:    sea_surface_wind_wave_mean_period: 0.000000
+    12:39:37 INFO    opendrift.models.basemodel.environment:248:    sea_surface_wind_wave_significant_height: 0.000000
+    12:39:37 INFO    opendrift.models.basemodel.environment:248:    surface_downward_x_stress: 0.000000
+    12:39:37 INFO    opendrift.models.basemodel.environment:248:    surface_downward_y_stress: 0.000000
+    12:39:37 INFO    opendrift.models.basemodel.environment:248:    turbulent_kinetic_energy: 0.000000
+    12:39:37 INFO    opendrift.models.basemodel.environment:248:    turbulent_generic_length_scale: 0.000000
+    12:39:37 INFO    opendrift.models.basemodel.environment:248:    ocean_mixed_layer_thickness: 50.000000
+    12:39:37 INFO    opendrift.models.basemodel:885: Using existing reader for land_binary_mask
+    12:39:37 INFO    opendrift.models.basemodel:896: All points are in ocean
+    12:39:37 WARNING opendrift.models.basemodel:679: Seafloor check not being run because environment is missing. This will happen the first time the function is run but if it happens subsequently there is probably a problem.
+    12:39:37 INFO    opendrift.models.basemodel:1987: 2024-05-27 06:00:00 - step 1 of 48 - 100 active elements (0 deactivated)
     /root/project/opendrift/readers/interpolation/interpolators.py:17: RuntimeWarning: overflow encountered in cast
       data[mask] = np.finfo(np.float64).min
-    19:49:29 INFO    opendrift.models.basemodel:1987: 2024-05-27 06:02:30 - step 2 of 48 - 100 active elements (0 deactivated)
-    19:49:35 INFO    opendrift.models.basemodel:1987: 2024-05-27 06:05:00 - step 3 of 48 - 100 active elements (0 deactivated)
-    19:49:35 INFO    opendrift.models.basemodel:1987: 2024-05-27 06:07:30 - step 4 of 48 - 100 active elements (0 deactivated)
-    19:49:35 INFO    opendrift.models.basemodel:1987: 2024-05-27 06:10:00 - step 5 of 48 - 100 active elements (0 deactivated)
-    19:49:35 INFO    opendrift.models.basemodel:1987: 2024-05-27 06:12:30 - step 6 of 48 - 100 active elements (0 deactivated)
-    19:49:35 INFO    opendrift.models.basemodel:1987: 2024-05-27 06:15:00 - step 7 of 48 - 100 active elements (0 deactivated)
-    19:49:35 INFO    opendrift.models.basemodel:1987: 2024-05-27 06:17:30 - step 8 of 48 - 100 active elements (0 deactivated)
-    19:49:35 INFO    opendrift.models.basemodel:1987: 2024-05-27 06:20:00 - step 9 of 48 - 100 active elements (0 deactivated)
-    19:49:35 INFO    opendrift.models.basemodel:1987: 2024-05-27 06:22:30 - step 10 of 48 - 100 active elements (0 deactivated)
-    19:49:35 INFO    opendrift.models.basemodel:1987: 2024-05-27 06:25:00 - step 11 of 48 - 100 active elements (0 deactivated)
-    19:49:35 INFO    opendrift.models.basemodel:1987: 2024-05-27 06:27:30 - step 12 of 48 - 100 active elements (0 deactivated)
-    19:49:35 INFO    opendrift.models.basemodel:1987: 2024-05-27 06:30:00 - step 13 of 48 - 100 active elements (0 deactivated)
-    19:49:35 INFO    opendrift.models.basemodel:1987: 2024-05-27 06:32:30 - step 14 of 48 - 100 active elements (0 deactivated)
-    19:49:35 INFO    opendrift.models.basemodel:1987: 2024-05-27 06:35:00 - step 15 of 48 - 100 active elements (0 deactivated)
-    19:49:35 INFO    opendrift.models.basemodel:1987: 2024-05-27 06:37:30 - step 16 of 48 - 100 active elements (0 deactivated)
-    19:49:35 INFO    opendrift.models.basemodel:1987: 2024-05-27 06:40:00 - step 17 of 48 - 100 active elements (0 deactivated)
-    19:49:35 INFO    opendrift.models.basemodel:1987: 2024-05-27 06:42:30 - step 18 of 48 - 100 active elements (0 deactivated)
-    19:49:36 INFO    opendrift.models.basemodel:1987: 2024-05-27 06:45:00 - step 19 of 48 - 100 active elements (0 deactivated)
-    19:49:36 INFO    opendrift.models.basemodel:1987: 2024-05-27 06:47:30 - step 20 of 48 - 100 active elements (0 deactivated)
-    19:49:36 INFO    opendrift.models.basemodel:1987: 2024-05-27 06:50:00 - step 21 of 48 - 100 active elements (0 deactivated)
-    19:49:36 INFO    opendrift.models.basemodel:1987: 2024-05-27 06:52:30 - step 22 of 48 - 100 active elements (0 deactivated)
-    19:49:36 INFO    opendrift.models.basemodel:1987: 2024-05-27 06:55:00 - step 23 of 48 - 100 active elements (0 deactivated)
-    19:49:36 INFO    opendrift.models.basemodel:1987: 2024-05-27 06:57:30 - step 24 of 48 - 100 active elements (0 deactivated)
-    19:49:36 INFO    opendrift.models.basemodel:1987: 2024-05-27 07:00:00 - step 25 of 48 - 100 active elements (0 deactivated)
-    19:49:36 INFO    opendrift.models.basemodel:1987: 2024-05-27 07:02:30 - step 26 of 48 - 100 active elements (0 deactivated)
-    19:49:37 INFO    opendrift.models.basemodel:1987: 2024-05-27 07:05:00 - step 27 of 48 - 100 active elements (0 deactivated)
-    19:49:37 INFO    opendrift.models.basemodel:1987: 2024-05-27 07:07:30 - step 28 of 48 - 100 active elements (0 deactivated)
-    19:49:37 INFO    opendrift.models.basemodel:1987: 2024-05-27 07:10:00 - step 29 of 48 - 100 active elements (0 deactivated)
-    19:49:37 INFO    opendrift.models.basemodel:1987: 2024-05-27 07:12:30 - step 30 of 48 - 100 active elements (0 deactivated)
-    19:49:37 INFO    opendrift.models.basemodel:1987: 2024-05-27 07:15:00 - step 31 of 48 - 100 active elements (0 deactivated)
-    19:49:37 INFO    opendrift.models.basemodel:1987: 2024-05-27 07:17:30 - step 32 of 48 - 100 active elements (0 deactivated)
-    19:49:37 INFO    opendrift.models.basemodel:1987: 2024-05-27 07:20:00 - step 33 of 48 - 100 active elements (0 deactivated)
-    19:49:37 INFO    opendrift.models.basemodel:1987: 2024-05-27 07:22:30 - step 34 of 48 - 100 active elements (0 deactivated)
-    19:49:37 INFO    opendrift.models.basemodel:1987: 2024-05-27 07:25:00 - step 35 of 48 - 100 active elements (0 deactivated)
-    19:49:37 INFO    opendrift.models.basemodel:1987: 2024-05-27 07:27:30 - step 36 of 48 - 100 active elements (0 deactivated)
-    19:49:37 INFO    opendrift.models.basemodel:1987: 2024-05-27 07:30:00 - step 37 of 48 - 100 active elements (0 deactivated)
-    19:49:37 INFO    opendrift.models.basemodel:1987: 2024-05-27 07:32:30 - step 38 of 48 - 100 active elements (0 deactivated)
-    19:49:37 INFO    opendrift.models.basemodel:1987: 2024-05-27 07:35:00 - step 39 of 48 - 100 active elements (0 deactivated)
-    19:49:37 INFO    opendrift.models.basemodel:1987: 2024-05-27 07:37:30 - step 40 of 48 - 100 active elements (0 deactivated)
-    19:49:37 INFO    opendrift.models.basemodel:1987: 2024-05-27 07:40:00 - step 41 of 48 - 100 active elements (0 deactivated)
-    19:49:37 INFO    opendrift.models.basemodel:1987: 2024-05-27 07:42:30 - step 42 of 48 - 100 active elements (0 deactivated)
-    19:49:37 INFO    opendrift.models.basemodel:1987: 2024-05-27 07:45:00 - step 43 of 48 - 100 active elements (0 deactivated)
-    19:49:37 INFO    opendrift.models.basemodel:1987: 2024-05-27 07:47:30 - step 44 of 48 - 100 active elements (0 deactivated)
-    19:49:37 INFO    opendrift.models.basemodel:1987: 2024-05-27 07:50:00 - step 45 of 48 - 100 active elements (0 deactivated)
-    19:49:37 INFO    opendrift.models.basemodel:1987: 2024-05-27 07:52:30 - step 46 of 48 - 100 active elements (0 deactivated)
-    19:49:37 INFO    opendrift.models.basemodel:1987: 2024-05-27 07:55:00 - step 47 of 48 - 100 active elements (0 deactivated)
-    19:49:37 INFO    opendrift.models.basemodel:1987: 2024-05-27 07:57:30 - step 48 of 48 - 100 active elements (0 deactivated)
-    19:49:38 INFO    opendrift.models.basemodel:507: OpenDriftSimulation initialised (version 1.11.8 / v1.11.8-12-g65d2ed0)
-    19:49:38 INFO    opendrift.models.basemodel.environment:218: Adding a dynamical landmask with max. priority based on assumed maximum speed of 10.0 m/s. Adding a customised landmask may be faster...
-    19:49:38 INFO    opendrift.models.basemodel.environment:245: Fallback values will be used for the following variables which have no readers: 
-    19:49:38 INFO    opendrift.models.basemodel.environment:248:    sea_surface_height: 0.000000
-    19:49:38 INFO    opendrift.models.basemodel.environment:248:    ocean_vertical_diffusivity: 0.000000
-    19:49:38 INFO    opendrift.models.basemodel.environment:248:    sea_surface_wave_significant_height: 0.000000
-    19:49:38 INFO    opendrift.models.basemodel.environment:248:    sea_surface_wave_stokes_drift_x_velocity: 0.000000
-    19:49:38 INFO    opendrift.models.basemodel.environment:248:    sea_surface_wave_stokes_drift_y_velocity: 0.000000
-    19:49:38 INFO    opendrift.models.basemodel.environment:248:    sea_surface_wave_period_at_variance_spectral_density_maximum: 0.000000
-    19:49:38 INFO    opendrift.models.basemodel.environment:248:    sea_surface_wave_mean_period_from_variance_spectral_density_second_frequency_moment: 0.000000
-    19:49:38 INFO    opendrift.models.basemodel.environment:248:    sea_surface_swell_wave_to_direction: 0.000000
-    19:49:38 INFO    opendrift.models.basemodel.environment:248:    sea_surface_swell_wave_peak_period_from_variance_spectral_density: 0.000000
-    19:49:38 INFO    opendrift.models.basemodel.environment:248:    sea_surface_swell_wave_significant_height: 0.000000
-    19:49:38 INFO    opendrift.models.basemodel.environment:248:    sea_surface_wind_wave_to_direction: 0.000000
-    19:49:38 INFO    opendrift.models.basemodel.environment:248:    sea_surface_wind_wave_mean_period: 0.000000
-    19:49:38 INFO    opendrift.models.basemodel.environment:248:    sea_surface_wind_wave_significant_height: 0.000000
-    19:49:38 INFO    opendrift.models.basemodel.environment:248:    surface_downward_x_stress: 0.000000
-    19:49:38 INFO    opendrift.models.basemodel.environment:248:    surface_downward_y_stress: 0.000000
-    19:49:38 INFO    opendrift.models.basemodel.environment:248:    turbulent_kinetic_energy: 0.000000
-    19:49:38 INFO    opendrift.models.basemodel.environment:248:    turbulent_generic_length_scale: 0.000000
-    19:49:38 INFO    opendrift.models.basemodel.environment:248:    ocean_mixed_layer_thickness: 50.000000
-    19:49:38 INFO    opendrift.models.basemodel:885: Using existing reader for land_binary_mask
-    19:49:38 INFO    opendrift.models.basemodel:896: All points are in ocean
-    19:49:38 WARNING opendrift.models.basemodel:679: Seafloor check not being run because environment is missing. This will happen the first time the function is run but if it happens subsequently there is probably a problem.
-    19:49:38 INFO    opendrift.models.basemodel:1987: 2024-05-27 06:00:00 - step 1 of 48 - 100 active elements (0 deactivated)
+    12:39:38 INFO    opendrift.models.basemodel:1987: 2024-05-27 06:02:30 - step 2 of 48 - 100 active elements (0 deactivated)
+    12:39:39 INFO    opendrift.models.basemodel:1987: 2024-05-27 06:05:00 - step 3 of 48 - 100 active elements (0 deactivated)
+    12:39:39 INFO    opendrift.models.basemodel:1987: 2024-05-27 06:07:30 - step 4 of 48 - 100 active elements (0 deactivated)
+    12:39:39 INFO    opendrift.models.basemodel:1987: 2024-05-27 06:10:00 - step 5 of 48 - 100 active elements (0 deactivated)
+    12:39:39 INFO    opendrift.models.basemodel:1987: 2024-05-27 06:12:30 - step 6 of 48 - 100 active elements (0 deactivated)
+    12:39:39 INFO    opendrift.models.basemodel:1987: 2024-05-27 06:15:00 - step 7 of 48 - 100 active elements (0 deactivated)
+    12:39:39 INFO    opendrift.models.basemodel:1987: 2024-05-27 06:17:30 - step 8 of 48 - 100 active elements (0 deactivated)
+    12:39:39 INFO    opendrift.models.basemodel:1987: 2024-05-27 06:20:00 - step 9 of 48 - 100 active elements (0 deactivated)
+    12:39:39 INFO    opendrift.models.basemodel:1987: 2024-05-27 06:22:30 - step 10 of 48 - 100 active elements (0 deactivated)
+    12:39:39 INFO    opendrift.models.basemodel:1987: 2024-05-27 06:25:00 - step 11 of 48 - 100 active elements (0 deactivated)
+    12:39:39 INFO    opendrift.models.basemodel:1987: 2024-05-27 06:27:30 - step 12 of 48 - 100 active elements (0 deactivated)
+    12:39:39 INFO    opendrift.models.basemodel:1987: 2024-05-27 06:30:00 - step 13 of 48 - 100 active elements (0 deactivated)
+    12:39:39 INFO    opendrift.models.basemodel:1987: 2024-05-27 06:32:30 - step 14 of 48 - 100 active elements (0 deactivated)
+    12:39:39 INFO    opendrift.models.basemodel:1987: 2024-05-27 06:35:00 - step 15 of 48 - 100 active elements (0 deactivated)
+    12:39:39 INFO    opendrift.models.basemodel:1987: 2024-05-27 06:37:30 - step 16 of 48 - 100 active elements (0 deactivated)
+    12:39:39 INFO    opendrift.models.basemodel:1987: 2024-05-27 06:40:00 - step 17 of 48 - 100 active elements (0 deactivated)
+    12:39:39 INFO    opendrift.models.basemodel:1987: 2024-05-27 06:42:30 - step 18 of 48 - 100 active elements (0 deactivated)
+    12:39:40 INFO    opendrift.models.basemodel:1987: 2024-05-27 06:45:00 - step 19 of 48 - 100 active elements (0 deactivated)
+    12:39:40 INFO    opendrift.models.basemodel:1987: 2024-05-27 06:47:30 - step 20 of 48 - 100 active elements (0 deactivated)
+    12:39:40 INFO    opendrift.models.basemodel:1987: 2024-05-27 06:50:00 - step 21 of 48 - 100 active elements (0 deactivated)
+    12:39:40 INFO    opendrift.models.basemodel:1987: 2024-05-27 06:52:30 - step 22 of 48 - 100 active elements (0 deactivated)
+    12:39:40 INFO    opendrift.models.basemodel:1987: 2024-05-27 06:55:00 - step 23 of 48 - 100 active elements (0 deactivated)
+    12:39:40 INFO    opendrift.models.basemodel:1987: 2024-05-27 06:57:30 - step 24 of 48 - 100 active elements (0 deactivated)
+    12:39:40 INFO    opendrift.models.basemodel:1987: 2024-05-27 07:00:00 - step 25 of 48 - 100 active elements (0 deactivated)
+    12:39:40 INFO    opendrift.models.basemodel:1987: 2024-05-27 07:02:30 - step 26 of 48 - 100 active elements (0 deactivated)
+    12:39:41 INFO    opendrift.models.basemodel:1987: 2024-05-27 07:05:00 - step 27 of 48 - 100 active elements (0 deactivated)
+    12:39:41 INFO    opendrift.models.basemodel:1987: 2024-05-27 07:07:30 - step 28 of 48 - 100 active elements (0 deactivated)
+    12:39:41 INFO    opendrift.models.basemodel:1987: 2024-05-27 07:10:00 - step 29 of 48 - 100 active elements (0 deactivated)
+    12:39:41 INFO    opendrift.models.basemodel:1987: 2024-05-27 07:12:30 - step 30 of 48 - 100 active elements (0 deactivated)
+    12:39:41 INFO    opendrift.models.basemodel:1987: 2024-05-27 07:15:00 - step 31 of 48 - 100 active elements (0 deactivated)
+    12:39:41 INFO    opendrift.models.basemodel:1987: 2024-05-27 07:17:30 - step 32 of 48 - 100 active elements (0 deactivated)
+    12:39:41 INFO    opendrift.models.basemodel:1987: 2024-05-27 07:20:00 - step 33 of 48 - 100 active elements (0 deactivated)
+    12:39:41 INFO    opendrift.models.basemodel:1987: 2024-05-27 07:22:30 - step 34 of 48 - 100 active elements (0 deactivated)
+    12:39:41 INFO    opendrift.models.basemodel:1987: 2024-05-27 07:25:00 - step 35 of 48 - 100 active elements (0 deactivated)
+    12:39:41 INFO    opendrift.models.basemodel:1987: 2024-05-27 07:27:30 - step 36 of 48 - 100 active elements (0 deactivated)
+    12:39:41 INFO    opendrift.models.basemodel:1987: 2024-05-27 07:30:00 - step 37 of 48 - 100 active elements (0 deactivated)
+    12:39:41 INFO    opendrift.models.basemodel:1987: 2024-05-27 07:32:30 - step 38 of 48 - 100 active elements (0 deactivated)
+    12:39:41 INFO    opendrift.models.basemodel:1987: 2024-05-27 07:35:00 - step 39 of 48 - 100 active elements (0 deactivated)
+    12:39:41 INFO    opendrift.models.basemodel:1987: 2024-05-27 07:37:30 - step 40 of 48 - 100 active elements (0 deactivated)
+    12:39:41 INFO    opendrift.models.basemodel:1987: 2024-05-27 07:40:00 - step 41 of 48 - 100 active elements (0 deactivated)
+    12:39:41 INFO    opendrift.models.basemodel:1987: 2024-05-27 07:42:30 - step 42 of 48 - 100 active elements (0 deactivated)
+    12:39:41 INFO    opendrift.models.basemodel:1987: 2024-05-27 07:45:00 - step 43 of 48 - 100 active elements (0 deactivated)
+    12:39:41 INFO    opendrift.models.basemodel:1987: 2024-05-27 07:47:30 - step 44 of 48 - 100 active elements (0 deactivated)
+    12:39:41 INFO    opendrift.models.basemodel:1987: 2024-05-27 07:50:00 - step 45 of 48 - 100 active elements (0 deactivated)
+    12:39:41 INFO    opendrift.models.basemodel:1987: 2024-05-27 07:52:30 - step 46 of 48 - 100 active elements (0 deactivated)
+    12:39:41 INFO    opendrift.models.basemodel:1987: 2024-05-27 07:55:00 - step 47 of 48 - 100 active elements (0 deactivated)
+    12:39:41 INFO    opendrift.models.basemodel:1987: 2024-05-27 07:57:30 - step 48 of 48 - 100 active elements (0 deactivated)
+    12:39:41 INFO    opendrift.models.basemodel:507: OpenDriftSimulation initialised (version 1.11.9 / v1.11.9-3-g38f858e)
+    12:39:41 INFO    opendrift.models.basemodel.environment:218: Adding a dynamical landmask with max. priority based on assumed maximum speed of 10.0 m/s. Adding a customised landmask may be faster...
+    12:39:41 INFO    opendrift.models.basemodel.environment:245: Fallback values will be used for the following variables which have no readers: 
+    12:39:41 INFO    opendrift.models.basemodel.environment:248:    sea_surface_height: 0.000000
+    12:39:41 INFO    opendrift.models.basemodel.environment:248:    ocean_vertical_diffusivity: 0.000000
+    12:39:41 INFO    opendrift.models.basemodel.environment:248:    sea_surface_wave_significant_height: 0.000000
+    12:39:41 INFO    opendrift.models.basemodel.environment:248:    sea_surface_wave_stokes_drift_x_velocity: 0.000000
+    12:39:41 INFO    opendrift.models.basemodel.environment:248:    sea_surface_wave_stokes_drift_y_velocity: 0.000000
+    12:39:41 INFO    opendrift.models.basemodel.environment:248:    sea_surface_wave_period_at_variance_spectral_density_maximum: 0.000000
+    12:39:41 INFO    opendrift.models.basemodel.environment:248:    sea_surface_wave_mean_period_from_variance_spectral_density_second_frequency_moment: 0.000000
+    12:39:41 INFO    opendrift.models.basemodel.environment:248:    sea_surface_swell_wave_to_direction: 0.000000
+    12:39:41 INFO    opendrift.models.basemodel.environment:248:    sea_surface_swell_wave_peak_period_from_variance_spectral_density: 0.000000
+    12:39:41 INFO    opendrift.models.basemodel.environment:248:    sea_surface_swell_wave_significant_height: 0.000000
+    12:39:41 INFO    opendrift.models.basemodel.environment:248:    sea_surface_wind_wave_to_direction: 0.000000
+    12:39:41 INFO    opendrift.models.basemodel.environment:248:    sea_surface_wind_wave_mean_period: 0.000000
+    12:39:41 INFO    opendrift.models.basemodel.environment:248:    sea_surface_wind_wave_significant_height: 0.000000
+    12:39:41 INFO    opendrift.models.basemodel.environment:248:    surface_downward_x_stress: 0.000000
+    12:39:41 INFO    opendrift.models.basemodel.environment:248:    surface_downward_y_stress: 0.000000
+    12:39:41 INFO    opendrift.models.basemodel.environment:248:    turbulent_kinetic_energy: 0.000000
+    12:39:41 INFO    opendrift.models.basemodel.environment:248:    turbulent_generic_length_scale: 0.000000
+    12:39:41 INFO    opendrift.models.basemodel.environment:248:    ocean_mixed_layer_thickness: 50.000000
+    12:39:41 INFO    opendrift.models.basemodel:885: Using existing reader for land_binary_mask
+    12:39:41 INFO    opendrift.models.basemodel:896: All points are in ocean
+    12:39:41 WARNING opendrift.models.basemodel:679: Seafloor check not being run because environment is missing. This will happen the first time the function is run but if it happens subsequently there is probably a problem.
+    12:39:41 INFO    opendrift.models.basemodel:1987: 2024-05-27 06:00:00 - step 1 of 48 - 100 active elements (0 deactivated)
     /root/project/opendrift/readers/interpolation/interpolators.py:17: RuntimeWarning: overflow encountered in cast
       data[mask] = np.finfo(np.float64).min
-    19:49:39 INFO    opendrift.models.basemodel:1987: 2024-05-27 06:02:30 - step 2 of 48 - 100 active elements (0 deactivated)
-    19:49:39 INFO    opendrift.models.basemodel:1987: 2024-05-27 06:05:00 - step 3 of 48 - 100 active elements (0 deactivated)
-    19:49:39 INFO    opendrift.models.basemodel:1987: 2024-05-27 06:07:30 - step 4 of 48 - 100 active elements (0 deactivated)
-    19:49:39 INFO    opendrift.models.basemodel:1987: 2024-05-27 06:10:00 - step 5 of 48 - 100 active elements (0 deactivated)
-    19:49:40 INFO    opendrift.models.basemodel:1987: 2024-05-27 06:12:30 - step 6 of 48 - 100 active elements (0 deactivated)
-    19:49:40 INFO    opendrift.models.basemodel:1987: 2024-05-27 06:15:00 - step 7 of 48 - 100 active elements (0 deactivated)
-    19:49:40 INFO    opendrift.models.basemodel:1987: 2024-05-27 06:17:30 - step 8 of 48 - 100 active elements (0 deactivated)
-    19:49:40 INFO    opendrift.models.basemodel:1987: 2024-05-27 06:20:00 - step 9 of 48 - 100 active elements (0 deactivated)
-    19:49:40 INFO    opendrift.models.basemodel:1987: 2024-05-27 06:22:30 - step 10 of 48 - 100 active elements (0 deactivated)
-    19:49:40 INFO    opendrift.models.basemodel:1987: 2024-05-27 06:25:00 - step 11 of 48 - 100 active elements (0 deactivated)
-    19:49:40 INFO    opendrift.models.basemodel:1987: 2024-05-27 06:27:30 - step 12 of 48 - 100 active elements (0 deactivated)
-    19:49:40 INFO    opendrift.models.basemodel:1987: 2024-05-27 06:30:00 - step 13 of 48 - 100 active elements (0 deactivated)
-    19:49:40 INFO    opendrift.models.basemodel:1987: 2024-05-27 06:32:30 - step 14 of 48 - 100 active elements (0 deactivated)
-    19:49:40 INFO    opendrift.models.basemodel:1987: 2024-05-27 06:35:00 - step 15 of 48 - 100 active elements (0 deactivated)
-    19:49:40 INFO    opendrift.models.basemodel:1987: 2024-05-27 06:37:30 - step 16 of 48 - 100 active elements (0 deactivated)
-    19:49:40 INFO    opendrift.models.basemodel:1987: 2024-05-27 06:40:00 - step 17 of 48 - 100 active elements (0 deactivated)
-    19:49:40 INFO    opendrift.models.basemodel:1987: 2024-05-27 06:42:30 - step 18 of 48 - 100 active elements (0 deactivated)
-    19:49:40 INFO    opendrift.models.basemodel:1987: 2024-05-27 06:45:00 - step 19 of 48 - 100 active elements (0 deactivated)
-    19:49:40 INFO    opendrift.models.basemodel:1987: 2024-05-27 06:47:30 - step 20 of 48 - 100 active elements (0 deactivated)
-    19:49:40 INFO    opendrift.models.basemodel:1987: 2024-05-27 06:50:00 - step 21 of 48 - 100 active elements (0 deactivated)
-    19:49:40 INFO    opendrift.models.basemodel:1987: 2024-05-27 06:52:30 - step 22 of 48 - 100 active elements (0 deactivated)
-    19:49:40 INFO    opendrift.models.basemodel:1987: 2024-05-27 06:55:00 - step 23 of 48 - 100 active elements (0 deactivated)
-    19:49:40 INFO    opendrift.models.basemodel:1987: 2024-05-27 06:57:30 - step 24 of 48 - 100 active elements (0 deactivated)
-    19:49:40 INFO    opendrift.models.basemodel:1987: 2024-05-27 07:00:00 - step 25 of 48 - 100 active elements (0 deactivated)
-    19:49:40 INFO    opendrift.models.basemodel:1987: 2024-05-27 07:02:30 - step 26 of 48 - 100 active elements (0 deactivated)
-    19:49:42 INFO    opendrift.models.basemodel:1987: 2024-05-27 07:05:00 - step 27 of 48 - 100 active elements (0 deactivated)
-    19:49:42 INFO    opendrift.models.basemodel:1987: 2024-05-27 07:07:30 - step 28 of 48 - 100 active elements (0 deactivated)
-    19:49:42 INFO    opendrift.models.basemodel:1987: 2024-05-27 07:10:00 - step 29 of 48 - 100 active elements (0 deactivated)
-    19:49:42 INFO    opendrift.models.basemodel:1987: 2024-05-27 07:12:30 - step 30 of 48 - 100 active elements (0 deactivated)
-    19:49:42 INFO    opendrift.models.basemodel:1987: 2024-05-27 07:15:00 - step 31 of 48 - 100 active elements (0 deactivated)
-    19:49:42 INFO    opendrift.models.basemodel:1987: 2024-05-27 07:17:30 - step 32 of 48 - 100 active elements (0 deactivated)
-    19:49:42 INFO    opendrift.models.basemodel:1987: 2024-05-27 07:20:00 - step 33 of 48 - 100 active elements (0 deactivated)
-    19:49:42 INFO    opendrift.models.basemodel:1987: 2024-05-27 07:22:30 - step 34 of 48 - 100 active elements (0 deactivated)
-    19:49:42 INFO    opendrift.models.basemodel:1987: 2024-05-27 07:25:00 - step 35 of 48 - 100 active elements (0 deactivated)
-    19:49:42 INFO    opendrift.models.basemodel:1987: 2024-05-27 07:27:30 - step 36 of 48 - 100 active elements (0 deactivated)
-    19:49:42 INFO    opendrift.models.basemodel:1987: 2024-05-27 07:30:00 - step 37 of 48 - 100 active elements (0 deactivated)
-    19:49:42 INFO    opendrift.models.basemodel:1987: 2024-05-27 07:32:30 - step 38 of 48 - 100 active elements (0 deactivated)
-    19:49:42 INFO    opendrift.models.basemodel:1987: 2024-05-27 07:35:00 - step 39 of 48 - 100 active elements (0 deactivated)
-    19:49:42 INFO    opendrift.models.basemodel:1987: 2024-05-27 07:37:30 - step 40 of 48 - 100 active elements (0 deactivated)
-    19:49:42 INFO    opendrift.models.basemodel:1987: 2024-05-27 07:40:00 - step 41 of 48 - 100 active elements (0 deactivated)
-    19:49:42 INFO    opendrift.models.basemodel:1987: 2024-05-27 07:42:30 - step 42 of 48 - 100 active elements (0 deactivated)
-    19:49:42 INFO    opendrift.models.basemodel:1987: 2024-05-27 07:45:00 - step 43 of 48 - 100 active elements (0 deactivated)
-    19:49:42 INFO    opendrift.models.basemodel:1987: 2024-05-27 07:47:30 - step 44 of 48 - 100 active elements (0 deactivated)
-    19:49:43 INFO    opendrift.models.basemodel:1987: 2024-05-27 07:50:00 - step 45 of 48 - 100 active elements (0 deactivated)
-    19:49:43 INFO    opendrift.models.basemodel:1987: 2024-05-27 07:52:30 - step 46 of 48 - 100 active elements (0 deactivated)
-    19:49:43 INFO    opendrift.models.basemodel:1987: 2024-05-27 07:55:00 - step 47 of 48 - 100 active elements (0 deactivated)
-    19:49:43 INFO    opendrift.models.basemodel:1987: 2024-05-27 07:57:30 - step 48 of 48 - 100 active elements (0 deactivated)
+    12:39:42 INFO    opendrift.models.basemodel:1987: 2024-05-27 06:02:30 - step 2 of 48 - 100 active elements (0 deactivated)
+    12:39:43 INFO    opendrift.models.basemodel:1987: 2024-05-27 06:05:00 - step 3 of 48 - 100 active elements (0 deactivated)
+    12:39:43 INFO    opendrift.models.basemodel:1987: 2024-05-27 06:07:30 - step 4 of 48 - 100 active elements (0 deactivated)
+    12:39:43 INFO    opendrift.models.basemodel:1987: 2024-05-27 06:10:00 - step 5 of 48 - 100 active elements (0 deactivated)
+    12:39:43 INFO    opendrift.models.basemodel:1987: 2024-05-27 06:12:30 - step 6 of 48 - 100 active elements (0 deactivated)
+    12:39:43 INFO    opendrift.models.basemodel:1987: 2024-05-27 06:15:00 - step 7 of 48 - 100 active elements (0 deactivated)
+    12:39:43 INFO    opendrift.models.basemodel:1987: 2024-05-27 06:17:30 - step 8 of 48 - 100 active elements (0 deactivated)
+    12:39:43 INFO    opendrift.models.basemodel:1987: 2024-05-27 06:20:00 - step 9 of 48 - 100 active elements (0 deactivated)
+    12:39:43 INFO    opendrift.models.basemodel:1987: 2024-05-27 06:22:30 - step 10 of 48 - 100 active elements (0 deactivated)
+    12:39:43 INFO    opendrift.models.basemodel:1987: 2024-05-27 06:25:00 - step 11 of 48 - 100 active elements (0 deactivated)
+    12:39:43 INFO    opendrift.models.basemodel:1987: 2024-05-27 06:27:30 - step 12 of 48 - 100 active elements (0 deactivated)
+    12:39:43 INFO    opendrift.models.basemodel:1987: 2024-05-27 06:30:00 - step 13 of 48 - 100 active elements (0 deactivated)
+    12:39:43 INFO    opendrift.models.basemodel:1987: 2024-05-27 06:32:30 - step 14 of 48 - 100 active elements (0 deactivated)
+    12:39:43 INFO    opendrift.models.basemodel:1987: 2024-05-27 06:35:00 - step 15 of 48 - 100 active elements (0 deactivated)
+    12:39:43 INFO    opendrift.models.basemodel:1987: 2024-05-27 06:37:30 - step 16 of 48 - 100 active elements (0 deactivated)
+    12:39:43 INFO    opendrift.models.basemodel:1987: 2024-05-27 06:40:00 - step 17 of 48 - 100 active elements (0 deactivated)
+    12:39:43 INFO    opendrift.models.basemodel:1987: 2024-05-27 06:42:30 - step 18 of 48 - 100 active elements (0 deactivated)
+    12:39:43 INFO    opendrift.models.basemodel:1987: 2024-05-27 06:45:00 - step 19 of 48 - 100 active elements (0 deactivated)
+    12:39:44 INFO    opendrift.models.basemodel:1987: 2024-05-27 06:47:30 - step 20 of 48 - 100 active elements (0 deactivated)
+    12:39:44 INFO    opendrift.models.basemodel:1987: 2024-05-27 06:50:00 - step 21 of 48 - 100 active elements (0 deactivated)
+    12:39:44 INFO    opendrift.models.basemodel:1987: 2024-05-27 06:52:30 - step 22 of 48 - 100 active elements (0 deactivated)
+    12:39:44 INFO    opendrift.models.basemodel:1987: 2024-05-27 06:55:00 - step 23 of 48 - 100 active elements (0 deactivated)
+    12:39:44 INFO    opendrift.models.basemodel:1987: 2024-05-27 06:57:30 - step 24 of 48 - 100 active elements (0 deactivated)
+    12:39:44 INFO    opendrift.models.basemodel:1987: 2024-05-27 07:00:00 - step 25 of 48 - 100 active elements (0 deactivated)
+    12:39:44 INFO    opendrift.models.basemodel:1987: 2024-05-27 07:02:30 - step 26 of 48 - 100 active elements (0 deactivated)
+    12:39:46 INFO    opendrift.models.basemodel:1987: 2024-05-27 07:05:00 - step 27 of 48 - 100 active elements (0 deactivated)
+    12:39:46 INFO    opendrift.models.basemodel:1987: 2024-05-27 07:07:30 - step 28 of 48 - 100 active elements (0 deactivated)
+    12:39:46 INFO    opendrift.models.basemodel:1987: 2024-05-27 07:10:00 - step 29 of 48 - 100 active elements (0 deactivated)
+    12:39:46 INFO    opendrift.models.basemodel:1987: 2024-05-27 07:12:30 - step 30 of 48 - 100 active elements (0 deactivated)
+    12:39:46 INFO    opendrift.models.basemodel:1987: 2024-05-27 07:15:00 - step 31 of 48 - 100 active elements (0 deactivated)
+    12:39:46 INFO    opendrift.models.basemodel:1987: 2024-05-27 07:17:30 - step 32 of 48 - 100 active elements (0 deactivated)
+    12:39:46 INFO    opendrift.models.basemodel:1987: 2024-05-27 07:20:00 - step 33 of 48 - 100 active elements (0 deactivated)
+    12:39:46 INFO    opendrift.models.basemodel:1987: 2024-05-27 07:22:30 - step 34 of 48 - 100 active elements (0 deactivated)
+    12:39:46 INFO    opendrift.models.basemodel:1987: 2024-05-27 07:25:00 - step 35 of 48 - 100 active elements (0 deactivated)
+    12:39:46 INFO    opendrift.models.basemodel:1987: 2024-05-27 07:27:30 - step 36 of 48 - 100 active elements (0 deactivated)
+    12:39:46 INFO    opendrift.models.basemodel:1987: 2024-05-27 07:30:00 - step 37 of 48 - 100 active elements (0 deactivated)
+    12:39:46 INFO    opendrift.models.basemodel:1987: 2024-05-27 07:32:30 - step 38 of 48 - 100 active elements (0 deactivated)
+    12:39:46 INFO    opendrift.models.basemodel:1987: 2024-05-27 07:35:00 - step 39 of 48 - 100 active elements (0 deactivated)
+    12:39:46 INFO    opendrift.models.basemodel:1987: 2024-05-27 07:37:30 - step 40 of 48 - 100 active elements (0 deactivated)
+    12:39:46 INFO    opendrift.models.basemodel:1987: 2024-05-27 07:40:00 - step 41 of 48 - 100 active elements (0 deactivated)
+    12:39:46 INFO    opendrift.models.basemodel:1987: 2024-05-27 07:42:30 - step 42 of 48 - 100 active elements (0 deactivated)
+    12:39:46 INFO    opendrift.models.basemodel:1987: 2024-05-27 07:45:00 - step 43 of 48 - 100 active elements (0 deactivated)
+    12:39:46 INFO    opendrift.models.basemodel:1987: 2024-05-27 07:47:30 - step 44 of 48 - 100 active elements (0 deactivated)
+    12:39:46 INFO    opendrift.models.basemodel:1987: 2024-05-27 07:50:00 - step 45 of 48 - 100 active elements (0 deactivated)
+    12:39:46 INFO    opendrift.models.basemodel:1987: 2024-05-27 07:52:30 - step 46 of 48 - 100 active elements (0 deactivated)
+    12:39:46 INFO    opendrift.models.basemodel:1987: 2024-05-27 07:55:00 - step 47 of 48 - 100 active elements (0 deactivated)
+    12:39:46 INFO    opendrift.models.basemodel:1987: 2024-05-27 07:57:30 - step 48 of 48 - 100 active elements (0 deactivated)
 
 
 
@@ -740,7 +743,7 @@ combined simulation
 
 .. rst-class:: sphx-glr-timing
 
-   **Total running time of the script:** (3 minutes 5.211 seconds)
+   **Total running time of the script:** (2 minutes 39.708 seconds)
 
 
 .. _sphx_glr_download_gallery_example_wind_measurements.py:
