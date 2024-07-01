@@ -23,24 +23,22 @@ Coastline interaction
 
 Example to illustrate stranding options using an artificial
 east-west oscillating current field
-Knut-Frode Dagestad, Feb 2017
 
-.. GENERATED FROM PYTHON SOURCE LINES 10-23
+.. GENERATED FROM PYTHON SOURCE LINES 9-21
 
 .. code-block:: Python
 
 
-    from datetime import datetime
+    from datetime import datetime, timedelta
     from opendrift.readers import reader_oscillating
     from opendrift.models.oceandrift import OceanDrift
+    duration = timedelta(hours=36)
+    time_step = timedelta(hours=.5)
+    number = 500
 
-    o = OceanDrift(loglevel=50)  # Set loglevel to 0 for debug information
-
+    # Oscillating east-west current to illustrate stranding options
     reader_osc = reader_oscillating.Reader('x_sea_water_velocity', amplitude=1,
                                            zero_time=datetime.utcnow())
-    o.add_reader([reader_osc])  # Oscillating east-west current component
-
-    o.set_config('environment:fallback:y_sea_water_velocity', .2)  # Adding northwards drift
 
 
 
@@ -49,138 +47,170 @@ Knut-Frode Dagestad, Feb 2017
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 24-25
+.. GENERATED FROM PYTHON SOURCE LINES 22-26
 
-Try different options: 'previous', 'stranding', 'none'
+Coastline option "stranding"
+============================
 
-.. GENERATED FROM PYTHON SOURCE LINES 25-31
+Note that particles are "jumping" a distance onto land, depending on calculation timestep
 
-.. code-block:: Python
-
-    o.set_config('general:coastline_action', 'previous')
-
-    o.seed_elements(lon=12.2, lat=67.7, radius=5000, number=25, time=reader_osc.zero_time)
-
-    o.run(steps=36*4, time_step=900, time_step_output=1800)
-
-
-
-
-
-
-
-
-.. GENERATED FROM PYTHON SOURCE LINES 32-33
-
-Print and plot results
-
-.. GENERATED FROM PYTHON SOURCE LINES 33-37
+.. GENERATED FROM PYTHON SOURCE LINES 26-35
 
 .. code-block:: Python
 
-    print(o)
+    o = OceanDrift(loglevel=50)
+    o.add_reader([reader_osc])
+    o.set_config('environment:fallback:y_sea_water_velocity', .2)
+    o.set_config('general:coastline_action', 'stranding')
+    o.seed_elements(lon=12.2, lat=67.7, radius=5000, number=number, time=reader_osc.zero_time)
+    o.run(duration=duration, time_step=time_step)
+    print(f'Calculation time: {o.timing["total time"]}')
     o.animation()
-    o.plot()
 
 
 
-
-.. image-sg:: /gallery/images/sphx_glr_example_coastline_options_001.png
-   :alt: OpenDrift - OceanDrift 2024-06-27 12:44 to 2024-06-29 00:44 UTC (73 steps)
-   :srcset: /gallery/images/sphx_glr_example_coastline_options_001.png
-   :class: sphx-glr-single-img
 
 
 .. rst-class:: sphx-glr-script-out
 
  .. code-block:: none
 
-    ===========================
-    --------------------
-    Reader performance:
-    --------------------
-    oscillating_reader
-     0:00:00.0  total
-     0:00:00.0  preparing
-     0:00:00.0  reading
-     0:00:00.0  masking
-    --------------------
-    global_landmask
-     0:00:00.0  total
-     0:00:00.0  preparing
-     0:00:00.0  reading
-     0:00:00.0  masking
-    --------------------
-    Performance:
-        7.1 total time
-        5.8 configuration
-        0.0 preparing main loop
-          0.0 moving elements to ocean
-        1.2 main loop
-          0.0 updating elements
-        0.0 cleaning up
-    --------------------
-    ===========================
-    Model:  OceanDrift     (OpenDrift version 1.11.9)
-            25 active Lagrangian3DArray particles  (0 deactivated, 0 scheduled)
-    -------------------
-    Environment variables:
-      -----
-      x_sea_water_velocity
-         1) oscillating_reader
-      -----
-      land_binary_mask
-         1) global_landmask
-      -----
-    Readers not added for the following variables:
-      ocean_mixed_layer_thickness
-      ocean_vertical_diffusivity
-      sea_floor_depth_below_sea_level
-      sea_surface_height
-      sea_surface_swell_wave_peak_period_from_variance_spectral_density
-      sea_surface_swell_wave_significant_height
-      sea_surface_swell_wave_to_direction
-      sea_surface_wave_mean_period_from_variance_spectral_density_second_frequency_moment
-      sea_surface_wave_period_at_variance_spectral_density_maximum
-      sea_surface_wave_significant_height
-      sea_surface_wave_stokes_drift_x_velocity
-      sea_surface_wave_stokes_drift_y_velocity
-      sea_surface_wind_wave_mean_period
-      sea_surface_wind_wave_significant_height
-      sea_surface_wind_wave_to_direction
-      surface_downward_x_stress
-      surface_downward_y_stress
-      turbulent_generic_length_scale
-      turbulent_kinetic_energy
-      upward_sea_water_velocity
-      x_wind
-      y_sea_water_velocity
-      y_wind
-
-    Discarded readers:
-
-    Time:
-            Start: 2024-06-27 12:44:26.324378 UTC
-            Present: 2024-06-29 00:44:26.324378 UTC
-            Calculation steps: 144 * 0:15:00 - total time: 1 day, 12:00:00
-            Output steps: 73 * 0:30:00
-    ===========================
-
+    Calculation time: 0:00:06.885358
     /opt/conda/envs/opendrift/lib/python3.11/site-packages/cartopy/mpl/geoaxes.py:1683: UserWarning: No data for colormapping provided via 'c'. Parameters 'cmap' will be ignored
       result = super().scatter(*args, **kwargs)
 
-    (<GeoAxes: title={'center': 'OpenDrift - OceanDrift\n2024-06-27 12:44 to 2024-06-29 00:44 UTC (73 steps)'}>, <Figure size 1100x861.384 with 1 Axes>)
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 38-39
+.. GENERATED FROM PYTHON SOURCE LINES 36-37
 
 .. image:: /gallery/animations/example_coastline_options_0.gif
+
+.. GENERATED FROM PYTHON SOURCE LINES 39-45
+
+Coastline option "stranding" with higher precision
+==================================================
+
+by setting config "general:coastline_approximation_precision" to desired accuracy in degrees.
+Note that with a (too) large compuation time step, particles may still "jump" over islands.
+An alternative to avoid this possibility is to use a smaller timestep for the simulation, though at a larger computational cost.
+
+.. GENERATED FROM PYTHON SOURCE LINES 45-55
+
+.. code-block:: Python
+
+    o = OceanDrift(loglevel=50)
+    o.add_reader([reader_osc])
+    o.set_config('environment:fallback:y_sea_water_velocity', .2)
+    o.set_config('general:coastline_action', 'stranding')
+    o.set_config('general:coastline_approximation_precision', .001)  # approx 100m
+    o.seed_elements(lon=12.2, lat=67.7, radius=5000, number=number, time=reader_osc.zero_time)
+    o.run(duration=duration, time_step=time_step)
+    print(f'Calculation time: {o.timing["total time"]}')
+    o.animation()
+
+
+
+
+
+.. rst-class:: sphx-glr-script-out
+
+ .. code-block:: none
+
+    Calculation time: 0:00:01.423159
+    /opt/conda/envs/opendrift/lib/python3.11/site-packages/cartopy/mpl/geoaxes.py:1683: UserWarning: No data for colormapping provided via 'c'. Parameters 'cmap' will be ignored
+      result = super().scatter(*args, **kwargs)
+
+
+
+
+.. GENERATED FROM PYTHON SOURCE LINES 56-57
+
+.. image:: /gallery/animations/example_coastline_options_1.gif
+
+.. GENERATED FROM PYTHON SOURCE LINES 57-75
+
+.. code-block:: Python
+
+
+    #%
+    # Coastline option "previous"
+    # ===========================
+    #
+    # Particles hitting land are moved back to last position in water,
+    # and may move offshore if currents/winds/forcing changes direction.
+    # Here we see that several particles are jumping over small island.
+    # Reducing timestep to e.g. 15 minutes will reduce this problem.
+    o = OceanDrift(loglevel=50)
+    o.add_reader([reader_osc])
+    o.set_config('environment:fallback:y_sea_water_velocity', .2)
+    o.set_config('general:coastline_action', 'previous')
+    o.seed_elements(lon=12.2, lat=67.7, radius=5000, number=number, time=reader_osc.zero_time)
+    o.run(duration=duration, time_step=time_step)
+    print(f'Calculation time: {o.timing["total time"]}')
+    o.animation()
+
+
+
+
+
+.. rst-class:: sphx-glr-script-out
+
+ .. code-block:: none
+
+    Calculation time: 0:00:01.230827
+    /opt/conda/envs/opendrift/lib/python3.11/site-packages/cartopy/mpl/geoaxes.py:1683: UserWarning: No data for colormapping provided via 'c'. Parameters 'cmap' will be ignored
+      result = super().scatter(*args, **kwargs)
+
+
+
+
+.. GENERATED FROM PYTHON SOURCE LINES 76-77
+
+.. image:: /gallery/animations/example_coastline_options_2.gif
+
+.. GENERATED FROM PYTHON SOURCE LINES 77-92
+
+.. code-block:: Python
+
+
+    #%
+    # Coastline option "none"
+    # =======================
+    #
+    # No interaction with land, as used by e.g. WindBlow model (atmospheric drift) 
+    o = OceanDrift(loglevel=50)
+    o.add_reader([reader_osc])
+    o.set_config('environment:fallback:y_sea_water_velocity', .2)
+    o.set_config('general:coastline_action', 'none')
+    o.seed_elements(lon=12.2, lat=67.7, radius=5000, number=number, time=reader_osc.zero_time)
+    o.run(duration=duration, time_step=time_step)
+    print(f'Calculation time: {o.timing["total time"]}')
+    o.animation()
+
+
+
+
+
+.. rst-class:: sphx-glr-script-out
+
+ .. code-block:: none
+
+    Calculation time: 0:00:01.104373
+    /opt/conda/envs/opendrift/lib/python3.11/site-packages/cartopy/mpl/geoaxes.py:1683: UserWarning: No data for colormapping provided via 'c'. Parameters 'cmap' will be ignored
+      result = super().scatter(*args, **kwargs)
+
+
+
+
+.. GENERATED FROM PYTHON SOURCE LINES 93-94
+
+.. image:: /gallery/animations/example_coastline_options_3.gif
 
 
 .. rst-class:: sphx-glr-timing
 
-   **Total running time of the script:** (3 minutes 48.503 seconds)
+   **Total running time of the script:** (15 minutes 13.167 seconds)
 
 
 .. _sphx_glr_download_gallery_example_coastline_options.py:
