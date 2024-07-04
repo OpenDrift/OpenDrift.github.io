@@ -3,6 +3,15 @@
 
 .. py:module:: opendrift.models.openberg
 
+.. autoapi-nested-parse::
+
+   This code is initiated from the following reference with posterior modifications. 
+
+   Reference:
+   Keghouche, I., F. Counillon, and L. Bertino (2010), Modeling dynamics and thermodynamics
+   of icebergs in the Barents Sea from 1987 to 2005, J. Geophys. Res., 115, C12062, doi:10.1029/2010JC006165. 
+
+
 
 Module Contents
 ---------------
@@ -22,11 +31,12 @@ Functions
 
 .. autoapisummary::
 
-   opendrift.models.openberg.water_drag
-   opendrift.models.openberg.wind_drag
+   opendrift.models.openberg.ocean_force
+   opendrift.models.openberg.wind_force
    opendrift.models.openberg.wave_radiation_force
    opendrift.models.openberg.advect_iceberg_no_acc
    opendrift.models.openberg.sea_ice_force
+   opendrift.models.openberg.coriolis_force
    opendrift.models.openberg.melwav
    opendrift.models.openberg.mellat
    opendrift.models.openberg.melbas
@@ -46,6 +56,7 @@ Attributes
    opendrift.models.openberg.g
    opendrift.models.openberg.csi
    opendrift.models.openberg.wave_drag_coef
+   opendrift.models.openberg.omega
 
 
 .. py:data:: logger
@@ -87,6 +98,11 @@ Attributes
 
    
 
+.. py:data:: omega
+   :value: 7.2921e-05
+
+   
+
 .. py:class:: IcebergObj(**kwargs)
 
 
@@ -109,30 +125,26 @@ Attributes
       
 
 
-.. py:function:: water_drag(iceb_vel, water_vel, Ao, rho_water, water_drag_coef)
+.. py:function:: ocean_force(iceb_vel, water_vel, Ao, rho_water, water_drag_coef)
 
    Ocean force
    Args:
-       iceb_vel  : Iceberg velocity at time t
+       iceb_vel  : Iceberg's velocity at time t
        water_vel : Ocean current velocity
        Ao : Iceberg's area exposed to the ocean current(length x draft)
        rho_water : Water density
        water_drag_coef : Co is the drag coefficient applied on the iceberg's draft
-   Returns:
-       Ocean force
 
 
-.. py:function:: wind_drag(iceb_vel, wind_vel, Aa, wind_drag_coef)
+.. py:function:: wind_force(iceb_vel, wind_vel, Aa, wind_drag_coef)
 
    Wind force
    Args:
-       iceb_vel : Iceberg velocity at time t
+       iceb_vel : Iceberg's velocity at time t
        wind_vel : Wind velocity
        Aa : Iceberg's area exposed to the wind (length x sail)
        rho_air : Air density
        wind_drag_coef : Ca is the drag coefficient applied on the iceberg's sail
-   Returns:
-       Wind force
 
 
 .. py:function:: wave_radiation_force(rho_water, wave_height, wave_direction, iceb_length)
@@ -155,9 +167,8 @@ Attributes
        f : Wind drift factor
        water_vel : Ocean current velocity
        wind_vel  : Wind velocity
-
    Returns:
-       Iceberg velocity without acceleration
+       Iceberg's velocity without acceleration
 
 
 .. py:function:: sea_ice_force(iceb_vel, sea_ice_conc, sea_ice_thickness, sea_ice_vel, iceb_width, sum_force)
@@ -165,20 +176,20 @@ Attributes
    Sea ice force
    Args:
        iceb_vel : Iceberg velocity at time t
-       sea_ice_conc : Sea ice concentration [%]
-       sea_ice_thickness : Sea ice thickness [m]
-       sea_ice_vel : Sea ice velocity [m/s]
+       sea_ice_conc : Sea ice concentration
+       sea_ice_thickness : Sea ice thickness
+       sea_ice_vel : Sea ice velocity
        rho_ice : Sea ice density
        iceb_width : Iceberg width
        sum_force : Effect of all other forces exerted on the iceberg (apart from the sea ice force)
-   Returns:
-       Sea ice force
+
+
+.. py:function:: coriolis_force(iceb_vel, mass, lat)
 
 
 .. py:function:: melwav(iceb_length, iceb_width, x_wind, y_wind, sst, sea_ice_conc, dt)
 
    Update the iceberg's dimensions (length and width) due to wave erosion
-   Parameterization from Keghouche et al. 2009    
    Args:
        iceb_length : Iceberg's length
        iceb_width : Iceberg's width
@@ -192,7 +203,6 @@ Attributes
 .. py:function:: mellat(iceb_length, iceb_width, tempib, salnib, dt)
 
    Update the iceberg's dimensions (length and width) due to lateral melting
-   Parameterization from Keghouche et al. 2009 
    Args:
        iceb_length : Iceberg's length
        iceb_width  : Iceberg's width
@@ -203,11 +213,10 @@ Attributes
 
 .. py:function:: melbas(iceb_draft, iceb_sail, iceb_length, salnib, tempib, x_water_vel, y_water_vel, x_iceb_vel, y_iceb_vel, dt)
 
-   Update the iceberg's dimensions (draft and sail) due to forced convection
-   Parameterization from Keghouche et al. 2009 
+   Update the iceberg's dimensions (draft and sail) due to forced convection 
 
 
-.. py:class:: OpenBerg(add_stokes_drift = True, wave_rad = True, grounding = False, vertical_profile = False, melting = False, choose_melting = {'wave': True, 'lateral': True, 'basal': True}, *args, **kwargs)
+.. py:class:: OpenBerg(*args, **kwargs)
 
 
    Bases: :py:obj:`opendrift.models.oceandrift.OceanDrift`
@@ -262,20 +271,17 @@ Attributes
       Get the basal layer of the variable for the icebergs 
 
 
-   .. py:method:: advect_iceberg(rho_water, stokes_drift=True, wave_rad=True, grounding=False, vertical_profile=False)
+   .. py:method:: advect_iceberg()
 
 
    .. py:method:: melt()
 
-      Activate melting 
+      Enable melting 
 
 
-   .. py:method:: roll_over(rho_water)
+   .. py:method:: roll_over()
 
-      Iceberg's stability criterium: Parameterization from Keghouche et al. 2009 with a correction from Wagner et al. 2017 
-
-
-   .. py:method:: prepare_run()
+      Iceberg's stability criterium 
 
 
    .. py:method:: update()
