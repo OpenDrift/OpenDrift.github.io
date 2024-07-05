@@ -126,6 +126,10 @@
 <span class="kn">import</span> <span class="nn">json</span>
 <span class="kn">import</span> <span class="nn">opendrift</span>
 <span class="kn">import</span> <span class="nn">xarray</span> <span class="k">as</span> <span class="nn">xr</span>
+<span class="kn">from</span> <span class="nn">opendrift.readers</span> <span class="kn">import</span> <span class="n">reader_netCDF_CF_generic</span>
+<span class="kn">from</span> <span class="nn">opendrift.readers</span> <span class="kn">import</span> <span class="n">reader_netCDF_CF_unstructured</span>
+<span class="kn">from</span> <span class="nn">opendrift.readers</span> <span class="kn">import</span> <span class="n">reader_ROMS_native</span>
+<span class="kn">from</span> <span class="nn">opendrift.readers</span> <span class="kn">import</span> <span class="n">reader_copernicusmarine</span>
 
 <div class="viewcode-block" id="open_mfdataset_overlap">
 <a class="viewcode-back" href="../../autoapi/opendrift/readers/index.html#opendrift.readers.open_mfdataset_overlap">[docs]</a>
@@ -142,6 +146,19 @@
     <span class="n">ds</span> <span class="o">=</span> <span class="n">xr</span><span class="o">.</span><span class="n">concat</span><span class="p">(</span><span class="n">datasets</span><span class="p">,</span> <span class="n">dim</span><span class="o">=</span><span class="n">timedim</span><span class="p">,</span>
                    <span class="n">compat</span><span class="o">=</span><span class="s1">&#39;override&#39;</span><span class="p">,</span> <span class="n">combine_attrs</span><span class="o">=</span><span class="s1">&#39;override&#39;</span><span class="p">,</span> <span class="n">join</span><span class="o">=</span><span class="s1">&#39;override&#39;</span><span class="p">,</span> <span class="n">coords</span><span class="o">=</span><span class="s1">&#39;minimal&#39;</span><span class="p">,</span> <span class="n">data_vars</span><span class="o">=</span><span class="s1">&#39;minimal&#39;</span><span class="p">)</span>
     <span class="k">return</span> <span class="n">ds</span></div>
+
+
+<div class="viewcode-block" id="applicable_readers">
+<a class="viewcode-back" href="../../autoapi/opendrift/readers/index.html#opendrift.readers.applicable_readers">[docs]</a>
+<span class="k">def</span> <span class="nf">applicable_readers</span><span class="p">(</span><span class="n">url</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&#39;&#39;&#39;Return a list of readers that are possible candidates for a given URL, filename or product ID&#39;&#39;&#39;</span>
+
+    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">glob</span><span class="o">.</span><span class="n">glob</span><span class="p">(</span><span class="n">url</span><span class="p">))</span> <span class="o">&gt;</span> <span class="mi">0</span> <span class="ow">or</span> <span class="nb">any</span><span class="p">(</span><span class="n">e</span> <span class="ow">in</span> <span class="n">url</span> <span class="k">for</span> <span class="n">e</span> <span class="ow">in</span> <span class="p">[</span><span class="s1">&#39;:&#39;</span><span class="p">,</span> <span class="s1">&#39;/&#39;</span><span class="p">]):</span>
+        <span class="k">return</span> <span class="p">[</span><span class="n">reader_netCDF_CF_generic</span><span class="p">,</span> <span class="n">reader_ROMS_native</span><span class="p">,</span> <span class="n">reader_netCDF_CF_unstructured</span><span class="p">]</span>
+    <span class="k">elif</span> <span class="s1">&#39;_&#39;</span> <span class="ow">in</span> <span class="n">url</span><span class="p">:</span>  <span class="c1"># should have better indentificator</span>
+        <span class="k">return</span> <span class="p">[</span><span class="n">reader_copernicusmarine</span><span class="p">]</span> 
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">return</span> <span class="p">[]</span></div>
 
 
 <div class="viewcode-block" id="reader_from_url">
@@ -167,29 +184,15 @@
     <span class="k">except</span><span class="p">:</span>
         <span class="k">pass</span>
 
-    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">glob</span><span class="o">.</span><span class="n">glob</span><span class="p">(</span><span class="n">url</span><span class="p">))</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>  <span class="c1"># Check if this is a URL, and not giving timeout</span>
-        <span class="kn">import</span> <span class="nn">requests</span>
+    <span class="n">reader_modules</span> <span class="o">=</span> <span class="n">applicable_readers</span><span class="p">(</span><span class="n">url</span><span class="p">)</span>
+
+    <span class="k">for</span> <span class="n">reader_module</span> <span class="ow">in</span> <span class="n">reader_modules</span><span class="p">:</span>
         <span class="k">try</span><span class="p">:</span>
-            <span class="n">resp</span> <span class="o">=</span> <span class="n">requests</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">url</span><span class="p">,</span> <span class="n">timeout</span><span class="o">=</span><span class="n">timeout</span><span class="p">)</span>
-        <span class="k">except</span> <span class="n">requests</span><span class="o">.</span><span class="n">exceptions</span><span class="o">.</span><span class="n">MissingSchema</span><span class="p">:</span>
-
-            <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s1">&#39;Neither a file or a URL, could still be a CMEMS product ID: &#39;</span> <span class="o">+</span> <span class="n">url</span><span class="p">)</span>
-            <span class="c1">#return None</span>
-        <span class="k">except</span><span class="p">:</span>
-            <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s1">&#39;Connection error for &#39;</span> <span class="o">+</span> <span class="n">url</span><span class="p">)</span>
-            <span class="k">return</span> <span class="kc">None</span>
-
-    <span class="n">reader_modules</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;reader_netCDF_CF_generic&#39;</span><span class="p">,</span>
-                      <span class="s1">&#39;reader_ROMS_native&#39;</span><span class="p">,</span>
-                      <span class="s1">&#39;reader_copernicusmarine&#39;</span><span class="p">]</span>
-
-    <span class="k">for</span> <span class="n">rm</span> <span class="ow">in</span> <span class="n">reader_modules</span><span class="p">:</span>
-        <span class="n">reader_module</span> <span class="o">=</span> <span class="n">importlib</span><span class="o">.</span><span class="n">import_module</span><span class="p">(</span><span class="s1">&#39;opendrift.readers.&#39;</span> <span class="o">+</span> <span class="n">rm</span><span class="p">)</span>
-        <span class="k">try</span><span class="p">:</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Testing reader </span><span class="si">{</span><span class="n">reader_module</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
             <span class="n">r</span> <span class="o">=</span> <span class="n">reader_module</span><span class="o">.</span><span class="n">Reader</span><span class="p">(</span><span class="n">url</span><span class="p">)</span>
             <span class="k">return</span> <span class="n">r</span>
         <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
-            <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Could not open </span><span class="si">%s</span><span class="s1"> with </span><span class="si">%s</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">url</span><span class="p">,</span> <span class="n">rm</span><span class="p">))</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;Could not open </span><span class="si">%s</span><span class="s1"> with </span><span class="si">%s</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">url</span><span class="p">,</span> <span class="n">reader_module</span><span class="p">))</span>
 
     <span class="k">return</span> <span class="kc">None</span>  <span class="c1"># No readers worked</span></div>
 
