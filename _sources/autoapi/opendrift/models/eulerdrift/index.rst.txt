@@ -1,5 +1,5 @@
-:py:mod:`opendrift.models.eulerdrift`
-=====================================
+opendrift.models.eulerdrift
+===========================
 
 .. py:module:: opendrift.models.eulerdrift
 
@@ -11,23 +11,28 @@
 
 Submodules
 ----------
+
 .. toctree::
-   :titlesonly:
    :maxdepth: 1
 
-   diff/index.rst
-   grid/index.rst
-   interp/index.rst
-   readers/index.rst
-   simulation/index.rst
-   srs/index.rst
+   /autoapi/opendrift/models/eulerdrift/diff/index
+   /autoapi/opendrift/models/eulerdrift/grid/index
+   /autoapi/opendrift/models/eulerdrift/interp/index
+   /autoapi/opendrift/models/eulerdrift/readers/index
+   /autoapi/opendrift/models/eulerdrift/simulation/index
+   /autoapi/opendrift/models/eulerdrift/srs/index
 
 
-Package Contents
-----------------
+Attributes
+----------
+
+.. autoapisummary::
+
+   opendrift.models.eulerdrift.logger
+
 
 Classes
-~~~~~~~
+-------
 
 .. autoapisummary::
 
@@ -38,30 +43,20 @@ Classes
    opendrift.models.eulerdrift.ConstantReader
 
 
-
 Functions
-~~~~~~~~~
+---------
 
 .. autoapisummary::
 
    opendrift.models.eulerdrift.install_logs
 
 
-
-Attributes
-~~~~~~~~~~
-
-.. autoapisummary::
-
-   opendrift.models.eulerdrift.logger
-
+Package Contents
+----------------
 
 .. py:data:: logger
 
-   
-
 .. py:class:: Simulation(grid)
-
 
    The simulation.
 
@@ -100,18 +95,26 @@ Attributes
 
      where :math:`\nabla^2 = \triangle` is the Laplacian.
 
+
    .. py:attribute:: grid
+      :value: None
+
 
       Reference time `datetime.Datetime`
 
 
+
    .. py:attribute:: t0
+      :value: None
+
 
       Current time offset after `t0`
 
 
+
    .. py:attribute:: t
       :value: 0.0
+
 
       Diffusivity (:math:`m^2/s`). E.g. between 0.01 and 0.1 for oil on the
       surface of the ocean (`Matsuzakia et. al., 2017
@@ -120,24 +123,31 @@ Attributes
       Decreasing diffusivity places stricter stability criteria on time step.
 
 
+
    .. py:attribute:: D
       :value: 0.1
 
+
       Porosity, rate of liquid volume to total volume (fraction of flux)
+
 
 
    .. py:attribute:: rho
       :value: 1.0
 
+
       List of readers
 
 
-   .. py:attribute:: readers
 
-      
+   .. py:attribute:: readers
+      :value: None
+
+
 
    .. py:method:: new(lon0=10.0, lat0=65.0, res=10.0, shape=(100, 100))
       :classmethod:
+
 
       New simulation on a :class:`.grid.RegularGrid`.
 
@@ -152,9 +162,11 @@ Attributes
           shape: shape (size) of grid
 
 
+
    .. py:method:: source(lon, lat, X)
 
       Source `X` onto grid with lower-left corner `lon`, `lat`.
+
 
 
    .. py:method:: source_gaussian_blob(lon, lat, A=1.0, N=10, sigma=10.0)
@@ -173,13 +185,16 @@ Attributes
         sigma: standard deviation (:math:`\sigma`) in meters.
 
 
+
    .. py:method:: U(t)
 
       Get U (ocean current) for t0 + t
 
 
+
    .. py:method:: step(dt=None)
       :abstractmethod:
+
 
       Step the simulation.
 
@@ -190,8 +205,10 @@ Attributes
         dt: time delta (or use automatic).
 
 
+
    .. py:method:: integrate(dt=None, max_t=None, max_steps=None, observer=None)
       :abstractmethod:
+
 
       Run simulation until termination condition is met.
 
@@ -210,8 +227,8 @@ Attributes
 
 .. py:class:: ExplSimulation(grid)
 
-
    Bases: :py:obj:`Simulation`
+
 
    A simple explicit scheme for integrating the convection-equation.
 
@@ -225,9 +242,11 @@ Attributes
      :class:`Simulation`.
 
 
+
    .. py:method:: stability(dx, D, umax)
 
       https://en.wikipedia.org/wiki/Numerical_solution_of_the_convection%E2%80%93diffusion_equation#Solving_the_convection%E2%80%93diffusion_equation_using_the_finite_difference_method
+
 
 
    .. py:method:: step(dt=None)
@@ -244,15 +263,17 @@ Attributes
 
 .. py:class:: Reader
 
-
    .. py:method:: variables()
       :abstractmethod:
+
 
       Get list of variables
 
 
+
    .. py:method:: read_grid(grid, var, t)
       :abstractmethod:
+
 
       Read variable for grid.
 
@@ -274,8 +295,8 @@ Attributes
 
 .. py:class:: OpendriftReader(reader)
 
-
    Bases: :py:obj:`Reader`
+
 
    Wrapper around an Opendrift reader.
 
@@ -283,9 +304,14 @@ Attributes
 
        reader: opendrift reader
 
+
+   .. py:attribute:: r
+
+
    .. py:method:: variables()
 
       Get list of variables
+
 
 
    .. py:method:: read_grid(grid, var, t)
@@ -310,13 +336,17 @@ Attributes
 
 .. py:class:: ConstantReader(consts)
 
-
    Bases: :py:obj:`Reader`
+
 
    
    Args:
 
        consts: dict, name of var: constant
+
+
+   .. py:attribute:: consts
+
 
    .. py:method:: read_grid(grid, var, _)
 
@@ -337,9 +367,11 @@ Attributes
           tuple with each variables specified in var with same shape as `grid`.
 
 
+
    .. py:method:: variables()
 
       Get list of variables
+
 
 
    .. py:method:: new_xy(x=0.5, y=0.5)

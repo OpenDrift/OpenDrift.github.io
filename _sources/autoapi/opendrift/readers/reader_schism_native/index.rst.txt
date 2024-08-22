@@ -1,14 +1,19 @@
-:py:mod:`opendrift.readers.reader_schism_native`
-================================================
+opendrift.readers.reader_schism_native
+======================================
 
 .. py:module:: opendrift.readers.reader_schism_native
 
 
-Module Contents
----------------
+Attributes
+----------
+
+.. autoapisummary::
+
+   opendrift.readers.reader_schism_native.logger
+
 
 Classes
-~~~~~~~
+-------
 
 .. autoapisummary::
 
@@ -16,24 +21,15 @@ Classes
    opendrift.readers.reader_schism_native.ReaderBlockUnstruct
 
 
-
-
-Attributes
-~~~~~~~~~~
-
-.. autoapisummary::
-
-   opendrift.readers.reader_schism_native.logger
-
+Module Contents
+---------------
 
 .. py:data:: logger
 
-   
-
 .. py:class:: Reader(filename=None, name=None, proj4=None, use_3d=None)
 
-
    Bases: :py:obj:`opendrift.readers.basereader.BaseReader`, :py:obj:`opendrift.readers.basereader.UnstructuredReader`
+
 
    A reader for unstructured (irregularily gridded) `SCHISM` files.
 
@@ -57,6 +53,67 @@ Attributes
 
    Common constructor for all readers
 
+
+   .. py:attribute:: filestr
+
+
+   .. py:attribute:: interpolation
+      :value: 'linearNDFast'
+
+
+
+   .. py:attribute:: convolve
+      :value: None
+
+
+
+   .. py:attribute:: schism_mapping
+
+
+   .. py:attribute:: return_block
+      :value: True
+
+
+
+   .. py:attribute:: use_3d
+
+
+   .. py:attribute:: x
+
+
+   .. py:attribute:: y
+
+
+   .. py:attribute:: reader_KDtree
+
+
+   .. py:attribute:: boundary
+
+
+   .. py:attribute:: variable_mapping
+
+
+   .. py:attribute:: variables
+
+
+   .. py:attribute:: xmin
+
+
+   .. py:attribute:: xmax
+
+
+   .. py:attribute:: ymin
+
+
+   .. py:attribute:: ymax
+
+
+   .. py:attribute:: var_block_before
+
+
+   .. py:attribute:: var_block_after
+
+
    .. py:method:: get_variables(requested_variables, time=None, x=None, y=None, z=None, block=False)
 
       The function extracts 'requested_variables' from the native SCHISM files
@@ -68,6 +125,7 @@ Attributes
       There is an option to extract only a subset of data around particles clouds to have less data but
       it means we need to recompute the KDtree of the subset nodes every time in ReaderBlockUnstruct.
       (Speed gain to be tested)
+
 
 
 
@@ -89,6 +147,7 @@ Attributes
           -addition of ['x_3d','y_3d','z_3d'] items to variable_dict if needed.
 
 
+
    .. py:method:: _get_variables_interpolated_(variables, profiles, profiles_depth, time, reader_x, reader_y, z)
 
       This method _must_ be implemented by every reader. Usually by
@@ -103,14 +162,17 @@ Attributes
           * :meth:`get_variables_interpolated`.
 
 
+
    .. py:method:: set_convolution_kernel(convolve)
 
       Set a convolution kernel or kernel size (of array of ones) used by `get_variables` on read variables.
 
 
+
    .. py:method:: __convolve_block__(env)
 
       Convolve arrays with a kernel, if reader.convolve is set
+
 
 
    .. py:method:: covers_positions_xy(x, y, z=0)
@@ -123,6 +185,7 @@ Attributes
       full array (incl. out of mesh positions) is re-generated with correct masking
 
 
+
    .. py:method:: plot_mesh(variable=None, vmin=None, vmax=None, filename=None, title=None, buffer=1, lscale='auto', plot_time=None)
 
       Plot geographical coverage of reader.
@@ -130,7 +193,6 @@ Attributes
 
 
 .. py:class:: ReaderBlockUnstruct(data_dict, KDtree=None, interpolation_horizontal='linearNDFast', interpolation_vertical='linear')
-
 
    Class to store and interpolate the data from an *unstructured* reader.
    This is the equivalent of ReaderBlock (regular grid) for *unstructured* grids.
@@ -141,9 +203,27 @@ Attributes
                 This is read from reader object, so that it is not recomputed every time
 
 
+
    .. py:attribute:: logger
 
-      
+
+   .. py:attribute:: x
+
+
+   .. py:attribute:: y
+
+
+   .. py:attribute:: time
+
+
+   .. py:attribute:: data_dict
+
+
+   .. py:attribute:: block_KDtree
+
+
+   .. py:attribute:: filled_variables
+
 
    .. py:method:: _initialize_interpolator(x, y, z=None)
 
@@ -154,6 +234,7 @@ Attributes
    .. py:method:: _interpolate_horizontal_layers(data, nearest=False)
 
       Interpolate all layers of 3d (or 2d) array.
+
 
 
    .. py:method:: covers_positions(x, y, z=None)
