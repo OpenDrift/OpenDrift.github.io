@@ -193,18 +193,16 @@
         <span class="k">if</span> <span class="n">filename</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;Need filename as argument to constructor&#39;</span><span class="p">)</span>
 
-        <span class="c1"># Map ROMS variable names to CF standard_name</span>
+        <span class="c1"># Map ROMS variable names to CF standard_name, for cases where standard_name attribute is missing</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">ROMS_variable_mapping</span> <span class="o">=</span> <span class="p">{</span>
-            <span class="c1"># Removing (temoprarily) land_binary_mask from ROMS-variables,</span>
-            <span class="c1"># as this leads to trouble with linearNDFast interpolation</span>
             <span class="s1">&#39;mask_rho&#39;</span><span class="p">:</span> <span class="s1">&#39;land_binary_mask&#39;</span><span class="p">,</span>
-            <span class="c1"># &#39;mask_psi&#39;: &#39;land_binary_mask&#39;,  # don&#39;t want two variables mapping together - raises error now</span>
+            <span class="s1">&#39;mask_psi&#39;</span><span class="p">:</span> <span class="s1">&#39;land_binary_mask&#39;</span><span class="p">,</span>
             <span class="s1">&#39;h&#39;</span><span class="p">:</span> <span class="s1">&#39;sea_floor_depth_below_sea_level&#39;</span><span class="p">,</span>
             <span class="s1">&#39;zeta&#39;</span><span class="p">:</span> <span class="s1">&#39;sea_surface_height&#39;</span><span class="p">,</span>
             <span class="s1">&#39;u&#39;</span><span class="p">:</span> <span class="s1">&#39;x_sea_water_velocity&#39;</span><span class="p">,</span>
             <span class="s1">&#39;v&#39;</span><span class="p">:</span> <span class="s1">&#39;y_sea_water_velocity&#39;</span><span class="p">,</span>
-            <span class="s1">&#39;u_eastward&#39;</span><span class="p">:</span> <span class="s1">&#39;x_sea_water_velocity&#39;</span><span class="p">,</span>
-            <span class="s1">&#39;v_northward&#39;</span><span class="p">:</span> <span class="s1">&#39;y_sea_water_velocity&#39;</span><span class="p">,</span>
+            <span class="s1">&#39;u_eastward&#39;</span><span class="p">:</span> <span class="s1">&#39;eastward_sea_water_velocity&#39;</span><span class="p">,</span>
+            <span class="s1">&#39;v_northward&#39;</span><span class="p">:</span> <span class="s1">&#39;northward_sea_water_velocity&#39;</span><span class="p">,</span>
             <span class="s1">&#39;w&#39;</span><span class="p">:</span> <span class="s1">&#39;upward_sea_water_velocity&#39;</span><span class="p">,</span>
             <span class="s1">&#39;temp&#39;</span><span class="p">:</span> <span class="s1">&#39;sea_water_temperature&#39;</span><span class="p">,</span>
             <span class="s1">&#39;salt&#39;</span><span class="p">:</span> <span class="s1">&#39;sea_water_salinity&#39;</span><span class="p">,</span>
@@ -379,24 +377,60 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">precalculate_s2z_coefficients</span> <span class="o">=</span> <span class="kc">True</span>
 
         <span class="c1"># Find all variables having standard_name</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">variables</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">standard_name_mapping</span> <span class="o">=</span> <span class="p">{}</span>  <span class="c1"># Inverse and unique mapping standard_name -&gt; variable name</span>
+        <span class="n">unmapped_variables</span> <span class="o">=</span> <span class="p">[]</span>
         <span class="k">for</span> <span class="n">var_name</span> <span class="ow">in</span> <span class="nb">list</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">Dataset</span><span class="o">.</span><span class="n">variables</span><span class="p">):</span>
             <span class="n">var</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">Dataset</span><span class="o">.</span><span class="n">variables</span><span class="p">[</span><span class="n">var_name</span><span class="p">]</span>
             <span class="k">if</span> <span class="s1">&#39;standard_name&#39;</span> <span class="ow">in</span> <span class="n">var</span><span class="o">.</span><span class="n">attrs</span> <span class="ow">and</span> <span class="n">var_name</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">ROMS_variable_mapping</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">ROMS_variable_mapping</span><span class="p">[</span><span class="n">var_name</span><span class="p">]</span> <span class="o">=</span> <span class="n">var</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s1">&#39;standard_name&#39;</span><span class="p">]</span>
-            <span class="k">if</span> <span class="n">var_name</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">ROMS_variable_mapping</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">variables</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">ROMS_variable_mapping</span><span class="p">[</span><span class="n">var_name</span><span class="p">])</span>
+                <span class="n">standard_name</span> <span class="o">=</span> <span class="n">var</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s1">&#39;standard_name&#39;</span><span class="p">]</span>
+            <span class="k">elif</span> <span class="n">var_name</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">ROMS_variable_mapping</span><span class="p">:</span>
+                <span class="n">standard_name</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">ROMS_variable_mapping</span><span class="p">[</span><span class="n">var_name</span><span class="p">]</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">unmapped_variables</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">var_name</span><span class="p">)</span>
+                <span class="k">continue</span>  <span class="c1"># Variable cannot be mapped to standard_name</span>
+            <span class="n">selected_variable</span> <span class="o">=</span> <span class="n">var_name</span>
+            <span class="k">if</span> <span class="n">standard_name</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">standard_name_mapping</span><span class="p">:</span>  <span class="c1"># We have a duplicate</span>
+                <span class="k">if</span> <span class="n">var_name</span> <span class="ow">in</span> <span class="n">standard_name_mapping</span><span class="p">:</span>  <span class="c1"># provided by user</span>
+                    <span class="n">selected_variable</span> <span class="o">=</span> <span class="n">var_name</span>
+                    <span class="n">discarded_variable</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">standard_name_mapping</span><span class="p">[</span><span class="n">standard_name</span><span class="p">]</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">discarded_variable</span> <span class="o">=</span> <span class="n">var_name</span>
+                    <span class="n">selected_variable</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">standard_name_mapping</span><span class="p">[</span><span class="n">standard_name</span><span class="p">]</span>
+                <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Duplicate variables for </span><span class="si">{</span><span class="n">standard_name</span><span class="si">}</span><span class="s1">, selecting </span><span class="si">{</span><span class="n">selected_variable</span><span class="si">}</span><span class="s1">, &#39;</span>
+                            <span class="sa">f</span><span class="s1">&#39;and discarding </span><span class="si">{</span><span class="n">discarded_variable</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">standard_name</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">variable_aliases</span><span class="p">:</span>  <span class="c1"># Mapping for aliases</span>
+                <span class="n">standard_name</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">variable_aliases</span><span class="p">[</span><span class="n">standard_name</span><span class="p">]</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">standard_name_mapping</span><span class="p">[</span><span class="n">standard_name</span><span class="p">]</span> <span class="o">=</span> <span class="n">selected_variable</span>
+
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">unmapped_variables</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;The following variables without standard_name are discarded: </span><span class="si">{</span><span class="n">unmapped_variables</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
 
         <span class="c1"># A bit hackish solution:</span>
         <span class="c1"># If variable names or their standard_name contain &quot;east&quot; or &quot;north&quot;, </span>
         <span class="c1"># these should not be rotated from xi-direction to east-direction</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">do_not_rotate</span> <span class="o">=</span> <span class="p">[]</span>
-        <span class="k">for</span> <span class="n">var</span><span class="p">,</span> <span class="n">stdname</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">ROMS_variable_mapping</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+        <span class="k">for</span> <span class="n">stdname</span><span class="p">,</span> <span class="n">var</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">standard_name_mapping</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="c1"># Renaming east-north-names to x-y, as CRS of ROMS reader is always east-north,</span>
+            <span class="c1"># and we want to avoid rotating velocities if not neceassary</span>
+            <span class="k">for</span> <span class="n">xvar</span><span class="p">,</span> <span class="n">eastnorthvar</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">xy2eastnorth_mapping</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+                <span class="k">if</span> <span class="n">stdname</span> <span class="ow">in</span> <span class="n">eastnorthvar</span><span class="p">:</span>
+                    <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Mapping </span><span class="si">{</span><span class="n">stdname</span><span class="si">}</span><span class="s1"> to </span><span class="si">{</span><span class="n">xvar</span><span class="si">}</span><span class="s1"> to avoid unnecessary rotation&#39;</span><span class="p">)</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">standard_name_mapping</span><span class="p">[</span><span class="n">xvar</span><span class="p">]</span> <span class="o">=</span> <span class="n">var</span>
+                    <span class="k">del</span> <span class="bp">self</span><span class="o">.</span><span class="n">standard_name_mapping</span><span class="p">[</span><span class="n">stdname</span><span class="p">]</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">do_not_rotate</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">xvar</span><span class="p">)</span>    
+
+        <span class="k">for</span> <span class="n">stdname</span><span class="p">,</span> <span class="n">var</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">standard_name_mapping</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="c1"># Also avoid rotation of these variables</span>
             <span class="k">if</span> <span class="s1">&#39;east&#39;</span> <span class="ow">in</span> <span class="n">var</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="ow">or</span> <span class="s1">&#39;east&#39;</span> <span class="ow">in</span> <span class="n">stdname</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="ow">or</span> \
                     <span class="s1">&#39;north&#39;</span> <span class="ow">in</span> <span class="n">var</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="ow">or</span> <span class="s1">&#39;north&#39;</span> <span class="ow">in</span> <span class="n">stdname</span><span class="o">.</span><span class="n">lower</span><span class="p">():</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">do_not_rotate</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">stdname</span><span class="p">)</span>
+                <span class="k">if</span> <span class="n">stdname</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">do_not_rotate</span><span class="p">:</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">do_not_rotate</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">stdname</span><span class="p">)</span>
+
         <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">do_not_rotate</span><span class="p">)</span><span class="o">&gt;</span><span class="mi">0</span><span class="p">:</span>
             <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;The following ROMS vectors are considered east-north, and will not be rotated </span><span class="si">%s</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="bp">self</span><span class="o">.</span><span class="n">do_not_rotate</span><span class="p">)</span>
+
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">variables</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">standard_name_mapping</span><span class="p">)</span>
 
         <span class="c1"># Run constructor of parent Reader class</span>
         <span class="nb">super</span><span class="p">(</span><span class="n">Reader</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
@@ -632,14 +666,8 @@
 
         <span class="n">masks_store</span> <span class="o">=</span> <span class="p">{}</span>  <span class="c1"># To store masks for various grids</span>
         <span class="k">for</span> <span class="n">par</span> <span class="ow">in</span> <span class="n">requested_variables</span><span class="p">:</span>
-            <span class="n">varname</span> <span class="o">=</span> <span class="p">[</span><span class="n">name</span> <span class="k">for</span> <span class="n">name</span><span class="p">,</span> <span class="n">cf</span> <span class="ow">in</span>
-                       <span class="bp">self</span><span class="o">.</span><span class="n">ROMS_variable_mapping</span><span class="o">.</span><span class="n">items</span><span class="p">()</span> <span class="k">if</span> <span class="n">cf</span> <span class="o">==</span> <span class="n">par</span><span class="p">]</span>
-            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">varname</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
-                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Multiple variables exist with standard name and &quot;</span>
-                                 <span class="s2">&quot;are present in reader. Either remove the duplicate mapping &quot;</span>
-                                 <span class="s2">&quot;or remove the variable from the reader.&quot;</span>
-                                 <span class="s2">&quot;Variables: &quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">varname</span><span class="p">))</span>
-            <span class="n">var</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">Dataset</span><span class="o">.</span><span class="n">variables</span><span class="p">[</span><span class="n">varname</span><span class="p">[</span><span class="mi">0</span><span class="p">]]</span>
+            <span class="n">varname</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">standard_name_mapping</span><span class="p">[</span><span class="n">par</span><span class="p">]</span>
+            <span class="n">var</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">Dataset</span><span class="o">.</span><span class="n">variables</span><span class="p">[</span><span class="n">varname</span><span class="p">]</span>
 
             <span class="k">if</span> <span class="n">par</span> <span class="o">==</span> <span class="s1">&#39;land_binary_mask&#39;</span><span class="p">:</span>
                 <span class="n">variables</span><span class="p">[</span><span class="n">par</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">land_binary_mask</span><span class="p">[</span><span class="n">imask</span><span class="p">]</span>
@@ -683,7 +711,7 @@
             <span class="k">if</span> <span class="n">var</span><span class="o">.</span><span class="n">ndim</span> <span class="o">==</span> <span class="mi">4</span><span class="p">:</span>
                 <span class="c1"># Regrid from sigma to z levels</span>
                 <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">atleast_1d</span><span class="p">(</span><span class="n">indz</span><span class="p">))</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
-                    <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;sigma to z for &#39;</span> <span class="o">+</span> <span class="n">varname</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+                    <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;sigma to z for &#39;</span> <span class="o">+</span> <span class="n">varname</span><span class="p">)</span>
                     <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">precalculate_s2z_coefficients</span> <span class="ow">is</span> <span class="kc">True</span><span class="p">:</span>
                         <span class="n">M</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">sea_floor_depth_below_sea_level</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
                         <span class="n">N</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">sea_floor_depth_below_sea_level</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
