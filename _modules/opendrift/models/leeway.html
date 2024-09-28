@@ -258,6 +258,15 @@
         <span class="s1">&#39;y_sea_water_velocity&#39;</span><span class="p">:</span> <span class="p">{</span>
             <span class="s1">&#39;fallback&#39;</span><span class="p">:</span> <span class="kc">None</span>
         <span class="p">},</span>
+        <span class="s1">&#39;sea_surface_wave_stokes_drift_x_velocity&#39;</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s1">&#39;fallback&#39;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>
+            <span class="s1">&#39;important&#39;</span><span class="p">:</span> <span class="kc">False</span>
+        <span class="p">},</span>
+        <span class="s1">&#39;sea_surface_wave_stokes_drift_y_velocity&#39;</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s1">&#39;fallback&#39;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>
+            <span class="s1">&#39;important&#39;</span><span class="p">:</span> <span class="kc">False</span>
+        <span class="p">},</span>
+
         <span class="s1">&#39;land_binary_mask&#39;</span><span class="p">:</span> <span class="p">{</span>
             <span class="s1">&#39;fallback&#39;</span><span class="p">:</span> <span class="kc">None</span>
         <span class="p">},</span>
@@ -372,6 +381,10 @@
                 <span class="s1">&#39;units&#39;</span><span class="p">:</span> <span class="s1">&#39;m/s&#39;</span><span class="p">,</span>
                 <span class="s1">&#39;level&#39;</span><span class="p">:</span> <span class="n">CONFIG_LEVEL_BASIC</span>
             <span class="p">},</span>
+                <span class="s1">&#39;drift:stokes_drift&#39;</span><span class="p">:</span> <span class="p">{</span><span class="s1">&#39;type&#39;</span><span class="p">:</span> <span class="s1">&#39;bool&#39;</span><span class="p">,</span> <span class="s1">&#39;default&#39;</span><span class="p">:</span> <span class="kc">False</span><span class="p">,</span>
+                    <span class="s1">&#39;description&#39;</span><span class="p">:</span> <span class="s1">&#39;Advection elements with surface Stokes drift (wave orbital motion). Note that this is originally considered to be implicit in Leeway coefficients.&#39;</span><span class="p">,</span>
+                    <span class="s1">&#39;level&#39;</span><span class="p">:</span> <span class="n">CONFIG_LEVEL_ADVANCED</span><span class="p">},</span>
+
         <span class="p">})</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">_set_config_default</span><span class="p">(</span><span class="s1">&#39;general:time_step_minutes&#39;</span><span class="p">,</span> <span class="mi">10</span><span class="p">)</span>
@@ -588,7 +601,13 @@
             <span class="n">jib</span><span class="p">]</span> <span class="o">=</span> <span class="o">-</span><span class="bp">self</span><span class="o">.</span><span class="n">elements</span><span class="o">.</span><span class="n">crosswind_slope</span><span class="p">[</span><span class="n">jib</span><span class="p">]</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">elements</span><span class="o">.</span><span class="n">orientation</span><span class="p">[</span><span class="n">jib</span><span class="p">]</span> <span class="o">=</span> <span class="mi">1</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">elements</span><span class="o">.</span><span class="n">orientation</span><span class="p">[</span><span class="n">jib</span><span class="p">]</span>
         <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;Jibing </span><span class="si">%i</span><span class="s1"> out of </span><span class="si">%i</span><span class="s1"> elements.&#39;</span> <span class="o">%</span>
-                     <span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">jib</span><span class="p">),</span> <span class="bp">self</span><span class="o">.</span><span class="n">num_elements_active</span><span class="p">()))</span></div>
+                     <span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">jib</span><span class="p">),</span> <span class="bp">self</span><span class="o">.</span><span class="n">num_elements_active</span><span class="p">()))</span>
+
+        <span class="c1"># Move elements with Stokes drift, if activated.</span>
+        <span class="c1"># Note: Stokesdrift is originally considered to be implicit in Leeway coefficients,</span>
+        <span class="c1"># however, this study by Sutherland (2024) indicates it should be added explicitly:</span>
+        <span class="c1"># https://link.springer.com/article/10.1007/s10236-024-01600-3</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">stokes_drift</span><span class="p">()</span></div>
 
 
 <div class="viewcode-block" id="Leeway.export_ascii">
