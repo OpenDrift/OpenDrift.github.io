@@ -130,14 +130,15 @@
 
 
 <span class="c1"># Constants</span>
-<span class="n">rho_water</span> <span class="o">=</span> <span class="mi">1027</span>
-<span class="n">rho_air</span> <span class="o">=</span> <span class="mf">1.293</span>
-<span class="n">rho_ice</span> <span class="o">=</span> <span class="mi">917</span>
-<span class="n">rho_iceb</span> <span class="o">=</span> <span class="mi">900</span>
-<span class="n">g</span> <span class="o">=</span> <span class="mf">9.81</span>
-<span class="n">csi</span> <span class="o">=</span> <span class="mi">1</span>  <span class="c1"># Sea ice coefficient of resistance</span>
+<span class="n">rho_water</span> <span class="o">=</span> <span class="mi">1027</span>   <span class="c1"># Density of water (kg/m^3)</span>
+<span class="n">rho_air</span> <span class="o">=</span> <span class="mf">1.293</span>    <span class="c1"># Density of air (kg/m^3)</span>
+<span class="n">rho_ice</span> <span class="o">=</span> <span class="mi">917</span>      <span class="c1"># Density of ice (kg/m^3)</span>
+<span class="n">rho_iceb</span> <span class="o">=</span> <span class="mi">900</span>     <span class="c1"># Density of iceberg (kg/m^3)</span>
+<span class="n">g</span> <span class="o">=</span> <span class="mf">9.81</span>           <span class="c1"># Acceleration due to gravity in m/s²</span>
+<span class="n">omega</span> <span class="o">=</span> <span class="mf">7.2921e-5</span>  <span class="c1"># Angular frequency (rad/s)</span>
+<span class="n">csi</span> <span class="o">=</span> <span class="mi">1</span>            <span class="c1"># Sea ice coefficient of resistance</span>
 <span class="n">wave_drag_coef</span> <span class="o">=</span> <span class="mf">0.3</span>
-<span class="n">omega</span> <span class="o">=</span> <span class="mf">7.2921e-5</span>
+
 
 
 <div class="viewcode-block" id="IcebergObj">
@@ -254,9 +255,9 @@
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">vxo</span><span class="p">,</span> <span class="n">vyo</span> <span class="o">=</span> <span class="n">water_vel</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">water_vel</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
     <span class="n">vxa</span><span class="p">,</span> <span class="n">vya</span> <span class="o">=</span> <span class="n">wind_vel</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">wind_vel</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
-    <span class="n">no_acc_model_x</span> <span class="o">=</span> <span class="p">(</span><span class="mi">1</span> <span class="o">-</span> <span class="n">f</span><span class="p">)</span> <span class="o">*</span> <span class="n">vxo</span> <span class="o">+</span> <span class="n">f</span> <span class="o">*</span> <span class="n">vxa</span>
-    <span class="n">no_acc_model_y</span> <span class="o">=</span> <span class="p">(</span><span class="mi">1</span> <span class="o">-</span> <span class="n">f</span><span class="p">)</span> <span class="o">*</span> <span class="n">vyo</span> <span class="o">+</span> <span class="n">f</span> <span class="o">*</span> <span class="n">vya</span>
-    <span class="n">V</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">no_acc_model_x</span><span class="p">,</span> <span class="n">no_acc_model_y</span><span class="p">])</span>
+    <span class="n">no_acc_vel_x</span> <span class="o">=</span> <span class="p">(</span><span class="mi">1</span> <span class="o">-</span> <span class="n">f</span><span class="p">)</span> <span class="o">*</span> <span class="n">vxo</span> <span class="o">+</span> <span class="n">f</span> <span class="o">*</span> <span class="n">vxa</span>
+    <span class="n">no_acc_vel_y</span> <span class="o">=</span> <span class="p">(</span><span class="mi">1</span> <span class="o">-</span> <span class="n">f</span><span class="p">)</span> <span class="o">*</span> <span class="n">vyo</span> <span class="o">+</span> <span class="n">f</span> <span class="o">*</span> <span class="n">vya</span>
+    <span class="n">V</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">no_acc_vel_x</span><span class="p">,</span> <span class="n">no_acc_vel_y</span><span class="p">])</span>
     <span class="k">if</span> <span class="ow">not</span> <span class="n">np</span><span class="o">.</span><span class="n">isfinite</span><span class="p">(</span><span class="n">V</span><span class="p">)</span><span class="o">.</span><span class="n">all</span><span class="p">():</span>
         <span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s2">&quot;Infinite value in iceberg&#39;s velocity without acceleration: Please check the wind drift factor f &quot;</span><span class="p">)</span>
     <span class="k">return</span> <span class="n">V</span></div>
@@ -295,12 +296,22 @@
 <div class="viewcode-block" id="coriolis_force">
 <a class="viewcode-back" href="../../../autoapi/opendrift/models/openberg/index.html#opendrift.models.openberg.coriolis_force">[docs]</a>
 <span class="k">def</span> <span class="nf">coriolis_force</span><span class="p">(</span><span class="n">iceb_vel</span><span class="p">,</span> <span class="n">mass</span><span class="p">,</span> <span class="n">lat</span><span class="p">):</span>
-    <span class="n">f</span> <span class="o">=</span> <span class="mi">2</span> <span class="o">*</span> <span class="n">omega</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="n">lat</span><span class="p">)</span>
+    <span class="n">f</span> <span class="o">=</span> <span class="mi">2</span> <span class="o">*</span> <span class="n">omega</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">radians</span><span class="p">(</span><span class="n">lat</span><span class="p">))</span>
     <span class="k">assert</span> <span class="nb">len</span><span class="p">(</span><span class="n">iceb_vel</span><span class="p">)</span> <span class="o">==</span> <span class="mi">2</span>
     <span class="n">x_vel</span><span class="p">,</span> <span class="n">y_vel</span> <span class="o">=</span> <span class="n">iceb_vel</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">iceb_vel</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
-    <span class="n">Fc_x</span> <span class="o">=</span> <span class="o">-</span><span class="n">mass</span> <span class="o">*</span> <span class="n">f</span> <span class="o">*</span> <span class="n">y_vel</span>
-    <span class="n">Fc_y</span> <span class="o">=</span> <span class="n">mass</span> <span class="o">*</span> <span class="n">f</span> <span class="o">*</span> <span class="n">x_vel</span>
-    <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">Fc_x</span><span class="p">,</span> <span class="n">Fc_y</span><span class="p">])</span></div>
+    <span class="n">F_cor_x</span> <span class="o">=</span> <span class="n">mass</span> <span class="o">*</span> <span class="n">f</span> <span class="o">*</span> <span class="n">y_vel</span>
+    <span class="n">F_cor_y</span> <span class="o">=</span> <span class="o">-</span><span class="n">mass</span> <span class="o">*</span> <span class="n">f</span> <span class="o">*</span> <span class="n">x_vel</span>
+    <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">F_cor_x</span><span class="p">,</span> <span class="n">F_cor_y</span><span class="p">])</span></div>
+
+
+
+<div class="viewcode-block" id="sea_surface_slope_force">
+<a class="viewcode-back" href="../../../autoapi/opendrift/models/openberg/index.html#opendrift.models.openberg.sea_surface_slope_force">[docs]</a>
+<span class="k">def</span> <span class="nf">sea_surface_slope_force</span><span class="p">(</span><span class="n">sea_slope_x</span><span class="p">,</span> <span class="n">sea_slope_y</span><span class="p">,</span> <span class="n">mass</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot; This functions assumes you provide the sea surface slope from an external file &quot;&quot;&quot;</span>
+    <span class="n">F_sea_slope_x</span> <span class="o">=</span> <span class="o">-</span><span class="n">mass</span> <span class="o">*</span> <span class="n">g</span> <span class="o">*</span> <span class="n">sea_slope_x</span>
+    <span class="n">F_sea_slope_y</span> <span class="o">=</span> <span class="n">mass</span> <span class="o">*</span> <span class="n">g</span> <span class="o">*</span> <span class="n">sea_slope_y</span>
+    <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">F_sea_slope_x</span><span class="p">,</span> <span class="n">F_sea_slope_y</span><span class="p">])</span></div>
 
 
 
@@ -388,6 +399,8 @@
         <span class="s2">&quot;x_sea_water_velocity&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;fallback&quot;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span> <span class="s2">&quot;profiles&quot;</span><span class="p">:</span> <span class="kc">True</span><span class="p">},</span>
         <span class="s2">&quot;y_sea_water_velocity&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;fallback&quot;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span> <span class="s2">&quot;profiles&quot;</span><span class="p">:</span> <span class="kc">True</span><span class="p">},</span>
         <span class="s2">&quot;sea_floor_depth_below_sea_level&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;fallback&quot;</span><span class="p">:</span> <span class="mi">10000</span><span class="p">},</span>
+        <span class="s2">&quot;sea_surface_x_slope&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;fallback&quot;</span><span class="p">:</span> <span class="mi">0</span><span class="p">},</span>
+        <span class="s2">&quot;sea_surface_y_slope&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;fallback&quot;</span><span class="p">:</span> <span class="mi">0</span><span class="p">},</span>
         <span class="s2">&quot;x_wind&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;fallback&quot;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span> <span class="s2">&quot;important&quot;</span><span class="p">:</span> <span class="kc">False</span><span class="p">},</span>
         <span class="s2">&quot;y_wind&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;fallback&quot;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span> <span class="s2">&quot;important&quot;</span><span class="p">:</span> <span class="kc">False</span><span class="p">},</span>
         <span class="s2">&quot;sea_surface_wave_significant_height&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;fallback&quot;</span><span class="p">:</span> <span class="mi">0</span><span class="p">},</span>
@@ -457,6 +470,12 @@
                 <span class="s1">&#39;description&#39;</span><span class="p">:</span> <span class="s1">&#39;If True, coriolis force is added&#39;</span><span class="p">,</span>
                 <span class="s1">&#39;level&#39;</span><span class="p">:</span> <span class="n">CONFIG_LEVEL_BASIC</span><span class="p">,</span>
             <span class="p">},</span>
+            <span class="s1">&#39;drift:sea_surface_slope&#39;</span><span class="p">:{</span>
+            <span class="s1">&#39;type&#39;</span><span class="p">:</span> <span class="s1">&#39;bool&#39;</span><span class="p">,</span>
+            <span class="s1">&#39;default&#39;</span><span class="p">:</span> <span class="kc">True</span><span class="p">,</span>
+            <span class="s1">&#39;description&#39;</span><span class="p">:</span> <span class="s1">&#39;If True, sea surface slope force is added&#39;</span><span class="p">,</span>
+            <span class="s1">&#39;level&#39;</span><span class="p">:</span> <span class="n">CONFIG_LEVEL_BASIC</span><span class="p">,</span>
+            <span class="p">},</span>
             <span class="s1">&#39;drift:vertical_profile&#39;</span><span class="p">:{</span>
                 <span class="s1">&#39;type&#39;</span><span class="p">:</span> <span class="s1">&#39;bool&#39;</span><span class="p">,</span>
                 <span class="s1">&#39;default&#39;</span><span class="p">:</span> <span class="kc">False</span><span class="p">,</span>
@@ -502,7 +521,6 @@
           
         <span class="p">})</span>
 
-        
 
 <div class="viewcode-block" id="OpenBerg.advect_iceberg">
 <a class="viewcode-back" href="../../../autoapi/opendrift/models/openberg/index.html#opendrift.models.openberg.OpenBerg.advect_iceberg">[docs]</a>
@@ -512,9 +530,14 @@
         <span class="n">rho_water</span> <span class="o">=</span> <span class="n">PhysicsMethods</span><span class="o">.</span><span class="n">sea_water_density</span><span class="p">(</span><span class="n">T</span><span class="p">,</span> <span class="n">S</span><span class="p">)</span>
         <span class="n">draft</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">elements</span><span class="o">.</span><span class="n">draft</span>
         <span class="n">length</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">elements</span><span class="o">.</span><span class="n">length</span>
-        <span class="n">Ao</span> <span class="o">=</span> <span class="nb">abs</span><span class="p">(</span><span class="n">draft</span><span class="p">)</span> <span class="o">*</span> <span class="n">length</span>  <span class="c1">### Area_wet</span>
-        <span class="n">Aa</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">elements</span><span class="o">.</span><span class="n">sail</span> <span class="o">*</span> <span class="n">length</span>  <span class="c1">### Area_dry</span>
+        <span class="n">Ao</span> <span class="o">=</span> <span class="nb">abs</span><span class="p">(</span><span class="n">draft</span><span class="p">)</span> <span class="o">*</span> <span class="n">length</span>          <span class="c1"># Area_wet</span>
+        <span class="n">Aa</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">elements</span><span class="o">.</span><span class="n">sail</span> <span class="o">*</span> <span class="n">length</span>  <span class="c1"># Area_dry</span>
         <span class="n">mass</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">elements</span><span class="o">.</span><span class="n">width</span> <span class="o">*</span> <span class="p">(</span><span class="n">Aa</span> <span class="o">+</span> <span class="n">Ao</span><span class="p">)</span> <span class="o">*</span> <span class="n">rho_iceb</span>
+        <span class="n">lat</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">elements</span><span class="o">.</span><span class="n">lat</span>
+        <span class="n">sea_slope_x</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">environment</span><span class="o">.</span><span class="n">sea_surface_x_slope</span>
+        <span class="n">sea_slope_y</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">environment</span><span class="o">.</span><span class="n">sea_surface_y_slope</span>
+        <span class="n">water_drag_coeff</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">elements</span><span class="o">.</span><span class="n">water_drag_coeff</span>
+        <span class="n">wind_drag_coeff</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">elements</span><span class="o">.</span><span class="n">wind_drag_coeff</span>
         <span class="n">k</span> <span class="o">=</span> <span class="p">(</span><span class="n">rho_air</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">elements</span><span class="o">.</span><span class="n">wind_drag_coeff</span> <span class="o">*</span> <span class="n">Aa</span> <span class="o">/</span> <span class="p">(</span><span class="n">rho_water</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">elements</span><span class="o">.</span><span class="n">water_drag_coeff</span> <span class="o">*</span> <span class="n">Ao</span><span class="p">))</span>
         <span class="n">f</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">k</span><span class="p">)</span> <span class="o">/</span> <span class="p">(</span><span class="mi">1</span> <span class="o">+</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">k</span><span class="p">))</span>
 
@@ -522,6 +545,7 @@
         <span class="n">stokes_drift</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_config</span><span class="p">(</span><span class="s1">&#39;drift:stokes_drift&#39;</span><span class="p">)</span>
         <span class="n">coriolis</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_config</span><span class="p">(</span><span class="s1">&#39;drift:coriolis&#39;</span><span class="p">)</span>
         <span class="n">grounding</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_config</span><span class="p">(</span><span class="s1">&#39;processes:grounding&#39;</span><span class="p">)</span>
+        <span class="n">sea_surface_slope</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_config</span><span class="p">(</span><span class="s1">&#39;drift:sea_surface_slope&#39;</span><span class="p">)</span>
         
                 
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_config</span><span class="p">(</span><span class="s1">&#39;drift:vertical_profile&#39;</span><span class="p">)</span> <span class="ow">is</span> <span class="kc">False</span><span class="p">:</span>
@@ -533,8 +557,7 @@
             <span class="n">uprof</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_profile_masked</span><span class="p">(</span><span class="s2">&quot;x_sea_water_velocity&quot;</span><span class="p">)</span>
             <span class="n">vprof</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_profile_masked</span><span class="p">(</span><span class="s2">&quot;y_sea_water_velocity&quot;</span><span class="p">)</span>
             <span class="n">z</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">environment_profiles</span><span class="p">[</span><span class="s2">&quot;z&quot;</span><span class="p">]</span>
-            <span class="n">thickness</span> <span class="o">=</span> <span class="o">-</span><span class="p">(</span><span class="n">z</span><span class="p">[</span><span class="mi">1</span><span class="p">:]</span> <span class="o">-</span> <span class="n">z</span><span class="p">[:</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span><span class="o">.</span><span class="n">reshape</span><span class="p">((</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">))</span>
-            <span class="n">thickness</span> <span class="o">=</span> <span class="n">thickness</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">float</span><span class="p">)</span>
+            <span class="n">thickness</span> <span class="o">=</span> <span class="o">-</span><span class="p">(</span><span class="n">z</span><span class="p">[</span><span class="mi">1</span><span class="p">:]</span> <span class="o">-</span> <span class="n">z</span><span class="p">[:</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span><span class="o">.</span><span class="n">reshape</span><span class="p">((</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">))</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">float</span><span class="p">)</span>
             <span class="n">mask</span> <span class="o">=</span> <span class="n">uprof</span><span class="o">.</span><span class="n">mask</span>
             <span class="n">uprof_mean_inter</span> <span class="o">=</span> <span class="p">(</span><span class="n">uprof</span><span class="p">[</span><span class="mi">1</span><span class="p">:]</span> <span class="o">+</span> <span class="n">uprof</span><span class="p">[:</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span> <span class="o">/</span> <span class="mi">2</span>
             <span class="n">vprof_mean_inter</span> <span class="o">=</span> <span class="p">(</span><span class="n">vprof</span><span class="p">[</span><span class="mi">1</span><span class="p">:]</span> <span class="o">+</span> <span class="n">vprof</span><span class="p">[:</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span> <span class="o">/</span> <span class="mi">2</span>
@@ -553,18 +576,28 @@
         <span class="n">sea_ice_thickness</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">environment</span><span class="o">.</span><span class="n">sea_ice_thickness</span>
         <span class="n">sea_ice_vel</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="bp">self</span><span class="o">.</span><span class="n">environment</span><span class="o">.</span><span class="n">sea_ice_x_velocity</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">environment</span><span class="o">.</span><span class="n">sea_ice_y_velocity</span><span class="p">])</span>
 
+
         <span class="k">def</span> <span class="nf">dynamic</span><span class="p">(</span><span class="n">t</span><span class="p">,</span><span class="n">iceb_vel</span><span class="p">,</span> <span class="n">water_vel</span><span class="p">,</span> <span class="n">wind_vel</span><span class="p">,</span> <span class="n">wave_height</span><span class="p">,</span> <span class="n">wave_direction</span><span class="p">,</span> <span class="n">Ao</span><span class="p">,</span>
-                    <span class="n">Aa</span><span class="p">,</span> <span class="n">rho_water</span><span class="p">,</span> <span class="n">water_drag_coef</span><span class="p">,</span> <span class="n">wind_drag_coef</span><span class="p">,</span> <span class="n">iceb_length</span><span class="p">,</span> <span class="n">mass</span><span class="p">,</span><span class="n">lat</span><span class="p">):</span>
+                    <span class="n">Aa</span><span class="p">,</span> <span class="n">rho_water</span><span class="p">,</span> <span class="n">water_drag_coef</span><span class="p">,</span> <span class="n">wind_drag_coef</span><span class="p">,</span> <span class="n">iceb_length</span><span class="p">,</span> <span class="n">mass</span><span class="p">,</span><span class="n">lat</span><span class="p">,</span> <span class="n">sea_slope_x</span><span class="p">,</span> <span class="n">sea_slope_y</span><span class="p">):</span>
 <span class="w">            </span><span class="sd">&quot;&quot;&quot; Function required by solve_ivp. The t and iceb_vel parameters are required by solve_ivp, shouldn&#39;t be deleted &quot;&quot;&quot;</span>
             <span class="n">iceb_vel</span> <span class="o">=</span> <span class="n">iceb_vel</span><span class="o">.</span><span class="n">reshape</span><span class="p">((</span><span class="mi">2</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">))</span>
-            <span class="n">sum_force</span> <span class="o">=</span> <span class="p">(</span><span class="n">ocean_force</span><span class="p">(</span><span class="n">iceb_vel</span><span class="p">,</span> <span class="n">water_vel</span><span class="p">,</span> <span class="n">Ao</span><span class="p">,</span> <span class="n">rho_water</span><span class="p">,</span> <span class="n">water_drag_coef</span><span class="p">)</span>
-                         <span class="o">+</span> <span class="n">wind_force</span><span class="p">(</span><span class="n">iceb_vel</span><span class="p">,</span><span class="n">wind_vel</span><span class="p">,</span> <span class="n">Aa</span><span class="p">,</span> <span class="n">wind_drag_coef</span><span class="p">)</span>
-                         <span class="o">+</span> <span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="n">wave_rad</span><span class="p">)</span> <span class="o">*</span> <span class="n">wave_radiation_force</span><span class="p">(</span><span class="n">rho_water</span><span class="p">,</span> <span class="n">wave_height</span><span class="p">,</span> <span class="n">wave_direction</span><span class="p">,</span> <span class="n">iceb_length</span><span class="p">))</span>
-                         <span class="o">+</span> <span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="n">coriolis</span><span class="p">)</span> <span class="o">*</span> <span class="n">coriolis_force</span><span class="p">(</span><span class="n">iceb_vel</span><span class="p">,</span> <span class="n">mass</span><span class="p">,</span> <span class="n">lat</span><span class="p">)))</span>
+            <span class="c1"># Individual forces</span>
+            <span class="n">ocean_force_val</span> <span class="o">=</span> <span class="n">ocean_force</span><span class="p">(</span><span class="n">iceb_vel</span><span class="p">,</span> <span class="n">water_vel</span><span class="p">,</span> <span class="n">Ao</span><span class="p">,</span> <span class="n">rho_water</span><span class="p">,</span> <span class="n">water_drag_coef</span><span class="p">)</span>
+            <span class="n">wind_force_val</span> <span class="o">=</span> <span class="n">wind_force</span><span class="p">(</span><span class="n">iceb_vel</span><span class="p">,</span> <span class="n">wind_vel</span><span class="p">,</span> <span class="n">Aa</span><span class="p">,</span> <span class="n">wind_drag_coef</span><span class="p">)</span>
+            <span class="n">wave_radiation_force_val</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">wave_rad</span><span class="p">)</span> <span class="o">*</span> <span class="n">wave_radiation_force</span><span class="p">(</span><span class="n">rho_water</span><span class="p">,</span> <span class="n">wave_height</span><span class="p">,</span> <span class="n">wave_direction</span><span class="p">,</span> <span class="n">iceb_length</span><span class="p">)</span>
+            <span class="n">coriolis_force_val</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">coriolis</span><span class="p">)</span> <span class="o">*</span> <span class="n">coriolis_force</span><span class="p">(</span><span class="n">iceb_vel</span><span class="p">,</span> <span class="n">mass</span><span class="p">,</span> <span class="n">lat</span><span class="p">)</span>
+            <span class="n">sea_surface_slope_val</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">sea_surface_slope</span><span class="p">)</span> <span class="o">*</span> <span class="n">sea_surface_slope_force</span><span class="p">(</span><span class="n">sea_slope_x</span><span class="p">,</span> <span class="n">sea_slope_y</span><span class="p">,</span> <span class="n">mass</span><span class="p">)</span>
             
-            <span class="n">sum_force</span> <span class="o">=</span> <span class="n">sum_force</span> <span class="o">+</span> <span class="n">sea_ice_force</span><span class="p">(</span><span class="n">iceb_vel</span><span class="p">,</span> <span class="n">sea_ice_conc</span><span class="p">,</span> <span class="n">sea_ice_thickness</span><span class="p">,</span> <span class="n">sea_ice_vel</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">elements</span><span class="o">.</span><span class="n">width</span><span class="p">,</span> <span class="n">sum_force</span><span class="p">)</span>
-            <span class="k">return</span> <span class="mi">1</span> <span class="o">/</span> <span class="n">mass</span> <span class="o">*</span> <span class="n">sum_force</span>
-        
+            <span class="c1"># Sum of the individual forces</span>
+            <span class="n">sum_force</span> <span class="o">=</span> <span class="p">(</span><span class="n">ocean_force_val</span><span class="o">+</span> <span class="n">wind_force_val</span><span class="o">+</span> <span class="n">wave_radiation_force_val</span><span class="o">+</span> <span class="n">coriolis_force_val</span><span class="o">+</span> <span class="n">sea_surface_slope_val</span><span class="p">)</span>
+            
+            <span class="c1"># Add sea ice force</span>
+            <span class="n">sea_ice_force_val</span> <span class="o">=</span> <span class="n">sea_ice_force</span><span class="p">(</span><span class="n">iceb_vel</span><span class="p">,</span> <span class="n">sea_ice_conc</span><span class="p">,</span> <span class="n">sea_ice_thickness</span><span class="p">,</span> <span class="n">sea_ice_vel</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">elements</span><span class="o">.</span><span class="n">width</span><span class="p">,</span> <span class="n">sum_force</span><span class="p">)</span>
+            <span class="n">sum_force</span> <span class="o">+=</span> <span class="n">sea_ice_force_val</span>
+
+            <span class="k">return</span> <span class="p">(</span><span class="n">sum_force</span> <span class="o">/</span> <span class="n">mass</span><span class="p">)</span>
+
+        <span class="c1"># Running the simulation</span>
         <span class="n">V0</span> <span class="o">=</span> <span class="n">advect_iceberg_no_acc</span><span class="p">(</span><span class="n">f</span><span class="p">,</span> <span class="n">water_vel</span><span class="p">,</span> <span class="n">wind_vel</span><span class="p">)</span>  <span class="c1"># Approximation of the solution of the dynamic equation for the iceberg velocity</span>
         <span class="n">V0</span><span class="p">[:,</span> <span class="n">sea_ice_conc</span> <span class="o">&gt;=</span> <span class="mf">0.9</span><span class="p">]</span> <span class="o">=</span> <span class="n">sea_ice_vel</span><span class="p">[:,</span> <span class="n">sea_ice_conc</span> <span class="o">&gt;=</span> <span class="mf">0.9</span><span class="p">]</span>  <span class="c1"># With this criterium, the iceberg moves with the sea ice</span>
         <span class="n">V0</span> <span class="o">=</span> <span class="n">V0</span><span class="o">.</span><span class="n">flatten</span><span class="p">()</span> <span class="c1"># V0 needs to be 1D</span>
@@ -574,23 +607,17 @@
             <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Grounding condition : Icebergs grounded = </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">hwall</span><span class="p">[</span><span class="n">hwall</span><span class="o">&gt;</span><span class="mi">0</span><span class="p">])</span><span class="si">}</span><span class="s2">, hwall=</span><span class="si">{</span><span class="n">np</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="n">hwall</span><span class="p">[</span><span class="n">hwall</span><span class="o">&gt;</span><span class="mi">0</span><span class="p">],</span><span class="mi">3</span><span class="p">)</span><span class="si">}</span><span class="s2"> meters&quot;</span><span class="p">)</span>
         
         <span class="n">sol</span> <span class="o">=</span> <span class="n">solve_ivp</span><span class="p">(</span><span class="n">dynamic</span><span class="p">,</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">time_step</span><span class="o">.</span><span class="n">total_seconds</span><span class="p">()],</span> <span class="n">V0</span><span class="p">,</span>
-                        <span class="n">args</span><span class="o">=</span><span class="p">(</span><span class="n">water_vel</span><span class="p">,</span> <span class="n">wind_vel</span><span class="p">,</span> <span class="n">wave_height</span><span class="p">,</span> <span class="n">wave_direction</span><span class="p">,</span>
-                              <span class="n">Ao</span><span class="p">,</span> <span class="n">Aa</span><span class="p">,</span> <span class="n">rho_water</span><span class="p">,</span>
-                              <span class="bp">self</span><span class="o">.</span><span class="n">elements</span><span class="o">.</span><span class="n">water_drag_coeff</span><span class="p">,</span>
-                              <span class="bp">self</span><span class="o">.</span><span class="n">elements</span><span class="o">.</span><span class="n">wind_drag_coeff</span><span class="p">,</span>
-                              <span class="bp">self</span><span class="o">.</span><span class="n">elements</span><span class="o">.</span><span class="n">length</span><span class="p">,</span>
-                              <span class="n">mass</span><span class="p">,</span>
-                              <span class="bp">self</span><span class="o">.</span><span class="n">elements</span><span class="o">.</span><span class="n">lat</span><span class="p">),</span>
+                        <span class="n">args</span><span class="o">=</span><span class="p">(</span><span class="n">water_vel</span><span class="p">,</span> <span class="n">wind_vel</span><span class="p">,</span> <span class="n">wave_height</span><span class="p">,</span> <span class="n">wave_direction</span><span class="p">,</span> <span class="n">Ao</span><span class="p">,</span> <span class="n">Aa</span><span class="p">,</span> <span class="n">rho_water</span><span class="p">,</span>
+                              <span class="n">water_drag_coeff</span><span class="p">,</span> <span class="n">wind_drag_coeff</span><span class="p">,</span> <span class="n">length</span><span class="p">,</span> <span class="n">mass</span><span class="p">,</span> <span class="n">lat</span><span class="p">,</span> <span class="n">sea_slope_x</span><span class="p">,</span> <span class="n">sea_slope_y</span><span class="p">),</span>
                               <span class="n">vectorized</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
-                              <span class="n">t_eval</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="bp">self</span><span class="o">.</span><span class="n">time_step</span><span class="o">.</span><span class="n">total_seconds</span><span class="p">()]),</span>
-                              <span class="p">)</span>
-
+                              <span class="n">t_eval</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="bp">self</span><span class="o">.</span><span class="n">time_step</span><span class="o">.</span><span class="n">total_seconds</span><span class="p">()]))</span>
         <span class="n">V</span> <span class="o">=</span> <span class="n">sol</span><span class="o">.</span><span class="n">y</span><span class="o">.</span><span class="n">reshape</span><span class="p">((</span><span class="mi">2</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">))</span>
         <span class="n">Vx</span><span class="p">,</span> <span class="n">Vy</span> <span class="o">=</span> <span class="n">V</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">V</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
         <span class="n">Vx</span><span class="p">[</span><span class="n">grounded</span><span class="p">]</span> <span class="o">=</span> <span class="mi">0</span>
         <span class="n">Vy</span><span class="p">[</span><span class="n">grounded</span><span class="p">]</span> <span class="o">=</span> <span class="mi">0</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">update_positions</span><span class="p">(</span><span class="n">Vx</span><span class="p">,</span> <span class="n">Vy</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">elements</span><span class="o">.</span><span class="n">iceb_x_velocity</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">elements</span><span class="o">.</span><span class="n">iceb_y_velocity</span> <span class="o">=</span> <span class="n">Vx</span><span class="p">,</span> <span class="n">Vy</span></div>
+
 
 
 <div class="viewcode-block" id="OpenBerg.melt">
@@ -656,7 +683,6 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">elements</span><span class="o">.</span><span class="n">width</span> <span class="o">=</span> <span class="n">W</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">elements</span><span class="o">.</span><span class="n">sail</span> <span class="o">=</span> <span class="n">sailib</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">elements</span><span class="o">.</span><span class="n">draft</span> <span class="o">=</span> <span class="n">depthib</span></div>
-
 
 
 <div class="viewcode-block" id="OpenBerg.update">
