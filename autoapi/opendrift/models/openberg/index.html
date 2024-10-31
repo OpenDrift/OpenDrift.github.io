@@ -194,11 +194,11 @@ of icebergs in the Barents Sea from 1987 to 2005, J. Geophys. Res., 115, C12062,
 <tr class="row-even"><td><p><a class="reference internal" href="#opendrift.models.openberg.advect_iceberg_no_acc" title="opendrift.models.openberg.advect_iceberg_no_acc"><code class="xref py py-obj docutils literal notranslate"><span class="pre">advect_iceberg_no_acc</span></code></a>(f, water_vel, wind_vel)</p></td>
 <td><p>Advect iceberg without acceleration</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#opendrift.models.openberg.sea_ice_force" title="opendrift.models.openberg.sea_ice_force"><code class="xref py py-obj docutils literal notranslate"><span class="pre">sea_ice_force</span></code></a>(iceb_vel, sea_ice_conc, ...)</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#opendrift.models.openberg.sea_ice_force" title="opendrift.models.openberg.sea_ice_force"><code class="xref py py-obj docutils literal notranslate"><span class="pre">sea_ice_force</span></code></a>(iceb_vel, sea_ice_conc, Ai, sea_ice_vel, ...)</p></td>
 <td><p>Sea ice force</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="#opendrift.models.openberg.coriolis_force" title="opendrift.models.openberg.coriolis_force"><code class="xref py py-obj docutils literal notranslate"><span class="pre">coriolis_force</span></code></a>(iceb_vel, mass, lat)</p></td>
-<td><p></p></td>
+<td><p>Coriolis force</p></td>
 </tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="#opendrift.models.openberg.sea_surface_slope_force" title="opendrift.models.openberg.sea_surface_slope_force"><code class="xref py py-obj docutils literal notranslate"><span class="pre">sea_surface_slope_force</span></code></a>(sea_slope_x, sea_slope_y, mass)</p></td>
 <td><p>This functions assumes you provide the sea surface slope from an external file</p></td>
@@ -292,7 +292,7 @@ Args:</p>
 <blockquote>
 <div><p>iceb_vel  : Iceberg’s velocity at time t
 water_vel : Ocean current velocity
-Ao : Iceberg’s area exposed to the ocean current(length x draft)
+Ao : Iceberg’s area in contact with ocean (length x draft)
 rho_water : Water density
 water_drag_coef : Co is the drag coefficient applied on the iceberg’s draft</p>
 </div></blockquote>
@@ -306,8 +306,7 @@ Args:</p>
 <blockquote>
 <div><p>iceb_vel : Iceberg’s velocity at time t
 wind_vel : Wind velocity
-Aa : Iceberg’s area exposed to the wind (length x sail)
-rho_air : Air density
+Aa : Iceberg’s area in contact with wind (length x sail)
 wind_drag_coef : Ca is the drag coefficient applied on the iceberg’s sail</p>
 </div></blockquote>
 </dd></dl>
@@ -318,16 +317,11 @@ wind_drag_coef : Ca is the drag coefficient applied on the iceberg’s sail</p>
 <dd><p>Wave radiation force
 Args:</p>
 <blockquote>
-<div><p>iceb_vel  : Iceberg velocity at time t
-rho_water : Water density
+<div><p>rho_water : Water density
 wave_height    : Wave significant height
 wave_direction : Wave direction
 iceb_length    : Iceberg’s length</p>
 </div></blockquote>
-<dl class="simple">
-<dt>Returns:</dt><dd><p>Wave radiation force</p>
-</dd>
-</dl>
 </dd></dl>
 
 <dl class="py function">
@@ -348,16 +342,14 @@ wind_vel  : Wind velocity</p>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="opendrift.models.openberg.sea_ice_force">
-<span class="sig-prename descclassname"><span class="pre">opendrift.models.openberg.</span></span><span class="sig-name descname"><span class="pre">sea_ice_force</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">iceb_vel</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sea_ice_conc</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sea_ice_thickness</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sea_ice_vel</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">iceb_width</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sum_force</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../../_modules/opendrift/models/openberg.html#sea_ice_force"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#opendrift.models.openberg.sea_ice_force" title="Link to this definition"></a></dt>
+<span class="sig-prename descclassname"><span class="pre">opendrift.models.openberg.</span></span><span class="sig-name descname"><span class="pre">sea_ice_force</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">iceb_vel</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sea_ice_conc</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">Ai</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sea_ice_vel</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sum_force</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../../_modules/opendrift/models/openberg.html#sea_ice_force"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#opendrift.models.openberg.sea_ice_force" title="Link to this definition"></a></dt>
 <dd><p>Sea ice force
 Args:</p>
 <blockquote>
 <div><p>iceb_vel : Iceberg velocity at time t
 sea_ice_conc : Sea ice concentration
-sea_ice_thickness : Sea ice thickness
+Ai : Iceberg’s area in contact with ice (sea_ice_thickness x length) # (Alternatively: Test half length and half width)
 sea_ice_vel : Sea ice velocity
-rho_ice : Sea ice density
-iceb_width : Iceberg width
 sum_force : Effect of all other forces exerted on the iceberg (apart from the sea ice force)</p>
 </div></blockquote>
 </dd></dl>
@@ -365,7 +357,14 @@ sum_force : Effect of all other forces exerted on the iceberg (apart from the se
 <dl class="py function">
 <dt class="sig sig-object py" id="opendrift.models.openberg.coriolis_force">
 <span class="sig-prename descclassname"><span class="pre">opendrift.models.openberg.</span></span><span class="sig-name descname"><span class="pre">coriolis_force</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">iceb_vel</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mass</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">lat</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../../_modules/opendrift/models/openberg.html#coriolis_force"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#opendrift.models.openberg.coriolis_force" title="Link to this definition"></a></dt>
-<dd></dd></dl>
+<dd><p>Coriolis force
+Args:</p>
+<blockquote>
+<div><p>iceb_vel : Iceberg velocity at time t
+mass: Mass of the iceberg
+lat : Latitude of the iceberg’s location in degrees</p>
+</div></blockquote>
+</dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="opendrift.models.openberg.sea_surface_slope_force">
