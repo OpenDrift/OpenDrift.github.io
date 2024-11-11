@@ -26,8 +26,8 @@
     <script src="../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
-    <link rel="next" title="SCHISM native reader" href="example_schism_native.html" />
-    <link rel="prev" title="Biodegradation of oil" href="example_biodegradation.html" /> 
+    <link rel="next" title="Leeway capsizing" href="example_leeway_capsizing.html" />
+    <link rel="prev" title="Seeding from GeoJSON string" href="example_seed_geojson.html" /> 
 </head>
 
 <body class="wy-body-for-nav"> 
@@ -135,10 +135,10 @@
 <li class="toctree-l2"><a class="reference internal" href="example_oil_budget.html">Oil budget</a></li>
 <li class="toctree-l2"><a class="reference internal" href="example_generic.html">Generic example</a></li>
 <li class="toctree-l2"><a class="reference internal" href="example_biodegradation.html">Biodegradation of oil</a></li>
-<li class="toctree-l2 current"><a class="current reference internal" href="#">CMEMS current components</a></li>
 <li class="toctree-l2"><a class="reference internal" href="example_schism_native.html">SCHISM native reader</a></li>
 <li class="toctree-l2"><a class="reference internal" href="example_leeway.html">Leeway</a></li>
 <li class="toctree-l2"><a class="reference internal" href="example_seed_geojson.html">Seeding from GeoJSON string</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">CMEMS current components</a></li>
 <li class="toctree-l2"><a class="reference internal" href="example_leeway_capsizing.html">Leeway capsizing</a></li>
 <li class="toctree-l2"><a class="reference internal" href="example_coastline_options.html">Coastline interaction</a></li>
 <li class="toctree-l2"><a class="reference internal" href="example_coastline_options.html#coastline-option-stranding">Coastline option “stranding”</a></li>
@@ -226,7 +226,7 @@ The example also illustrates the alternative (experimental) mechanism of summing
 </pre></div>
 </div>
 <p>Mapping other variables to required standard_name’s</p>
-<div class="highlight-Python notranslate"><div class="highlight"><pre><span></span><span class="n">reader_tides_only</span> <span class="o">=</span> <span class="n">Reader</span><span class="p">(</span><span class="n">ds</span><span class="p">,</span> <span class="n">standard_name_mapping</span><span class="o">=</span><span class="p">{</span>
+<div class="highlight-Python notranslate"><div class="highlight"><pre><span></span><span class="n">reader_tides</span> <span class="o">=</span> <span class="n">Reader</span><span class="p">(</span><span class="n">ds</span><span class="p">,</span> <span class="n">standard_name_mapping</span><span class="o">=</span><span class="p">{</span>
                         <span class="s1">&#39;utide&#39;</span><span class="p">:</span> <span class="s1">&#39;x_sea_water_velocity&#39;</span><span class="p">,</span>
                         <span class="s1">&#39;vtide&#39;</span><span class="p">:</span> <span class="s1">&#39;y_sea_water_velocity&#39;</span><span class="p">,</span>
                         <span class="p">},</span> <span class="n">name</span><span class="o">=</span><span class="s1">&#39;Tides only&#39;</span><span class="p">)</span>
@@ -242,11 +242,12 @@ The example also illustrates the alternative (experimental) mechanism of summing
 </div>
 <p>Run and compare simulations using the different current components</p>
 <div class="highlight-Python notranslate"><div class="highlight"><pre><span></span><span class="n">cases</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;Eulerian current&#39;</span><span class="p">:</span> <span class="n">reader_default</span><span class="p">,</span>
-         <span class="s1">&#39;Tides only&#39;</span><span class="p">:</span> <span class="n">reader_tides_only</span><span class="p">,</span>
+         <span class="s1">&#39;Tides only&#39;</span><span class="p">:</span> <span class="n">reader_tides</span><span class="p">,</span>
          <span class="s1">&#39;Stokes drift only&#39;</span><span class="p">:</span> <span class="n">reader_stokes</span><span class="p">,</span>
          <span class="s1">&#39;Total current&#39;</span><span class="p">:</span> <span class="n">reader_total</span><span class="p">,</span>
-         <span class="s1">&#39;SUM: Eulerian + Tides&#39;</span><span class="p">:</span> <span class="n">reader_default</span> <span class="o">+</span> <span class="n">reader_tides_only</span><span class="p">,</span>  <span class="c1"># Experimental feature</span>
+         <span class="s1">&#39;SUM: Eulerian + Tides&#39;</span><span class="p">:</span> <span class="n">reader_default</span> <span class="o">+</span> <span class="n">reader_tides</span><span class="p">,</span>  <span class="c1"># Experimental feature</span>
          <span class="s1">&#39;SUM: Eulerian + Stokes&#39;</span><span class="p">:</span> <span class="n">reader_default</span> <span class="o">+</span> <span class="n">reader_stokes</span><span class="p">,</span>     <span class="c1"># Experimental feature</span>
+         <span class="s1">&#39;SUM: Eulerian + Tides + Stokes&#39;</span><span class="p">:</span> <span class="n">reader_default</span> <span class="o">+</span> <span class="n">reader_tides</span> <span class="o">+</span> <span class="n">reader_stokes</span>  <span class="c1"># Experimental feature</span>
          <span class="p">}</span>
 
 <span class="n">simulations</span> <span class="o">=</span> <span class="p">[]</span>
@@ -279,8 +280,8 @@ The example also illustrates the alternative (experimental) mechanism of summing
            </div>
           </div>
           <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
-        <a href="example_biodegradation.html" class="btn btn-neutral float-left" title="Biodegradation of oil" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
-        <a href="example_schism_native.html" class="btn btn-neutral float-right" title="SCHISM native reader" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+        <a href="example_seed_geojson.html" class="btn btn-neutral float-left" title="Seeding from GeoJSON string" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="example_leeway_capsizing.html" class="btn btn-neutral float-right" title="Leeway capsizing" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
     </div>
 
   <hr/>
