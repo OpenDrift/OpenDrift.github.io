@@ -140,25 +140,21 @@
             <span class="n">oils</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">c</span><span class="p">)</span>
 
     <span class="c1"># Add additional oils</span>
-    <span class="k">for</span> <span class="n">f</span> <span class="ow">in</span> <span class="n">resources</span><span class="o">.</span><span class="n">contents</span><span class="p">(</span><span class="s1">&#39;opendrift.models.openoil.adios.extra_oils&#39;</span><span class="p">):</span>
-        <span class="k">if</span> <span class="n">Path</span><span class="p">(</span><span class="n">f</span><span class="p">)</span><span class="o">.</span><span class="n">suffix</span> <span class="o">==</span> <span class="s1">&#39;.json&#39;</span><span class="p">:</span>
-            <span class="n">o</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">loads</span><span class="p">(</span><span class="n">resources</span><span class="o">.</span><span class="n">read_text</span><span class="p">(</span><span class="s1">&#39;opendrift.models.openoil.adios.extra_oils&#39;</span><span class="p">,</span> <span class="n">f</span><span class="p">))</span>
-            <span class="c1">#o = { &#39;data&#39;: { &#39;attributes&#39; : o } }</span>
-            <span class="c1">#o[&#39;data&#39;][&#39;_id&#39;] = o[&#39;data&#39;][&#39;attributes&#39;][&#39;oil_id&#39;]</span>
-            <span class="c1">#o[&#39;data&#39;][&#39;attributes&#39;][&#39;metadata&#39;][&#39;location&#39;] = &#39;NORWAY&#39;</span>
-            <span class="n">o</span><span class="p">[</span><span class="s1">&#39;metadata&#39;</span><span class="p">][</span><span class="s1">&#39;location&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;NORWAY&#39;</span>
-            <span class="c1">#logger.debug(f&quot;Adding additional oil: {f}..: {o[&#39;data&#39;][&#39;_id&#39;]}, {o[&#39;data&#39;][&#39;attributes&#39;][&#39;metadata&#39;][&#39;name&#39;]}&quot;)</span>
-            <span class="n">oils</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">o</span><span class="p">)</span>
+    <span class="c1">#for f in resources.contents(&#39;opendrift.models.openoil.adios.extra_oils&#39;):</span>
+    <span class="c1">#    if Path(f).suffix == &#39;.json&#39;:</span>
+    <span class="c1">#        o = json.loads(resources.read_text(&#39;opendrift.models.openoil.adios.extra_oils&#39;, f))</span>
+    <span class="c1">#        #logger.debug(f&quot;Adding additional oil: {f}..: {o[&#39;data&#39;][&#39;_id&#39;]}, {o[&#39;data&#39;][&#39;attributes&#39;][&#39;metadata&#39;][&#39;name&#39;]}&quot;)</span>
+    <span class="c1">#        oils.append(o)</span>
 
     <span class="k">for</span> <span class="n">o</span> <span class="ow">in</span> <span class="n">oils</span><span class="p">:</span>
         <span class="c1"># For Norwegian oils, we add year to the name</span>
         <span class="k">if</span> <span class="n">o</span><span class="p">[</span><span class="s1">&#39;oil_id&#39;</span><span class="p">][</span><span class="mi">0</span><span class="p">:</span><span class="mi">2</span><span class="p">]</span> <span class="o">==</span> <span class="s1">&#39;NO&#39;</span><span class="p">:</span>
             <span class="n">yearstring</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">o</span><span class="p">[</span><span class="s1">&#39;metadata&#39;</span><span class="p">][</span><span class="s1">&#39;reference&#39;</span><span class="p">][</span><span class="s1">&#39;year&#39;</span><span class="p">])</span>
             <span class="c1"># Override with sample_date, if available</span>
-            <span class="k">if</span> <span class="s1">&#39;sample_data&#39;</span> <span class="ow">in</span> <span class="n">o</span><span class="p">[</span><span class="s1">&#39;metadata&#39;</span><span class="p">]:</span>
+            <span class="k">if</span> <span class="s1">&#39;sample_date&#39;</span> <span class="ow">in</span> <span class="n">o</span><span class="p">[</span><span class="s1">&#39;metadata&#39;</span><span class="p">]:</span>
                 <span class="n">sd</span> <span class="o">=</span> <span class="n">o</span><span class="p">[</span><span class="s1">&#39;metadata&#39;</span><span class="p">][</span><span class="s1">&#39;sample_date&#39;</span><span class="p">]</span>
                 <span class="k">if</span> <span class="n">sd</span><span class="o">.</span><span class="n">isnumeric</span><span class="p">():</span>
-                    <span class="n">yearstring</span> <span class="o">=</span> <span class="n">sample_date</span>
+                    <span class="n">yearstring</span> <span class="o">=</span> <span class="n">sd</span>
                 <span class="k">elif</span> <span class="n">sd</span><span class="p">[</span><span class="mi">0</span><span class="p">:</span><span class="mi">4</span><span class="p">]</span><span class="o">.</span><span class="n">isnumeric</span><span class="p">():</span>
                     <span class="n">yearstring</span> <span class="o">=</span> <span class="n">sd</span><span class="p">[</span><span class="mi">0</span><span class="p">:</span><span class="mi">4</span><span class="p">]</span>
                 <span class="k">else</span><span class="p">:</span>
@@ -175,8 +171,9 @@
     <span class="n">a</span> <span class="o">=</span> <span class="n">__get_archive__</span><span class="p">()</span>
 
     <span class="k">if</span> <span class="n">location</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="n">a</span> <span class="o">=</span> <span class="p">[</span><span class="n">o</span> <span class="k">for</span> <span class="n">o</span> <span class="ow">in</span> <span class="n">a</span> <span class="k">if</span> <span class="s1">&#39;location&#39;</span> <span class="ow">in</span> <span class="n">o</span><span class="p">[</span><span class="s1">&#39;metadata&#39;</span><span class="p">]</span>
-                <span class="ow">and</span> <span class="n">o</span><span class="p">[</span><span class="s1">&#39;metadata&#39;</span><span class="p">][</span><span class="s1">&#39;location&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="o">==</span> <span class="n">location</span><span class="o">.</span><span class="n">lower</span><span class="p">()]</span>
+        <span class="n">a</span> <span class="o">=</span> <span class="p">[</span><span class="n">o</span> <span class="k">for</span> <span class="n">o</span> <span class="ow">in</span> <span class="n">a</span> <span class="k">if</span>
+             <span class="n">o</span><span class="p">[</span><span class="s1">&#39;oil_id&#39;</span><span class="p">][</span><span class="mi">0</span><span class="p">:</span><span class="mi">4</span><span class="p">]</span> <span class="o">==</span> <span class="s1">&#39;AD04&#39;</span> <span class="ow">or</span>
+             <span class="p">(</span><span class="s1">&#39;location&#39;</span> <span class="ow">in</span> <span class="n">o</span><span class="p">[</span><span class="s1">&#39;metadata&#39;</span><span class="p">]</span> <span class="ow">and</span> <span class="n">o</span><span class="p">[</span><span class="s1">&#39;metadata&#39;</span><span class="p">][</span><span class="s1">&#39;location&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="o">==</span> <span class="n">location</span><span class="o">.</span><span class="n">lower</span><span class="p">())]</span>
 
     <span class="k">return</span> <span class="p">[</span><span class="n">o</span><span class="p">[</span><span class="s1">&#39;metadata&#39;</span><span class="p">][</span><span class="s1">&#39;name&#39;</span><span class="p">]</span> <span class="k">for</span> <span class="n">o</span> <span class="ow">in</span> <span class="n">a</span><span class="p">]</span></div>
 

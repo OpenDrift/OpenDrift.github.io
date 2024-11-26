@@ -95,7 +95,8 @@
            <div itemprop="articleBody">
              
   <h1>Source code for opendrift.models.openoil.adios.harvest_oils</h1><div class="highlight"><pre>
-<span></span><span class="kn">import</span> <span class="nn">requests</span>
+<span></span><span class="kn">import</span> <span class="nn">copy</span>
+<span class="kn">import</span> <span class="nn">requests</span>
 <span class="kn">import</span> <span class="nn">json</span>
 <span class="kn">import</span> <span class="nn">tarfile</span>
 <span class="kn">import</span> <span class="nn">lzma</span>
@@ -105,32 +106,61 @@
 <span class="c1"># Oils marked as gnome_suitable, but can not be converted to ADIOS object</span>
 <span class="n">blacklist</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;AD02384&#39;</span><span class="p">]</span>
 
+<span class="n">generic_oils</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="s1">&#39;GENERIC LIGHT CRUDE&#39;</span><span class="p">:</span> <span class="p">{</span><span class="s1">&#39;adios_id&#39;</span><span class="p">:</span> <span class="s1">&#39;GN00006&#39;</span><span class="p">,</span> <span class="s1">&#39;opendrift_id&#39;</span><span class="p">:</span> <span class="s1">&#39;AD04000&#39;</span><span class="p">},</span>
+        <span class="s1">&#39;GENERIC MEDIUM CRUDE&#39;</span><span class="p">:</span> <span class="p">{</span><span class="s1">&#39;adios_id&#39;</span><span class="p">:</span> <span class="s1">&#39;GN00007&#39;</span><span class="p">,</span> <span class="s1">&#39;opendrift_id&#39;</span><span class="p">:</span> <span class="s1">&#39;AD04001&#39;</span><span class="p">},</span>
+        <span class="s1">&#39;GENERIC HEAVY CRUDE&#39;</span><span class="p">:</span> <span class="p">{</span><span class="s1">&#39;adios_id&#39;</span><span class="p">:</span> <span class="s1">&#39;GN00004&#39;</span><span class="p">,</span> <span class="s1">&#39;opendrift_id&#39;</span><span class="p">:</span> <span class="s1">&#39;AD04002&#39;</span><span class="p">},</span>
+        <span class="s1">&#39;GENERIC GASOLINE&#39;</span><span class="p">:</span> <span class="p">{</span><span class="s1">&#39;adios_id&#39;</span><span class="p">:</span> <span class="s1">&#39;GN00003&#39;</span><span class="p">,</span> <span class="s1">&#39;opendrift_id&#39;</span><span class="p">:</span> <span class="s1">&#39;AD04003&#39;</span><span class="p">},</span>
+        <span class="s1">&#39;GENERIC FUEL OIL No.2&#39;</span><span class="p">:</span> <span class="p">{</span><span class="s1">&#39;adios_id&#39;</span><span class="p">:</span> <span class="s1">&#39;AD01427&#39;</span><span class="p">,</span> <span class="s1">&#39;opendrift_id&#39;</span><span class="p">:</span> <span class="s1">&#39;AD04006&#39;</span><span class="p">},</span>
+        <span class="s1">&#39;GENERIC DIESEL&#39;</span><span class="p">:</span> <span class="p">{</span><span class="s1">&#39;adios_id&#39;</span><span class="p">:</span> <span class="s1">&#39;GN00002&#39;</span><span class="p">,</span> <span class="s1">&#39;opendrift_id&#39;</span><span class="p">:</span> <span class="s1">&#39;AD04007&#39;</span><span class="p">},</span>
+        <span class="s1">&#39;GENERIC HOME HEATING OIL&#39;</span><span class="p">:</span> <span class="p">{</span><span class="s1">&#39;adios_id&#39;</span><span class="p">:</span> <span class="s1">&#39;AD02139&#39;</span><span class="p">,</span> <span class="s1">&#39;opendrift_id&#39;</span><span class="p">:</span> <span class="s1">&#39;AD04008&#39;</span><span class="p">},</span>
+        <span class="s1">&#39;GENERIC INTERMEDIATE FUEL OIL 180&#39;</span><span class="p">:</span> <span class="p">{</span><span class="s1">&#39;adios_id&#39;</span><span class="p">:</span> <span class="s1">&#39;AD01676&#39;</span><span class="p">,</span> <span class="s1">&#39;opendrift_id&#39;</span><span class="p">:</span> <span class="s1">&#39;AD04009&#39;</span><span class="p">},</span>
+        <span class="s1">&#39;GENERIC INTERMEDIATE FUEL OIL 300&#39;</span><span class="p">:</span> <span class="p">{</span><span class="s1">&#39;adios_id&#39;</span><span class="p">:</span> <span class="s1">&#39;AD02428&#39;</span><span class="p">,</span> <span class="s1">&#39;opendrift_id&#39;</span><span class="p">:</span> <span class="s1">&#39;AD04010&#39;</span><span class="p">},</span>
+        <span class="s1">&#39;GENERIC FUEL OIL No. 6&#39;</span><span class="p">:</span> <span class="p">{</span><span class="s1">&#39;adios_id&#39;</span><span class="p">:</span> <span class="s1">&#39;AD02431&#39;</span><span class="p">,</span> <span class="s1">&#39;opendrift_id&#39;</span><span class="p">:</span> <span class="s1">&#39;AD04011&#39;</span><span class="p">},</span>
+        <span class="s1">&#39;GENERIC BUNKER C&#39;</span><span class="p">:</span> <span class="p">{</span><span class="s1">&#39;adios_id&#39;</span><span class="p">:</span> <span class="s1">&#39;AD02184&#39;</span><span class="p">,</span> <span class="s1">&#39;opendrift_id&#39;</span><span class="p">:</span> <span class="s1">&#39;AD04012&#39;</span><span class="p">},</span>
+        <span class="s1">&#39;GENERIC HEAVY FUEL OIL&#39;</span><span class="p">:</span> <span class="p">{</span><span class="s1">&#39;adios_id&#39;</span><span class="p">:</span> <span class="s1">&#39;AD02052&#39;</span><span class="p">,</span> <span class="s1">&#39;opendrift_id&#39;</span><span class="p">:</span> <span class="s1">&#39;AD04013&#39;</span><span class="p">},</span>
+        <span class="p">}</span>
+
 <div class="viewcode-block" id="download">
 <a class="viewcode-back" href="../../../../../autoapi/opendrift/models/openoil/adios/harvest_oils/index.html#opendrift.models.openoil.adios.harvest_oils.download">[docs]</a>
 <span class="k">def</span> <span class="nf">download</span><span class="p">():</span>
-    <span class="n">url</span> <span class="o">=</span> <span class="s1">&#39;https://github.com/OpenDrift/noaa-oil-data/archive/refs/heads/production.tar.gz&#39;</span>
+    <span class="c1">#url = &#39;https://github.com/OpenDrift/noaa-oil-data/archive/refs/heads/production.tar.gz&#39;</span>
+    <span class="n">url</span> <span class="o">=</span> <span class="s1">&#39;https://github.com/OpenDrift/noaa-oil-data/archive/refs/heads/new_oils.tar.gz&#39;</span>
     <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Downloading all oils from </span><span class="si">{</span><span class="n">url</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
     <span class="n">oils</span> <span class="o">=</span> <span class="p">[]</span>
     <span class="n">response</span> <span class="o">=</span> <span class="n">requests</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">url</span><span class="p">,</span> <span class="n">stream</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
     <span class="n">tar</span> <span class="o">=</span> <span class="n">tarfile</span><span class="o">.</span><span class="n">open</span><span class="p">(</span><span class="n">fileobj</span><span class="o">=</span><span class="n">response</span><span class="o">.</span><span class="n">raw</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="s1">&#39;r|gz&#39;</span><span class="p">)</span>
     <span class="k">for</span> <span class="n">file</span> <span class="ow">in</span> <span class="n">tar</span><span class="p">:</span>
         <span class="k">if</span> <span class="n">file</span><span class="o">.</span><span class="n">isfile</span><span class="p">()</span> <span class="ow">and</span> <span class="n">file</span><span class="o">.</span><span class="n">name</span><span class="o">.</span><span class="n">endswith</span><span class="p">(</span><span class="s1">&#39;.json&#39;</span><span class="p">):</span>
-            <span class="n">gnome_suitable</span> <span class="o">=</span> <span class="kc">True</span>
-            <span class="k">for</span> <span class="n">b</span> <span class="ow">in</span> <span class="n">blacklist</span><span class="p">:</span>
-                <span class="k">if</span> <span class="n">b</span> <span class="ow">in</span> <span class="n">file</span><span class="o">.</span><span class="n">name</span><span class="p">:</span>
-                    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Discarding </span><span class="si">{</span><span class="n">b</span><span class="si">}</span><span class="s1">, from blacklist (not GNOME suitable)&#39;</span><span class="p">)</span>
-                    <span class="n">gnome_suitable</span> <span class="o">=</span> <span class="kc">False</span>
-            <span class="k">if</span> <span class="n">gnome_suitable</span> <span class="ow">is</span> <span class="kc">False</span><span class="p">:</span>
-                <span class="k">continue</span>
             <span class="n">f</span> <span class="o">=</span> <span class="n">tar</span><span class="o">.</span><span class="n">extractfile</span><span class="p">(</span><span class="n">file</span><span class="p">)</span>  
             <span class="n">o</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">f</span><span class="o">.</span><span class="n">raw</span><span class="p">)</span>
             <span class="n">AO</span> <span class="o">=</span> <span class="n">Oil</span><span class="o">.</span><span class="n">from_py_json</span><span class="p">(</span><span class="n">o</span><span class="p">)</span>
-            <span class="c1">#if &#39;norw&#39; in AO.metadata.location.lower() and not AO.metadata.gnome_suitable:</span>
+            <span class="n">AO</span><span class="o">.</span><span class="n">validate</span><span class="p">()</span>
             <span class="k">if</span> <span class="ow">not</span> <span class="n">AO</span><span class="o">.</span><span class="n">metadata</span><span class="o">.</span><span class="n">gnome_suitable</span><span class="p">:</span>
                 <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Discarding </span><span class="si">{</span><span class="n">AO</span><span class="o">.</span><span class="n">metadata</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s1">, not GNOME suitable&#39;</span><span class="p">)</span>
                 <span class="k">continue</span>
             <span class="k">else</span><span class="p">:</span>
                 <span class="n">oils</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">o</span><span class="p">)</span>
+    <span class="c1"># Add mapping to generic oils</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Adding generic oils&#39;</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">generic_name</span><span class="p">,</span> <span class="n">oil_ids</span> <span class="ow">in</span> <span class="n">generic_oils</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+        <span class="n">adios_id</span> <span class="o">=</span> <span class="n">oil_ids</span><span class="p">[</span><span class="s1">&#39;adios_id&#39;</span><span class="p">]</span>
+        <span class="n">opendrift_id</span> <span class="o">=</span> <span class="n">oil_ids</span><span class="p">[</span><span class="s1">&#39;opendrift_id&#39;</span><span class="p">]</span>
+        <span class="n">found</span> <span class="o">=</span> <span class="kc">False</span>
+        <span class="k">for</span> <span class="n">o</span> <span class="ow">in</span> <span class="n">oils</span><span class="o">.</span><span class="n">copy</span><span class="p">():</span>
+            <span class="n">o</span> <span class="o">=</span> <span class="n">copy</span><span class="o">.</span><span class="n">deepcopy</span><span class="p">(</span><span class="n">o</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">o</span><span class="p">[</span><span class="s1">&#39;oil_id&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="n">adios_id</span><span class="p">:</span>
+                <span class="n">found</span> <span class="o">=</span> <span class="kc">True</span>
+                <span class="k">break</span>
+        <span class="k">if</span> <span class="n">found</span> <span class="ow">is</span> <span class="kc">False</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Did not find </span><span class="si">{</span><span class="n">adios_id</span><span class="si">}</span><span class="s1"> as </span><span class="si">{</span><span class="n">generic_name</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Mapping </span><span class="si">{</span><span class="n">generic_name</span><span class="si">}</span><span class="s1"> [</span><span class="si">{</span><span class="n">opendrift_id</span><span class="si">}</span><span class="s1">] to adios </span><span class="si">{</span><span class="n">adios_id</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
+        <span class="n">o</span><span class="p">[</span><span class="s1">&#39;metadata&#39;</span><span class="p">][</span><span class="s1">&#39;name&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">generic_name</span>
+        <span class="c1">#o[&#39;metadata&#39;][&#39;source_id&#39;] = opendrift_id</span>
+        <span class="n">o</span><span class="p">[</span><span class="s1">&#39;oil_id&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">opendrift_id</span>
+        <span class="n">oils</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">o</span><span class="p">)</span>  <span class="c1"># Adding modified generic oil</span>
+
     <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Downloaded </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">oils</span><span class="p">)</span><span class="si">}</span><span class="s1"> oils, saving to oils.xz&#39;</span><span class="p">)</span>
     <span class="k">with</span> <span class="n">lzma</span><span class="o">.</span><span class="n">open</span><span class="p">(</span><span class="s1">&#39;oils.xz&#39;</span><span class="p">,</span> <span class="s1">&#39;wt&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">c</span><span class="p">:</span>
         <span class="n">json</span><span class="o">.</span><span class="n">dump</span><span class="p">(</span><span class="n">oils</span><span class="p">,</span> <span class="n">c</span><span class="p">)</span></div>
