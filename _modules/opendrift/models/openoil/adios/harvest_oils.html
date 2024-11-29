@@ -100,6 +100,7 @@
 <span class="kn">import</span> <span class="nn">json</span>
 <span class="kn">import</span> <span class="nn">tarfile</span>
 <span class="kn">import</span> <span class="nn">lzma</span>
+<span class="kn">from</span> <span class="nn">importlib_resources</span> <span class="kn">import</span> <span class="n">files</span>
 <span class="kn">from</span> <span class="nn">adios_db.models.oil.oil</span> <span class="kn">import</span> <span class="n">Oil</span>
 <span class="kn">from</span> <span class="nn">adios_db.computation</span> <span class="kn">import</span> <span class="n">gnome_oil</span>
 
@@ -169,12 +170,10 @@
 <div class="viewcode-block" id="list_oils">
 <a class="viewcode-back" href="../../../../../autoapi/opendrift/models/openoil/adios/harvest_oils/index.html#opendrift.models.openoil.adios.harvest_oils.list_oils">[docs]</a>
 <span class="k">def</span> <span class="nf">list_oils</span><span class="p">():</span>
-    <span class="kn">from</span> <span class="nn">importlib</span> <span class="kn">import</span> <span class="n">resources</span>
-    <span class="kn">import</span> <span class="nn">lzma</span>
-    <span class="k">with</span> <span class="n">resources</span><span class="o">.</span><span class="n">open_binary</span><span class="p">(</span><span class="s1">&#39;opendrift.models.openoil.adios&#39;</span><span class="p">,</span>
-        <span class="s1">&#39;oils.xz&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">archive</span><span class="p">:</span>
-        <span class="k">with</span> <span class="n">lzma</span><span class="o">.</span><span class="n">open</span><span class="p">(</span><span class="n">archive</span><span class="p">,</span> <span class="s1">&#39;rt&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">c</span><span class="p">:</span>
-            <span class="n">oils</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">c</span><span class="p">)</span>
+    <span class="n">oil_file</span> <span class="o">=</span> <span class="n">files</span><span class="p">(</span><span class="s1">&#39;opendrift.models.openoil.adios&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">joinpath</span><span class="p">(</span><span class="s1">&#39;oils.xz&#39;</span><span class="p">)</span>
+    <span class="k">with</span> <span class="n">lzma</span><span class="o">.</span><span class="n">open</span><span class="p">(</span><span class="n">oil_file</span><span class="p">,</span> <span class="s1">&#39;rt&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">archive</span><span class="p">:</span>
+        <span class="n">oils</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">archive</span><span class="p">)</span>
+
     <span class="nb">print</span><span class="p">(</span><span class="n">oils</span><span class="p">)</span>
     <span class="nb">print</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">oils</span><span class="p">))</span>
     <span class="k">for</span> <span class="n">o</span> <span class="ow">in</span> <span class="n">oils</span><span class="p">:</span>
