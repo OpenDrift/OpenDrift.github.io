@@ -124,10 +124,52 @@
 <span class="kn">import</span> <span class="nn">json</span>
 <span class="kn">import</span> <span class="nn">opendrift</span>
 <span class="kn">import</span> <span class="nn">xarray</span> <span class="k">as</span> <span class="nn">xr</span>
-<span class="kn">from</span> <span class="nn">opendrift.readers</span> <span class="kn">import</span> <span class="n">reader_netCDF_CF_generic</span>
-<span class="kn">from</span> <span class="nn">opendrift.readers</span> <span class="kn">import</span> <span class="n">reader_netCDF_CF_unstructured</span>
-<span class="kn">from</span> <span class="nn">opendrift.readers</span> <span class="kn">import</span> <span class="n">reader_ROMS_native</span>
-<span class="kn">from</span> <span class="nn">opendrift.readers</span> <span class="kn">import</span> <span class="n">reader_copernicusmarine</span>
+
+<div class="viewcode-block" id="open_dataset_opendrift">
+<a class="viewcode-back" href="../../autoapi/opendrift/readers/index.html#opendrift.readers.open_dataset_opendrift">[docs]</a>
+<span class="k">def</span> <span class="nf">open_dataset_opendrift</span><span class="p">(</span><span class="n">source</span><span class="p">,</span> <span class="n">zarr_storage_options</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot; Wrapper around Xarray open_dataset and open_mfdataset.</span>
+
+<span class="sd">    Common wrapper/opener to be used for all Xarray based readers</span>
+
+<span class="sd">    xarray.open_dataset will be used if source is:</span>
+<span class="sd">        - a single netCDF file or OPeNDAP URL</span>
+
+<span class="sd">    xarray.open_mfdataset will be used if source is:</span>
+<span class="sd">        - a list of netCDF files</span>
+<span class="sd">        - a filename with wildcards (* ? or [)</span>
+
+<span class="sd">    cf-times are decoded after removing any offending variables</span>
+<span class="sd">        (e.g. if units equals &quot;hours since analysis&quot;)</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">source</span><span class="p">,</span> <span class="n">xr</span><span class="o">.</span><span class="n">Dataset</span><span class="p">):</span>
+        <span class="n">ds</span> <span class="o">=</span> <span class="n">source</span>
+    <span class="k">elif</span> <span class="n">zarr_storage_options</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>  <span class="c1"># This could better be handled outside of this method</span>
+        <span class="n">ds</span> <span class="o">=</span> <span class="n">xr</span><span class="o">.</span><span class="n">open_zarr</span><span class="p">(</span><span class="n">source</span><span class="p">,</span> <span class="n">storage_options</span><span class="o">=</span><span class="n">zarr_storage_options</span><span class="p">)</span>
+        <span class="n">ds</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="n">source</span>
+    <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">source</span><span class="p">,</span> <span class="nb">list</span><span class="p">)</span> <span class="ow">or</span> <span class="nb">any</span><span class="p">(</span><span class="n">s</span> <span class="ow">in</span> <span class="n">source</span> <span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <span class="p">[</span> <span class="s1">&#39;*&#39;</span><span class="p">,</span> <span class="s1">&#39;?&#39;</span><span class="p">,</span> <span class="s1">&#39;[&#39;</span> <span class="p">]):</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s1">&#39;Opening files with xarray.open_mfdataset&#39;</span><span class="p">)</span>
+        <span class="n">ds</span> <span class="o">=</span> <span class="n">xr</span><span class="o">.</span><span class="n">open_mfdataset</span><span class="p">(</span>
+            <span class="n">source</span><span class="p">,</span> <span class="n">data_vars</span><span class="o">=</span><span class="s1">&#39;minimal&#39;</span><span class="p">,</span> <span class="n">coords</span><span class="o">=</span><span class="s1">&#39;minimal&#39;</span><span class="p">,</span> <span class="n">compat</span><span class="o">=</span><span class="s1">&#39;override&#39;</span><span class="p">,</span> <span class="n">decode_times</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s1">&#39;Opening file with xr.open_dataset&#39;</span><span class="p">)</span>
+        <span class="n">ds</span> <span class="o">=</span> <span class="n">xr</span><span class="o">.</span><span class="n">open_dataset</span><span class="p">(</span><span class="n">source</span><span class="p">,</span> <span class="n">decode_times</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+
+    <span class="c1"># Decode CF times</span>
+    <span class="n">offending</span> <span class="o">=</span> <span class="n">ds</span><span class="o">.</span><span class="n">filter_by_attrs</span><span class="p">(</span><span class="n">units</span><span class="o">=</span><span class="s1">&#39;hours since analysis&#39;</span><span class="p">)</span>  <span class="c1"># Found e.g. in HYCOM datasets</span>
+    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">offending</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Removing variables that cannot be CF decoded: </span><span class="si">{</span><span class="nb">list</span><span class="p">(</span><span class="n">offending</span><span class="o">.</span><span class="n">variables</span><span class="p">)</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
+        <span class="n">ds</span> <span class="o">=</span> <span class="n">ds</span><span class="o">.</span><span class="n">drop_vars</span><span class="p">(</span><span class="n">offending</span><span class="p">)</span>
+    <span class="n">ds</span> <span class="o">=</span> <span class="n">xr</span><span class="o">.</span><span class="n">decode_cf</span><span class="p">(</span><span class="n">ds</span><span class="p">,</span> <span class="n">decode_times</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+    <span class="c1"># TODO: chunk time dimension to 1</span>
+
+    <span class="k">return</span> <span class="n">ds</span></div>
+
+
+
 
 <div class="viewcode-block" id="open_mfdataset_overlap">
 <a class="viewcode-back" href="../../autoapi/opendrift/readers/index.html#opendrift.readers.open_mfdataset_overlap">[docs]</a>
@@ -151,6 +193,10 @@
 <span class="k">def</span> <span class="nf">applicable_readers</span><span class="p">(</span><span class="n">url</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&#39;&#39;&#39;Return a list of readers that are possible candidates for a given URL, filename or product ID&#39;&#39;&#39;</span>
 
+    <span class="kn">from</span> <span class="nn">opendrift.readers</span> <span class="kn">import</span> <span class="n">reader_netCDF_CF_generic</span>
+    <span class="kn">from</span> <span class="nn">opendrift.readers</span> <span class="kn">import</span> <span class="n">reader_netCDF_CF_unstructured</span>
+    <span class="kn">from</span> <span class="nn">opendrift.readers</span> <span class="kn">import</span> <span class="n">reader_ROMS_native</span>
+    <span class="kn">from</span> <span class="nn">opendrift.readers</span> <span class="kn">import</span> <span class="n">reader_copernicusmarine</span>
     <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">glob</span><span class="o">.</span><span class="n">glob</span><span class="p">(</span><span class="n">url</span><span class="p">))</span> <span class="o">&gt;</span> <span class="mi">0</span> <span class="ow">or</span> <span class="nb">any</span><span class="p">(</span><span class="n">e</span> <span class="ow">in</span> <span class="n">url</span> <span class="k">for</span> <span class="n">e</span> <span class="ow">in</span> <span class="p">[</span><span class="s1">&#39;:&#39;</span><span class="p">,</span> <span class="s1">&#39;/&#39;</span><span class="p">]):</span>
         <span class="k">return</span> <span class="p">[</span><span class="n">reader_netCDF_CF_generic</span><span class="p">,</span> <span class="n">reader_ROMS_native</span><span class="p">,</span> <span class="n">reader_netCDF_CF_unstructured</span><span class="p">]</span>
     <span class="k">elif</span> <span class="s1">&#39;_&#39;</span> <span class="ow">in</span> <span class="n">url</span><span class="p">:</span>  <span class="c1"># should have better indentificator</span>
