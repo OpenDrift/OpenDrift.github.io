@@ -372,17 +372,19 @@
                 <span class="n">ocean_time</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">Dataset</span><span class="o">.</span><span class="n">variables</span><span class="p">[</span><span class="n">tv</span><span class="p">]</span>
         <span class="k">if</span> <span class="n">ocean_time</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;Time variable not found in ROMS file&#39;</span><span class="p">)</span>
-        <span class="c1">#time_units = ocean_time.attrs[&#39;units&#39;]</span>
-        <span class="c1">#if time_units == &#39;second&#39;:</span>
-        <span class="c1">#    logger.info(&#39;Ocean time given as seconds relative to start &#39;</span>
-        <span class="c1">#                 &#39;Setting artifical start time of 1 Jan 2000.&#39;)</span>
-        <span class="c1">#    time_units = &#39;seconds since 2000-01-01 00:00:00&#39;</span>
-        <span class="c1">#if time_units == &#39;days&#39;:</span>
-        <span class="c1">#    logger.info(&#39;Ocean time given as days relative to start &#39;</span>
-        <span class="c1">#                 &#39;Setting artifical start time of 1 Jan 2000.&#39;)</span>
-        <span class="c1">#    time_units = &#39;days since 2000-01-01 00:00:00&#39;</span>
-        <span class="c1">#self.times = num2date(ocean_time[:], time_units)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">times</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">to_datetime</span><span class="p">(</span><span class="n">ocean_time</span><span class="p">)</span><span class="o">.</span><span class="n">to_pydatetime</span><span class="p">()</span>
+        <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">issubdtype</span><span class="p">(</span><span class="n">ocean_time</span><span class="o">.</span><span class="n">dtype</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">datetime64</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">times</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">to_datetime</span><span class="p">(</span><span class="n">ocean_time</span><span class="p">)</span><span class="o">.</span><span class="n">to_pydatetime</span><span class="p">()</span>
+        <span class="k">else</span><span class="p">:</span>  <span class="c1"># We must decode manually - necessary hack for ROMS-Croco since not CF compatible</span>
+            <span class="n">time_units</span> <span class="o">=</span> <span class="n">ocean_time</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s1">&#39;units&#39;</span><span class="p">]</span>
+            <span class="k">if</span> <span class="n">time_units</span> <span class="o">==</span> <span class="s1">&#39;second&#39;</span><span class="p">:</span>
+                <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s1">&#39;Ocean time given as seconds relative to start &#39;</span>
+                            <span class="s1">&#39;Setting artifical start time of 1 Jan 2000.&#39;</span><span class="p">)</span>
+                <span class="n">time_units</span> <span class="o">=</span> <span class="s1">&#39;seconds since 2000-01-01 00:00:00&#39;</span>
+            <span class="k">if</span> <span class="n">time_units</span> <span class="o">==</span> <span class="s1">&#39;days&#39;</span><span class="p">:</span>
+                <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s1">&#39;Ocean time given as days relative to start &#39;</span>
+                            <span class="s1">&#39;Setting artifical start time of 1 Jan 2000.&#39;</span><span class="p">)</span>
+                <span class="n">time_units</span> <span class="o">=</span> <span class="s1">&#39;days since 2000-01-01 00:00:00&#39;</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">times</span> <span class="o">=</span> <span class="n">num2date</span><span class="p">(</span><span class="n">ocean_time</span><span class="p">[:],</span> <span class="n">time_units</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">start_time</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">times</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">end_time</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">times</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
         <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">times</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
