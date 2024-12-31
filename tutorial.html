@@ -234,13 +234,10 @@ It is necessary to add readers for all required variables, unless they have been
 In the above example, it is only strictly necessary to provide readers for wind and current.
 The fallback values will be used for elements which move out of the coverage of a reader in space or time, if there is no other readers which provides the given variable.
 Variables where <cite>important</cite> is set to False will only be obtained from readers which are already available, new lazy readers will not be initialized if these are missing.
-Most applications will need a landmask, for stranding towards a coastline. A high resolution landmask may e.g. be taken from the <a class="reference external" href="https://www.soest.hawaii.edu/pwessel/gshhg/">GSHHG database</a> , which is available through a dedicated Reader class:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">opendrift.readers</span> <span class="kn">import</span> <span class="n">reader_global_landmask</span>
-<span class="n">reader_landmask</span> <span class="o">=</span> <span class="n">reader_global_landmask</span><span class="o">.</span><span class="n">Reader</span><span class="p">(</span>
-                       <span class="n">extent</span><span class="o">=</span><span class="p">[</span><span class="mi">2</span><span class="p">,</span> <span class="mi">59</span><span class="p">,</span> <span class="mi">8</span><span class="p">,</span> <span class="mi">63</span><span class="p">])</span>  <span class="c1"># lonmin, latmin, lonmax, latmax</span>
+Most applications will need a landmask, for stranding towards a coastline. The default is to use the global <a class="reference external" href="https://www.soest.hawaii.edu/pwessel/gshhg/">GSHHG database</a> landmask, unless explicitly disabled with:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">o</span><span class="o">.</span><span class="n">set_config</span><span class="p">(</span><span class="s1">&#39;general:use_auto_landmask&#39;</span><span class="p">,</span> <span class="kc">False</span><span class="p">)</span>
 </pre></div>
 </div>
-<p>The longitude-latitude boundaries of the landmask reader should cover the area where the elements could possibly be advected during the run. The full resolution coastline will always be used, and a global rasterized version is used internally to speed up the checking for each element for each timestep of the model run.</p>
 <p>After Readers are created, they must be added to the model instance:</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">o</span><span class="o">.</span><span class="n">add_reader</span><span class="p">([</span><span class="n">reader_landmask</span><span class="p">,</span> <span class="n">reader_norkyst</span><span class="p">,</span> <span class="n">reader_nordic</span><span class="p">])</span>
 </pre></div>
