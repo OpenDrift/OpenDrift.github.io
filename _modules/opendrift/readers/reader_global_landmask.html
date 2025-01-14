@@ -118,7 +118,11 @@
 <span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
 <span class="kn">import</span> <span class="nn">cartopy.crs</span> <span class="k">as</span> <span class="nn">ccrs</span>
 <span class="kn">import</span> <span class="nn">cartopy.feature</span> <span class="k">as</span> <span class="nn">cfeature</span>
+<span class="kn">import</span> <span class="nn">cartopy.io.shapereader</span> <span class="k">as</span> <span class="nn">shapereader</span>
+<span class="kn">import</span> <span class="nn">shapely.geometry</span> <span class="k">as</span> <span class="nn">sgeom</span>
+<span class="kn">from</span> <span class="nn">shapely</span> <span class="kn">import</span> <span class="n">wkb</span><span class="p">,</span> <span class="n">clip_by_rect</span>
 <span class="kn">import</span> <span class="nn">logging</span>
+<span class="kn">import</span> <span class="nn">roaring_landmask</span>
 
 <span class="n">logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span>
 
@@ -160,12 +164,53 @@
 <div class="viewcode-block" id="LandmaskFeature.intersecting_geometries">
 <a class="viewcode-back" href="../../../autoapi/opendrift/readers/reader_global_landmask/index.html#opendrift.readers.reader_global_landmask.LandmaskFeature.intersecting_geometries">[docs]</a>
     <span class="k">def</span> <span class="nf">intersecting_geometries</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">extent</span><span class="p">):</span>
-        <span class="k">global</span> <span class="n">__polys__</span>
 
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_scale</span> <span class="o">==</span> <span class="s1">&#39;auto&#39;</span><span class="p">:</span>
             <span class="n">scale</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_scale_from_extent</span><span class="p">(</span><span class="n">extent</span><span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="n">scale</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_scale</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+
+        <span class="k">if</span> <span class="n">extent</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">extent_geom</span> <span class="o">=</span> <span class="n">sgeom</span><span class="o">.</span><span class="n">box</span><span class="p">(</span><span class="n">extent</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">extent</span><span class="p">[</span><span class="mi">2</span><span class="p">],</span>
+                                    <span class="n">extent</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">extent</span><span class="p">[</span><span class="mi">3</span><span class="p">])</span>
+        <span class="k">for</span> <span class="n">level</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_levels</span><span class="p">:</span>
+            <span class="n">geoms</span> <span class="o">=</span> <span class="n">cfeature</span><span class="o">.</span><span class="n">GSHHSFeature</span><span class="o">.</span><span class="n">_geometries_cache</span><span class="o">.</span><span class="n">get</span><span class="p">((</span><span class="n">scale</span><span class="p">,</span> <span class="n">level</span><span class="p">,</span> <span class="n">extent_geom</span><span class="p">))</span>
+            <span class="k">if</span> <span class="n">geoms</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">scale</span> <span class="ow">in</span> <span class="p">[</span><span class="s1">&#39;f&#39;</span><span class="p">,</span> <span class="s1">&#39;full&#39;</span><span class="p">]:</span> <span class="c1"># Getting fullres polygons from roaring_landmask</span>
+                    <span class="n">geoms</span> <span class="o">=</span> <span class="n">cfeature</span><span class="o">.</span><span class="n">GSHHSFeature</span><span class="o">.</span><span class="n">_geometries_cache</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;ROARING&#39;</span><span class="p">)</span>
+                    <span class="k">if</span> <span class="n">geoms</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                        <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;Getting fullres shapes from roaring landmask&#39;</span><span class="p">)</span>
+                        <span class="n">provider</span> <span class="o">=</span> <span class="n">roaring_landmask</span><span class="o">.</span><span class="n">LandmaskProvider</span><span class="o">.</span><span class="n">Gshhg</span>
+                        <span class="n">shapes</span> <span class="o">=</span> <span class="n">roaring_landmask</span><span class="o">.</span><span class="n">Shapes</span><span class="o">.</span><span class="n">new</span><span class="p">(</span><span class="n">provider</span><span class="p">)</span>
+                        <span class="n">polys</span> <span class="o">=</span> <span class="n">roaring_landmask</span><span class="o">.</span><span class="n">Shapes</span><span class="o">.</span><span class="n">wkb</span><span class="p">(</span><span class="n">provider</span><span class="p">)</span>
+                        <span class="n">__polys__</span> <span class="o">=</span> <span class="n">wkb</span><span class="o">.</span><span class="n">loads</span><span class="p">(</span><span class="n">polys</span><span class="p">)</span>
+                        <span class="n">geoms</span> <span class="o">=</span> <span class="n">__polys__</span><span class="o">.</span><span class="n">geoms</span>
+                        <span class="n">cfeature</span><span class="o">.</span><span class="n">GSHHSFeature</span><span class="o">.</span><span class="n">_geometries_cache</span><span class="p">[</span><span class="s1">&#39;ROARING&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">geoms</span>
+                    <span class="k">else</span><span class="p">:</span>
+                        <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;Getting fullres shapes from roaring landmask cache&#39;</span><span class="p">)</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;Loading shapes with Cartopy shapereader...&#39;</span><span class="p">)</span>
+                    <span class="c1"># Load GSHHS geometries from appropriate shape file.</span>
+                    <span class="c1"># TODO selective load based on bbox of each geom in file.</span>
+                    <span class="n">path</span> <span class="o">=</span> <span class="n">shapereader</span><span class="o">.</span><span class="n">gshhs</span><span class="p">(</span><span class="n">scale</span><span class="p">,</span> <span class="n">level</span><span class="p">)</span>
+                    <span class="n">geoms</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">(</span><span class="n">shapereader</span><span class="o">.</span><span class="n">Reader</span><span class="p">(</span><span class="n">path</span><span class="p">)</span><span class="o">.</span><span class="n">geometries</span><span class="p">())</span>
+
+                <span class="c1"># Unlike Caropy.GSHHSFeature, we clip the polygons to plot extent</span>
+                <span class="c1">#geoms = [g.intersection(extent_geom) for g in geoms if g.intersects(extent_geom)]</span>
+                <span class="n">delta</span> <span class="o">=</span> <span class="mf">.1</span>  <span class="c1"># Adding small delta to avoid segments along map borders</span>
+                <span class="n">geoms</span> <span class="o">=</span> <span class="p">[</span><span class="n">clip_by_rect</span><span class="p">(</span><span class="n">g</span><span class="p">,</span> <span class="n">extent</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">-</span><span class="n">delta</span><span class="p">,</span> <span class="n">extent</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span><span class="o">-</span><span class="n">delta</span><span class="p">,</span> <span class="n">extent</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">+</span><span class="n">delta</span><span class="p">,</span> <span class="n">extent</span><span class="p">[</span><span class="mi">3</span><span class="p">]</span><span class="o">+</span><span class="n">delta</span><span class="p">)</span>
+                         <span class="k">for</span> <span class="n">g</span> <span class="ow">in</span> <span class="n">geoms</span> <span class="k">if</span> <span class="n">g</span><span class="o">.</span><span class="n">intersects</span><span class="p">(</span><span class="n">extent_geom</span><span class="p">)]</span>
+
+                <span class="c1"># Due to the above, the cache is also depending on extent</span>
+                <span class="c1"># Note: if plotting several extents within same session, it would be benefitial</span>
+                <span class="c1">#       with another cache independent of extent</span>
+                <span class="n">cfeature</span><span class="o">.</span><span class="n">GSHHSFeature</span><span class="o">.</span><span class="n">_geometries_cache</span><span class="p">[(</span><span class="n">scale</span><span class="p">,</span> <span class="n">level</span><span class="p">,</span> <span class="n">extent_geom</span><span class="p">)]</span> <span class="o">=</span> <span class="n">geoms</span>
+
+            <span class="k">for</span> <span class="n">geom</span> <span class="ow">in</span> <span class="n">geoms</span><span class="p">:</span>
+                <span class="k">yield</span> <span class="n">geom</span>
+
+            <span class="k">if</span> <span class="n">scale</span> <span class="ow">in</span> <span class="p">[</span><span class="s1">&#39;f&#39;</span><span class="p">,</span> <span class="s1">&#39;full&#39;</span><span class="p">]:</span>
+                <span class="k">return</span>  <span class="c1"># Only a single (combined) level with full resolution troaring_landmask</span>
 
         <span class="c1"># # If scale is full use the geometries from roaring landmask, otherwise</span>
         <span class="c1"># # fall back to Cartopy provider.</span>
