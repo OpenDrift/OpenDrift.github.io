@@ -449,51 +449,6 @@
         <span class="c1"># Stranding</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">deactivate_elements</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">environment</span><span class="o">.</span><span class="n">land_binary_mask</span> <span class="o">==</span> <span class="mi">1</span><span class="p">,</span>
                                  <span class="n">reason</span><span class="o">=</span><span class="s1">&#39;ship stranded&#39;</span><span class="p">)</span></div>
-
-
-<div class="viewcode-block" id="ShipDrift.import_ascii_format">
-<a class="viewcode-back" href="../../../autoapi/opendrift/models/shipdrift/index.html#opendrift.models.shipdrift.ShipDrift.import_ascii_format">[docs]</a>
-    <span class="k">def</span><span class="w"> </span><span class="nf">import_ascii_format</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">filename</span><span class="p">):</span>
-
-        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">filename</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
-            <span class="n">lines</span> <span class="o">=</span> <span class="n">f</span><span class="o">.</span><span class="n">readlines</span><span class="p">()</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">time_step_output</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">time_step</span> <span class="o">=</span> <span class="n">lines</span><span class="p">[</span><span class="mi">16</span><span class="p">]</span><span class="o">.</span><span class="n">split</span><span class="p">()</span>
-        <span class="n">num_elements</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">lines</span><span class="p">[</span><span class="mi">25</span><span class="p">]</span><span class="o">.</span><span class="n">split</span><span class="p">()[</span><span class="mi">0</span><span class="p">])</span>
-        <span class="k">if</span> <span class="n">num_elements</span> <span class="o">!=</span> <span class="mi">1</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;Import presently only supports single ship&#39;</span><span class="p">)</span>
-        <span class="n">num_timesteps</span> <span class="o">=</span> <span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">lines</span><span class="p">)</span><span class="o">-</span><span class="mf">30.</span><span class="p">)</span><span class="o">/</span><span class="mf">14.</span>
-        <span class="n">num_timesteps</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">num_timesteps</span><span class="p">)</span>
-
-        <span class="c1"># Initialise history array</span>
-        <span class="kn">from</span><span class="w"> </span><span class="nn">datetime</span><span class="w"> </span><span class="kn">import</span> <span class="n">datetime</span><span class="p">,</span> <span class="n">timedelta</span>
-        <span class="n">history_dtype_fields</span> <span class="o">=</span> <span class="p">[</span>
-            <span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">ElementType</span><span class="o">.</span><span class="n">variables</span><span class="p">[</span><span class="n">name</span><span class="p">][</span><span class="s1">&#39;dtype&#39;</span><span class="p">])</span>
-            <span class="k">for</span> <span class="n">name</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">ElementType</span><span class="o">.</span><span class="n">variables</span><span class="p">]</span>
-        <span class="c1"># Add environment variables</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">history_metadata</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">ElementType</span><span class="o">.</span><span class="n">variables</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
-        <span class="k">for</span> <span class="n">env_var</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">required_variables</span><span class="p">:</span>
-            <span class="n">history_dtype_fields</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">env_var</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">dtype</span><span class="p">(</span><span class="s1">&#39;float32&#39;</span><span class="p">)))</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">history_metadata</span><span class="p">[</span><span class="n">env_var</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
-        <span class="n">history_dtype</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">dtype</span><span class="p">(</span><span class="n">history_dtype_fields</span><span class="p">)</span>
-
-        <span class="bp">self</span><span class="o">.</span><span class="n">history</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">ma</span><span class="o">.</span><span class="n">array</span><span class="p">(</span>
-	        <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">([</span><span class="n">num_elements</span><span class="p">,</span> <span class="n">num_timesteps</span><span class="p">]),</span>
-            <span class="n">dtype</span><span class="o">=</span><span class="n">history_dtype</span><span class="p">,</span> <span class="n">mask</span><span class="o">=</span><span class="p">[</span><span class="kc">True</span><span class="p">])</span>
-
-        <span class="bp">self</span><span class="o">.</span><span class="n">steps_output</span> <span class="o">=</span> <span class="n">num_timesteps</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">steps</span> <span class="o">=</span> <span class="n">num_timesteps</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">start_time</span> <span class="o">=</span> <span class="n">datetime</span><span class="o">.</span><span class="n">now</span><span class="p">()</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">end_time</span> <span class="o">=</span> <span class="n">datetime</span><span class="o">.</span><span class="n">now</span><span class="p">()</span> <span class="o">+</span> <span class="n">timedelta</span><span class="p">(</span><span class="n">hours</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">time</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">end_time</span>
-
-        <span class="c1"># Read time steps from file</span>
-        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">num_timesteps</span><span class="p">):</span>
-            <span class="n">line</span> <span class="o">=</span> <span class="n">lines</span><span class="p">[</span><span class="mi">30</span> <span class="o">+</span> <span class="mi">14</span><span class="o">*</span><span class="n">i</span> <span class="o">+</span> <span class="mi">13</span><span class="p">]</span>
-            <span class="n">l</span> <span class="o">=</span> <span class="n">line</span><span class="o">.</span><span class="n">split</span><span class="p">()</span>
-            <span class="n">lon</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">l</span><span class="p">[</span><span class="mi">2</span><span class="p">])</span>
-            <span class="n">lat</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">l</span><span class="p">[</span><span class="mi">3</span><span class="p">])</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">history</span><span class="p">[</span><span class="s1">&#39;lon&#39;</span><span class="p">][</span><span class="mi">0</span><span class="p">,</span> <span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">lon</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">history</span><span class="p">[</span><span class="s1">&#39;lat&#39;</span><span class="p">][</span><span class="mi">0</span><span class="p">,</span> <span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">lat</span></div>
 </div>
 
 </pre></div>
