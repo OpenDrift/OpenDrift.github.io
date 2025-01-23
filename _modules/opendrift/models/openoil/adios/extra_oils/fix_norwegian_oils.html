@@ -6,7 +6,7 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>opendrift.models.openoil.adios.extra_oils.fix_norwegian_oils &mdash; OpenDrift  documentation</title>
-      <link rel="stylesheet" type="text/css" href="../../../../../../_static/pygments.css?v=80d5e7a1" />
+      <link rel="stylesheet" type="text/css" href="../../../../../../_static/pygments.css?v=b86133f3" />
       <link rel="stylesheet" type="text/css" href="../../../../../../_static/css/theme.css?v=e59714d7" />
       <link rel="stylesheet" type="text/css" href="../../../../../../_static/graphviz.css?v=4ae1632d" />
       <link rel="stylesheet" type="text/css" href="../../../../../../_static/plot_directive.css" />
@@ -95,19 +95,19 @@
            <div itemprop="articleBody">
              
   <h1>Source code for opendrift.models.openoil.adios.extra_oils.fix_norwegian_oils</h1><div class="highlight"><pre>
-<span></span><span class="kn">import</span> <span class="nn">glob</span>
-<span class="kn">from</span> <span class="nn">datetime</span> <span class="kn">import</span> <span class="n">datetime</span>
-<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
-<span class="kn">import</span> <span class="nn">argparse</span>
-<span class="kn">import</span> <span class="nn">adios_db</span>
-<span class="kn">from</span> <span class="nn">adios_db.scripting</span> <span class="kn">import</span> <span class="n">Concentration</span>
-<span class="kn">from</span> <span class="nn">adios_db.models.oil.metadata</span> <span class="kn">import</span> <span class="n">MetaData</span><span class="p">,</span> <span class="n">ChangeLogEntry</span><span class="p">,</span> <span class="n">ChangeLog</span>
-<span class="kn">from</span> <span class="nn">adios_db.models.oil.oil</span> <span class="kn">import</span> <span class="n">Oil</span>
-<span class="kn">from</span> <span class="nn">adios_db.models.oil.physical_properties</span> <span class="kn">import</span> <span class="n">DynamicViscosityList</span>
+<span></span><span class="kn">import</span><span class="w"> </span><span class="nn">glob</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">datetime</span><span class="w"> </span><span class="kn">import</span> <span class="n">datetime</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">argparse</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">adios_db</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">adios_db.scripting</span><span class="w"> </span><span class="kn">import</span> <span class="n">Concentration</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">adios_db.models.oil.metadata</span><span class="w"> </span><span class="kn">import</span> <span class="n">MetaData</span><span class="p">,</span> <span class="n">ChangeLogEntry</span><span class="p">,</span> <span class="n">ChangeLog</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">adios_db.models.oil.oil</span><span class="w"> </span><span class="kn">import</span> <span class="n">Oil</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">adios_db.models.oil.physical_properties</span><span class="w"> </span><span class="kn">import</span> <span class="n">DynamicViscosityList</span>
 
 <div class="viewcode-block" id="fix_norwegian_oils">
 <a class="viewcode-back" href="../../../../../../autoapi/opendrift/models/openoil/adios/extra_oils/fix_norwegian_oils/index.html#opendrift.models.openoil.adios.extra_oils.fix_norwegian_oils.fix_norwegian_oils">[docs]</a>
-<span class="k">def</span> <span class="nf">fix_norwegian_oils</span><span class="p">():</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">fix_norwegian_oils</span><span class="p">():</span>
     <span class="n">parser</span> <span class="o">=</span> <span class="n">argparse</span><span class="o">.</span><span class="n">ArgumentParser</span><span class="p">(</span><span class="n">description</span><span class="o">=</span><span class="s1">&#39;Fix JSON oil files&#39;</span><span class="p">)</span>
     <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s1">&#39;-i&#39;</span><span class="p">,</span> <span class="n">metavar</span><span class="o">=</span><span class="s1">&#39;--input&#39;</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="nb">str</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s1">&#39;Input folder with json files&#39;</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="s1">&#39;none&#39;</span><span class="p">)</span>
     <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s1">&#39;-o&#39;</span><span class="p">,</span> <span class="n">metavar</span><span class="o">=</span><span class="s1">&#39;--output&#39;</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="nb">str</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s1">&#39;Output folder to save updated json files&#39;</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="s1">&#39;none&#39;</span><span class="p">)</span>

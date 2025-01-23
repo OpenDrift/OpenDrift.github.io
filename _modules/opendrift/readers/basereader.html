@@ -6,7 +6,7 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>opendrift.readers.basereader &mdash; OpenDrift  documentation</title>
-      <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=80d5e7a1" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=b86133f3" />
       <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=e59714d7" />
       <link rel="stylesheet" type="text/css" href="../../../_static/graphviz.css?v=4ae1632d" />
       <link rel="stylesheet" type="text/css" href="../../../_static/plot_directive.css" />
@@ -113,31 +113,31 @@
 <span class="c1"># Copyright 2015, Knut-Frode Dagestad, MET Norway</span>
 <span class="c1"># Copyright 2020, Gaute Hope, MET Norway</span>
 
-<span class="kn">import</span> <span class="nn">sys</span>
-<span class="kn">import</span> <span class="nn">logging</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">sys</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">logging</span>
 <span class="n">logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span>
-<span class="kn">from</span> <span class="nn">abc</span> <span class="kn">import</span> <span class="n">abstractmethod</span><span class="p">,</span> <span class="n">ABCMeta</span>
-<span class="kn">from</span> <span class="nn">datetime</span> <span class="kn">import</span> <span class="n">datetime</span><span class="p">,</span> <span class="n">timedelta</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">abc</span><span class="w"> </span><span class="kn">import</span> <span class="n">abstractmethod</span><span class="p">,</span> <span class="n">ABCMeta</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">datetime</span><span class="w"> </span><span class="kn">import</span> <span class="n">datetime</span><span class="p">,</span> <span class="n">timedelta</span>
 
-<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
-<span class="kn">import</span> <span class="nn">pyproj</span>
-<span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="k">as</span> <span class="nn">plt</span>
-<span class="kn">from</span> <span class="nn">matplotlib.patches</span> <span class="kn">import</span> <span class="n">Polygon</span>
-<span class="kn">import</span> <span class="nn">cartopy.crs</span> <span class="k">as</span> <span class="nn">ccrs</span>
-<span class="kn">import</span> <span class="nn">cartopy.feature</span> <span class="k">as</span> <span class="nn">cfeature</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">pyproj</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">matplotlib.pyplot</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">plt</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">matplotlib.patches</span><span class="w"> </span><span class="kn">import</span> <span class="n">Polygon</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">cartopy.crs</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">ccrs</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">cartopy.feature</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">cfeature</span>
 
-<span class="kn">from</span> <span class="nn">.structured</span> <span class="kn">import</span> <span class="n">StructuredReader</span>
-<span class="kn">from</span> <span class="nn">.unstructured</span> <span class="kn">import</span> <span class="n">UnstructuredReader</span>
-<span class="kn">from</span> <span class="nn">.continuous</span> <span class="kn">import</span> <span class="n">ContinuousReader</span>
-<span class="kn">from</span> <span class="nn">.variables</span> <span class="kn">import</span> <span class="n">Variables</span>
-<span class="kn">from</span> <span class="nn">.consts</span> <span class="kn">import</span> <span class="o">*</span>
-<span class="kn">from</span> <span class="nn">..operators.ops</span> <span class="kn">import</span> <span class="n">Combine</span><span class="p">,</span> <span class="n">Filter</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">.structured</span><span class="w"> </span><span class="kn">import</span> <span class="n">StructuredReader</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">.unstructured</span><span class="w"> </span><span class="kn">import</span> <span class="n">UnstructuredReader</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">.continuous</span><span class="w"> </span><span class="kn">import</span> <span class="n">ContinuousReader</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">.variables</span><span class="w"> </span><span class="kn">import</span> <span class="n">Variables</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">.consts</span><span class="w"> </span><span class="kn">import</span> <span class="o">*</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">..operators.ops</span><span class="w"> </span><span class="kn">import</span> <span class="n">Combine</span><span class="p">,</span> <span class="n">Filter</span>
 
-<span class="kn">from</span> <span class="nn">opendrift.readers.interpolation</span> <span class="kn">import</span> <span class="n">ReaderBlock</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">opendrift.readers.interpolation</span><span class="w"> </span><span class="kn">import</span> <span class="n">ReaderBlock</span>
 
 <div class="viewcode-block" id="BaseReader">
 <a class="viewcode-back" href="../../../autoapi/opendrift/readers/basereader/index.html#opendrift.readers.basereader.BaseReader">[docs]</a>
-<span class="k">class</span> <span class="nc">BaseReader</span><span class="p">(</span><span class="n">Variables</span><span class="p">,</span> <span class="n">Combine</span><span class="p">,</span> <span class="n">Filter</span><span class="p">):</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">BaseReader</span><span class="p">(</span><span class="n">Variables</span><span class="p">,</span> <span class="n">Combine</span><span class="p">,</span> <span class="n">Filter</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    An abstract reader. Implementors provide a method to read data and specify how it is interpolated.</span>
 
@@ -207,7 +207,7 @@
         <span class="s1">&#39;sea_ice_y_velocity&#39;</span><span class="p">:</span> <span class="s1">&#39;northward_sea_ice_velocity&#39;</span><span class="p">,</span>
         <span class="p">}</span>
 
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Common constructor for all readers&quot;&quot;&quot;</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
 
@@ -289,7 +289,7 @@
 
 <div class="viewcode-block" id="BaseReader.y_is_north">
 <a class="viewcode-back" href="../../../autoapi/opendrift/readers/basereader/index.html#opendrift.readers.basereader.BaseReader.y_is_north">[docs]</a>
-    <span class="k">def</span> <span class="nf">y_is_north</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">y_is_north</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">if</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">proj</span><span class="o">.</span><span class="n">crs</span><span class="o">.</span><span class="n">is_geographic</span> <span class="ow">and</span> <span class="s1">&#39;ob_tran&#39;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">proj4</span><span class="p">)</span> <span class="ow">or</span> <span class="s1">&#39;+proj=merc&#39;</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">proj</span><span class="o">.</span><span class="n">srs</span><span class="p">:</span>
             <span class="k">return</span> <span class="kc">True</span>
         <span class="k">else</span><span class="p">:</span>
@@ -298,7 +298,7 @@
 
 <div class="viewcode-block" id="BaseReader.index_of_closest_z">
 <a class="viewcode-back" href="../../../autoapi/opendrift/readers/basereader/index.html#opendrift.readers.basereader.BaseReader.index_of_closest_z">[docs]</a>
-    <span class="k">def</span> <span class="nf">index_of_closest_z</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">requested_z</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">index_of_closest_z</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">requested_z</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Return (internal) index of z closest to requested z.</span>
 
 <span class="sd">        Thickness of layers (of ocean model) are not assumed to be constant.</span>
@@ -310,7 +310,7 @@
 
 <div class="viewcode-block" id="BaseReader.indices_min_max_z">
 <a class="viewcode-back" href="../../../autoapi/opendrift/readers/basereader/index.html#opendrift.readers.basereader.BaseReader.indices_min_max_z">[docs]</a>
-    <span class="k">def</span> <span class="nf">indices_min_max_z</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">z</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">indices_min_max_z</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">z</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Return min and max indices of internal vertical dimension,</span>
 <span class="sd">        covering the requested vertical positions.</span>
@@ -326,7 +326,7 @@
 
 <div class="viewcode-block" id="BaseReader.performance">
 <a class="viewcode-back" href="../../../autoapi/opendrift/readers/basereader/index.html#opendrift.readers.basereader.BaseReader.performance">[docs]</a>
-    <span class="k">def</span> <span class="nf">performance</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">performance</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&#39;&#39;&#39;Report the time spent on various tasks&#39;&#39;&#39;</span>
         <span class="n">outStr</span> <span class="o">=</span> <span class="s1">&#39;&#39;</span>
         <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s1">&#39;timing&#39;</span><span class="p">):</span>
@@ -338,7 +338,7 @@
 
 <div class="viewcode-block" id="BaseReader.clip_boundary_pixels">
 <a class="viewcode-back" href="../../../autoapi/opendrift/readers/basereader/index.html#opendrift.readers.basereader.BaseReader.clip_boundary_pixels">[docs]</a>
-    <span class="k">def</span> <span class="nf">clip_boundary_pixels</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">numpix</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">clip_boundary_pixels</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">numpix</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&#39;&#39;&#39;Trim some (potentially bad) pixels along boundary&#39;&#39;&#39;</span>
         <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s1">&#39;Trimming </span><span class="si">%i</span><span class="s1"> pixels from boundary&#39;</span> <span class="o">%</span> <span class="n">numpix</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">xmin</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">xmin</span><span class="o">+</span><span class="n">numpix</span><span class="o">*</span><span class="bp">self</span><span class="o">.</span><span class="n">delta_x</span>
@@ -352,7 +352,7 @@
 
 <div class="viewcode-block" id="BaseReader.plot">
 <a class="viewcode-back" href="../../../autoapi/opendrift/readers/basereader/index.html#opendrift.readers.basereader.BaseReader.plot">[docs]</a>
-    <span class="k">def</span> <span class="nf">plot</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">variable</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">vmin</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">vmax</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">time</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">plot</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">variable</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">vmin</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">vmax</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">time</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
              <span class="n">filename</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">title</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">buffer</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">lscale</span><span class="o">=</span><span class="s1">&#39;auto&#39;</span><span class="p">,</span>
              <span class="n">cmap</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">cbar_label</span> <span class="o">=</span> <span class="kc">None</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Plot geographical coverage of reader.&quot;&quot;&quot;</span>
@@ -502,7 +502,7 @@
 
 <div class="viewcode-block" id="BaseReader.get_timeseries_at_position">
 <a class="viewcode-back" href="../../../autoapi/opendrift/readers/basereader/index.html#opendrift.readers.basereader.BaseReader.get_timeseries_at_position">[docs]</a>
-    <span class="k">def</span> <span class="nf">get_timeseries_at_position</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">lon</span><span class="p">,</span> <span class="n">lat</span><span class="p">,</span> <span class="n">variables</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_timeseries_at_position</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">lon</span><span class="p">,</span> <span class="n">lat</span><span class="p">,</span> <span class="n">variables</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
                                    <span class="n">start_time</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">end_time</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">times</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot; Get timeseries of variables from this reader at given position.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
@@ -543,7 +543,7 @@
 
 <div class="viewcode-block" id="BaseReader.shift_start_time">
 <a class="viewcode-back" href="../../../autoapi/opendrift/readers/basereader/index.html#opendrift.readers.basereader.BaseReader.shift_start_time">[docs]</a>
-    <span class="k">def</span> <span class="nf">shift_start_time</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">start_time</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">shift_start_time</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">start_time</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Shift the time coverage of reader to match given start_time&quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">start_time</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="s1">&#39;Reader has no time coverage, cannot shift times&#39;</span><span class="p">)</span>

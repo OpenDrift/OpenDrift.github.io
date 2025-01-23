@@ -6,7 +6,7 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>opendrift.models.openoil.openoil &mdash; OpenDrift  documentation</title>
-      <link rel="stylesheet" type="text/css" href="../../../../_static/pygments.css?v=80d5e7a1" />
+      <link rel="stylesheet" type="text/css" href="../../../../_static/pygments.css?v=b86133f3" />
       <link rel="stylesheet" type="text/css" href="../../../../_static/css/theme.css?v=e59714d7" />
       <link rel="stylesheet" type="text/css" href="../../../../_static/graphviz.css?v=4ae1632d" />
       <link rel="stylesheet" type="text/css" href="../../../../_static/plot_directive.css" />
@@ -175,31 +175,31 @@
 <span class="sd">After each wave breaking event, a new droplet diameter will be chosen based on the config setting for droplet size distribution.</span>
 <span class="sd">&quot;&quot;&quot;</span>
 
-<span class="kn">from</span> <span class="nn">io</span> <span class="kn">import</span> <span class="nb">open</span>
-<span class="kn">from</span> <span class="nn">importlib_resources</span> <span class="kn">import</span> <span class="n">files</span>
-<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
-<span class="kn">from</span> <span class="nn">datetime</span> <span class="kn">import</span> <span class="n">datetime</span>
-<span class="kn">import</span> <span class="nn">pyproj</span>
-<span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="k">as</span> <span class="nn">plt</span>
-<span class="kn">import</span> <span class="nn">logging</span>
-<span class="kn">import</span> <span class="nn">json</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">io</span><span class="w"> </span><span class="kn">import</span> <span class="nb">open</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">importlib_resources</span><span class="w"> </span><span class="kn">import</span> <span class="n">files</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">datetime</span><span class="w"> </span><span class="kn">import</span> <span class="n">datetime</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">pyproj</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">matplotlib.pyplot</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">plt</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">logging</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">json</span>
 
 <span class="n">logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span>
 
-<span class="kn">from</span> <span class="nn">opendrift.models.oceandrift</span> <span class="kn">import</span> <span class="n">OceanDrift</span><span class="p">,</span> <span class="n">Lagrangian3DArray</span>
-<span class="kn">from</span> <span class="nn">.</span> <span class="kn">import</span> <span class="n">noaa_oil_weathering</span> <span class="k">as</span> <span class="n">noaa</span>
-<span class="kn">from</span> <span class="nn">.</span> <span class="kn">import</span> <span class="n">adios</span>
-<span class="kn">from</span> <span class="nn">adios_db.computation.physical_properties</span> <span class="kn">import</span> <span class="n">KinematicViscosity</span><span class="p">,</span> <span class="n">Density</span>
-<span class="kn">from</span> <span class="nn">adios_db.computation</span> <span class="kn">import</span> <span class="n">gnome_oil</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">opendrift.models.oceandrift</span><span class="w"> </span><span class="kn">import</span> <span class="n">OceanDrift</span><span class="p">,</span> <span class="n">Lagrangian3DArray</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">.</span><span class="w"> </span><span class="kn">import</span> <span class="n">noaa_oil_weathering</span> <span class="k">as</span> <span class="n">noaa</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">.</span><span class="w"> </span><span class="kn">import</span> <span class="n">adios</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">adios_db.computation.physical_properties</span><span class="w"> </span><span class="kn">import</span> <span class="n">KinematicViscosity</span><span class="p">,</span> <span class="n">Density</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">adios_db.computation</span><span class="w"> </span><span class="kn">import</span> <span class="n">gnome_oil</span>
 
-<span class="kn">from</span> <span class="nn">opendrift.models.physics_methods</span> <span class="kn">import</span> <span class="n">oil_wave_entrainment_rate_li2017</span>
-<span class="kn">from</span> <span class="nn">opendrift.config</span> <span class="kn">import</span> <span class="n">CONFIG_LEVEL_ESSENTIAL</span><span class="p">,</span> <span class="n">CONFIG_LEVEL_BASIC</span><span class="p">,</span> <span class="n">CONFIG_LEVEL_ADVANCED</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">opendrift.models.physics_methods</span><span class="w"> </span><span class="kn">import</span> <span class="n">oil_wave_entrainment_rate_li2017</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">opendrift.config</span><span class="w"> </span><span class="kn">import</span> <span class="n">CONFIG_LEVEL_ESSENTIAL</span><span class="p">,</span> <span class="n">CONFIG_LEVEL_BASIC</span><span class="p">,</span> <span class="n">CONFIG_LEVEL_ADVANCED</span>
 
 
 <span class="c1"># Defining the oil element properties</span>
 <div class="viewcode-block" id="Oil">
 <a class="viewcode-back" href="../../../../autoapi/opendrift/models/openoil/openoil/index.html#opendrift.models.openoil.Oil">[docs]</a>
-<span class="k">class</span> <span class="nc">Oil</span><span class="p">(</span><span class="n">Lagrangian3DArray</span><span class="p">):</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">Oil</span><span class="p">(</span><span class="n">Lagrangian3DArray</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Extending LagrangianArray with variables relevant for oil particles.&quot;&quot;&quot;</span>
 
     <span class="n">variables</span> <span class="o">=</span> <span class="n">Lagrangian3DArray</span><span class="o">.</span><span class="n">add_variables</span><span class="p">([</span>
@@ -307,7 +307,7 @@
 
 <div class="viewcode-block" id="OpenOil">
 <a class="viewcode-back" href="../../../../autoapi/opendrift/models/openoil/openoil/index.html#opendrift.models.openoil.OpenOil">[docs]</a>
-<span class="k">class</span> <span class="nc">OpenOil</span><span class="p">(</span><span class="n">OceanDrift</span><span class="p">):</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">OpenOil</span><span class="p">(</span><span class="n">OceanDrift</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Open source oil trajectory model based on the OpenDrift framework.</span>
 
 <span class="sd">        Developed at MET Norway based on oil weathering parameterisations</span>
@@ -421,7 +421,7 @@
                   <span class="s1">&#39;STATFJORD BLEND, STATOIL&#39;</span><span class="p">,</span> <span class="s1">&#39;VARG, STATOIL&#39;</span><span class="p">]</span>
 
 
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">weathering_model</span><span class="o">=</span><span class="s1">&#39;noaa&#39;</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">weathering_model</span><span class="o">=</span><span class="s1">&#39;noaa&#39;</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">oil_weathering_model</span> <span class="o">=</span> <span class="n">weathering_model</span>
 
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">oil_weathering_model</span> <span class="o">==</span> <span class="s1">&#39;noaa&#39;</span><span class="p">:</span>  <span class="c1"># Currently the only option</span>
@@ -589,13 +589,13 @@
 
 <div class="viewcode-block" id="OpenOil.update_surface_oilfilm_thickness">
 <a class="viewcode-back" href="../../../../autoapi/opendrift/models/openoil/openoil/index.html#opendrift.models.openoil.OpenOil.update_surface_oilfilm_thickness">[docs]</a>
-    <span class="k">def</span> <span class="nf">update_surface_oilfilm_thickness</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">update_surface_oilfilm_thickness</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&#39;&#39;&#39;The mass of oil is summed within a grid of 100x100</span>
 <span class="sd">        cells covering the oil at a given time. Each oil particle</span>
 <span class="sd">        within each cell is given a film thickness as the amount of</span>
 <span class="sd">        oil divided by the cell area.</span>
 <span class="sd">        &#39;&#39;&#39;</span>
-        <span class="kn">from</span> <span class="nn">scipy.stats</span> <span class="kn">import</span> <span class="n">binned_statistic_2d</span>
+        <span class="kn">from</span><span class="w"> </span><span class="nn">scipy.stats</span><span class="w"> </span><span class="kn">import</span> <span class="n">binned_statistic_2d</span>
         <span class="n">surface</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">elements</span><span class="o">.</span><span class="n">z</span> <span class="o">==</span> <span class="mi">0</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
         <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">surface</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
             <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;No oil at surface, no film thickness to update&#39;</span><span class="p">)</span>
@@ -650,7 +650,7 @@
 
 <div class="viewcode-block" id="OpenOil.biodegradation">
 <a class="viewcode-back" href="../../../../autoapi/opendrift/models/openoil/openoil/index.html#opendrift.models.openoil.OpenOil.biodegradation">[docs]</a>
-    <span class="k">def</span> <span class="nf">biodegradation</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">biodegradation</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_config</span><span class="p">(</span><span class="s1">&#39;processes:biodegradation&#39;</span><span class="p">)</span> <span class="ow">is</span> <span class="kc">True</span><span class="p">:</span>
             <span class="n">method</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_config</span><span class="p">(</span><span class="s1">&#39;biodegradation:method&#39;</span><span class="p">)</span>
             <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Calculating: biodegradation (</span><span class="si">{</span><span class="n">method</span><span class="si">}</span><span class="s1">)&#39;</span><span class="p">)</span>
@@ -662,7 +662,7 @@
 
 <div class="viewcode-block" id="OpenOil.biodegradation_half_time">
 <a class="viewcode-back" href="../../../../autoapi/opendrift/models/openoil/openoil/index.html#opendrift.models.openoil.OpenOil.biodegradation_half_time">[docs]</a>
-    <span class="k">def</span> <span class="nf">biodegradation_half_time</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">biodegradation_half_time</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&#39;&#39;&#39;Oil biodegradation with exponential decay&#39;&#39;&#39;</span>
 
         <span class="n">surface</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">elements</span><span class="o">.</span><span class="n">z</span> <span class="o">==</span> <span class="mi">0</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>  <span class="c1"># of active elements</span>
@@ -685,7 +685,7 @@
 
 <div class="viewcode-block" id="OpenOil.biodegradation_adcroft">
 <a class="viewcode-back" href="../../../../autoapi/opendrift/models/openoil/openoil/index.html#opendrift.models.openoil.OpenOil.biodegradation_adcroft">[docs]</a>
-    <span class="k">def</span> <span class="nf">biodegradation_adcroft</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">biodegradation_adcroft</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&#39;&#39;&#39;</span>
 <span class="sd">        Oil biodegradation function based on the article:</span>
 <span class="sd">        Adcroft et al. (2010), Simulations of underwater plumes of</span>
@@ -713,7 +713,7 @@
 
 <div class="viewcode-block" id="OpenOil.disperse">
 <a class="viewcode-back" href="../../../../autoapi/opendrift/models/openoil/openoil/index.html#opendrift.models.openoil.OpenOil.disperse">[docs]</a>
-    <span class="k">def</span> <span class="nf">disperse</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">disperse</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_config</span><span class="p">(</span><span class="s1">&#39;processes:dispersion&#39;</span><span class="p">)</span> <span class="ow">is</span> <span class="kc">True</span><span class="p">:</span>
 
             <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;   Calculating: dispersion&#39;</span><span class="p">)</span>
@@ -776,7 +776,7 @@
 
 <div class="viewcode-block" id="OpenOil.oil_weathering">
 <a class="viewcode-back" href="../../../../autoapi/opendrift/models/openoil/openoil/index.html#opendrift.models.openoil.OpenOil.oil_weathering">[docs]</a>
-    <span class="k">def</span> <span class="nf">oil_weathering</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">oil_weathering</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">time_step</span><span class="o">.</span><span class="n">days</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="p">:</span>
             <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;Skipping oil weathering for backwards run&#39;</span><span class="p">)</span>
             <span class="k">return</span>
@@ -788,7 +788,7 @@
 
 <div class="viewcode-block" id="OpenOil.prepare_run">
 <a class="viewcode-back" href="../../../../autoapi/opendrift/models/openoil/openoil/index.html#opendrift.models.openoil.OpenOil.prepare_run">[docs]</a>
-    <span class="k">def</span> <span class="nf">prepare_run</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">prepare_run</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">oil_weathering_model</span> <span class="o">==</span> <span class="s1">&#39;noaa&#39;</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">noaa_mass_balance</span> <span class="o">=</span> <span class="p">{}</span>
             <span class="c1"># Populate with seeded mass spread on oiltype.mass_fraction</span>
@@ -826,7 +826,7 @@
 
 <div class="viewcode-block" id="OpenOil.oil_weathering_noaa">
 <a class="viewcode-back" href="../../../../autoapi/opendrift/models/openoil/openoil/index.html#opendrift.models.openoil.OpenOil.oil_weathering_noaa">[docs]</a>
-    <span class="k">def</span> <span class="nf">oil_weathering_noaa</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">oil_weathering_noaa</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&#39;&#39;&#39;Oil weathering scheme adopted from NOAA PyGNOME model:</span>
 <span class="sd">        https://github.com/NOAA-ORR-ERD/PyGnome</span>
 <span class="sd">        &#39;&#39;&#39;</span>
@@ -904,7 +904,7 @@
 
 <div class="viewcode-block" id="OpenOil.disperse_noaa">
 <a class="viewcode-back" href="../../../../autoapi/opendrift/models/openoil/openoil/index.html#opendrift.models.openoil.OpenOil.disperse_noaa">[docs]</a>
-    <span class="k">def</span> <span class="nf">disperse_noaa</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">disperse_noaa</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;    Calculating: dispersion - NOAA&#39;</span><span class="p">)</span>
         <span class="c1"># From NOAA PyGnome model:</span>
         <span class="c1"># https://github.com/NOAA-ORR-ERD/PyGnome/</span>
@@ -932,7 +932,7 @@
 
 <div class="viewcode-block" id="OpenOil.plot_droplet_spectrum">
 <a class="viewcode-back" href="../../../../autoapi/opendrift/models/openoil/openoil/index.html#opendrift.models.openoil.OpenOil.plot_droplet_spectrum">[docs]</a>
-    <span class="k">def</span> <span class="nf">plot_droplet_spectrum</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">plot_droplet_spectrum</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&#39;&#39;&#39;Plotting distribution of droplet radii, for debugging&#39;&#39;&#39;</span>
         <span class="n">plt</span><span class="o">.</span><span class="n">hist</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">elements</span><span class="o">.</span><span class="n">diameter</span> <span class="o">/</span> <span class="mf">2.0</span><span class="p">)</span>
         <span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span></div>
@@ -940,7 +940,7 @@
 
 <div class="viewcode-block" id="OpenOil.evaporation_noaa">
 <a class="viewcode-back" href="../../../../autoapi/opendrift/models/openoil/openoil/index.html#opendrift.models.openoil.OpenOil.evaporation_noaa">[docs]</a>
-    <span class="k">def</span> <span class="nf">evaporation_noaa</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">evaporation_noaa</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="c1">#############################################</span>
         <span class="c1"># Evaporation, for elements at surface only</span>
         <span class="c1">#############################################</span>
@@ -976,7 +976,7 @@
 
 <div class="viewcode-block" id="OpenOil.emulsification_noaa">
 <a class="viewcode-back" href="../../../../autoapi/opendrift/models/openoil/openoil/index.html#opendrift.models.openoil.OpenOil.emulsification_noaa">[docs]</a>
-    <span class="k">def</span> <span class="nf">emulsification_noaa</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">emulsification_noaa</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="c1">#############################################</span>
         <span class="c1"># Emulsification (surface only)</span>
         <span class="c1">#############################################</span>
@@ -1046,7 +1046,7 @@
 
 <div class="viewcode-block" id="OpenOil.update_terminal_velocity">
 <a class="viewcode-back" href="../../../../autoapi/opendrift/models/openoil/openoil/index.html#opendrift.models.openoil.OpenOil.update_terminal_velocity">[docs]</a>
-    <span class="k">def</span> <span class="nf">update_terminal_velocity</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">update_terminal_velocity</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span>
                                  <span class="n">Tprofiles</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
                                  <span class="n">Sprofiles</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
                                  <span class="n">z_index</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
@@ -1128,7 +1128,7 @@
 
 <div class="viewcode-block" id="OpenOil.oil_wave_entrainment_rate">
 <a class="viewcode-back" href="../../../../autoapi/opendrift/models/openoil/openoil/index.html#opendrift.models.openoil.OpenOil.oil_wave_entrainment_rate">[docs]</a>
-    <span class="k">def</span> <span class="nf">oil_wave_entrainment_rate</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">oil_wave_entrainment_rate</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="n">er</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_config</span><span class="p">(</span><span class="s1">&#39;wave_entrainment:entrainment_rate&#39;</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">er</span> <span class="o">==</span> <span class="s1">&#39;Li et al. (2017)&#39;</span><span class="p">:</span>
             <span class="n">entrainment_rate</span> <span class="o">=</span> <span class="n">oil_wave_entrainment_rate_li2017</span><span class="p">(</span>
@@ -1148,7 +1148,7 @@
 
 <div class="viewcode-block" id="OpenOil.prepare_vertical_mixing">
 <a class="viewcode-back" href="../../../../autoapi/opendrift/models/openoil/openoil/index.html#opendrift.models.openoil.OpenOil.prepare_vertical_mixing">[docs]</a>
-    <span class="k">def</span> <span class="nf">prepare_vertical_mixing</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">prepare_vertical_mixing</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&#39;&#39;&#39;Calculate entrainment probability before main loop&#39;&#39;&#39;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">oil_entrainment_probability</span> <span class="o">=</span> \
             <span class="mi">1</span> <span class="o">-</span> <span class="n">np</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="o">-</span><span class="bp">self</span><span class="o">.</span><span class="n">oil_wave_entrainment_rate</span><span class="p">()</span><span class="o">*</span>\
@@ -1167,7 +1167,7 @@
 
 <div class="viewcode-block" id="OpenOil.surface_wave_mixing">
 <a class="viewcode-back" href="../../../../autoapi/opendrift/models/openoil/openoil/index.html#opendrift.models.openoil.OpenOil.surface_wave_mixing">[docs]</a>
-    <span class="k">def</span> <span class="nf">surface_wave_mixing</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">time_step_seconds</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">surface_wave_mixing</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">time_step_seconds</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Mix surface oil into water column.&quot;&quot;&quot;</span>
         <span class="c1"># Entrain oil into uppermost layer (whitecapping from waves)</span>
         <span class="c1"># TODO: optimise this by only calculate for surface elements</span>
@@ -1193,7 +1193,7 @@
 
 <div class="viewcode-block" id="OpenOil.surface_stick">
 <a class="viewcode-back" href="../../../../autoapi/opendrift/models/openoil/openoil/index.html#opendrift.models.openoil.OpenOil.surface_stick">[docs]</a>
-    <span class="k">def</span> <span class="nf">surface_stick</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">surface_stick</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;set surfaced particles to exactly zero depth to let them form a slick &quot;&quot;&quot;</span>
 
         <span class="n">surface</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">elements</span><span class="o">.</span><span class="n">z</span> <span class="o">&gt;=</span> <span class="mi">0</span><span class="p">)</span>
@@ -1203,7 +1203,7 @@
 
 <div class="viewcode-block" id="OpenOil.get_wave_breaking_droplet_diameter">
 <a class="viewcode-back" href="../../../../autoapi/opendrift/models/openoil/openoil/index.html#opendrift.models.openoil.OpenOil.get_wave_breaking_droplet_diameter">[docs]</a>
-    <span class="k">def</span> <span class="nf">get_wave_breaking_droplet_diameter</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_wave_breaking_droplet_diameter</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="n">dm</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_config</span><span class="p">(</span><span class="s1">&#39;wave_entrainment:droplet_size_distribution&#39;</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">dm</span> <span class="o">==</span> <span class="s1">&#39;Johansen et al. (2015)&#39;</span><span class="p">:</span>
             <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_wave_breaking_droplet_diameter_johansen2015</span><span class="p">()</span>
@@ -1215,7 +1215,7 @@
 
 <div class="viewcode-block" id="OpenOil.get_wave_breaking_droplet_diameter_liz2017">
 <a class="viewcode-back" href="../../../../autoapi/opendrift/models/openoil/openoil/index.html#opendrift.models.openoil.OpenOil.get_wave_breaking_droplet_diameter_liz2017">[docs]</a>
-    <span class="k">def</span> <span class="nf">get_wave_breaking_droplet_diameter_liz2017</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_wave_breaking_droplet_diameter_liz2017</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="c1"># Li,Zhengkai, M. Spaulding, D. French-McCay, D. Crowley, J.R. Payne: &quot;Development of a unified oil droplet size distribution model</span>
         <span class="c1"># with application to surface breaking waves and subsea blowout releases considering dispersant effects&quot; Mar. Pol. Bul.</span>
         <span class="c1"># DOI: 10.1016/j.marpolbul.2016.09.008</span>
@@ -1268,7 +1268,7 @@
 
 <div class="viewcode-block" id="OpenOil.get_wave_breaking_droplet_diameter_johansen2015">
 <a class="viewcode-back" href="../../../../autoapi/opendrift/models/openoil/openoil/index.html#opendrift.models.openoil.OpenOil.get_wave_breaking_droplet_diameter_johansen2015">[docs]</a>
-    <span class="k">def</span> <span class="nf">get_wave_breaking_droplet_diameter_johansen2015</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_wave_breaking_droplet_diameter_johansen2015</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="c1"># Johansen O, Reed M, Bodsberg NR, Natural dispersion revisited</span>
         <span class="c1"># DOI: 10.1016/j.marpolbul.2015.02.026</span>
         <span class="c1"># requires oil film thickness</span>
@@ -1323,7 +1323,7 @@
 
 <div class="viewcode-block" id="OpenOil.resurface_elements">
 <a class="viewcode-back" href="../../../../autoapi/opendrift/models/openoil/openoil/index.html#opendrift.models.openoil.OpenOil.resurface_elements">[docs]</a>
-    <span class="k">def</span> <span class="nf">resurface_elements</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">minimum_depth</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">resurface_elements</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">minimum_depth</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Oil elements reaching surface (or above) form slick, not droplet&quot;&quot;&quot;</span>
         <span class="n">surface</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">elements</span><span class="o">.</span><span class="n">z</span> <span class="o">&gt;=</span> <span class="mi">0</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">elements</span><span class="o">.</span><span class="n">z</span><span class="p">[</span><span class="n">surface</span><span class="p">]</span> <span class="o">=</span> <span class="mi">0</span></div>
@@ -1331,7 +1331,7 @@
 
 <div class="viewcode-block" id="OpenOil.advect_oil">
 <a class="viewcode-back" href="../../../../autoapi/opendrift/models/openoil/openoil/index.html#opendrift.models.openoil.OpenOil.advect_oil">[docs]</a>
-    <span class="k">def</span> <span class="nf">advect_oil</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">advect_oil</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 
         <span class="c1"># Calculating various drift factors according to ice concentration</span>
         <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">environment</span><span class="p">,</span> <span class="s1">&#39;sea_ice_area_fraction&#39;</span><span class="p">):</span>
@@ -1373,7 +1373,7 @@
 
 <div class="viewcode-block" id="OpenOil.update">
 <a class="viewcode-back" href="../../../../autoapi/opendrift/models/openoil/openoil/index.html#opendrift.models.openoil.OpenOil.update">[docs]</a>
-    <span class="k">def</span> <span class="nf">update</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">update</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Update positions and properties of oil particles.&quot;&quot;&quot;</span>
 
         <span class="c1"># TODO: move all config-checking inside respective methods</span>
@@ -1399,7 +1399,7 @@
 
 <div class="viewcode-block" id="OpenOil.get_oil_budget">
 <a class="viewcode-back" href="../../../../autoapi/opendrift/models/openoil/openoil/index.html#opendrift.models.openoil.OpenOil.get_oil_budget">[docs]</a>
-    <span class="k">def</span> <span class="nf">get_oil_budget</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_oil_budget</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Get oil budget for the current simulation</span>
 
 <span class="sd">        The oil budget consists of the following categories:</span>
@@ -1481,7 +1481,7 @@
 
 <div class="viewcode-block" id="OpenOil.plot_oil_budget">
 <a class="viewcode-back" href="../../../../autoapi/opendrift/models/openoil/openoil/index.html#opendrift.models.openoil.OpenOil.plot_oil_budget">[docs]</a>
-    <span class="k">def</span> <span class="nf">plot_oil_budget</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">plot_oil_budget</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span>
                         <span class="n">filename</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
                         <span class="n">ax</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
                         <span class="n">show_watercontent_and_viscosity</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
@@ -1626,7 +1626,7 @@
 
 <div class="viewcode-block" id="OpenOil.get_oil_name">
 <a class="viewcode-back" href="../../../../autoapi/opendrift/models/openoil/openoil/index.html#opendrift.models.openoil.OpenOil.get_oil_name">[docs]</a>
-    <span class="k">def</span> <span class="nf">get_oil_name</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_oil_name</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">try</span><span class="p">:</span>
             <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_config</span><span class="p">(</span><span class="s1">&#39;seed:oil_type&#39;</span><span class="p">)</span>
         <span class="k">except</span><span class="p">:</span>  <span class="c1"># fallback if importing old files</span>
@@ -1635,7 +1635,7 @@
 
 <div class="viewcode-block" id="OpenOil.cumulative_oil_entrainment_fraction">
 <a class="viewcode-back" href="../../../../autoapi/opendrift/models/openoil/openoil/index.html#opendrift.models.openoil.OpenOil.cumulative_oil_entrainment_fraction">[docs]</a>
-    <span class="k">def</span> <span class="nf">cumulative_oil_entrainment_fraction</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">cumulative_oil_entrainment_fraction</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&#39;&#39;&#39;Returns the fraction of oil elements which has been entrained vs time&#39;&#39;&#39;</span>
         <span class="n">z</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_property</span><span class="p">(</span><span class="s1">&#39;z&#39;</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
         <span class="n">z</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">ma</span><span class="o">.</span><span class="n">masked_where</span><span class="p">(</span><span class="n">z</span> <span class="o">==</span> <span class="mi">0</span><span class="p">,</span> <span class="n">z</span><span class="p">)</span>
@@ -1652,10 +1652,10 @@
 
 <div class="viewcode-block" id="OpenOil.plot_oil_watercontent_and_viscosity">
 <a class="viewcode-back" href="../../../../autoapi/opendrift/models/openoil/openoil/index.html#opendrift.models.openoil.OpenOil.plot_oil_watercontent_and_viscosity">[docs]</a>
-    <span class="k">def</span> <span class="nf">plot_oil_watercontent_and_viscosity</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ax</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">show</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">plot_oil_watercontent_and_viscosity</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ax</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">show</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
         <span class="k">if</span> <span class="n">ax</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="n">fig</span><span class="p">,</span> <span class="n">ax</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">()</span>
-        <span class="kn">import</span> <span class="nn">matplotlib.dates</span> <span class="k">as</span> <span class="nn">mdates</span>
+        <span class="kn">import</span><span class="w"> </span><span class="nn">matplotlib.dates</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">mdates</span>
 
         <span class="n">time</span><span class="p">,</span> <span class="n">time_relative</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_time_array</span><span class="p">()</span>
         <span class="n">time</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">t</span><span class="o">.</span><span class="n">total_seconds</span><span class="p">()</span> <span class="o">/</span> <span class="mf">3600.</span> <span class="k">for</span> <span class="n">t</span> <span class="ow">in</span> <span class="n">time_relative</span><span class="p">])</span>
@@ -1702,7 +1702,7 @@
 
 <div class="viewcode-block" id="OpenOil.set_oiltype">
 <a class="viewcode-back" href="../../../../autoapi/opendrift/models/openoil/openoil/index.html#opendrift.models.openoil.OpenOil.set_oiltype">[docs]</a>
-    <span class="k">def</span> <span class="nf">set_oiltype</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">oiltype</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">set_oiltype</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">oiltype</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Sets the oil type by specifying the name, the first match will be chosen. See the `ADIOS database &lt;https://adios.orr.noaa.gov/oils&gt;`_ for a list. OpenDrift provides a small set of extra oils.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
@@ -1726,7 +1726,7 @@
 
 <div class="viewcode-block" id="OpenOil.set_oiltype_by_id">
 <a class="viewcode-back" href="../../../../autoapi/opendrift/models/openoil/openoil/index.html#opendrift.models.openoil.OpenOil.set_oiltype_by_id">[docs]</a>
-    <span class="k">def</span> <span class="nf">set_oiltype_by_id</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">oiltypeid</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">set_oiltype_by_id</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">oiltypeid</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Sets the oil type by specifying the ADIOS ID. See the `ADIOS database &lt;https://adios.orr.noaa.gov/oils&gt;`_ for a list. OpenDrift provides a small set of extra oils.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
@@ -1744,7 +1744,7 @@
 
 <div class="viewcode-block" id="OpenOil.set_oiltype_by_json">
 <a class="viewcode-back" href="../../../../autoapi/opendrift/models/openoil/openoil/index.html#opendrift.models.openoil.OpenOil.set_oiltype_by_json">[docs]</a>
-    <span class="k">def</span> <span class="nf">set_oiltype_by_json</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">json</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">set_oiltype_by_json</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">json</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Sets the oil type by specifing a JSON dict. The format should be the same as the ADIOS database. See the `ADIOS database &lt;https://adios.orr.noaa.gov/oils&gt;`_ for a list.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
@@ -1766,7 +1766,7 @@
 
 <div class="viewcode-block" id="OpenOil.set_oiltype_from_file">
 <a class="viewcode-back" href="../../../../autoapi/opendrift/models/openoil/openoil/index.html#opendrift.models.openoil.OpenOil.set_oiltype_from_file">[docs]</a>
-    <span class="k">def</span> <span class="nf">set_oiltype_from_file</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">path</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">set_oiltype_from_file</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">path</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Sets the oil type by specifing a JSON file. The format should be the same as the ADIOS database. See the `ADIOS database &lt;https://adios.orr.noaa.gov/oils&gt;`_ for a list.</span>
 
@@ -1774,7 +1774,7 @@
 <span class="sd">        &gt;&gt;&gt; o.set_oiltype_from_file(&#39;opendrift/models/openoil/adios/extra_oils/AD04001.json&#39;)</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">oil_weathering_model</span> <span class="o">==</span> <span class="s1">&#39;noaa&#39;</span><span class="p">:</span>
-            <span class="kn">import</span> <span class="nn">json</span>
+            <span class="kn">import</span><span class="w"> </span><span class="nn">json</span>
             <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="s1">&#39;r&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">fd</span><span class="p">:</span>
                 <span class="n">j</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">fd</span><span class="p">)</span>
 
@@ -1786,7 +1786,7 @@
 
 <div class="viewcode-block" id="OpenOil.store_oil_seed_metadata">
 <a class="viewcode-back" href="../../../../autoapi/opendrift/models/openoil/openoil/index.html#opendrift.models.openoil.OpenOil.store_oil_seed_metadata">[docs]</a>
-    <span class="k">def</span> <span class="nf">store_oil_seed_metadata</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">store_oil_seed_metadata</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
         <span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <span class="p">[</span>
                 <span class="s1">&#39;lon&#39;</span><span class="p">,</span> <span class="s1">&#39;lat&#39;</span><span class="p">,</span> <span class="s1">&#39;radius&#39;</span><span class="p">,</span> <span class="s1">&#39;time&#39;</span><span class="p">,</span> <span class="s1">&#39;number&#39;</span><span class="p">,</span> <span class="s1">&#39;z&#39;</span><span class="p">,</span> <span class="s1">&#39;m3_per_hour&#39;</span>
         <span class="p">]:</span>
@@ -1822,7 +1822,7 @@
 
 <div class="viewcode-block" id="OpenOil.seed_elements">
 <a class="viewcode-back" href="../../../../autoapi/opendrift/models/openoil/openoil/index.html#opendrift.models.openoil.OpenOil.seed_elements">[docs]</a>
-    <span class="k">def</span> <span class="nf">seed_elements</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">seed_elements</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
 
         <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">args</span><span class="p">)</span> <span class="o">==</span> <span class="mi">2</span><span class="p">:</span>
             <span class="n">kwargs</span><span class="p">[</span><span class="s1">&#39;lon&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">args</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
@@ -1948,7 +1948,7 @@
 
 <div class="viewcode-block" id="OpenOil.seed_cone">
 <a class="viewcode-back" href="../../../../autoapi/opendrift/models/openoil/openoil/index.html#opendrift.models.openoil.OpenOil.seed_cone">[docs]</a>
-    <span class="k">def</span> <span class="nf">seed_cone</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">seed_cone</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
         <span class="k">if</span> <span class="s1">&#39;oiltype&#39;</span> <span class="ow">in</span> <span class="n">kwargs</span><span class="p">:</span>
             <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span>
                 <span class="s1">&#39;Seed argument *oiltype* is deprecated, use *oil_type* instead&#39;</span>
@@ -1963,15 +1963,15 @@
 
 <div class="viewcode-block" id="OpenOil.seed_from_gml">
 <a class="viewcode-back" href="../../../../autoapi/opendrift/models/openoil/openoil/index.html#opendrift.models.openoil.OpenOil.seed_from_gml">[docs]</a>
-    <span class="k">def</span> <span class="nf">seed_from_gml</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">gmlfile</span><span class="p">,</span> <span class="n">num_elements</span><span class="o">=</span><span class="mi">1000</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">seed_from_gml</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">gmlfile</span><span class="p">,</span> <span class="n">num_elements</span><span class="o">=</span><span class="mi">1000</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Read oil slick contours from GML file, and seed particles within.&quot;&quot;&quot;</span>
 
         <span class="c1"># Specific imports</span>
-        <span class="kn">import</span> <span class="nn">datetime</span>
-        <span class="kn">from</span> <span class="nn">matplotlib.path</span> <span class="kn">import</span> <span class="n">Path</span>
-        <span class="kn">from</span> <span class="nn">xml.etree</span> <span class="kn">import</span> <span class="n">ElementTree</span>
-        <span class="kn">from</span> <span class="nn">matplotlib.patches</span> <span class="kn">import</span> <span class="n">Polygon</span>
-        <span class="kn">import</span> <span class="nn">pyproj</span>
+        <span class="kn">import</span><span class="w"> </span><span class="nn">datetime</span>
+        <span class="kn">from</span><span class="w"> </span><span class="nn">matplotlib.path</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path</span>
+        <span class="kn">from</span><span class="w"> </span><span class="nn">xml.etree</span><span class="w"> </span><span class="kn">import</span> <span class="n">ElementTree</span>
+        <span class="kn">from</span><span class="w"> </span><span class="nn">matplotlib.patches</span><span class="w"> </span><span class="kn">import</span> <span class="n">Polygon</span>
+        <span class="kn">import</span><span class="w"> </span><span class="nn">pyproj</span>
 
         <span class="n">namespaces</span> <span class="o">=</span> <span class="p">{</span>
             <span class="s1">&#39;od&#39;</span><span class="p">:</span> <span class="s1">&#39;http://cweb.ksat.no/cweb/schema/geoweb/oil&#39;</span><span class="p">,</span>
@@ -2062,14 +2062,14 @@
 
 <div class="viewcode-block" id="OpenOil.seed_from_geotiff_thickness">
 <a class="viewcode-back" href="../../../../autoapi/opendrift/models/openoil/openoil/index.html#opendrift.models.openoil.OpenOil.seed_from_geotiff_thickness">[docs]</a>
-    <span class="k">def</span> <span class="nf">seed_from_geotiff_thickness</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">seed_from_geotiff_thickness</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span>
                                     <span class="n">filename</span><span class="p">,</span>
                                     <span class="n">number</span><span class="o">=</span><span class="mi">50000</span><span class="p">,</span>
                                     <span class="o">*</span><span class="n">args</span><span class="p">,</span>
                                     <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&#39;&#39;&#39;Seed from files as provided by Prof. Chuanmin Hu&#39;&#39;&#39;</span>
 
-        <span class="kn">from</span> <span class="nn">osgeo</span> <span class="kn">import</span> <span class="n">gdal</span><span class="p">,</span> <span class="n">ogr</span><span class="p">,</span> <span class="n">osr</span>
+        <span class="kn">from</span><span class="w"> </span><span class="nn">osgeo</span><span class="w"> </span><span class="kn">import</span> <span class="n">gdal</span><span class="p">,</span> <span class="n">ogr</span><span class="p">,</span> <span class="n">osr</span>
 
         <span class="k">if</span> <span class="ow">not</span> <span class="s1">&#39;time&#39;</span> <span class="ow">in</span> <span class="n">kwargs</span><span class="p">:</span>
             <span class="k">try</span><span class="p">:</span>  <span class="c1"># get time from filename</span>
@@ -2156,7 +2156,7 @@
 
 <div class="viewcode-block" id="OpenOil._substance_name">
 <a class="viewcode-back" href="../../../../autoapi/opendrift/models/openoil/openoil/index.html#opendrift.models.openoil.OpenOil._substance_name">[docs]</a>
-    <span class="k">def</span> <span class="nf">_substance_name</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_substance_name</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_oil_name</span><span class="p">()</span></div>
 </div>
 

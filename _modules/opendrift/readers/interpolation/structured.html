@@ -6,7 +6,7 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>opendrift.readers.interpolation.structured &mdash; OpenDrift  documentation</title>
-      <link rel="stylesheet" type="text/css" href="../../../../_static/pygments.css?v=80d5e7a1" />
+      <link rel="stylesheet" type="text/css" href="../../../../_static/pygments.css?v=b86133f3" />
       <link rel="stylesheet" type="text/css" href="../../../../_static/css/theme.css?v=e59714d7" />
       <link rel="stylesheet" type="text/css" href="../../../../_static/graphviz.css?v=4ae1632d" />
       <link rel="stylesheet" type="text/css" href="../../../../_static/plot_directive.css" />
@@ -96,23 +96,23 @@
            <div itemprop="articleBody">
              
   <h1>Source code for opendrift.readers.interpolation.structured</h1><div class="highlight"><pre>
-<span></span><span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
-<span class="kn">from</span> <span class="nn">scipy.ndimage</span> <span class="kn">import</span> <span class="n">map_coordinates</span>
-<span class="kn">import</span> <span class="nn">scipy.ndimage</span> <span class="k">as</span> <span class="nn">ndimage</span>
-<span class="kn">from</span> <span class="nn">scipy.interpolate</span> <span class="kn">import</span> <span class="n">interp1d</span><span class="p">,</span> <span class="n">LinearNDInterpolator</span>
+<span></span><span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">scipy.ndimage</span><span class="w"> </span><span class="kn">import</span> <span class="n">map_coordinates</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">scipy.ndimage</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">ndimage</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">scipy.interpolate</span><span class="w"> </span><span class="kn">import</span> <span class="n">interp1d</span><span class="p">,</span> <span class="n">LinearNDInterpolator</span>
 
-<span class="kn">from</span> <span class="nn">.interpolators</span> <span class="kn">import</span> <span class="n">Nearest2DInterpolator</span><span class="p">,</span> <span class="n">fill_NaN_towards_seafloor</span><span class="p">,</span> <span class="n">horizontal_interpolation_methods</span><span class="p">,</span> <span class="n">vertical_interpolation_methods</span>
-<span class="kn">from</span> <span class="nn">opendrift.readers.basereader</span> <span class="kn">import</span> <span class="n">variables</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">.interpolators</span><span class="w"> </span><span class="kn">import</span> <span class="n">Nearest2DInterpolator</span><span class="p">,</span> <span class="n">fill_NaN_towards_seafloor</span><span class="p">,</span> <span class="n">horizontal_interpolation_methods</span><span class="p">,</span> <span class="n">vertical_interpolation_methods</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">opendrift.readers.basereader</span><span class="w"> </span><span class="kn">import</span> <span class="n">variables</span>
 
-<span class="kn">import</span> <span class="nn">logging</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">logging</span>
 <span class="n">logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span>
 
 <div class="viewcode-block" id="ReaderBlock">
 <a class="viewcode-back" href="../../../../autoapi/opendrift/readers/interpolation/structured/index.html#opendrift.readers.basereader.ReaderBlock">[docs]</a>
-<span class="k">class</span> <span class="nc">ReaderBlock</span><span class="p">():</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">ReaderBlock</span><span class="p">():</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Class to store and interpolate the output from a reader with data on a regular (structured) grid.&quot;&quot;&quot;</span>
 
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data_dict</span><span class="p">,</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data_dict</span><span class="p">,</span>
                  <span class="n">interpolation_horizontal</span><span class="o">=</span><span class="s1">&#39;linearNDFast&#39;</span><span class="p">,</span>
                  <span class="n">interpolation_vertical</span><span class="o">=</span><span class="s1">&#39;linear&#39;</span><span class="p">,</span>
                  <span class="n">wrap_x</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
@@ -130,14 +130,22 @@
             <span class="k">del</span> <span class="bp">self</span><span class="o">.</span><span class="n">data_dict</span><span class="p">[</span><span class="s1">&#39;z&#39;</span><span class="p">]</span>
         <span class="k">except</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">z</span> <span class="o">=</span> <span class="kc">None</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">wrap_x</span> <span class="o">=</span> <span class="n">wrap_x</span>  <span class="c1"># For global readers where longitude wraps at 360</span>
-        <span class="k">if</span> <span class="n">wrap_x</span> <span class="ow">is</span> <span class="kc">True</span><span class="p">:</span>
-            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">x</span><span class="o">.</span><span class="n">min</span><span class="p">()</span> <span class="o">&lt;</span> <span class="mi">180</span><span class="p">:</span>
-                <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;Shifting reader block longitudes to -180 to 180&#39;</span><span class="p">)</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">x</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">mod</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">x</span><span class="o">+</span><span class="mi">180</span><span class="p">,</span> <span class="mi">360</span><span class="p">)</span> <span class="o">-</span> <span class="mi">180</span>
-            <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">x</span><span class="o">.</span><span class="n">max</span><span class="p">()</span> <span class="o">&gt;</span> <span class="mi">360</span><span class="p">:</span>
+
+        <span class="c1"># For global readers where longitude wraps at 360</span>
+        <span class="c1"># data_dict[x] should be provided as monotonously incereasing</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">wrap_x</span> <span class="o">=</span> <span class="n">wrap_x</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">wrap_x</span><span class="p">:</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">np</span><span class="o">.</span><span class="n">all</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">diff</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">x</span><span class="p">)</span><span class="o">&gt;</span><span class="mi">0</span><span class="p">):</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;X-coordinate (congitude) is not monotonuously increasing: &#39;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">x</span><span class="p">)</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">x</span><span class="o">.</span><span class="n">max</span><span class="p">()</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">x</span><span class="o">.</span><span class="n">min</span><span class="p">()</span> <span class="o">&gt;</span> <span class="mi">360</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;Longitude spans more than 360 degrees: &#39;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">x</span><span class="p">)</span>
+
+            <span class="c1"># We shift longitude/x to be in interval -180 to 360</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">x</span><span class="o">.</span><span class="n">min</span><span class="p">()</span> <span class="o">&lt;</span> <span class="o">-</span><span class="mi">180</span> <span class="ow">or</span> <span class="bp">self</span><span class="o">.</span><span class="n">x</span><span class="o">.</span><span class="n">max</span><span class="p">()</span> <span class="o">&gt;</span> <span class="mi">360</span><span class="p">:</span>
                 <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;Shifting reader block longitudes to 0 to 360&#39;</span><span class="p">)</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">x</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">mod</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">x</span><span class="p">,</span> <span class="mi">360</span><span class="p">)</span>
+                <span class="k">if</span> <span class="ow">not</span> <span class="n">np</span><span class="o">.</span><span class="n">all</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">diff</span><span class="p">(</span><span class="n">x</span><span class="p">)</span><span class="o">&gt;</span><span class="mi">0</span><span class="p">):</span>  <span class="c1"># not increasing, shift again to -180-180</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">x</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">mod</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">x</span> <span class="o">+</span> <span class="mi">180</span><span class="p">,</span> <span class="mi">360</span><span class="p">)</span> <span class="o">-</span> <span class="mi">180</span>
 
         <span class="c1"># Mask any extremely large values, e.g. if missing netCDF _Fill_value</span>
         <span class="n">filled_variables</span> <span class="o">=</span> <span class="nb">set</span><span class="p">()</span>
@@ -187,10 +195,10 @@
 
 <div class="viewcode-block" id="ReaderBlock._initialize_interpolator">
 <a class="viewcode-back" href="../../../../autoapi/opendrift/readers/interpolation/structured/index.html#opendrift.readers.basereader.ReaderBlock._initialize_interpolator">[docs]</a>
-    <span class="k">def</span> <span class="nf">_initialize_interpolator</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">z</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_initialize_interpolator</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">z</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
         <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;Initialising interpolator.&#39;</span><span class="p">)</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">wrap_x</span> <span class="ow">is</span> <span class="kc">True</span><span class="p">:</span>
-            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">x</span><span class="o">.</span><span class="n">min</span><span class="p">()</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">x</span><span class="o">.</span><span class="n">min</span><span class="p">()</span> <span class="o">&gt;=</span> <span class="mi">0</span><span class="p">:</span>
                 <span class="n">x</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">mod</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="mi">360</span><span class="p">)</span>  <span class="c1"># Shift x/lons to 0-360</span>
             <span class="k">else</span><span class="p">:</span>
                 <span class="n">x</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">mod</span><span class="p">(</span><span class="n">x</span> <span class="o">+</span> <span class="mi">180</span><span class="p">,</span> <span class="mi">360</span><span class="p">)</span> <span class="o">-</span> <span class="mi">180</span> <span class="c1"># Shift x/lons to -180-180</span>
@@ -201,7 +209,7 @@
 
 <div class="viewcode-block" id="ReaderBlock.interpolate">
 <a class="viewcode-back" href="../../../../autoapi/opendrift/readers/interpolation/structured/index.html#opendrift.readers.basereader.ReaderBlock.interpolate">[docs]</a>
-    <span class="k">def</span> <span class="nf">interpolate</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">z</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">variables</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">interpolate</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">z</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">variables</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
                     <span class="n">profiles</span><span class="o">=</span><span class="p">[],</span> <span class="n">profiles_depth</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">_initialize_interpolator</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">z</span><span class="p">)</span>
@@ -245,7 +253,7 @@
 
 <div class="viewcode-block" id="ReaderBlock._interpolate_horizontal_layers">
 <a class="viewcode-back" href="../../../../autoapi/opendrift/readers/interpolation/structured/index.html#opendrift.readers.basereader.ReaderBlock._interpolate_horizontal_layers">[docs]</a>
-    <span class="k">def</span> <span class="nf">_interpolate_horizontal_layers</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="p">,</span> <span class="n">nearest</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_interpolate_horizontal_layers</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="p">,</span> <span class="n">nearest</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&#39;&#39;&#39;Interpolate all layers of 3d (or 2d) array.&#39;&#39;&#39;</span>
 
         <span class="k">if</span> <span class="n">nearest</span> <span class="ow">is</span> <span class="kc">True</span><span class="p">:</span>
@@ -263,20 +271,28 @@
             <span class="k">return</span> <span class="n">result</span></div>
 
 
+<div class="viewcode-block" id="ReaderBlock._wrap_longitude">
+<a class="viewcode-back" href="../../../../autoapi/opendrift/readers/interpolation/structured/index.html#opendrift.readers.basereader.ReaderBlock._wrap_longitude">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_wrap_longitude</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>
+        <span class="c1"># For global readers/blocks, we shift longitude/x to same quadrant as reader</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">wrap_x</span> <span class="ow">is</span> <span class="kc">False</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">x</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">x</span><span class="o">.</span><span class="n">min</span><span class="p">()</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">mod</span><span class="p">(</span><span class="n">x</span><span class="o">+</span><span class="mi">180</span><span class="p">,</span> <span class="mi">360</span><span class="p">)</span> <span class="o">-</span> <span class="mi">180</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">mod</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="mi">360</span><span class="p">)</span></div>
+
+
 <div class="viewcode-block" id="ReaderBlock.covers_positions">
 <a class="viewcode-back" href="../../../../autoapi/opendrift/readers/interpolation/structured/index.html#opendrift.readers.basereader.ReaderBlock.covers_positions">[docs]</a>
-    <span class="k">def</span> <span class="nf">covers_positions</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">z</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">covers_positions</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">z</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&#39;&#39;&#39;Check if given positions are covered by this reader block.&#39;&#39;&#39;</span>
 
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">wrap_x</span> <span class="ow">is</span> <span class="kc">True</span><span class="p">:</span>
-            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">x</span><span class="o">.</span><span class="n">min</span><span class="p">()</span> <span class="o">&lt;</span> <span class="mi">180</span><span class="p">:</span>
-                <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;Shifting longitudes to -180 to 180&#39;</span><span class="p">)</span>
-                <span class="n">x</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">mod</span><span class="p">(</span><span class="n">x</span><span class="o">+</span><span class="mi">180</span><span class="p">,</span> <span class="mi">360</span><span class="p">)</span> <span class="o">-</span> <span class="mi">180</span>
-            <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">x</span><span class="o">.</span><span class="n">max</span><span class="p">()</span> <span class="o">&gt;</span> <span class="mi">360</span><span class="p">:</span>
-                <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;Shifting longitudes to 0 to 360&#39;</span><span class="p">)</span>
-                <span class="n">x</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">mod</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="mi">360</span><span class="p">)</span>
+        <span class="n">x</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_wrap_longitude</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
         <span class="n">indices</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">((</span><span class="n">x</span> <span class="o">&gt;=</span> <span class="bp">self</span><span class="o">.</span><span class="n">x</span><span class="o">.</span><span class="n">min</span><span class="p">())</span> <span class="o">&amp;</span> <span class="p">(</span><span class="n">x</span> <span class="o">&lt;=</span> <span class="bp">self</span><span class="o">.</span><span class="n">x</span><span class="o">.</span><span class="n">max</span><span class="p">())</span> <span class="o">&amp;</span>
                            <span class="p">(</span><span class="n">y</span> <span class="o">&gt;=</span> <span class="bp">self</span><span class="o">.</span><span class="n">y</span><span class="o">.</span><span class="n">min</span><span class="p">())</span> <span class="o">&amp;</span> <span class="p">(</span><span class="n">y</span> <span class="o">&lt;=</span> <span class="bp">self</span><span class="o">.</span><span class="n">y</span><span class="o">.</span><span class="n">max</span><span class="p">()))[</span><span class="mi">0</span><span class="p">]</span>
+
         <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">indices</span><span class="p">)</span> <span class="o">==</span> <span class="nb">len</span><span class="p">(</span><span class="n">x</span><span class="p">):</span>
             <span class="k">return</span> <span class="kc">True</span>
         <span class="k">else</span><span class="p">:</span>
