@@ -142,7 +142,7 @@
 
 <div class="viewcode-block" id="open">
 <a class="viewcode-back" href="../autoapi/opendrift/index.html#opendrift.open">[docs]</a>
-<span class="k">def</span><span class="w"> </span><span class="nf">open</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="n">times</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">elements</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">load_history</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">open</span><span class="p">(</span><span class="n">filename</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&#39;&#39;&#39;Import netCDF output file as OpenDrift object of correct class&#39;&#39;&#39;</span>
 
     <span class="kn">import</span><span class="w"> </span><span class="nn">os</span>
@@ -178,50 +178,7 @@
         <span class="kn">from</span><span class="w"> </span><span class="nn">opendrift.models</span><span class="w"> </span><span class="kn">import</span> <span class="n">oceandrift</span>
         <span class="bp">cls</span> <span class="o">=</span> <span class="n">oceandrift</span><span class="o">.</span><span class="n">OceanDrift</span>
     <span class="n">o</span> <span class="o">=</span> <span class="bp">cls</span><span class="p">()</span>
-    <span class="n">o</span><span class="o">.</span><span class="n">io_import_file</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="n">times</span><span class="o">=</span><span class="n">times</span><span class="p">,</span> <span class="n">elements</span><span class="o">=</span><span class="n">elements</span><span class="p">,</span> <span class="n">load_history</span><span class="o">=</span><span class="n">load_history</span><span class="p">)</span>
-    <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s1">&#39;Returning &#39;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="nb">type</span><span class="p">(</span><span class="n">o</span><span class="p">))</span> <span class="o">+</span> <span class="s1">&#39; object&#39;</span><span class="p">)</span>
-    <span class="k">return</span> <span class="n">o</span></div>
-
-
-<div class="viewcode-block" id="open_xarray">
-<a class="viewcode-back" href="../autoapi/opendrift/index.html#opendrift.open_xarray">[docs]</a>
-<span class="k">def</span><span class="w"> </span><span class="nf">open_xarray</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="n">chunks</span><span class="o">=</span><span class="p">{</span><span class="s1">&#39;trajectory&#39;</span><span class="p">:</span> <span class="mi">50000</span><span class="p">,</span> <span class="s1">&#39;time&#39;</span><span class="p">:</span> <span class="mi">1000</span><span class="p">},</span> <span class="n">elements</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&#39;&#39;&#39;Import netCDF output file as OpenDrift object of correct class&#39;&#39;&#39;</span>
-
-    <span class="kn">import</span><span class="w"> </span><span class="nn">os</span>
-    <span class="kn">import</span><span class="w"> </span><span class="nn">pydoc</span>
-    <span class="kn">import</span><span class="w"> </span><span class="nn">xarray</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">xr</span>
-    <span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">filename</span><span class="p">):</span>
-        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s1">&#39;File does not exist, trying to retrieve from URL&#39;</span><span class="p">)</span>
-        <span class="kn">import</span><span class="w"> </span><span class="nn">urllib</span>
-        <span class="k">try</span><span class="p">:</span>
-            <span class="n">urllib</span><span class="o">.</span><span class="n">urlretrieve</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="s1">&#39;opendrift_tmp.nc&#39;</span><span class="p">)</span>
-            <span class="n">filename</span> <span class="o">=</span> <span class="s1">&#39;opendrift_tmp.nc&#39;</span>
-        <span class="k">except</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;</span><span class="si">%s</span><span class="s1"> does not exist&#39;</span> <span class="o">%</span> <span class="n">filename</span><span class="p">)</span>
-    <span class="n">n</span> <span class="o">=</span> <span class="n">xr</span><span class="o">.</span><span class="n">open_dataset</span><span class="p">(</span><span class="n">filename</span><span class="p">)</span>
-    <span class="k">try</span><span class="p">:</span>
-        <span class="n">module_name</span> <span class="o">=</span> <span class="n">n</span><span class="o">.</span><span class="n">opendrift_module</span>
-        <span class="n">class_name</span> <span class="o">=</span> <span class="n">n</span><span class="o">.</span><span class="n">opendrift_class</span>
-    <span class="k">except</span><span class="p">:</span>
-        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="n">filename</span> <span class="o">+</span> <span class="s1">&#39; does not contain &#39;</span>
-                         <span class="s1">&#39;necessary global attributes &#39;</span>
-                         <span class="s1">&#39;opendrift_module and opendrift_class&#39;</span><span class="p">)</span>
-    <span class="n">n</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
-
-    <span class="k">if</span> <span class="n">class_name</span> <span class="o">==</span> <span class="s1">&#39;OpenOil3D&#39;</span><span class="p">:</span>
-        <span class="n">class_name</span> <span class="o">=</span> <span class="s1">&#39;OpenOil&#39;</span>
-        <span class="n">module_name</span> <span class="o">=</span> <span class="s1">&#39;opendrift.models.openoil&#39;</span>
-    <span class="k">if</span> <span class="n">class_name</span> <span class="o">==</span> <span class="s1">&#39;OceanDrift3D&#39;</span><span class="p">:</span>
-        <span class="n">class_name</span> <span class="o">=</span> <span class="s1">&#39;OceanDrift&#39;</span>
-        <span class="n">module_name</span> <span class="o">=</span> <span class="s1">&#39;opendrift.models.oceandrift&#39;</span>
-    <span class="bp">cls</span> <span class="o">=</span> <span class="n">pydoc</span><span class="o">.</span><span class="n">locate</span><span class="p">(</span><span class="n">module_name</span> <span class="o">+</span> <span class="s1">&#39;.&#39;</span> <span class="o">+</span> <span class="n">class_name</span><span class="p">)</span>
-    <span class="k">if</span> <span class="bp">cls</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="kn">from</span><span class="w"> </span><span class="nn">opendrift.models</span><span class="w"> </span><span class="kn">import</span> <span class="n">oceandrift</span>
-        <span class="bp">cls</span> <span class="o">=</span> <span class="n">oceandrift</span><span class="o">.</span><span class="n">OceanDrift</span>
-    <span class="n">o</span> <span class="o">=</span> <span class="bp">cls</span><span class="p">()</span>
-    <span class="n">o</span><span class="o">.</span><span class="n">io_import_file_xarray</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="n">chunks</span><span class="o">=</span><span class="n">chunks</span><span class="p">,</span> <span class="n">elements</span><span class="o">=</span><span class="n">elements</span><span class="p">)</span>
-
+    <span class="n">o</span><span class="o">.</span><span class="n">io_import_file</span><span class="p">(</span><span class="n">filename</span><span class="p">)</span>  <span class="c1">#, times=times, elements=elements, load_history=load_history)</span>
     <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s1">&#39;Returning &#39;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="nb">type</span><span class="p">(</span><span class="n">o</span><span class="p">))</span> <span class="o">+</span> <span class="s1">&#39; object&#39;</span><span class="p">)</span>
     <span class="k">return</span> <span class="n">o</span></div>
 
@@ -330,7 +287,6 @@
     <span class="n">o</span><span class="o">.</span><span class="n">steps_output</span> <span class="o">=</span> <span class="n">num_timesteps</span>
 
     <span class="k">return</span> <span class="n">o</span></div>
-
 
 </pre></div>
 
