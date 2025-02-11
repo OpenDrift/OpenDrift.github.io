@@ -50,7 +50,7 @@ We use 24 hours from the NorKyst ocean model (800m pixel size) and Arome atmosph
 
 .. code-block:: Python
 
-    o = Leeway(loglevel=50)
+    o = Leeway(loglevel=10)
     reader_arome = reader_netCDF_CF_generic.Reader(o.test_data_folder() +
         '16Nov2015_NorKyst_z_surface/arome_subset_16Nov2015.nc')
     reader_norkyst = reader_netCDF_CF_generic.Reader(o.test_data_folder() +
@@ -83,7 +83,7 @@ Simulating first backwards for 24 hours:
 
 .. code-block:: Python
 
-    o.seed_elements(lon=ilon, lat=ilat, radius=5000, radius_type='uniform', number=30000,
+    o.seed_elements(lon=ilon, lat=ilat, radius=5000, radius_type='uniform', number=10000,
                      time=end_time, object_type=object_type)
     o.run(duration=duration, time_step=-900, time_step_output=3600, outfile=outfile)
     #od = opendrift.open_xarray(outfile)
@@ -105,7 +105,7 @@ Simulating then forwards, starting at a uniform grid 24 hours earlier (440 x 320
 
 .. code-block:: Python
 
-    o = Leeway(loglevel=50)
+    o = Leeway(loglevel=10)
     o.add_reader([reader_norkyst, reader_arome])
     o.seed_elements(lon=lons, lat=lats, radius=0,
                     time=start_time, object_type=object_type)
@@ -117,11 +117,12 @@ Simulating then forwards, starting at a uniform grid 24 hours earlier (440 x 320
 
 Finding the elements actually hitting the target (within 5 km) after 24 hours:
 
-.. GENERATED FROM PYTHON SOURCE LINES 74-89
+.. GENERATED FROM PYTHON SOURCE LINES 74-90
 
 .. code-block:: Python
 
-    lon, lat = o.get_lonlats()
+    lon = o.result.lon
+    lat = o.result.lat
     lonend = lon[:, -1]
     latend = lat[:, -1]
     geod = pyproj.Geod(ellps='WGS84')
@@ -137,11 +138,11 @@ Finding the elements actually hitting the target (within 5 km) after 24 hours:
                 fast=True, corners=corners, text=text)
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 90-91
+.. GENERATED FROM PYTHON SOURCE LINES 91-92
 
 .. image:: /gallery/animations/example_leeway_backtrack_0.gif
 
-.. GENERATED FROM PYTHON SOURCE LINES 91-95
+.. GENERATED FROM PYTHON SOURCE LINES 92-96
 
 .. code-block:: Python
 
@@ -150,11 +151,11 @@ Finding the elements actually hitting the target (within 5 km) after 24 hours:
            show_elements=False, fast=True, corners=corners, text=text)
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 96-97
+.. GENERATED FROM PYTHON SOURCE LINES 97-98
 
 Plot the initial density of elements that actually hit the target after 24 hours. To be compared with the density figure from backwards simulation (see top)
 
-.. GENERATED FROM PYTHON SOURCE LINES 97-104
+.. GENERATED FROM PYTHON SOURCE LINES 98-105
 
 .. code-block:: Python
 
