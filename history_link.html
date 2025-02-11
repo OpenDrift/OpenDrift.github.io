@@ -55,6 +55,7 @@
 </ul>
 <ul class="current">
 <li class="toctree-l1 current"><a class="current reference internal" href="#">History</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#release-v1-13-0">2025-02-11 / Release v1.13.0</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#release-v1-12-0">2024-11-26 / Release v1.12.0</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#release-v1-11-13">2024-07-24 / Release v1.11.13</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#release-v1-11-12">2024-07-05 / Release v1.11.12</a></li>
@@ -153,6 +154,44 @@
              
   <section id="history">
 <h1>History<a class="headerlink" href="#history" title="Link to this heading"></a></h1>
+<section id="release-v1-13-0">
+<h2>2025-02-11 / Release v1.13.0<a class="headerlink" href="#release-v1-13-0" title="Link to this heading"></a></h2>
+<ul class="simple">
+<li><p>Major internal change: recarray <code class="docutils literal notranslate"><span class="pre">self.history</span></code> is replaced with Xarray dataset <code class="docutils literal notranslate"><span class="pre">self.result</span></code>, with some minor API changes:</p>
+<ul>
+<li><p>The method <code class="docutils literal notranslate"><span class="pre">run()</span></code> now returns a pointer to this dataset, i.e. one can type <code class="docutils literal notranslate"><span class="pre">ds</span> <span class="pre">=</span> <span class="pre">o.run()</span></code>  and subsequently analyse the results with e.g. <a class="reference external" href="https://opendrift.github.io/trajan/">TrajAn</a>. The plotting/analysis methods within OpenDrift works as before, but operates now on <code class="docutils literal notranslate"><span class="pre">self.result</span></code> instead of <code class="docutils literal notranslate"><span class="pre">self.history</span></code>.</p></li>
+<li><p>The method <code class="docutils literal notranslate"><span class="pre">get_lonlats()</span></code> has been removed, as one can now do simply <code class="docutils literal notranslate"><span class="pre">self.result.lon</span></code> to get longitude as an Xarray DataArray</p></li>
+<li><p>The method <code class="docutils literal notranslate"><span class="pre">get_property()</span></code> is obsolete for the same reason. It now issues a warning that this method will be removed in the next version. New syntax is to use <code class="docutils literal notranslate"><span class="pre">self.result.&lt;proprty&gt;</span></code> where property is any element properties (lon, lat, status, length etc) or environment variables (wind, currents, …), or coordinate variables <code class="docutils literal notranslate"><span class="pre">time</span></code> and  <code class="docutils literal notranslate"><span class="pre">trajectory</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">self.result.time</span></code> is a numpy64 array, which can be converted to python datetime with <code class="docutils literal notranslate"><span class="pre">pandas.to_datetime(self.result.time).to_pydatetime()</span></code></p></li>
+<li><p>Attribute <code class="docutils literal notranslate"><span class="pre">self.steps_output</span></code> replaced by <code class="docutils literal notranslate"><span class="pre">len(self.result.time)</span></code></p></li>
+<li><p>Removed methods <code class="docutils literal notranslate"><span class="pre">opendrift.open_xarray</span></code> and <code class="docutils literal notranslate"><span class="pre">io_netcdf.import_file_xarrray</span></code>, as opendrift.open now also imports lazily with Xarray.</p></li>
+</ul>
+</li>
+<li><p>Saved netCDF files are now compressed with Zlib level 6, and are typically 70% smaller than before.</p>
+<ul>
+<li><p>Data types for all element properties and environment variables are consistently <cite>numpy.float32</cite> internally in OpenDrift, with the benfit of NaN as masked values.</p></li>
+<li><p>In output netCDF files, element properties are encoded according to the attribute <code class="docutils literal notranslate"><span class="pre">data_type</span></code> as specified in the actual ElementType class.</p></li>
+</ul>
+</li>
+<li><p>linewidth can be specified for animations, whenever trajectories are shown</p></li>
+<li><p>Generic netCDF reader and ROMS readers now use a new common method <cite>reader.open_dataset_opendrift</cite> to open Xarray dataset from files or URLS, and also decoding time.</p></li>
+<li><p>Dynamic detection of dimension order in generic reader also for split blocks for global readers. ReaderBlock also shifts x-coordinate for global readers. General improvements for global simulations crossing both dateline and 0-meridian.</p></li>
+<li><p>Reinserted hack to decode time in ROMS-croco files, which are not CF compatible</p></li>
+<li><p>Updated logging mechanism. Can now send log to both file and console.</p></li>
+<li><p>Replaced mambaforge with miniforge3 in circleCI config</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">set_up_map</span></code> now stores <code class="docutils literal notranslate"><span class="pre">crs_plot</span></code> and <code class="docutils literal notranslate"><span class="pre">crs_lonlat</span></code> for later user. Landmask is now obtained on Mercator/plot grid (and not lonlat-grid) when <code class="docutils literal notranslate"><span class="pre">fast=True</span></code></p></li>
+<li><p>Faster plotting:</p>
+<ul>
+<li><p>Getting land polygons from roaring_landmask if full resolution coastline. Also clipping polygons to plot extent, and caching per extent. This gives large speedup, in particular for animations.</p></li>
+<li><p>Using RoaringLandmask to check/screen if there is any land within plot area, otherwise skip plotting of vector coastline.</p></li>
+</ul>
+</li>
+<li><p>Removed obsolete method <code class="docutils literal notranslate"><span class="pre">wind_drift_factor_from_trajectory_lw</span></code>. Could eventually be rebuilt with/around TrajAn.</p></li>
+<li><p>Removed method <code class="docutils literal notranslate"><span class="pre">disable_vertical_motion</span></code></p></li>
+<li><p>Removed obsolete method <code class="docutils literal notranslate"><span class="pre">ShipDrift.import_ascii_format</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">Leeway.export_ascii</span></code> now limits to 5 decimals for longitudes and latitudes. Still some minor differences are sometimes seen in last decimal, thus there are two versions of output reference file in test suite.</p></li>
+</ul>
+</section>
 <section id="release-v1-12-0">
 <h2>2024-11-26 / Release v1.12.0<a class="headerlink" href="#release-v1-12-0" title="Link to this heading"></a></h2>
 <ul class="simple">
