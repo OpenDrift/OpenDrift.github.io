@@ -175,6 +175,7 @@
 <span class="sd">After each wave breaking event, a new droplet diameter will be chosen based on the config setting for droplet size distribution.</span>
 <span class="sd">&quot;&quot;&quot;</span>
 
+<span class="kn">import</span><span class="w"> </span><span class="nn">os</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">io</span><span class="w"> </span><span class="kn">import</span> <span class="nb">open</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">importlib.resources</span><span class="w"> </span><span class="kn">import</span> <span class="n">files</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
@@ -1741,6 +1742,8 @@
 
             <span class="bp">self</span><span class="o">.</span><span class="n">oiltype</span> <span class="o">=</span> <span class="n">adios</span><span class="o">.</span><span class="n">oil</span><span class="o">.</span><span class="n">OpendriftOil</span><span class="p">(</span><span class="n">json</span><span class="p">)</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">oil_name</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">oiltype</span><span class="o">.</span><span class="n">name</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_config</span><span class="p">[</span><span class="s1">&#39;seed:oil_type&#39;</span><span class="p">][</span><span class="s1">&#39;enum&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">oil_name</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">__set_seed_config__</span><span class="p">(</span><span class="s1">&#39;seed:oil_type&#39;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">oil_name</span><span class="p">)</span>
             <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">oiltype</span><span class="o">.</span><span class="n">valid</span><span class="p">():</span>
                 <span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span>
                     <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">oiltype</span><span class="si">}</span><span class="s2"> is not a valid oil for Opendrift simulations&quot;</span>
@@ -1881,20 +1884,25 @@
                 <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s2">&quot;no valid initial subsea droplet size distribution specified&quot;</span><span class="p">)</span>
 
         <span class="k">if</span> <span class="s1">&#39;oiltype&#39;</span> <span class="ow">in</span> <span class="n">kwargs</span><span class="p">:</span>
-            <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span>
-                <span class="s1">&#39;Seed argument *oiltype* is deprecated, use *oil_type* instead&#39;</span>
-            <span class="p">)</span>
-            <span class="n">kwargs</span><span class="p">[</span><span class="s1">&#39;oil_type&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">kwargs</span><span class="p">[</span><span class="s1">&#39;oiltype&#39;</span><span class="p">]</span>
-            <span class="k">del</span> <span class="n">kwargs</span><span class="p">[</span><span class="s1">&#39;oiltype&#39;</span><span class="p">]</span>
-
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;Seed argument *oiltype* is deprecated, use *oil_type* instead&#39;</span><span class="p">)</span>
+        
         <span class="k">if</span> <span class="s1">&#39;oil_type&#39;</span> <span class="ow">in</span> <span class="n">kwargs</span><span class="p">:</span>
-            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_config</span><span class="p">(</span><span class="s1">&#39;seed:oil_type&#39;</span><span class="p">)</span> <span class="o">!=</span> <span class="n">kwargs</span><span class="p">[</span><span class="s1">&#39;oil_type&#39;</span><span class="p">]:</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">__set_seed_config__</span><span class="p">(</span><span class="s1">&#39;seed:oil_type&#39;</span><span class="p">,</span> <span class="n">kwargs</span><span class="p">[</span><span class="s1">&#39;oil_type&#39;</span><span class="p">])</span>
-            <span class="k">del</span> <span class="n">kwargs</span><span class="p">[</span><span class="s1">&#39;oil_type&#39;</span><span class="p">]</span>
+            <span class="k">if</span> <span class="n">kwargs</span><span class="p">[</span><span class="s1">&#39;oil_type&#39;</span><span class="p">]</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">oiltypes</span><span class="p">:</span>  <span class="c1"># oil type exists in ADIOS library</span>
+                <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_config</span><span class="p">(</span><span class="s1">&#39;seed:oil_type&#39;</span><span class="p">)</span> <span class="o">!=</span> <span class="n">kwargs</span><span class="p">[</span><span class="s1">&#39;oil_type&#39;</span><span class="p">]:</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">__set_seed_config__</span><span class="p">(</span><span class="s1">&#39;seed:oil_type&#39;</span><span class="p">,</span> <span class="n">kwargs</span><span class="p">[</span><span class="s1">&#39;oil_type&#39;</span><span class="p">])</span>
+                <span class="k">del</span> <span class="n">kwargs</span><span class="p">[</span><span class="s1">&#39;oil_type&#39;</span><span class="p">]</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">set_oiltype</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">get_config</span><span class="p">(</span><span class="s1">&#39;seed:oil_type&#39;</span><span class="p">))</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">kwargs</span><span class="p">[</span><span class="s1">&#39;oil_type&#39;</span><span class="p">],</span> <span class="nb">dict</span><span class="p">):</span>  <span class="c1"># From json dictionary</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">set_oiltype_by_json</span><span class="p">(</span><span class="n">kwargs</span><span class="p">[</span><span class="s1">&#39;oil_type&#39;</span><span class="p">])</span>
+                    <span class="k">del</span> <span class="n">kwargs</span><span class="p">[</span><span class="s1">&#39;oil_type&#39;</span><span class="p">]</span>
+                <span class="k">elif</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">isfile</span><span class="p">(</span><span class="n">kwargs</span><span class="p">[</span><span class="s1">&#39;oil_type&#39;</span><span class="p">]):</span>  <span class="c1"># From file</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">set_oiltype_from_file</span><span class="p">(</span><span class="n">kwargs</span><span class="p">[</span><span class="s1">&#39;oil_type&#39;</span><span class="p">])</span>
+                    <span class="k">del</span> <span class="n">kwargs</span><span class="p">[</span><span class="s1">&#39;oil_type&#39;</span><span class="p">]</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s1">&#39;Oil type not specified, using default: &#39;</span> <span class="o">+</span>
                         <span class="bp">self</span><span class="o">.</span><span class="n">get_config</span><span class="p">(</span><span class="s1">&#39;seed:oil_type&#39;</span><span class="p">))</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">set_oiltype</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">get_config</span><span class="p">(</span><span class="s1">&#39;seed:oil_type&#39;</span><span class="p">))</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">set_oiltype</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">get_config</span><span class="p">(</span><span class="s1">&#39;seed:oil_type&#39;</span><span class="p">))</span>
 
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">oil_weathering_model</span> <span class="o">==</span> <span class="s1">&#39;noaa&#39;</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">Density</span> <span class="o">=</span> <span class="n">Density</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">oiltype</span><span class="o">.</span><span class="n">oil</span><span class="p">)</span>
