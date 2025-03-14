@@ -127,7 +127,7 @@
 
 <div class="viewcode-block" id="open_dataset_opendrift">
 <a class="viewcode-back" href="../../autoapi/opendrift/readers/index.html#opendrift.readers.open_dataset_opendrift">[docs]</a>
-<span class="k">def</span><span class="w"> </span><span class="nf">open_dataset_opendrift</span><span class="p">(</span><span class="n">source</span><span class="p">,</span> <span class="n">zarr_storage_options</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">open_mfdataset_options</span><span class="o">=</span><span class="p">{}):</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">open_dataset_opendrift</span><span class="p">(</span><span class="n">source</span><span class="p">,</span> <span class="n">zarr_storage_options</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">open_mfdataset_options</span><span class="o">=</span><span class="p">{},</span> <span class="n">chunks</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot; Wrapper around Xarray open_dataset and open_mfdataset.</span>
 
 <span class="sd">    Common wrapper/opener to be used for all Xarray based readers</span>
@@ -143,6 +143,9 @@
 <span class="sd">        (e.g. if units equals &quot;hours since analysis&quot;)</span>
 
 <span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">if</span> <span class="n">chunks</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">open_mfdataset_options</span><span class="p">[</span><span class="s1">&#39;chunks&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">chunks</span>
 
     <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">source</span><span class="p">,</span> <span class="n">xr</span><span class="o">.</span><span class="n">Dataset</span><span class="p">):</span>
         <span class="n">ds</span> <span class="o">=</span> <span class="n">source</span>
@@ -164,7 +167,15 @@
         <span class="n">ds</span> <span class="o">=</span> <span class="n">ds</span><span class="o">.</span><span class="n">drop_vars</span><span class="p">(</span><span class="n">offending</span><span class="p">)</span>
     <span class="n">ds</span> <span class="o">=</span> <span class="n">xr</span><span class="o">.</span><span class="n">decode_cf</span><span class="p">(</span><span class="n">ds</span><span class="p">,</span> <span class="n">decode_times</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 
-    <span class="c1"># TODO: chunk time dimension to 1</span>
+    <span class="c1"># Chunk size of time dimension should be 1</span>
+    <span class="k">for</span> <span class="n">dim</span><span class="p">,</span><span class="n">chunksize</span> <span class="ow">in</span> <span class="n">ds</span><span class="o">.</span><span class="n">chunks</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+        <span class="n">chunksize</span> <span class="o">=</span> <span class="n">chunksize</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="k">if</span> <span class="s1">&#39;time&#39;</span> <span class="ow">in</span> <span class="n">dim</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">chunksize</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
+                <span class="c1"># Note: ds = ds.chunk({dim: 1}) does not have the desired effect</span>
+                <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Chunk size for dimension </span><span class="si">{</span><span class="n">dim</span><span class="si">}</span><span class="s1"> is </span><span class="si">{</span><span class="n">chunksize</span><span class="si">}</span><span class="s1">. Reopening dataset with chunk </span><span class="si">{</span><span class="n">dim</span><span class="si">}</span><span class="s1">:1.&#39;</span><span class="p">)</span>
+                <span class="n">ds</span> <span class="o">=</span> <span class="n">open_dataset_opendrift</span><span class="p">(</span><span class="n">source</span><span class="p">,</span> <span class="n">zarr_storage_options</span><span class="o">=</span><span class="n">zarr_storage_options</span><span class="p">,</span>
+                                            <span class="n">open_mfdataset_options</span><span class="o">=</span><span class="n">open_mfdataset_options</span><span class="p">,</span> <span class="n">chunks</span><span class="o">=</span><span class="p">{</span><span class="n">dim</span><span class="p">:</span> <span class="mi">1</span><span class="p">})</span>
 
     <span class="k">return</span> <span class="n">ds</span></div>
 
