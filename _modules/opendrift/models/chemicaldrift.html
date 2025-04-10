@@ -2254,7 +2254,8 @@
                     <span class="k">if</span> <span class="n">horizontal_smoothing</span><span class="p">:</span>
                         <span class="n">Hsm</span><span class="p">[</span><span class="n">ti</span><span class="p">,</span><span class="n">sp</span><span class="p">,:,:,:]</span> <span class="o">=</span> <span class="n">Hsm</span><span class="p">[</span><span class="n">ti</span><span class="p">,</span><span class="n">sp</span><span class="p">,:,:,:]</span> <span class="o">/</span> <span class="n">pixel_sed_mass</span>
 
-        <span class="n">times</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_time_array</span><span class="p">()[</span><span class="mi">0</span><span class="p">]</span> <span class="p">)</span>
+        <span class="n">times</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">result</span><span class="o">.</span><span class="n">time</span><span class="o">.</span><span class="n">data</span>
+
         <span class="k">if</span> <span class="n">time_avg_conc</span><span class="p">:</span>
             <span class="n">conctmp</span> <span class="o">=</span> <span class="n">H</span><span class="p">[:</span><span class="o">-</span><span class="mi">1</span><span class="p">,:,:,:,:]</span>
             <span class="n">cshape</span> <span class="o">=</span> <span class="n">conctmp</span><span class="o">.</span><span class="n">shape</span>
@@ -2262,7 +2263,7 @@
             <span class="k">if</span> <span class="n">deltat</span><span class="o">==</span><span class="kc">None</span><span class="p">:</span>
                 <span class="n">ndt</span> <span class="o">=</span> <span class="mi">1</span>
             <span class="k">else</span><span class="p">:</span>
-                <span class="n">ndt</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span> <span class="n">deltat</span> <span class="o">/</span> <span class="p">(</span><span class="n">mdt</span><span class="o">.</span><span class="n">total_seconds</span><span class="p">()</span><span class="o">/</span><span class="mf">3600.</span><span class="p">)</span> <span class="p">)</span>
+                <span class="n">ndt</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span> <span class="n">deltat</span> <span class="o">/</span> <span class="p">(</span><span class="n">mdt</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="s1">&#39;timedelta64[s]&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="s1">&#39;int&#39;</span><span class="p">)</span><span class="o">/</span><span class="mf">3600.</span><span class="p">)</span> <span class="p">)</span>
             <span class="n">times2</span> <span class="o">=</span> <span class="n">times</span><span class="p">[::</span><span class="n">ndt</span><span class="p">]</span>
             <span class="n">times2</span> <span class="o">=</span> <span class="n">times2</span><span class="p">[</span><span class="mi">1</span><span class="p">:]</span>
             <span class="n">odt</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">cshape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">/</span><span class="n">ndt</span><span class="p">)</span>
@@ -2292,14 +2293,14 @@
 <span class="c1">#        times = self.get_time_array()[0]</span>
         <span class="n">timestr</span> <span class="o">=</span> <span class="s1">&#39;seconds since 1970-01-01 00:00:00&#39;</span>
         <span class="n">nc</span><span class="o">.</span><span class="n">createVariable</span><span class="p">(</span><span class="s1">&#39;time&#39;</span><span class="p">,</span> <span class="s1">&#39;f8&#39;</span><span class="p">,</span> <span class="p">(</span><span class="s1">&#39;time&#39;</span><span class="p">,))</span>
-        <span class="n">nc</span><span class="o">.</span><span class="n">variables</span><span class="p">[</span><span class="s1">&#39;time&#39;</span><span class="p">][:]</span> <span class="o">=</span> <span class="n">date2num</span><span class="p">(</span><span class="n">times</span><span class="p">,</span> <span class="n">timestr</span><span class="p">)</span>
+        <span class="n">nc</span><span class="o">.</span><span class="n">variables</span><span class="p">[</span><span class="s1">&#39;time&#39;</span><span class="p">][:]</span> <span class="o">=</span> <span class="n">times</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="s1">&#39;datetime64[s]&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">int</span><span class="p">)</span>
         <span class="n">nc</span><span class="o">.</span><span class="n">variables</span><span class="p">[</span><span class="s1">&#39;time&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">units</span> <span class="o">=</span> <span class="n">timestr</span>
         <span class="n">nc</span><span class="o">.</span><span class="n">variables</span><span class="p">[</span><span class="s1">&#39;time&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">standard_name</span> <span class="o">=</span> <span class="s1">&#39;time&#39;</span>
 
         <span class="k">if</span> <span class="n">time_avg_conc</span><span class="p">:</span>
             <span class="n">nc</span><span class="o">.</span><span class="n">createDimension</span><span class="p">(</span><span class="s1">&#39;avg_time&#39;</span><span class="p">,</span> <span class="n">odt</span><span class="p">)</span>
             <span class="n">nc</span><span class="o">.</span><span class="n">createVariable</span><span class="p">(</span><span class="s1">&#39;avg_time&#39;</span><span class="p">,</span> <span class="s1">&#39;f8&#39;</span><span class="p">,</span> <span class="p">(</span><span class="s1">&#39;avg_time&#39;</span><span class="p">,))</span>
-            <span class="n">nc</span><span class="o">.</span><span class="n">variables</span><span class="p">[</span><span class="s1">&#39;avg_time&#39;</span><span class="p">][:]</span> <span class="o">=</span> <span class="n">date2num</span><span class="p">(</span><span class="n">times2</span><span class="p">,</span> <span class="n">timestr</span><span class="p">)</span> <span class="c1"># np.arange(mean_conc.shape[0])</span>
+            <span class="n">nc</span><span class="o">.</span><span class="n">variables</span><span class="p">[</span><span class="s1">&#39;avg_time&#39;</span><span class="p">][:]</span> <span class="o">=</span> <span class="n">times2</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="s1">&#39;datetime64[s]&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">int</span><span class="p">)</span> <span class="c1"># np.arange(mean_conc.shape[0])</span>
             <span class="n">nc</span><span class="o">.</span><span class="n">variables</span><span class="p">[</span><span class="s1">&#39;avg_time&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">units</span> <span class="o">=</span> <span class="n">timestr</span>
 
         <span class="c1"># Projection</span>
@@ -2446,7 +2447,7 @@
 <span class="sd">        &#39;&#39;&#39;</span>
         <span class="n">lon</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">result</span><span class="o">.</span><span class="n">lon</span>
         <span class="n">lat</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">result</span><span class="o">.</span><span class="n">lat</span>
-        <span class="n">times</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_time_array</span><span class="p">()[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="n">times</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">result</span><span class="o">.</span><span class="n">time</span><span class="o">.</span><span class="n">data</span>
 
         <span class="c1"># Redundant ??</span>
         <span class="k">if</span> <span class="n">density_proj</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span> <span class="c1"># add default projection with equal-area property</span>
