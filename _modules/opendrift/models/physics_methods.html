@@ -176,7 +176,19 @@
     <span class="n">azimuth_offset</span> <span class="o">=</span> <span class="p">(</span><span class="n">azimuth_offset</span> <span class="o">+</span> <span class="mi">360</span><span class="p">)</span> <span class="o">%</span> <span class="mi">360</span>
     <span class="n">azimuth_offset</span><span class="p">[</span><span class="n">azimuth_offset</span><span class="o">&gt;</span><span class="mi">180</span><span class="p">]</span> <span class="o">-=</span> <span class="mi">360</span>
 
-    <span class="k">return</span> <span class="n">wind_drift_factor</span><span class="p">,</span> <span class="n">azimuth_offset</span></div>
+    <span class="c1"># # New: optimize combined cdf and wdf</span>
+    <span class="c1"># azimuth_north, a2, distance_north = geod.inv(lon[0:-1], lat[0:-1], lon[0:-1], lat[1:])</span>
+    <span class="c1"># azimuth_east, a2, distance_east = geod.inv(lon[0:-1], lat[0:-1], lon[1:], lat[0:-1])</span>
+    <span class="c1"># cu = cu[0:-1]</span>
+    <span class="c1"># cv = cv[0:-1]</span>
+    <span class="c1"># wu = wu[0:-1]</span>
+    <span class="c1"># wv = wv[0:-1]</span>
+    <span class="c1"># su = distance_east / time_step</span>
+    <span class="c1"># sv = distance_north / time_step</span>
+    <span class="c1"># wdf = (sv - su*(cv/cu) ) / (wv - wu*(cv/cu))</span>
+    <span class="c1"># cdf = (sv - su*(wv/wu) ) / (cv - cu*(wv/wu))</span>
+
+    <span class="k">return</span> <span class="n">wind_drift_factor</span><span class="p">,</span> <span class="n">azimuth_offset</span> <span class="c1">#, wdf, cdf</span></div>
 
 
 <div class="viewcode-block" id="plot_wind_drift_factor">
@@ -1171,7 +1183,7 @@
                 <span class="bp">self</span><span class="o">.</span><span class="n">env</span><span class="o">.</span><span class="n">get_environment</span><span class="p">([</span><span class="s1">&#39;sea_floor_depth_below_sea_level&#39;</span><span class="p">],</span>
                                      <span class="n">time</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">time</span><span class="p">,</span> <span class="n">lon</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">elements</span><span class="o">.</span><span class="n">lon</span><span class="p">,</span>
                                      <span class="n">lat</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">elements</span><span class="o">.</span><span class="n">lat</span><span class="p">,</span>
-                                     <span class="n">z</span><span class="o">=</span><span class="mi">0</span><span class="o">*</span><span class="bp">self</span><span class="o">.</span><span class="n">elements</span><span class="o">.</span><span class="n">lon</span><span class="p">,</span> <span class="n">profiles</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span>
+                                     <span class="n">z</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">elements</span><span class="o">.</span><span class="n">z</span><span class="p">,</span> <span class="n">profiles</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span>
             <span class="n">sea_floor_depth</span> <span class="o">=</span> \
                 <span class="n">env</span><span class="p">[</span><span class="s1">&#39;sea_floor_depth_below_sea_level&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="s1">&#39;float32&#39;</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">sea_floor_depth</span></div>
@@ -1193,7 +1205,7 @@
                 <span class="bp">self</span><span class="o">.</span><span class="n">env</span><span class="o">.</span><span class="n">get_environment</span><span class="p">([</span><span class="s1">&#39;sea_surface_height&#39;</span><span class="p">],</span>
                                      <span class="n">time</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">time</span><span class="p">,</span> <span class="n">lon</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">elements</span><span class="o">.</span><span class="n">lon</span><span class="p">,</span>
                                      <span class="n">lat</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">elements</span><span class="o">.</span><span class="n">lat</span><span class="p">,</span>
-                                     <span class="n">z</span><span class="o">=</span><span class="mi">0</span><span class="o">*</span><span class="bp">self</span><span class="o">.</span><span class="n">elements</span><span class="o">.</span><span class="n">lon</span><span class="p">,</span> <span class="n">profiles</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span>
+                                     <span class="n">z</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">elements</span><span class="o">.</span><span class="n">z</span><span class="p">,</span> <span class="n">profiles</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span>
             <span class="n">sea_surface_height</span> <span class="o">=</span> \
                 <span class="n">env</span><span class="p">[</span><span class="s1">&#39;sea_surface_height&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="s1">&#39;float32&#39;</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">sea_surface_height</span></div>
