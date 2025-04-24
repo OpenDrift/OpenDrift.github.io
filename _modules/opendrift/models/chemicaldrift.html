@@ -481,26 +481,26 @@
                 <span class="k">if</span> <span class="p">(</span><span class="nb">hasattr</span><span class="p">(</span><span class="n">value</span><span class="p">,</span><span class="s1">&#39;sigma&#39;</span><span class="p">)</span> <span class="ow">or</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">value</span><span class="p">,</span><span class="s1">&#39;z&#39;</span><span class="p">)</span> <span class="p">):</span>
                     <span class="bp">self</span><span class="o">.</span><span class="n">DOC_vertical_levels_given</span> <span class="o">=</span> <span class="kc">True</span>
 
-        <span class="c1"># List of additional variables that should be saved to self.result</span>
-        <span class="c1"># TODO: Move this to post_run() when this is available, in case these</span>
-        <span class="c1"># are changed during run()</span>
+        <span class="c1"># List of additional custom variables to be saved in self.result</span>
+        <span class="c1"># TODO: These could now be moved to post_run() which should be </span>
+        <span class="c1"># more robust in case variables are changed during run()</span>
 
         <span class="n">savelist</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;nspecies&#39;</span><span class="p">,</span>
                     <span class="s1">&#39;name_species&#39;</span><span class="p">,</span>
                     <span class="s1">&#39;transfer_rates&#39;</span><span class="p">,</span>
                     <span class="s1">&#39;ntransformations&#39;</span><span class="p">]</span>
 
-        <span class="c1"># Add all attributes starting with &quot;num_&quot;</span>
+        <span class="c1"># Add all variables starting with &quot;num_&quot;</span>
         <span class="n">savelist</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">k</span> <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="nb">vars</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="k">if</span> <span class="n">k</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">&quot;num_&quot;</span><span class="p">))</span>
 
         <span class="c1"># Saving the variables</span>
-        <span class="k">for</span> <span class="n">attr_name</span> <span class="ow">in</span> <span class="n">savelist</span><span class="p">:</span>
-            <span class="n">value</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">attr_name</span><span class="p">)</span>
-            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">):</span>
-                <span class="n">dims</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;dim_</span><span class="si">{</span><span class="n">i</span><span class="si">}</span><span class="s1">&#39;</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">value</span><span class="o">.</span><span class="n">ndim</span><span class="p">))</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">result</span><span class="p">[</span><span class="n">attr_name</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="n">dims</span><span class="p">,</span> <span class="n">value</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">var_name</span> <span class="ow">in</span> <span class="n">savelist</span><span class="p">:</span>
+            <span class="n">var_value</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">var_name</span><span class="p">)</span>
+            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">var_value</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">):</span>
+                <span class="n">dims</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;specie_</span><span class="si">{</span><span class="n">i</span><span class="si">}</span><span class="s1">&#39;</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">var_value</span><span class="o">.</span><span class="n">ndim</span><span class="p">))</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">result</span><span class="p">[</span><span class="n">var_name</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="n">dims</span><span class="p">,</span> <span class="n">var_value</span><span class="p">)</span>
             <span class="k">else</span><span class="p">:</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">result</span><span class="p">[</span><span class="n">attr_name</span><span class="p">]</span> <span class="o">=</span> <span class="n">value</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">result</span><span class="p">[</span><span class="n">var_name</span><span class="p">]</span> <span class="o">=</span> <span class="n">var_value</span>
 
         <span class="nb">super</span><span class="p">(</span><span class="n">ChemicalDrift</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">prepare_run</span><span class="p">()</span></div>
 
