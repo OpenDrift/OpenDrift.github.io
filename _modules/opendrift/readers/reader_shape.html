@@ -121,6 +121,11 @@
 <span class="kn">import</span><span class="w"> </span><span class="nn">cartopy</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">itertools</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">logging</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">scipy.spatial</span><span class="w"> </span><span class="kn">import</span> <span class="n">cKDTree</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">shapely</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">shp</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Iterable</span>
+
 <span class="n">logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span>
 
 <div class="viewcode-block" id="Reader">
@@ -148,7 +153,7 @@
 <div class="viewcode-block" id="Reader.from_shpfiles">
 <a class="viewcode-back" href="../../../autoapi/opendrift/readers/reader_shape/index.html#opendrift.readers.reader_shape.Reader.from_shpfiles">[docs]</a>
     <span class="nd">@staticmethod</span>
-    <span class="k">def</span><span class="w"> </span><span class="nf">from_shpfiles</span><span class="p">(</span><span class="n">shpfiles</span><span class="p">,</span> <span class="n">proj4_str</span> <span class="o">=</span> <span class="s1">&#39;+proj=lonlat +ellps=WGS84&#39;</span><span class="p">,</span> <span class="n">invert</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">from_shpfiles</span><span class="p">(</span><span class="n">shpfiles</span><span class="p">,</span> <span class="n">proj4_str</span> <span class="o">=</span> <span class="s1">&#39;+proj=lonlat +ellps=WGS84&#39;</span><span class="p">,</span> <span class="n">invert</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">land_buffer_distance</span><span class="o">=</span><span class="mi">0</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Construct a shape-reader from shape-files (.shp)</span>
 
@@ -159,6 +164,7 @@
 <span class="sd">            :param proj4_str: Proj.4 string of shape file projection coordinates</span>
 <span class="sd">                            (default: &#39;+proj=lonlat +ellps=WGS84&#39;).</span>
 <span class="sd">            :type proj4_str: string.</span>
+<span class="sd">            :type land_buffer_distance: float. Buffer distance around polygons</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">shpfiles</span><span class="p">,</span> <span class="nb">list</span><span class="p">):</span>
             <span class="n">shpfiles</span> <span class="o">=</span> <span class="n">shpfiles</span>
@@ -173,11 +179,13 @@
             <span class="n">reader</span> <span class="o">=</span> <span class="n">io</span><span class="o">.</span><span class="n">shapereader</span><span class="o">.</span><span class="n">Reader</span><span class="p">(</span><span class="n">shp</span><span class="p">)</span>
             <span class="n">shp_iters</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">reader</span><span class="o">.</span><span class="n">geometries</span><span class="p">())</span>
 
-        <span class="k">return</span> <span class="n">Reader</span><span class="p">(</span><span class="n">itertools</span><span class="o">.</span><span class="n">chain</span><span class="p">(</span><span class="o">*</span><span class="n">shp_iters</span><span class="p">),</span> <span class="n">proj4_str</span><span class="p">,</span> <span class="n">invert</span><span class="o">=</span><span class="n">invert</span><span class="p">)</span></div>
+        <span class="k">return</span> <span class="n">Reader</span><span class="p">(</span><span class="n">itertools</span><span class="o">.</span><span class="n">chain</span><span class="p">(</span><span class="o">*</span><span class="n">shp_iters</span><span class="p">),</span> <span class="n">proj4_str</span><span class="p">,</span> <span class="n">invert</span><span class="o">=</span><span class="n">invert</span><span class="p">,</span> <span class="n">land_buffer_distance</span><span class="o">=</span><span class="n">land_buffer_distance</span><span class="p">)</span></div>
 
 
-    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">shapes</span><span class="p">,</span> <span class="n">proj4_str</span> <span class="o">=</span> <span class="s1">&#39;+proj=lonlat +ellps=WGS84&#39;</span><span class="p">,</span> <span class="n">invert</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">shapes</span><span class="p">,</span> <span class="n">proj4_str</span> <span class="o">=</span> <span class="s1">&#39;+proj=lonlat +ellps=WGS84&#39;</span><span class="p">,</span> <span class="n">invert</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">land_buffer_distance</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
 
+        <span class="bp">self</span><span class="o">.</span><span class="n">_land_kdtree</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_land_kdtree_buffer_distance</span> <span class="o">=</span> <span class="n">land_buffer_distance</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">invert</span> <span class="o">=</span> <span class="n">invert</span>  <span class="c1"># True if polygons are lakes and not land areas</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">proj4</span> <span class="o">=</span> <span class="n">proj4_str</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">crs</span> <span class="o">=</span> <span class="n">pyproj</span><span class="o">.</span><span class="n">CRS</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">proj4</span><span class="p">)</span>
@@ -228,9 +236,63 @@
 
         <span class="bp">self</span><span class="o">.</span><span class="n">check_arguments</span><span class="p">(</span><span class="n">requestedVariables</span><span class="p">,</span> <span class="n">time</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">z</span><span class="p">)</span>
         <span class="k">return</span> <span class="p">{</span> <span class="s1">&#39;x&#39;</span> <span class="p">:</span> <span class="n">x</span><span class="p">,</span> <span class="s1">&#39;y&#39;</span> <span class="p">:</span> <span class="n">y</span><span class="p">,</span> <span class="s1">&#39;land_binary_mask&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">__on_land__</span><span class="p">(</span><span class="n">x</span><span class="p">,</span><span class="n">y</span><span class="p">)</span> <span class="p">}</span></div>
+
+
+<div class="viewcode-block" id="Reader.get_nearest_outside">
+<a class="viewcode-back" href="../../../autoapi/opendrift/readers/reader_shape/index.html#opendrift.readers.reader_shape.Reader.get_nearest_outside">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_nearest_outside</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">buffer_distance</span><span class="p">:</span> <span class="nb">float</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Determine the nearest point outside the loaded polygons, including</span>
+<span class="sd">        an additional buffer distance</span>
+<span class="sd">            Args:</span>
+<span class="sd">                x (deg[]): longitude (decimal degrees) or projected x coordinate</span>
+<span class="sd">                y (deg[]): latitude (decimal degrees) or projected y coordinate</span>
+<span class="sd">                buffer_distance: buffer zone around polygons</span>
+<span class="sd">                ...</span>
+
+<span class="sd">            x, y, buffer are given in reader local projection.</span>
+
+<span class="sd">            Returns:</span>
+<span class="sd">                lon, lat, and distance to nearest points</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_land_kdtree</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="bp">self</span><span class="o">.</span><span class="n">_land_kdtree_buffer_distance</span> <span class="o">!=</span> <span class="n">buffer_distance</span><span class="p">:</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Building KDTree from </span><span class="si">%d</span><span class="s2"> geometries with buffer distance </span><span class="si">%e</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">polys</span><span class="p">),</span> <span class="n">buffer_distance</span><span class="p">))</span>
+
+            <span class="n">_land_polygon_buffered</span> <span class="o">=</span> <span class="n">shp</span><span class="o">.</span><span class="n">unary_union</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">polys</span><span class="p">)</span><span class="o">.</span><span class="n">buffer</span><span class="p">(</span><span class="n">buffer_distance</span><span class="p">)</span>
+            <span class="n">xy</span> <span class="o">=</span> <span class="n">unwrap</span><span class="p">(</span><span class="n">_land_polygon_buffered</span><span class="p">)</span>
+
+            <span class="bp">self</span><span class="o">.</span><span class="n">_land_kdtree</span> <span class="o">=</span> <span class="n">cKDTree</span><span class="p">(</span><span class="n">xy</span><span class="o">.</span><span class="n">transpose</span><span class="p">())</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_land_kdtree_buffer_distance</span> <span class="o">=</span> <span class="n">buffer_distance</span>
+
+        <span class="n">dist</span><span class="p">,</span> <span class="n">ind</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_land_kdtree</span><span class="o">.</span><span class="n">query</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">stack</span><span class="p">((</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">),</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">))</span>
+
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_land_kdtree</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="n">ind</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span> <span class="bp">self</span><span class="o">.</span><span class="n">_land_kdtree</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="n">ind</span><span class="p">,</span> <span class="mi">1</span><span class="p">],</span> <span class="n">dist</span></div>
 </div>
 
 
+
+<div class="viewcode-block" id="unwrap">
+<a class="viewcode-back" href="../../../autoapi/opendrift/readers/reader_shape/index.html#opendrift.readers.reader_shape.unwrap">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">unwrap</span><span class="p">(</span><span class="n">geom</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Unwrap a shapely geometry or a list thereof into boundary coordinates</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        array of shape (2, N)</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">geom</span><span class="p">,</span> <span class="n">shp</span><span class="o">.</span><span class="n">LineString</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">geom</span><span class="o">.</span><span class="n">xy</span><span class="p">)</span>
+    <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">geom</span><span class="p">,</span> <span class="n">shp</span><span class="o">.</span><span class="n">MultiPolygon</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">concatenate</span><span class="p">([</span><span class="n">unwrap</span><span class="p">(</span><span class="n">p</span><span class="o">.</span><span class="n">boundary</span><span class="p">)</span> <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">geom</span><span class="o">.</span><span class="n">geoms</span><span class="p">],</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+    <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">geom</span><span class="p">,</span> <span class="n">shp</span><span class="o">.</span><span class="n">Polygon</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">unwrap</span><span class="p">(</span><span class="n">geom</span><span class="o">.</span><span class="n">boundary</span><span class="p">)</span>
+    <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">geom</span><span class="p">,</span> <span class="n">shp</span><span class="o">.</span><span class="n">MultiLineString</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">concatenate</span><span class="p">([</span><span class="n">unwrap</span><span class="p">(</span><span class="n">p</span><span class="p">)</span> <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">geom</span><span class="o">.</span><span class="n">geoms</span><span class="p">],</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+    <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">geom</span><span class="p">,</span> <span class="n">Iterable</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">concatenate</span><span class="p">([</span><span class="n">unwrap</span><span class="p">(</span><span class="n">p</span><span class="p">)</span> <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">geom</span><span class="p">],</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Unknown type </span><span class="si">%d</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="nb">type</span><span class="p">(</span><span class="n">geom</span><span class="p">))</span></div>
 
 </pre></div>
 
