@@ -26,8 +26,8 @@
     <script src="../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
-    <link rel="next" title="Thredds (global)" href="example_long_global_thredds.html" />
-    <link rel="prev" title="Drift at different depths" href="example_depth.html" /> 
+    <link rel="next" title="Constant current" href="example_constant_current.html" />
+    <link rel="prev" title="Parameterised Stokesdrift" href="example_parameterized_stokesdrift.html" /> 
 </head>
 
 <body class="wy-body-for-nav"> 
@@ -66,11 +66,11 @@
 <li class="toctree-l2"><a class="reference internal" href="example_plot.html">Example plot (for front page)</a></li>
 <li class="toctree-l2"><a class="reference internal" href="example_eulerdrift_gauss_blob.html">Euler simulation / Finite differnce of Gaussian blob</a></li>
 <li class="toctree-l2"><a class="reference internal" href="example_parameterized_stokesdrift.html">Parameterised Stokesdrift</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">Seeding from shapefile</a></li>
 <li class="toctree-l2"><a class="reference internal" href="example_constant_current.html">Constant current</a></li>
 <li class="toctree-l2"><a class="reference internal" href="example_long_cmems.html">Copernicus Marine Client (CMEMS)</a></li>
 <li class="toctree-l2"><a class="reference internal" href="example_roms_native.html">ROMS native reader</a></li>
 <li class="toctree-l2"><a class="reference internal" href="example_depth.html">Drift at different depths</a></li>
-<li class="toctree-l2 current"><a class="current reference internal" href="#">Seeding from shapefile</a></li>
 <li class="toctree-l2"><a class="reference internal" href="example_long_global_thredds.html">Thredds (global)</a></li>
 <li class="toctree-l2"><a class="reference internal" href="example_openberg.html">Icebergs (openberg)</a></li>
 <li class="toctree-l2"><a class="reference internal" href="example_larvae.html">Fish Eggs and Larvae</a></li>
@@ -205,921 +205,76 @@ to download the full example code.</p>
 <section class="sphx-glr-example-title" id="seeding-from-shapefile">
 <span id="sphx-glr-gallery-example-seed-from-shapefile-py"></span><h1>Seeding from shapefile<a class="headerlink" href="#seeding-from-shapefile" title="Link to this heading"></a></h1>
 <div class="highlight-Python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">datetime</span><span class="w"> </span><span class="kn">import</span> <span class="n">datetime</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">geopandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">gpd</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">opendrift.models.oceandrift</span><span class="w"> </span><span class="kn">import</span> <span class="n">OceanDrift</span>
 
 
 <span class="n">o</span> <span class="o">=</span> <span class="n">OceanDrift</span><span class="p">(</span><span class="n">loglevel</span><span class="o">=</span><span class="mi">20</span><span class="p">)</span>  <span class="c1"># Set loglevel to 0 for debug information</span>
-<span class="n">o</span><span class="o">.</span><span class="n">set_config</span><span class="p">(</span><span class="s1">&#39;environment:fallback:x_wind&#39;</span><span class="p">,</span> <span class="o">-</span><span class="mi">4</span><span class="p">)</span>  <span class="c1"># Constant wind drift</span>
-<span class="n">o</span><span class="o">.</span><span class="n">set_config</span><span class="p">(</span><span class="s1">&#39;environment:fallback:y_wind&#39;</span><span class="p">,</span> <span class="mi">8</span><span class="p">)</span>
-<span class="n">o</span><span class="o">.</span><span class="n">set_config</span><span class="p">(</span><span class="s1">&#39;drift:wind_uncertainty&#39;</span><span class="p">,</span> <span class="mi">4</span><span class="p">)</span> <span class="c1"># Adding some diffusion</span>
-<span class="n">o</span><span class="o">.</span><span class="n">set_config</span><span class="p">(</span><span class="s1">&#39;drift:vertical_mixing&#39;</span><span class="p">,</span> <span class="kc">False</span><span class="p">)</span>
 </pre></div>
 </div>
-<div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>13:58:06 INFO    opendrift:509: OpenDriftSimulation initialised (version 1.13.1 / v1.13.1-35-g93abdc7)
+<div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>16:44:52 INFO    opendrift:509: OpenDriftSimulation initialised (version 1.13.1 / v1.13.1-67-g4e8d1a1)
 </pre></div>
 </div>
-<p>Seed particles within contours from shapefile</p>
+<p>Seed particles within all polygons from shapefile</p>
 <div class="highlight-Python notranslate"><div class="highlight"><pre><span></span><span class="n">o</span><span class="o">.</span><span class="n">seed_from_shapefile</span><span class="p">(</span><span class="n">o</span><span class="o">.</span><span class="n">test_data_folder</span><span class="p">()</span> <span class="o">+</span>
                       <span class="s1">&#39;shapefile_spawning_areas/Torsk.shp&#39;</span><span class="p">,</span>
-                      <span class="n">number</span><span class="o">=</span><span class="mi">2000</span><span class="p">,</span> <span class="n">layername</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
-                      <span class="n">featurenum</span><span class="o">=</span><span class="p">[</span><span class="mi">2</span><span class="p">,</span> <span class="mi">4</span><span class="p">],</span> <span class="n">time</span><span class="o">=</span><span class="n">datetime</span><span class="o">.</span><span class="n">utcnow</span><span class="p">())</span>
+                      <span class="n">number</span><span class="o">=</span><span class="mi">1000</span><span class="p">,</span> <span class="n">time</span><span class="o">=</span><span class="n">datetime</span><span class="o">.</span><span class="n">utcnow</span><span class="p">())</span>
 </pre></div>
 </div>
-<div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>13:58:06 INFO    opendrift.models.basemodel.environment:206: Adding a global landmask from GSHHG
-13:58:10 INFO    opendrift.models.basemodel.environment:229: Fallback values will be used for the following variables which have no readers:
-13:58:10 INFO    opendrift.models.basemodel.environment:232:    x_sea_water_velocity: 0.000000
-13:58:10 INFO    opendrift.models.basemodel.environment:232:    y_sea_water_velocity: 0.000000
-13:58:10 INFO    opendrift.models.basemodel.environment:232:    sea_surface_height: 0.000000
-13:58:10 INFO    opendrift.models.basemodel.environment:232:    x_wind: -4.000000
-13:58:10 INFO    opendrift.models.basemodel.environment:232:    y_wind: 8.000000
-13:58:10 INFO    opendrift.models.basemodel.environment:232:    upward_sea_water_velocity: 0.000000
-13:58:10 INFO    opendrift.models.basemodel.environment:232:    ocean_vertical_diffusivity: 0.000000
-13:58:10 INFO    opendrift.models.basemodel.environment:232:    sea_surface_wave_significant_height: 0.000000
-13:58:10 INFO    opendrift.models.basemodel.environment:232:    sea_surface_wave_stokes_drift_x_velocity: 0.000000
-13:58:10 INFO    opendrift.models.basemodel.environment:232:    sea_surface_wave_stokes_drift_y_velocity: 0.000000
-13:58:10 INFO    opendrift.models.basemodel.environment:232:    sea_surface_wave_period_at_variance_spectral_density_maximum: 0.000000
-13:58:10 INFO    opendrift.models.basemodel.environment:232:    sea_surface_wave_mean_period_from_variance_spectral_density_second_frequency_moment: 0.000000
-13:58:10 INFO    opendrift.models.basemodel.environment:232:    sea_surface_swell_wave_to_direction: 0.000000
-13:58:10 INFO    opendrift.models.basemodel.environment:232:    sea_surface_swell_wave_peak_period_from_variance_spectral_density: 0.000000
-13:58:10 INFO    opendrift.models.basemodel.environment:232:    sea_surface_swell_wave_significant_height: 0.000000
-13:58:10 INFO    opendrift.models.basemodel.environment:232:    sea_surface_wind_wave_to_direction: 0.000000
-13:58:10 INFO    opendrift.models.basemodel.environment:232:    sea_surface_wind_wave_mean_period: 0.000000
-13:58:10 INFO    opendrift.models.basemodel.environment:232:    sea_surface_wind_wave_significant_height: 0.000000
-13:58:10 INFO    opendrift.models.basemodel.environment:232:    surface_downward_x_stress: 0.000000
-13:58:10 INFO    opendrift.models.basemodel.environment:232:    surface_downward_y_stress: 0.000000
-13:58:10 INFO    opendrift.models.basemodel.environment:232:    turbulent_kinetic_energy: 0.000000
-13:58:10 INFO    opendrift.models.basemodel.environment:232:    turbulent_generic_length_scale: 0.000000
-13:58:10 INFO    opendrift.models.basemodel.environment:232:    ocean_mixed_layer_thickness: 50.000000
-13:58:10 INFO    opendrift.models.basemodel.environment:232:    sea_floor_depth_below_sea_level: 10000.000000
-13:58:10 INFO    opendrift:1534: Seeding for layer: Torsk (8 features)
-13:58:10 INFO    opendrift:1565: Total area of all polygons: 87279214796.95842 m2
-13:58:10 INFO    opendrift:1576:        Seeding 1721 elements within polygon number 2
-13:58:10 INFO    opendrift:1576:        Seeding 279 elements within polygon number 4
+<div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>16:44:52 INFO    opendrift.models.basemodel.environment:206: Adding a global landmask from GSHHG
+16:44:57 INFO    opendrift.models.basemodel.environment:229: Fallback values will be used for the following variables which have no readers:
+16:44:57 INFO    opendrift.models.basemodel.environment:232:    x_sea_water_velocity: 0.000000
+16:44:57 INFO    opendrift.models.basemodel.environment:232:    y_sea_water_velocity: 0.000000
+16:44:57 INFO    opendrift.models.basemodel.environment:232:    sea_surface_height: 0.000000
+16:44:57 INFO    opendrift.models.basemodel.environment:232:    x_wind: 0.000000
+16:44:57 INFO    opendrift.models.basemodel.environment:232:    y_wind: 0.000000
+16:44:57 INFO    opendrift.models.basemodel.environment:232:    upward_sea_water_velocity: 0.000000
+16:44:57 INFO    opendrift.models.basemodel.environment:232:    ocean_vertical_diffusivity: 0.000000
+16:44:57 INFO    opendrift.models.basemodel.environment:232:    sea_surface_wave_significant_height: 0.000000
+16:44:57 INFO    opendrift.models.basemodel.environment:232:    sea_surface_wave_stokes_drift_x_velocity: 0.000000
+16:44:57 INFO    opendrift.models.basemodel.environment:232:    sea_surface_wave_stokes_drift_y_velocity: 0.000000
+16:44:57 INFO    opendrift.models.basemodel.environment:232:    sea_surface_wave_period_at_variance_spectral_density_maximum: 0.000000
+16:44:57 INFO    opendrift.models.basemodel.environment:232:    sea_surface_wave_mean_period_from_variance_spectral_density_second_frequency_moment: 0.000000
+16:44:57 INFO    opendrift.models.basemodel.environment:232:    sea_surface_swell_wave_to_direction: 0.000000
+16:44:57 INFO    opendrift.models.basemodel.environment:232:    sea_surface_swell_wave_peak_period_from_variance_spectral_density: 0.000000
+16:44:57 INFO    opendrift.models.basemodel.environment:232:    sea_surface_swell_wave_significant_height: 0.000000
+16:44:57 INFO    opendrift.models.basemodel.environment:232:    sea_surface_wind_wave_to_direction: 0.000000
+16:44:57 INFO    opendrift.models.basemodel.environment:232:    sea_surface_wind_wave_mean_period: 0.000000
+16:44:57 INFO    opendrift.models.basemodel.environment:232:    sea_surface_wind_wave_significant_height: 0.000000
+16:44:57 INFO    opendrift.models.basemodel.environment:232:    surface_downward_x_stress: 0.000000
+16:44:57 INFO    opendrift.models.basemodel.environment:232:    surface_downward_y_stress: 0.000000
+16:44:57 INFO    opendrift.models.basemodel.environment:232:    turbulent_kinetic_energy: 0.000000
+16:44:57 INFO    opendrift.models.basemodel.environment:232:    turbulent_generic_length_scale: 0.000000
+16:44:57 INFO    opendrift.models.basemodel.environment:232:    ocean_mixed_layer_thickness: 50.000000
+16:44:57 INFO    opendrift.models.basemodel.environment:232:    sea_floor_depth_below_sea_level: 10000.000000
+16:44:57 INFO    opendrift:1501: Seeding 1000 elements within 8 polygons
+16:44:57 INFO    opendrift:1508: Seeding 88 elements within polygon number 1 of area 16914.1561363245 km2
+16:44:57 INFO    opendrift:1508: Seeding 114 elements within polygon number 2 of area 22025.651607662567 km2
+16:44:57 INFO    opendrift:1508: Seeding 613 elements within polygon number 3 of area 118549.4287716422 km2
+16:44:57 INFO    opendrift:1508: Seeding 18 elements within polygon number 4 of area 3429.86024645089 km2
+16:44:57 INFO    opendrift:1508: Seeding 23 elements within polygon number 5 of area 4460.511714037541 km2
+16:44:57 INFO    opendrift:1508: Seeding 81 elements within polygon number 6 of area 15582.701473774634 km2
+16:44:57 INFO    opendrift:1508: Seeding 24 elements within polygon number 7 of area 4696.037566369465 km2
+16:44:57 INFO    opendrift:1508: Seeding 39 elements within polygon number 8 of area 7617.026431077248 km2
 </pre></div>
 </div>
-<p>Running model</p>
-<div class="highlight-Python notranslate"><div class="highlight"><pre><span></span><span class="n">o</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">steps</span><span class="o">=</span><span class="mi">50</span><span class="p">,</span> <span class="n">time_step</span><span class="o">=</span><span class="mi">3600</span><span class="p">)</span>
-</pre></div>
-</div>
-<div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>13:58:10 INFO    opendrift:923: Using existing reader for land_binary_mask
-13:58:10 INFO    opendrift:934: All points are in ocean
-13:58:10 INFO    opendrift:2060: 2025-04-29 13:58:06.400670 - step 1 of 50 - 2000 active elements (0 deactivated)
-13:58:10 INFO    opendrift:2060: 2025-04-29 14:58:06.400670 - step 2 of 50 - 2000 active elements (0 deactivated)
-13:58:10 INFO    opendrift:2060: 2025-04-29 15:58:06.400670 - step 3 of 50 - 2000 active elements (0 deactivated)
-13:58:11 INFO    opendrift:2060: 2025-04-29 16:58:06.400670 - step 4 of 50 - 2000 active elements (0 deactivated)
-13:58:11 INFO    opendrift:2060: 2025-04-29 17:58:06.400670 - step 5 of 50 - 2000 active elements (0 deactivated)
-13:58:11 INFO    opendrift:2060: 2025-04-29 18:58:06.400670 - step 6 of 50 - 2000 active elements (0 deactivated)
-13:58:11 INFO    opendrift:2060: 2025-04-29 19:58:06.400670 - step 7 of 50 - 2000 active elements (0 deactivated)
-13:58:12 INFO    opendrift:2060: 2025-04-29 20:58:06.400670 - step 8 of 50 - 2000 active elements (0 deactivated)
-13:58:14 INFO    opendrift:2060: 2025-04-29 21:58:06.400670 - step 9 of 50 - 1999 active elements (1 deactivated)
-13:58:14 INFO    opendrift:2060: 2025-04-29 22:58:06.400670 - step 10 of 50 - 1997 active elements (3 deactivated)
-13:58:14 INFO    opendrift:2060: 2025-04-29 23:58:06.400670 - step 11 of 50 - 1996 active elements (4 deactivated)
-13:58:14 INFO    opendrift:2060: 2025-04-30 00:58:06.400670 - step 12 of 50 - 1996 active elements (4 deactivated)
-13:58:14 INFO    opendrift:2060: 2025-04-30 01:58:06.400670 - step 13 of 50 - 1994 active elements (6 deactivated)
-13:58:14 INFO    opendrift:2060: 2025-04-30 02:58:06.400670 - step 14 of 50 - 1994 active elements (6 deactivated)
-13:58:14 INFO    opendrift:2060: 2025-04-30 03:58:06.400670 - step 15 of 50 - 1993 active elements (7 deactivated)
-13:58:14 INFO    opendrift:2060: 2025-04-30 04:58:06.400670 - step 16 of 50 - 1991 active elements (9 deactivated)
-13:58:14 INFO    opendrift:2060: 2025-04-30 05:58:06.400670 - step 17 of 50 - 1989 active elements (11 deactivated)
-13:58:14 INFO    opendrift:2060: 2025-04-30 06:58:06.400670 - step 18 of 50 - 1987 active elements (13 deactivated)
-13:58:15 INFO    opendrift:2060: 2025-04-30 07:58:06.400670 - step 19 of 50 - 1985 active elements (15 deactivated)
-13:58:15 INFO    opendrift:2060: 2025-04-30 08:58:06.400670 - step 20 of 50 - 1983 active elements (17 deactivated)
-13:58:15 INFO    opendrift:2060: 2025-04-30 09:58:06.400670 - step 21 of 50 - 1983 active elements (17 deactivated)
-13:58:15 INFO    opendrift:2060: 2025-04-30 10:58:06.400670 - step 22 of 50 - 1981 active elements (19 deactivated)
-13:58:15 INFO    opendrift:2060: 2025-04-30 11:58:06.400670 - step 23 of 50 - 1979 active elements (21 deactivated)
-13:58:15 INFO    opendrift:2060: 2025-04-30 12:58:06.400670 - step 24 of 50 - 1976 active elements (24 deactivated)
-13:58:15 INFO    opendrift:2060: 2025-04-30 13:58:06.400670 - step 25 of 50 - 1973 active elements (27 deactivated)
-13:58:15 INFO    opendrift:2060: 2025-04-30 14:58:06.400670 - step 26 of 50 - 1972 active elements (28 deactivated)
-13:58:15 INFO    opendrift:2060: 2025-04-30 15:58:06.400670 - step 27 of 50 - 1969 active elements (31 deactivated)
-13:58:15 INFO    opendrift:2060: 2025-04-30 16:58:06.400670 - step 28 of 50 - 1968 active elements (32 deactivated)
-13:58:15 INFO    opendrift:2060: 2025-04-30 17:58:06.400670 - step 29 of 50 - 1967 active elements (33 deactivated)
-13:58:15 INFO    opendrift:2060: 2025-04-30 18:58:06.400670 - step 30 of 50 - 1964 active elements (36 deactivated)
-13:58:15 INFO    opendrift:2060: 2025-04-30 19:58:06.400670 - step 31 of 50 - 1961 active elements (39 deactivated)
-13:58:15 INFO    opendrift:2060: 2025-04-30 20:58:06.400670 - step 32 of 50 - 1960 active elements (40 deactivated)
-13:58:15 INFO    opendrift:2060: 2025-04-30 21:58:06.400670 - step 33 of 50 - 1958 active elements (42 deactivated)
-13:58:15 INFO    opendrift:2060: 2025-04-30 22:58:06.400670 - step 34 of 50 - 1957 active elements (43 deactivated)
-13:58:15 INFO    opendrift:2060: 2025-04-30 23:58:06.400670 - step 35 of 50 - 1952 active elements (48 deactivated)
-13:58:15 INFO    opendrift:2060: 2025-05-01 00:58:06.400670 - step 36 of 50 - 1952 active elements (48 deactivated)
-13:58:16 INFO    opendrift:2060: 2025-05-01 01:58:06.400670 - step 37 of 50 - 1949 active elements (51 deactivated)
-13:58:16 INFO    opendrift:2060: 2025-05-01 02:58:06.400670 - step 38 of 50 - 1948 active elements (52 deactivated)
-13:58:16 INFO    opendrift:2060: 2025-05-01 03:58:06.400670 - step 39 of 50 - 1946 active elements (54 deactivated)
-13:58:16 INFO    opendrift:2060: 2025-05-01 04:58:06.400670 - step 40 of 50 - 1943 active elements (57 deactivated)
-13:58:16 INFO    opendrift:2060: 2025-05-01 05:58:06.400670 - step 41 of 50 - 1940 active elements (60 deactivated)
-13:58:16 INFO    opendrift:2060: 2025-05-01 06:58:06.400670 - step 42 of 50 - 1938 active elements (62 deactivated)
-13:58:16 INFO    opendrift:2060: 2025-05-01 07:58:06.400670 - step 43 of 50 - 1936 active elements (64 deactivated)
-13:58:16 INFO    opendrift:2060: 2025-05-01 08:58:06.400670 - step 44 of 50 - 1930 active elements (70 deactivated)
-13:58:16 INFO    opendrift:2060: 2025-05-01 09:58:06.400670 - step 45 of 50 - 1926 active elements (74 deactivated)
-13:58:16 INFO    opendrift:2060: 2025-05-01 10:58:06.400670 - step 46 of 50 - 1923 active elements (77 deactivated)
-13:58:16 INFO    opendrift:2060: 2025-05-01 11:58:06.400670 - step 47 of 50 - 1921 active elements (79 deactivated)
-13:58:16 INFO    opendrift:2060: 2025-05-01 12:58:06.400670 - step 48 of 50 - 1920 active elements (80 deactivated)
-13:58:16 INFO    opendrift:2060: 2025-05-01 13:58:06.400670 - step 49 of 50 - 1917 active elements (83 deactivated)
-13:58:16 INFO    opendrift:2060: 2025-05-01 14:58:06.400670 - step 50 of 50 - 1916 active elements (84 deactivated)
-</pre></div>
-</div>
-<div class="output_subarea output_html rendered_html output_result">
-<div><svg style="position: absolute; width: 0; height: 0; overflow: hidden">
-<defs>
-<symbol id="icon-database" viewBox="0 0 32 32">
-<path d="M16 0c-8.837 0-16 2.239-16 5v4c0 2.761 7.163 5 16 5s16-2.239 16-5v-4c0-2.761-7.163-5-16-5z"></path>
-<path d="M16 17c-8.837 0-16-2.239-16-5v6c0 2.761 7.163 5 16 5s16-2.239 16-5v-6c0 2.761-7.163 5-16 5z"></path>
-<path d="M16 26c-8.837 0-16-2.239-16-5v6c0 2.761 7.163 5 16 5s16-2.239 16-5v-6c0 2.761-7.163 5-16 5z"></path>
-</symbol>
-<symbol id="icon-file-text2" viewBox="0 0 32 32">
-<path d="M28.681 7.159c-0.694-0.947-1.662-2.053-2.724-3.116s-2.169-2.030-3.116-2.724c-1.612-1.182-2.393-1.319-2.841-1.319h-15.5c-1.378 0-2.5 1.121-2.5 2.5v27c0 1.378 1.122 2.5 2.5 2.5h23c1.378 0 2.5-1.122 2.5-2.5v-19.5c0-0.448-0.137-1.23-1.319-2.841zM24.543 5.457c0.959 0.959 1.712 1.825 2.268 2.543h-4.811v-4.811c0.718 0.556 1.584 1.309 2.543 2.268zM28 29.5c0 0.271-0.229 0.5-0.5 0.5h-23c-0.271 0-0.5-0.229-0.5-0.5v-27c0-0.271 0.229-0.5 0.5-0.5 0 0 15.499-0 15.5 0v7c0 0.552 0.448 1 1 1h7v19.5z"></path>
-<path d="M23 26h-14c-0.552 0-1-0.448-1-1s0.448-1 1-1h14c0.552 0 1 0.448 1 1s-0.448 1-1 1z"></path>
-<path d="M23 22h-14c-0.552 0-1-0.448-1-1s0.448-1 1-1h14c0.552 0 1 0.448 1 1s-0.448 1-1 1z"></path>
-<path d="M23 18h-14c-0.552 0-1-0.448-1-1s0.448-1 1-1h14c0.552 0 1 0.448 1 1s-0.448 1-1 1z"></path>
-</symbol>
-</defs>
-</svg>
-<style>/* CSS stylesheet for displaying xarray objects in jupyterlab.
- *
- */
+<p>Alternative by using GeoPandas and selecting a subset of two polygons</p>
+<div class="highlight-Python notranslate"><div class="highlight"><pre><span></span><span class="n">gdf</span> <span class="o">=</span> <span class="n">gpd</span><span class="o">.</span><span class="n">read_file</span><span class="p">(</span><span class="n">o</span><span class="o">.</span><span class="n">test_data_folder</span><span class="p">()</span> <span class="o">+</span> <span class="s1">&#39;shapefile_spawning_areas/Torsk.shp&#39;</span><span class="p">)</span>
+<span class="n">gdf</span> <span class="o">=</span> <span class="n">gdf</span><span class="o">.</span><span class="n">iloc</span><span class="p">[[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">5</span><span class="p">]]</span>
+<span class="n">o</span><span class="o">.</span><span class="n">seed_from_geopandas</span><span class="p">(</span><span class="n">gdf</span><span class="p">,</span> <span class="n">number</span><span class="o">=</span><span class="mi">2000</span><span class="p">,</span> <span class="n">time</span><span class="o">=</span><span class="n">datetime</span><span class="o">.</span><span class="n">utcnow</span><span class="p">())</span>
 
-:root {
-  --xr-font-color0: var(--jp-content-font-color0, rgba(0, 0, 0, 1));
-  --xr-font-color2: var(--jp-content-font-color2, rgba(0, 0, 0, 0.54));
-  --xr-font-color3: var(--jp-content-font-color3, rgba(0, 0, 0, 0.38));
-  --xr-border-color: var(--jp-border-color2, #e0e0e0);
-  --xr-disabled-color: var(--jp-layout-color3, #bdbdbd);
-  --xr-background-color: var(--jp-layout-color0, white);
-  --xr-background-color-row-even: var(--jp-layout-color1, white);
-  --xr-background-color-row-odd: var(--jp-layout-color2, #eeeeee);
-}
-
-html[theme="dark"],
-html[data-theme="dark"],
-body[data-theme="dark"],
-body.vscode-dark {
-  --xr-font-color0: rgba(255, 255, 255, 1);
-  --xr-font-color2: rgba(255, 255, 255, 0.54);
-  --xr-font-color3: rgba(255, 255, 255, 0.38);
-  --xr-border-color: #1f1f1f;
-  --xr-disabled-color: #515151;
-  --xr-background-color: #111111;
-  --xr-background-color-row-even: #111111;
-  --xr-background-color-row-odd: #313131;
-}
-
-.xr-wrap {
-  display: block !important;
-  min-width: 300px;
-  max-width: 700px;
-}
-
-.xr-text-repr-fallback {
-  /* fallback to plain text repr when CSS is not injected (untrusted notebook) */
-  display: none;
-}
-
-.xr-header {
-  padding-top: 6px;
-  padding-bottom: 6px;
-  margin-bottom: 4px;
-  border-bottom: solid 1px var(--xr-border-color);
-}
-
-.xr-header > div,
-.xr-header > ul {
-  display: inline;
-  margin-top: 0;
-  margin-bottom: 0;
-}
-
-.xr-obj-type,
-.xr-array-name {
-  margin-left: 2px;
-  margin-right: 10px;
-}
-
-.xr-obj-type {
-  color: var(--xr-font-color2);
-}
-
-.xr-sections {
-  padding-left: 0 !important;
-  display: grid;
-  grid-template-columns: 150px auto auto 1fr 0 20px 0 20px;
-}
-
-.xr-section-item {
-  display: contents;
-}
-
-.xr-section-item input {
-  display: inline-block;
-  opacity: 0;
-  height: 0;
-}
-
-.xr-section-item input + label {
-  color: var(--xr-disabled-color);
-}
-
-.xr-section-item input:enabled + label {
-  cursor: pointer;
-  color: var(--xr-font-color2);
-}
-
-.xr-section-item input:focus + label {
-  border: 2px solid var(--xr-font-color0);
-}
-
-.xr-section-item input:enabled + label:hover {
-  color: var(--xr-font-color0);
-}
-
-.xr-section-summary {
-  grid-column: 1;
-  color: var(--xr-font-color2);
-  font-weight: 500;
-}
-
-.xr-section-summary > span {
-  display: inline-block;
-  padding-left: 0.5em;
-}
-
-.xr-section-summary-in:disabled + label {
-  color: var(--xr-font-color2);
-}
-
-.xr-section-summary-in + label:before {
-  display: inline-block;
-  content: "►";
-  font-size: 11px;
-  width: 15px;
-  text-align: center;
-}
-
-.xr-section-summary-in:disabled + label:before {
-  color: var(--xr-disabled-color);
-}
-
-.xr-section-summary-in:checked + label:before {
-  content: "▼";
-}
-
-.xr-section-summary-in:checked + label > span {
-  display: none;
-}
-
-.xr-section-summary,
-.xr-section-inline-details {
-  padding-top: 4px;
-  padding-bottom: 4px;
-}
-
-.xr-section-inline-details {
-  grid-column: 2 / -1;
-}
-
-.xr-section-details {
-  display: none;
-  grid-column: 1 / -1;
-  margin-bottom: 5px;
-}
-
-.xr-section-summary-in:checked ~ .xr-section-details {
-  display: contents;
-}
-
-.xr-array-wrap {
-  grid-column: 1 / -1;
-  display: grid;
-  grid-template-columns: 20px auto;
-}
-
-.xr-array-wrap > label {
-  grid-column: 1;
-  vertical-align: top;
-}
-
-.xr-preview {
-  color: var(--xr-font-color3);
-}
-
-.xr-array-preview,
-.xr-array-data {
-  padding: 0 5px !important;
-  grid-column: 2;
-}
-
-.xr-array-data,
-.xr-array-in:checked ~ .xr-array-preview {
-  display: none;
-}
-
-.xr-array-in:checked ~ .xr-array-data,
-.xr-array-preview {
-  display: inline-block;
-}
-
-.xr-dim-list {
-  display: inline-block !important;
-  list-style: none;
-  padding: 0 !important;
-  margin: 0;
-}
-
-.xr-dim-list li {
-  display: inline-block;
-  padding: 0;
-  margin: 0;
-}
-
-.xr-dim-list:before {
-  content: "(";
-}
-
-.xr-dim-list:after {
-  content: ")";
-}
-
-.xr-dim-list li:not(:last-child):after {
-  content: ",";
-  padding-right: 5px;
-}
-
-.xr-has-index {
-  font-weight: bold;
-}
-
-.xr-var-list,
-.xr-var-item {
-  display: contents;
-}
-
-.xr-var-item > div,
-.xr-var-item label,
-.xr-var-item > .xr-var-name span {
-  background-color: var(--xr-background-color-row-even);
-  margin-bottom: 0;
-}
-
-.xr-var-item > .xr-var-name:hover span {
-  padding-right: 5px;
-}
-
-.xr-var-list > li:nth-child(odd) > div,
-.xr-var-list > li:nth-child(odd) > label,
-.xr-var-list > li:nth-child(odd) > .xr-var-name span {
-  background-color: var(--xr-background-color-row-odd);
-}
-
-.xr-var-name {
-  grid-column: 1;
-}
-
-.xr-var-dims {
-  grid-column: 2;
-}
-
-.xr-var-dtype {
-  grid-column: 3;
-  text-align: right;
-  color: var(--xr-font-color2);
-}
-
-.xr-var-preview {
-  grid-column: 4;
-}
-
-.xr-index-preview {
-  grid-column: 2 / 5;
-  color: var(--xr-font-color2);
-}
-
-.xr-var-name,
-.xr-var-dims,
-.xr-var-dtype,
-.xr-preview,
-.xr-attrs dt {
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  padding-right: 10px;
-}
-
-.xr-var-name:hover,
-.xr-var-dims:hover,
-.xr-var-dtype:hover,
-.xr-attrs dt:hover {
-  overflow: visible;
-  width: auto;
-  z-index: 1;
-}
-
-.xr-var-attrs,
-.xr-var-data,
-.xr-index-data {
-  display: none;
-  background-color: var(--xr-background-color) !important;
-  padding-bottom: 5px !important;
-}
-
-.xr-var-attrs-in:checked ~ .xr-var-attrs,
-.xr-var-data-in:checked ~ .xr-var-data,
-.xr-index-data-in:checked ~ .xr-index-data {
-  display: block;
-}
-
-.xr-var-data > table {
-  float: right;
-}
-
-.xr-var-name span,
-.xr-var-data,
-.xr-index-name div,
-.xr-index-data,
-.xr-attrs {
-  padding-left: 25px !important;
-}
-
-.xr-attrs,
-.xr-var-attrs,
-.xr-var-data,
-.xr-index-data {
-  grid-column: 1 / -1;
-}
-
-dl.xr-attrs {
-  padding: 0;
-  margin: 0;
-  display: grid;
-  grid-template-columns: 125px auto;
-}
-
-.xr-attrs dt,
-.xr-attrs dd {
-  padding: 0;
-  margin: 0;
-  float: left;
-  padding-right: 10px;
-  width: auto;
-}
-
-.xr-attrs dt {
-  font-weight: normal;
-  grid-column: 1;
-}
-
-.xr-attrs dt:hover span {
-  display: inline-block;
-  background: var(--xr-background-color);
-  padding-right: 10px;
-}
-
-.xr-attrs dd {
-  grid-column: 2;
-  white-space: pre-wrap;
-  word-break: break-all;
-}
-
-.xr-icon-database,
-.xr-icon-file-text2,
-.xr-no-icon {
-  display: inline-block;
-  vertical-align: middle;
-  width: 1em;
-  height: 1.5em !important;
-  stroke-width: 0;
-  stroke: currentColor;
-  fill: currentColor;
-}
-</style><pre class='xr-text-repr-fallback'>&lt;xarray.Dataset&gt; Size: 14MB
-Dimensions:                                                                              (
-                                                                                          trajectory: 2000,
-                                                                                          time: 51)
-Coordinates:
-  * trajectory                                                                           (trajectory) int64 16kB ...
-  * time                                                                                 (time) datetime64[ns] 408B ...
-Data variables: (12/35)
-    status                                                                               (trajectory, time) float32 408kB ...
-    moving                                                                               (trajectory, time) float32 408kB ...
-    age_seconds                                                                          (trajectory, time) float32 408kB ...
-    origin_marker                                                                        (trajectory, time) float32 408kB ...
-    lon                                                                                  (trajectory, time) float32 408kB ...
-    lat                                                                                  (trajectory, time) float32 408kB ...
-    ...                                                                                   ...
-    surface_downward_y_stress                                                            (trajectory, time) float32 408kB ...
-    turbulent_kinetic_energy                                                             (trajectory, time) float32 408kB ...
-    turbulent_generic_length_scale                                                       (trajectory, time) float32 408kB ...
-    ocean_mixed_layer_thickness                                                          (trajectory, time) float32 408kB ...
-    sea_floor_depth_below_sea_level                                                      (trajectory, time) float32 408kB ...
-    land_binary_mask                                                                     (trajectory, time) float32 408kB ...
-Attributes: (12/153)
-    Conventions:                                                             ...
-    standard_name_vocabulary:                                                ...
-    featureType:                                                             ...
-    title:                                                                   ...
-    summary:                                                                 ...
-    keywords:                                                                ...
-    ...                                                                                                               ...
-    geospatial_lon_units:                                                    ...
-    geospatial_lon_resolution:                                               ...
-    runtime:                                                                 ...
-    geospatial_vertical_min:                                                 ...
-    geospatial_vertical_max:                                                 ...
-    geospatial_vertical_positive:                                            ...</pre><div class='xr-wrap' style='display:none'><div class='xr-header'><div class='xr-obj-type'>xarray.Dataset</div></div><ul class='xr-sections'><li class='xr-section-item'><input id='section-6c0328f3-c964-4eaf-bff8-900e803bebf8' class='xr-section-summary-in' type='checkbox' disabled ><label for='section-6c0328f3-c964-4eaf-bff8-900e803bebf8' class='xr-section-summary'  title='Expand/collapse section'>Dimensions:</label><div class='xr-section-inline-details'><ul class='xr-dim-list'><li><span class='xr-has-index'>trajectory</span>: 2000</li><li><span class='xr-has-index'>time</span>: 51</li></ul></div><div class='xr-section-details'></div></li><li class='xr-section-item'><input id='section-c3332b42-2cef-41a8-b36a-f35c9206d70a' class='xr-section-summary-in' type='checkbox'  checked><label for='section-c3332b42-2cef-41a8-b36a-f35c9206d70a' class='xr-section-summary' >Coordinates: <span>(2)</span></label><div class='xr-section-inline-details'></div><div class='xr-section-details'><ul class='xr-var-list'><li class='xr-var-item'><div class='xr-var-name'><span class='xr-has-index'>trajectory</span></div><div class='xr-var-dims'>(trajectory)</div><div class='xr-var-dtype'>int64</div><div class='xr-var-preview xr-preview'>0 1 2 3 4 ... 1996 1997 1998 1999</div><input id='attrs-54f0dfea-e122-493e-88a7-32f5210b4d8b' class='xr-var-attrs-in' type='checkbox' ><label for='attrs-54f0dfea-e122-493e-88a7-32f5210b4d8b' title='Show/Hide attributes'><svg class='icon xr-icon-file-text2'><use xlink:href='#icon-file-text2'></use></svg></label><input id='data-6502df3a-9419-4f61-ab89-1085ac4af861' class='xr-var-data-in' type='checkbox'><label for='data-6502df3a-9419-4f61-ab89-1085ac4af861' title='Show/Hide data repr'><svg class='icon xr-icon-database'><use xlink:href='#icon-database'></use></svg></label><div class='xr-var-attrs'><dl class='xr-attrs'><dt><span>cf_role :</span></dt><dd>trajectory_id</dd><dt><span>dtype :</span></dt><dd>&lt;class &#x27;numpy.int32&#x27;&gt;</dd></dl></div><div class='xr-var-data'><pre>array([   0,    1,    2, ..., 1997, 1998, 1999])</pre></div></li><li class='xr-var-item'><div class='xr-var-name'><span class='xr-has-index'>time</span></div><div class='xr-var-dims'>(time)</div><div class='xr-var-dtype'>datetime64[ns]</div><div class='xr-var-preview xr-preview'>2025-04-29T13:58:06.400670 ... 2...</div><input id='attrs-222e66e3-c84b-472e-8508-9e888680c2b0' class='xr-var-attrs-in' type='checkbox' ><label for='attrs-222e66e3-c84b-472e-8508-9e888680c2b0' title='Show/Hide attributes'><svg class='icon xr-icon-file-text2'><use xlink:href='#icon-file-text2'></use></svg></label><input id='data-dccbdb1e-c783-4050-b375-636a7f6817f8' class='xr-var-data-in' type='checkbox'><label for='data-dccbdb1e-c783-4050-b375-636a7f6817f8' title='Show/Hide data repr'><svg class='icon xr-icon-database'><use xlink:href='#icon-database'></use></svg></label><div class='xr-var-attrs'><dl class='xr-attrs'><dt><span>standard_name :</span></dt><dd>time</dd><dt><span>long_name :</span></dt><dd>time</dd><dt><span>dtype :</span></dt><dd>&lt;class &#x27;numpy.float64&#x27;&gt;</dd></dl></div><div class='xr-var-data'><pre>array([&#x27;2025-04-29T13:58:06.400670000&#x27;, &#x27;2025-04-29T14:58:06.400670000&#x27;,
-       &#x27;2025-04-29T15:58:06.400670000&#x27;, &#x27;2025-04-29T16:58:06.400670000&#x27;,
-       &#x27;2025-04-29T17:58:06.400670000&#x27;, &#x27;2025-04-29T18:58:06.400670000&#x27;,
-       &#x27;2025-04-29T19:58:06.400670000&#x27;, &#x27;2025-04-29T20:58:06.400670000&#x27;,
-       &#x27;2025-04-29T21:58:06.400670000&#x27;, &#x27;2025-04-29T22:58:06.400670000&#x27;,
-       &#x27;2025-04-29T23:58:06.400670000&#x27;, &#x27;2025-04-30T00:58:06.400670000&#x27;,
-       &#x27;2025-04-30T01:58:06.400670000&#x27;, &#x27;2025-04-30T02:58:06.400670000&#x27;,
-       &#x27;2025-04-30T03:58:06.400670000&#x27;, &#x27;2025-04-30T04:58:06.400670000&#x27;,
-       &#x27;2025-04-30T05:58:06.400670000&#x27;, &#x27;2025-04-30T06:58:06.400670000&#x27;,
-       &#x27;2025-04-30T07:58:06.400670000&#x27;, &#x27;2025-04-30T08:58:06.400670000&#x27;,
-       &#x27;2025-04-30T09:58:06.400670000&#x27;, &#x27;2025-04-30T10:58:06.400670000&#x27;,
-       &#x27;2025-04-30T11:58:06.400670000&#x27;, &#x27;2025-04-30T12:58:06.400670000&#x27;,
-       &#x27;2025-04-30T13:58:06.400670000&#x27;, &#x27;2025-04-30T14:58:06.400670000&#x27;,
-       &#x27;2025-04-30T15:58:06.400670000&#x27;, &#x27;2025-04-30T16:58:06.400670000&#x27;,
-       &#x27;2025-04-30T17:58:06.400670000&#x27;, &#x27;2025-04-30T18:58:06.400670000&#x27;,
-       &#x27;2025-04-30T19:58:06.400670000&#x27;, &#x27;2025-04-30T20:58:06.400670000&#x27;,
-       &#x27;2025-04-30T21:58:06.400670000&#x27;, &#x27;2025-04-30T22:58:06.400670000&#x27;,
-       &#x27;2025-04-30T23:58:06.400670000&#x27;, &#x27;2025-05-01T00:58:06.400670000&#x27;,
-       &#x27;2025-05-01T01:58:06.400670000&#x27;, &#x27;2025-05-01T02:58:06.400670000&#x27;,
-       &#x27;2025-05-01T03:58:06.400670000&#x27;, &#x27;2025-05-01T04:58:06.400670000&#x27;,
-       &#x27;2025-05-01T05:58:06.400670000&#x27;, &#x27;2025-05-01T06:58:06.400670000&#x27;,
-       &#x27;2025-05-01T07:58:06.400670000&#x27;, &#x27;2025-05-01T08:58:06.400670000&#x27;,
-       &#x27;2025-05-01T09:58:06.400670000&#x27;, &#x27;2025-05-01T10:58:06.400670000&#x27;,
-       &#x27;2025-05-01T11:58:06.400670000&#x27;, &#x27;2025-05-01T12:58:06.400670000&#x27;,
-       &#x27;2025-05-01T13:58:06.400670000&#x27;, &#x27;2025-05-01T14:58:06.400670000&#x27;,
-       &#x27;2025-05-01T15:58:06.400670000&#x27;], dtype=&#x27;datetime64[ns]&#x27;)</pre></div></li></ul></div></li><li class='xr-section-item'><input id='section-324bc07a-2a63-48a2-be83-3fba12583544' class='xr-section-summary-in' type='checkbox'  ><label for='section-324bc07a-2a63-48a2-be83-3fba12583544' class='xr-section-summary' >Data variables: <span>(35)</span></label><div class='xr-section-inline-details'></div><div class='xr-section-details'><ul class='xr-var-list'><li class='xr-var-item'><div class='xr-var-name'><span>status</span></div><div class='xr-var-dims'>(trajectory, time)</div><div class='xr-var-dtype'>float32</div><div class='xr-var-preview xr-preview'>0.0 0.0 0.0 0.0 ... 0.0 0.0 0.0 0.0</div><input id='attrs-b9279df0-dd28-4bea-b5e1-066027b30f1a' class='xr-var-attrs-in' type='checkbox' ><label for='attrs-b9279df0-dd28-4bea-b5e1-066027b30f1a' title='Show/Hide attributes'><svg class='icon xr-icon-file-text2'><use xlink:href='#icon-file-text2'></use></svg></label><input id='data-cbaaab82-c8a3-486f-98db-8b63f4d2f7ac' class='xr-var-data-in' type='checkbox'><label for='data-cbaaab82-c8a3-486f-98db-8b63f4d2f7ac' title='Show/Hide data repr'><svg class='icon xr-icon-database'><use xlink:href='#icon-database'></use></svg></label><div class='xr-var-attrs'><dl class='xr-attrs'><dt><span>dtype :</span></dt><dd>&lt;class &#x27;numpy.int32&#x27;&gt;</dd><dt><span>valid_range :</span></dt><dd>[0 1]</dd><dt><span>flag_values :</span></dt><dd>[0 1]</dd><dt><span>flag_meanings :</span></dt><dd>active stranded</dd></dl></div><div class='xr-var-data'><pre>array([[0., 0., 0., ..., 0., 0., 0.],
-       [0., 0., 0., ..., 0., 0., 0.],
-       [0., 0., 0., ..., 0., 0., 0.],
-       ...,
-       [0., 0., 0., ..., 0., 0., 0.],
-       [0., 0., 0., ..., 0., 0., 0.],
-       [0., 0., 0., ..., 0., 0., 0.]], dtype=float32)</pre></div></li><li class='xr-var-item'><div class='xr-var-name'><span>moving</span></div><div class='xr-var-dims'>(trajectory, time)</div><div class='xr-var-dtype'>float32</div><div class='xr-var-preview xr-preview'>1.0 1.0 1.0 1.0 ... 1.0 1.0 1.0 1.0</div><input id='attrs-4f84657e-e43f-46d2-934e-195e32aece2a' class='xr-var-attrs-in' type='checkbox' ><label for='attrs-4f84657e-e43f-46d2-934e-195e32aece2a' title='Show/Hide attributes'><svg class='icon xr-icon-file-text2'><use xlink:href='#icon-file-text2'></use></svg></label><input id='data-5f6ce5d2-89d5-4167-ac87-d0b973723e04' class='xr-var-data-in' type='checkbox'><label for='data-5f6ce5d2-89d5-4167-ac87-d0b973723e04' title='Show/Hide data repr'><svg class='icon xr-icon-database'><use xlink:href='#icon-database'></use></svg></label><div class='xr-var-attrs'><dl class='xr-attrs'><dt><span>dtype :</span></dt><dd>&lt;class &#x27;numpy.int32&#x27;&gt;</dd><dt><span>minval :</span></dt><dd>0</dd><dt><span>maxval :</span></dt><dd>1</dd></dl></div><div class='xr-var-data'><pre>array([[1., 1., 1., ..., 1., 1., 1.],
-       [1., 1., 1., ..., 1., 1., 1.],
-       [1., 1., 1., ..., 1., 1., 1.],
-       ...,
-       [1., 1., 1., ..., 1., 1., 1.],
-       [1., 1., 1., ..., 1., 1., 1.],
-       [1., 1., 1., ..., 1., 1., 1.]], dtype=float32)</pre></div></li><li class='xr-var-item'><div class='xr-var-name'><span>age_seconds</span></div><div class='xr-var-dims'>(trajectory, time)</div><div class='xr-var-dtype'>float32</div><div class='xr-var-preview xr-preview'>0.0 3.6e+03 ... 1.764e+05 1.8e+05</div><input id='attrs-eb81279e-8677-4cca-91dc-fc0770badfae' class='xr-var-attrs-in' type='checkbox' ><label for='attrs-eb81279e-8677-4cca-91dc-fc0770badfae' title='Show/Hide attributes'><svg class='icon xr-icon-file-text2'><use xlink:href='#icon-file-text2'></use></svg></label><input id='data-66766b80-0cb7-42c9-93b3-e8a51ac2b6e8' class='xr-var-data-in' type='checkbox'><label for='data-66766b80-0cb7-42c9-93b3-e8a51ac2b6e8' title='Show/Hide data repr'><svg class='icon xr-icon-database'><use xlink:href='#icon-database'></use></svg></label><div class='xr-var-attrs'><dl class='xr-attrs'><dt><span>dtype :</span></dt><dd>&lt;class &#x27;numpy.float32&#x27;&gt;</dd><dt><span>units :</span></dt><dd>s</dd><dt><span>minval :</span></dt><dd>0.0</dd><dt><span>maxval :</span></dt><dd>180000.0</dd></dl></div><div class='xr-var-data'><pre>array([[     0.,   3600.,   7200., ..., 172800., 176400., 180000.],
-       [     0.,   3600.,   7200., ..., 172800., 176400., 180000.],
-       [     0.,   3600.,   7200., ..., 172800., 176400., 180000.],
-       ...,
-       [     0.,   3600.,   7200., ..., 172800., 176400., 180000.],
-       [     0.,   3600.,   7200., ..., 172800., 176400., 180000.],
-       [     0.,   3600.,   7200., ..., 172800., 176400., 180000.]],
-      dtype=float32)</pre></div></li><li class='xr-var-item'><div class='xr-var-name'><span>origin_marker</span></div><div class='xr-var-dims'>(trajectory, time)</div><div class='xr-var-dtype'>float32</div><div class='xr-var-preview xr-preview'>0.0 0.0 0.0 0.0 ... 1.0 1.0 1.0 1.0</div><input id='attrs-ac16ce8e-2dcd-4262-9996-f422b38c8f18' class='xr-var-attrs-in' type='checkbox' ><label for='attrs-ac16ce8e-2dcd-4262-9996-f422b38c8f18' title='Show/Hide attributes'><svg class='icon xr-icon-file-text2'><use xlink:href='#icon-file-text2'></use></svg></label><input id='data-73b2791c-2ff7-480c-8965-1c50daefdef0' class='xr-var-data-in' type='checkbox'><label for='data-73b2791c-2ff7-480c-8965-1c50daefdef0' title='Show/Hide data repr'><svg class='icon xr-icon-database'><use xlink:href='#icon-database'></use></svg></label><div class='xr-var-attrs'><dl class='xr-attrs'><dt><span>dtype :</span></dt><dd>&lt;class &#x27;numpy.int32&#x27;&gt;</dd><dt><span>unit :</span></dt><dd></dd><dt><span>description :</span></dt><dd>An integer kept constant during the simulation. Different values may be used for different seedings, to separate elements during analysis. With GUI, only a single seeding is possible.</dd><dt><span>flag_values :</span></dt><dd>[0 1]</dd><dt><span>flag_meanings :</span></dt><dd>Seed_0 Seed_1</dd><dt><span>minval :</span></dt><dd>0</dd><dt><span>maxval :</span></dt><dd>1</dd></dl></div><div class='xr-var-data'><pre>array([[0., 0., 0., ..., 0., 0., 0.],
-       [0., 0., 0., ..., 0., 0., 0.],
-       [0., 0., 0., ..., 0., 0., 0.],
-       ...,
-       [1., 1., 1., ..., 1., 1., 1.],
-       [1., 1., 1., ..., 1., 1., 1.],
-       [1., 1., 1., ..., 1., 1., 1.]], dtype=float32)</pre></div></li><li class='xr-var-item'><div class='xr-var-name'><span>lon</span></div><div class='xr-var-dims'>(trajectory, time)</div><div class='xr-var-dtype'>float32</div><div class='xr-var-preview xr-preview'>4.483 4.487 4.485 ... -3.287 -3.291</div><input id='attrs-05195227-1b59-49f4-8f64-8d30a03c9313' class='xr-var-attrs-in' type='checkbox' ><label for='attrs-05195227-1b59-49f4-8f64-8d30a03c9313' title='Show/Hide attributes'><svg class='icon xr-icon-file-text2'><use xlink:href='#icon-file-text2'></use></svg></label><input id='data-db7a6be0-0b73-4b8d-8a6e-d574b26b8c7f' class='xr-var-data-in' type='checkbox'><label for='data-db7a6be0-0b73-4b8d-8a6e-d574b26b8c7f' title='Show/Hide data repr'><svg class='icon xr-icon-database'><use xlink:href='#icon-database'></use></svg></label><div class='xr-var-attrs'><dl class='xr-attrs'><dt><span>dtype :</span></dt><dd>&lt;class &#x27;numpy.float32&#x27;&gt;</dd><dt><span>units :</span></dt><dd>degrees_east</dd><dt><span>standard_name :</span></dt><dd>longitude</dd><dt><span>long_name :</span></dt><dd>longitude</dd><dt><span>axis :</span></dt><dd>X</dd><dt><span>minval :</span></dt><dd>-3.73392</dd><dt><span>maxval :</span></dt><dd>6.669986</dd></dl></div><div class='xr-var-data'><pre>array([[ 4.483305 ,  4.4868836,  4.485072 , ...,  4.2515283,  4.250016 ,
-         4.233934 ],
-       [ 4.5415683,  4.5387588,  4.542711 , ...,  4.389785 ,  4.3862004,
-         4.3802757],
-       [ 4.599831 ,  4.5997314,  4.5963163, ...,  4.341246 ,  4.3382   ,
-         4.332996 ],
-       ...,
-       [-3.1791346, -3.183214 , -3.1906693, ..., -3.391354 , -3.4018142,
-        -3.408186 ],
-       [-3.1173282, -3.1277115, -3.1306524, ..., -3.3294494, -3.3242235,
-        -3.3279586],
-       [-3.055521 , -3.0667222, -3.070181 , ..., -3.2808995, -3.2868268,
-        -3.2914097]], dtype=float32)</pre></div></li><li class='xr-var-item'><div class='xr-var-name'><span>lat</span></div><div class='xr-var-dims'>(trajectory, time)</div><div class='xr-var-dtype'>float32</div><div class='xr-var-preview xr-preview'>56.56 56.56 56.57 ... 58.07 58.07</div><input id='attrs-ad6b1168-60c8-43e1-956e-ccbdeb5d456e' class='xr-var-attrs-in' type='checkbox' ><label for='attrs-ad6b1168-60c8-43e1-956e-ccbdeb5d456e' title='Show/Hide attributes'><svg class='icon xr-icon-file-text2'><use xlink:href='#icon-file-text2'></use></svg></label><input id='data-1a349207-893a-49b2-8a13-b1299c65228c' class='xr-var-data-in' type='checkbox'><label for='data-1a349207-893a-49b2-8a13-b1299c65228c' title='Show/Hide data repr'><svg class='icon xr-icon-database'><use xlink:href='#icon-database'></use></svg></label><div class='xr-var-attrs'><dl class='xr-attrs'><dt><span>dtype :</span></dt><dd>&lt;class &#x27;numpy.float32&#x27;&gt;</dd><dt><span>units :</span></dt><dd>degrees_north</dd><dt><span>standard_name :</span></dt><dd>latitude</dd><dt><span>long_name :</span></dt><dd>latitude</dd><dt><span>axis :</span></dt><dd>Y</dd><dt><span>minval :</span></dt><dd>56.559807</dd><dt><span>maxval :</span></dt><dd>58.893112</dd></dl></div><div class='xr-var-data'><pre>array([[56.560642, 56.56185 , 56.572308, ..., 56.80493 , 56.809692,
-        56.813587],
-       [56.560635, 56.56138 , 56.564175, ..., 56.80685 , 56.815174,
-        56.82104 ],
-       [56.560596, 56.565887, 56.571358, ..., 56.817677, 56.82444 ,
-        56.83401 ],
-       ...,
-       [57.823185, 57.828278, 57.832924, ..., 58.062546, 58.067608,
-        58.072613],
-       [57.823307, 57.832558, 57.837063, ..., 58.06445 , 58.07112 ,
-        58.075413],
-       [57.823395, 57.826466, 57.831818, ..., 58.061337, 58.068623,
-        58.072598]], dtype=float32)</pre></div></li><li class='xr-var-item'><div class='xr-var-name'><span>z</span></div><div class='xr-var-dims'>(trajectory, time)</div><div class='xr-var-dtype'>float32</div><div class='xr-var-preview xr-preview'>0.0 0.0 0.0 0.0 ... 0.0 0.0 0.0 0.0</div><input id='attrs-ba79a5ec-d90f-4ff0-8f8d-a7431c3ff695' class='xr-var-attrs-in' type='checkbox' ><label for='attrs-ba79a5ec-d90f-4ff0-8f8d-a7431c3ff695' title='Show/Hide attributes'><svg class='icon xr-icon-file-text2'><use xlink:href='#icon-file-text2'></use></svg></label><input id='data-1152e566-82df-4112-9834-6a279417dda6' class='xr-var-data-in' type='checkbox'><label for='data-1152e566-82df-4112-9834-6a279417dda6' title='Show/Hide data repr'><svg class='icon xr-icon-database'><use xlink:href='#icon-database'></use></svg></label><div class='xr-var-attrs'><dl class='xr-attrs'><dt><span>dtype :</span></dt><dd>&lt;class &#x27;numpy.float32&#x27;&gt;</dd><dt><span>units :</span></dt><dd>m</dd><dt><span>standard_name :</span></dt><dd>z</dd><dt><span>long_name :</span></dt><dd>vertical position</dd><dt><span>axis :</span></dt><dd>Z</dd><dt><span>positive :</span></dt><dd>up</dd><dt><span>minval :</span></dt><dd>0.0</dd><dt><span>maxval :</span></dt><dd>0.0</dd></dl></div><div class='xr-var-data'><pre>array([[0., 0., 0., ..., 0., 0., 0.],
-       [0., 0., 0., ..., 0., 0., 0.],
-       [0., 0., 0., ..., 0., 0., 0.],
-       ...,
-       [0., 0., 0., ..., 0., 0., 0.],
-       [0., 0., 0., ..., 0., 0., 0.],
-       [0., 0., 0., ..., 0., 0., 0.]], dtype=float32)</pre></div></li><li class='xr-var-item'><div class='xr-var-name'><span>wind_drift_factor</span></div><div class='xr-var-dims'>(trajectory, time)</div><div class='xr-var-dtype'>float32</div><div class='xr-var-preview xr-preview'>0.02 0.02 0.02 ... 0.02 0.02 0.02</div><input id='attrs-69218a1e-285b-451a-9820-e291ab11dc21' class='xr-var-attrs-in' type='checkbox' ><label for='attrs-69218a1e-285b-451a-9820-e291ab11dc21' title='Show/Hide attributes'><svg class='icon xr-icon-file-text2'><use xlink:href='#icon-file-text2'></use></svg></label><input id='data-d6adcfdc-78c6-4d35-a5b0-2049b3ea163d' class='xr-var-data-in' type='checkbox'><label for='data-d6adcfdc-78c6-4d35-a5b0-2049b3ea163d' title='Show/Hide data repr'><svg class='icon xr-icon-database'><use xlink:href='#icon-database'></use></svg></label><div class='xr-var-attrs'><dl class='xr-attrs'><dt><span>dtype :</span></dt><dd>&lt;class &#x27;numpy.float32&#x27;&gt;</dd><dt><span>units :</span></dt><dd>1</dd><dt><span>description :</span></dt><dd>Elements at surface are moved with this fraction of the vind vector, in addition to currents and Stokes drift</dd><dt><span>minval :</span></dt><dd>0.02</dd><dt><span>maxval :</span></dt><dd>0.02</dd></dl></div><div class='xr-var-data'><pre>array([[0.02, 0.02, 0.02, ..., 0.02, 0.02, 0.02],
-       [0.02, 0.02, 0.02, ..., 0.02, 0.02, 0.02],
-       [0.02, 0.02, 0.02, ..., 0.02, 0.02, 0.02],
-       ...,
-       [0.02, 0.02, 0.02, ..., 0.02, 0.02, 0.02],
-       [0.02, 0.02, 0.02, ..., 0.02, 0.02, 0.02],
-       [0.02, 0.02, 0.02, ..., 0.02, 0.02, 0.02]], dtype=float32)</pre></div></li><li class='xr-var-item'><div class='xr-var-name'><span>current_drift_factor</span></div><div class='xr-var-dims'>(trajectory, time)</div><div class='xr-var-dtype'>float32</div><div class='xr-var-preview xr-preview'>1.0 1.0 1.0 1.0 ... 1.0 1.0 1.0 1.0</div><input id='attrs-99aedae3-128f-4af7-bdd8-da143203c585' class='xr-var-attrs-in' type='checkbox' ><label for='attrs-99aedae3-128f-4af7-bdd8-da143203c585' title='Show/Hide attributes'><svg class='icon xr-icon-file-text2'><use xlink:href='#icon-file-text2'></use></svg></label><input id='data-d38b8e9c-e93f-4806-9402-84fbf0cf8bc3' class='xr-var-data-in' type='checkbox'><label for='data-d38b8e9c-e93f-4806-9402-84fbf0cf8bc3' title='Show/Hide data repr'><svg class='icon xr-icon-database'><use xlink:href='#icon-database'></use></svg></label><div class='xr-var-attrs'><dl class='xr-attrs'><dt><span>dtype :</span></dt><dd>&lt;class &#x27;numpy.float32&#x27;&gt;</dd><dt><span>units :</span></dt><dd>1</dd><dt><span>description :</span></dt><dd>Elements are moved with this fraction of the current vector, in addition to currents and Stokes drift</dd><dt><span>minval :</span></dt><dd>1.0</dd><dt><span>maxval :</span></dt><dd>1.0</dd></dl></div><div class='xr-var-data'><pre>array([[1., 1., 1., ..., 1., 1., 1.],
-       [1., 1., 1., ..., 1., 1., 1.],
-       [1., 1., 1., ..., 1., 1., 1.],
-       ...,
-       [1., 1., 1., ..., 1., 1., 1.],
-       [1., 1., 1., ..., 1., 1., 1.],
-       [1., 1., 1., ..., 1., 1., 1.]], dtype=float32)</pre></div></li><li class='xr-var-item'><div class='xr-var-name'><span>terminal_velocity</span></div><div class='xr-var-dims'>(trajectory, time)</div><div class='xr-var-dtype'>float32</div><div class='xr-var-preview xr-preview'>0.0 0.0 0.0 0.0 ... 0.0 0.0 0.0 0.0</div><input id='attrs-650f6e81-01c0-4084-9aca-dc6aed040ca0' class='xr-var-attrs-in' type='checkbox' ><label for='attrs-650f6e81-01c0-4084-9aca-dc6aed040ca0' title='Show/Hide attributes'><svg class='icon xr-icon-file-text2'><use xlink:href='#icon-file-text2'></use></svg></label><input id='data-b7a70207-08f9-475e-822a-b294726fe2ab' class='xr-var-data-in' type='checkbox'><label for='data-b7a70207-08f9-475e-822a-b294726fe2ab' title='Show/Hide data repr'><svg class='icon xr-icon-database'><use xlink:href='#icon-database'></use></svg></label><div class='xr-var-attrs'><dl class='xr-attrs'><dt><span>dtype :</span></dt><dd>&lt;class &#x27;numpy.float32&#x27;&gt;</dd><dt><span>units :</span></dt><dd>m/s</dd><dt><span>description :</span></dt><dd>Terminal rise/sinking velocity (buoyancy) in the ocean column</dd><dt><span>minval :</span></dt><dd>0.0</dd><dt><span>maxval :</span></dt><dd>0.0</dd></dl></div><div class='xr-var-data'><pre>array([[0., 0., 0., ..., 0., 0., 0.],
-       [0., 0., 0., ..., 0., 0., 0.],
-       [0., 0., 0., ..., 0., 0., 0.],
-       ...,
-       [0., 0., 0., ..., 0., 0., 0.],
-       [0., 0., 0., ..., 0., 0., 0.],
-       [0., 0., 0., ..., 0., 0., 0.]], dtype=float32)</pre></div></li><li class='xr-var-item'><div class='xr-var-name'><span>x_sea_water_velocity</span></div><div class='xr-var-dims'>(trajectory, time)</div><div class='xr-var-dtype'>float32</div><div class='xr-var-preview xr-preview'>0.0 0.0 0.0 0.0 ... 0.0 0.0 0.0 0.0</div><input id='attrs-286b0679-e537-465f-a576-7bf067444a1b' class='xr-var-attrs-in' type='checkbox' ><label for='attrs-286b0679-e537-465f-a576-7bf067444a1b' title='Show/Hide attributes'><svg class='icon xr-icon-file-text2'><use xlink:href='#icon-file-text2'></use></svg></label><input id='data-c6b06453-0e53-4d51-9a98-024c50b22c37' class='xr-var-data-in' type='checkbox'><label for='data-c6b06453-0e53-4d51-9a98-024c50b22c37' title='Show/Hide data repr'><svg class='icon xr-icon-database'><use xlink:href='#icon-database'></use></svg></label><div class='xr-var-attrs'><dl class='xr-attrs'><dt><span>minval :</span></dt><dd>0.0</dd><dt><span>maxval :</span></dt><dd>0.0</dd></dl></div><div class='xr-var-data'><pre>array([[0., 0., 0., ..., 0., 0., 0.],
-       [0., 0., 0., ..., 0., 0., 0.],
-       [0., 0., 0., ..., 0., 0., 0.],
-       ...,
-       [0., 0., 0., ..., 0., 0., 0.],
-       [0., 0., 0., ..., 0., 0., 0.],
-       [0., 0., 0., ..., 0., 0., 0.]], dtype=float32)</pre></div></li><li class='xr-var-item'><div class='xr-var-name'><span>y_sea_water_velocity</span></div><div class='xr-var-dims'>(trajectory, time)</div><div class='xr-var-dtype'>float32</div><div class='xr-var-preview xr-preview'>0.0 0.0 0.0 0.0 ... 0.0 0.0 0.0 0.0</div><input id='attrs-4428e964-effb-4ff8-8863-7651542ed963' class='xr-var-attrs-in' type='checkbox' ><label for='attrs-4428e964-effb-4ff8-8863-7651542ed963' title='Show/Hide attributes'><svg class='icon xr-icon-file-text2'><use xlink:href='#icon-file-text2'></use></svg></label><input id='data-828c3283-913b-45fb-bd51-51949d199998' class='xr-var-data-in' type='checkbox'><label for='data-828c3283-913b-45fb-bd51-51949d199998' title='Show/Hide data repr'><svg class='icon xr-icon-database'><use xlink:href='#icon-database'></use></svg></label><div class='xr-var-attrs'><dl class='xr-attrs'><dt><span>minval :</span></dt><dd>0.0</dd><dt><span>maxval :</span></dt><dd>0.0</dd></dl></div><div class='xr-var-data'><pre>array([[0., 0., 0., ..., 0., 0., 0.],
-       [0., 0., 0., ..., 0., 0., 0.],
-       [0., 0., 0., ..., 0., 0., 0.],
-       ...,
-       [0., 0., 0., ..., 0., 0., 0.],
-       [0., 0., 0., ..., 0., 0., 0.],
-       [0., 0., 0., ..., 0., 0., 0.]], dtype=float32)</pre></div></li><li class='xr-var-item'><div class='xr-var-name'><span>sea_surface_height</span></div><div class='xr-var-dims'>(trajectory, time)</div><div class='xr-var-dtype'>float32</div><div class='xr-var-preview xr-preview'>0.0 0.0 0.0 0.0 ... 0.0 0.0 0.0 0.0</div><input id='attrs-da3e22f9-8405-408e-8cff-45950b4224d1' class='xr-var-attrs-in' type='checkbox' ><label for='attrs-da3e22f9-8405-408e-8cff-45950b4224d1' title='Show/Hide attributes'><svg class='icon xr-icon-file-text2'><use xlink:href='#icon-file-text2'></use></svg></label><input id='data-b7c20eb6-07df-47f7-a4a9-a0b727f2f428' class='xr-var-data-in' type='checkbox'><label for='data-b7c20eb6-07df-47f7-a4a9-a0b727f2f428' title='Show/Hide data repr'><svg class='icon xr-icon-database'><use xlink:href='#icon-database'></use></svg></label><div class='xr-var-attrs'><dl class='xr-attrs'><dt><span>minval :</span></dt><dd>0.0</dd><dt><span>maxval :</span></dt><dd>0.0</dd></dl></div><div class='xr-var-data'><pre>array([[0., 0., 0., ..., 0., 0., 0.],
-       [0., 0., 0., ..., 0., 0., 0.],
-       [0., 0., 0., ..., 0., 0., 0.],
-       ...,
-       [0., 0., 0., ..., 0., 0., 0.],
-       [0., 0., 0., ..., 0., 0., 0.],
-       [0., 0., 0., ..., 0., 0., 0.]], dtype=float32)</pre></div></li><li class='xr-var-item'><div class='xr-var-name'><span>x_wind</span></div><div class='xr-var-dims'>(trajectory, time)</div><div class='xr-var-dtype'>float32</div><div class='xr-var-preview xr-preview'>3.056 -1.547 ... -3.756 -3.756</div><input id='attrs-9859532b-8402-43bc-abc2-cc10414fb599' class='xr-var-attrs-in' type='checkbox' ><label for='attrs-9859532b-8402-43bc-abc2-cc10414fb599' title='Show/Hide attributes'><svg class='icon xr-icon-file-text2'><use xlink:href='#icon-file-text2'></use></svg></label><input id='data-4e0c1b69-5a0d-435d-8fc3-91ac14bf56db' class='xr-var-data-in' type='checkbox'><label for='data-4e0c1b69-5a0d-435d-8fc3-91ac14bf56db' title='Show/Hide data repr'><svg class='icon xr-icon-database'><use xlink:href='#icon-database'></use></svg></label><div class='xr-var-attrs'><dl class='xr-attrs'><dt><span>minval :</span></dt><dd>-22.77835</dd><dt><span>maxval :</span></dt><dd>12.967088</dd></dl></div><div class='xr-var-data'><pre>array([[ 3.0562093e+00, -1.5466033e+00, -8.6209765e-03, ...,
-        -1.2825758e+00, -1.3642385e+01, -1.3642385e+01],
-       [-2.3993711e+00,  3.3748000e+00, -2.9596772e+00, ...,
-        -3.0404983e+00, -5.0245686e+00, -5.0245686e+00],
-       [-8.5048065e-02, -2.9156361e+00, -2.9973754e-01, ...,
-        -2.5831745e+00, -4.4119406e+00, -4.4119406e+00],
-       ...,
-       [-3.3662646e+00, -6.1515388e+00, -1.9325113e+00, ...,
-        -8.5746241e+00, -5.2225256e+00, -5.2225256e+00],
-       [-8.5676060e+00, -2.4262223e+00, -4.1316829e+00, ...,
-         4.2833977e+00, -3.0612004e+00, -3.0612004e+00],
-       [-9.2438812e+00, -2.8539269e+00,  1.1924458e+00, ...,
-        -4.8588080e+00, -3.7561853e+00, -3.7561853e+00]], dtype=float32)</pre></div></li><li class='xr-var-item'><div class='xr-var-name'><span>y_wind</span></div><div class='xr-var-dims'>(trajectory, time)</div><div class='xr-var-dtype'>float32</div><div class='xr-var-preview xr-preview'>1.868 16.17 7.192 ... 6.149 6.149</div><input id='attrs-23e1e6a0-eb72-42bf-91b9-5d33462fad2e' class='xr-var-attrs-in' type='checkbox' ><label for='attrs-23e1e6a0-eb72-42bf-91b9-5d33462fad2e' title='Show/Hide attributes'><svg class='icon xr-icon-file-text2'><use xlink:href='#icon-file-text2'></use></svg></label><input id='data-77375920-2f95-43e0-9964-8951c5050a60' class='xr-var-data-in' type='checkbox'><label for='data-77375920-2f95-43e0-9964-8951c5050a60' title='Show/Hide data repr'><svg class='icon xr-icon-database'><use xlink:href='#icon-database'></use></svg></label><div class='xr-var-attrs'><dl class='xr-attrs'><dt><span>minval :</span></dt><dd>-11.40847</dd><dt><span>maxval :</span></dt><dd>25.143423</dd></dl></div><div class='xr-var-data'><pre>array([[1.86831582e+00, 1.61701450e+01, 7.19153166e+00, ...,
-        7.35999823e+00, 6.03101730e+00, 6.03101730e+00],
-       [1.15211940e+00, 4.32215548e+00, 4.66707611e+00, ...,
-        1.28735752e+01, 9.07554340e+00, 9.07554340e+00],
-       [8.18453979e+00, 8.45868015e+00, 1.49344006e+01, ...,
-        1.04594154e+01, 1.48027592e+01, 1.48027592e+01],
-       ...,
-       [7.87771034e+00, 7.18906164e+00, 1.02808038e-02, ...,
-        7.83243227e+00, 7.74239445e+00, 7.74239445e+00],
-       [1.43083525e+01, 6.96853399e+00, 7.87231636e+00, ...,
-        1.03260565e+01, 6.63642550e+00, 6.63642550e+00],
-       [4.74879169e+00, 8.28325844e+00, 8.89586258e+00, ...,
-        1.12727556e+01, 6.14919138e+00, 6.14919138e+00]], dtype=float32)</pre></div></li><li class='xr-var-item'><div class='xr-var-name'><span>upward_sea_water_velocity</span></div><div class='xr-var-dims'>(trajectory, time)</div><div class='xr-var-dtype'>float32</div><div class='xr-var-preview xr-preview'>0.0 0.0 0.0 0.0 ... 0.0 0.0 0.0 0.0</div><input id='attrs-30529eb5-6cba-439c-9375-9fcc30863d57' class='xr-var-attrs-in' type='checkbox' ><label for='attrs-30529eb5-6cba-439c-9375-9fcc30863d57' title='Show/Hide attributes'><svg class='icon xr-icon-file-text2'><use xlink:href='#icon-file-text2'></use></svg></label><input id='data-87b67311-6289-4e5f-88d4-f1024adef655' class='xr-var-data-in' type='checkbox'><label for='data-87b67311-6289-4e5f-88d4-f1024adef655' title='Show/Hide data repr'><svg class='icon xr-icon-database'><use xlink:href='#icon-database'></use></svg></label><div class='xr-var-attrs'><dl class='xr-attrs'><dt><span>minval :</span></dt><dd>0.0</dd><dt><span>maxval :</span></dt><dd>0.0</dd></dl></div><div class='xr-var-data'><pre>array([[0., 0., 0., ..., 0., 0., 0.],
-       [0., 0., 0., ..., 0., 0., 0.],
-       [0., 0., 0., ..., 0., 0., 0.],
-       ...,
-       [0., 0., 0., ..., 0., 0., 0.],
-       [0., 0., 0., ..., 0., 0., 0.],
-       [0., 0., 0., ..., 0., 0., 0.]], dtype=float32)</pre></div></li><li class='xr-var-item'><div class='xr-var-name'><span>ocean_vertical_diffusivity</span></div><div class='xr-var-dims'>(trajectory, time)</div><div class='xr-var-dtype'>float32</div><div class='xr-var-preview xr-preview'>0.0 0.0 0.0 0.0 ... 0.0 0.0 0.0 0.0</div><input id='attrs-df159b3a-58a1-4736-89ca-3f4f17368162' class='xr-var-attrs-in' type='checkbox' ><label for='attrs-df159b3a-58a1-4736-89ca-3f4f17368162' title='Show/Hide attributes'><svg class='icon xr-icon-file-text2'><use xlink:href='#icon-file-text2'></use></svg></label><input id='data-413528b9-f44a-49ed-9bf3-ad611cc2d781' class='xr-var-data-in' type='checkbox'><label for='data-413528b9-f44a-49ed-9bf3-ad611cc2d781' title='Show/Hide data repr'><svg class='icon xr-icon-database'><use xlink:href='#icon-database'></use></svg></label><div class='xr-var-attrs'><dl class='xr-attrs'><dt><span>minval :</span></dt><dd>0.0</dd><dt><span>maxval :</span></dt><dd>0.0</dd></dl></div><div class='xr-var-data'><pre>array([[0., 0., 0., ..., 0., 0., 0.],
-       [0., 0., 0., ..., 0., 0., 0.],
-       [0., 0., 0., ..., 0., 0., 0.],
-       ...,
-       [0., 0., 0., ..., 0., 0., 0.],
-       [0., 0., 0., ..., 0., 0., 0.],
-       [0., 0., 0., ..., 0., 0., 0.]], dtype=float32)</pre></div></li><li class='xr-var-item'><div class='xr-var-name'><span>sea_surface_wave_significant_height</span></div><div class='xr-var-dims'>(trajectory, time)</div><div class='xr-var-dtype'>float32</div><div class='xr-var-preview xr-preview'>0.3156 6.491 1.272 ... 1.277 1.277</div><input id='attrs-74b80ed7-29b9-468e-b7f3-2d2ebff46a39' class='xr-var-attrs-in' type='checkbox' ><label for='attrs-74b80ed7-29b9-468e-b7f3-2d2ebff46a39' title='Show/Hide attributes'><svg class='icon xr-icon-file-text2'><use xlink:href='#icon-file-text2'></use></svg></label><input id='data-17eb4656-4150-4c0e-b419-56ff3172ac8d' class='xr-var-data-in' type='checkbox'><label for='data-17eb4656-4150-4c0e-b419-56ff3172ac8d' title='Show/Hide data repr'><svg class='icon xr-icon-database'><use xlink:href='#icon-database'></use></svg></label><div class='xr-var-attrs'><dl class='xr-attrs'><dt><span>minval :</span></dt><dd>8.245207e-06</dd><dt><span>maxval :</span></dt><dd>16.145609</dd></dl></div><div class='xr-var-data'><pre>array([[0.315643  , 6.4910936 , 1.2722678 , ..., 1.3730385 , 5.473201  ,
-        5.473201  ],
-       [0.1742753 , 0.73972946, 0.75131565, ..., 4.30435   , 2.6472497 ,
-        2.6472497 ],
-       [1.6480503 , 1.9692347 , 5.4889035 , ..., 2.855375  , 5.8692374 ,
-        5.8692374 ],
-       ...,
-       [1.8053955 , 2.202291  , 0.09187376, ..., 3.3178306 , 2.1455982 ,
-        2.1455982 ],
-       [6.842067  , 1.3393967 , 1.9444863 , ..., 3.0743835 , 1.3139621 ,
-        1.3139621 ],
-       [2.6568089 , 1.8882288 , 1.981734  , ..., 3.7068024 , 1.2772683 ,
-        1.2772683 ]], dtype=float32)</pre></div></li><li class='xr-var-item'><div class='xr-var-name'><span>sea_surface_wave_stokes_drift_x_velocity</span></div><div class='xr-var-dims'>(trajectory, time)</div><div class='xr-var-dtype'>float32</div><div class='xr-var-preview xr-preview'>0.0 0.0 0.0 0.0 ... 0.0 0.0 0.0 0.0</div><input id='attrs-cdf8a89d-1e91-4e5b-ba01-10f8bd071db6' class='xr-var-attrs-in' type='checkbox' ><label for='attrs-cdf8a89d-1e91-4e5b-ba01-10f8bd071db6' title='Show/Hide attributes'><svg class='icon xr-icon-file-text2'><use xlink:href='#icon-file-text2'></use></svg></label><input id='data-2726ac00-ffb2-4a20-b381-2b7e410c8739' class='xr-var-data-in' type='checkbox'><label for='data-2726ac00-ffb2-4a20-b381-2b7e410c8739' title='Show/Hide data repr'><svg class='icon xr-icon-database'><use xlink:href='#icon-database'></use></svg></label><div class='xr-var-attrs'><dl class='xr-attrs'><dt><span>minval :</span></dt><dd>0.0</dd><dt><span>maxval :</span></dt><dd>0.0</dd></dl></div><div class='xr-var-data'><pre>array([[0., 0., 0., ..., 0., 0., 0.],
-       [0., 0., 0., ..., 0., 0., 0.],
-       [0., 0., 0., ..., 0., 0., 0.],
-       ...,
-       [0., 0., 0., ..., 0., 0., 0.],
-       [0., 0., 0., ..., 0., 0., 0.],
-       [0., 0., 0., ..., 0., 0., 0.]], dtype=float32)</pre></div></li><li class='xr-var-item'><div class='xr-var-name'><span>sea_surface_wave_stokes_drift_y_velocity</span></div><div class='xr-var-dims'>(trajectory, time)</div><div class='xr-var-dtype'>float32</div><div class='xr-var-preview xr-preview'>0.0 0.0 0.0 0.0 ... 0.0 0.0 0.0 0.0</div><input id='attrs-f7900b31-64d0-4baa-b7c9-092f1d1d9f2b' class='xr-var-attrs-in' type='checkbox' ><label for='attrs-f7900b31-64d0-4baa-b7c9-092f1d1d9f2b' title='Show/Hide attributes'><svg class='icon xr-icon-file-text2'><use xlink:href='#icon-file-text2'></use></svg></label><input id='data-4bd6b3a1-3aa7-4cb8-b591-05a6321bbde3' class='xr-var-data-in' type='checkbox'><label for='data-4bd6b3a1-3aa7-4cb8-b591-05a6321bbde3' title='Show/Hide data repr'><svg class='icon xr-icon-database'><use xlink:href='#icon-database'></use></svg></label><div class='xr-var-attrs'><dl class='xr-attrs'><dt><span>minval :</span></dt><dd>0.0</dd><dt><span>maxval :</span></dt><dd>0.0</dd></dl></div><div class='xr-var-data'><pre>array([[0., 0., 0., ..., 0., 0., 0.],
-       [0., 0., 0., ..., 0., 0., 0.],
-       [0., 0., 0., ..., 0., 0., 0.],
-       ...,
-       [0., 0., 0., ..., 0., 0., 0.],
-       [0., 0., 0., ..., 0., 0., 0.],
-       [0., 0., 0., ..., 0., 0., 0.]], dtype=float32)</pre></div></li><li class='xr-var-item'><div class='xr-var-name'><span>sea_surface_wave_period_at_variance_spectral_density_maximum</span></div><div class='xr-var-dims'>(trajectory, time)</div><div class='xr-var-dtype'>float32</div><div class='xr-var-preview xr-preview'>0.0 0.0 0.0 0.0 ... 0.0 0.0 0.0 0.0</div><input id='attrs-2ec8d64d-1ab9-4b82-b3a8-a3a9c06766cd' class='xr-var-attrs-in' type='checkbox' ><label for='attrs-2ec8d64d-1ab9-4b82-b3a8-a3a9c06766cd' title='Show/Hide attributes'><svg class='icon xr-icon-file-text2'><use xlink:href='#icon-file-text2'></use></svg></label><input id='data-5794454f-d631-4dee-8408-56b7ea76928d' class='xr-var-data-in' type='checkbox'><label for='data-5794454f-d631-4dee-8408-56b7ea76928d' title='Show/Hide data repr'><svg class='icon xr-icon-database'><use xlink:href='#icon-database'></use></svg></label><div class='xr-var-attrs'><dl class='xr-attrs'><dt><span>minval :</span></dt><dd>0.0</dd><dt><span>maxval :</span></dt><dd>0.0</dd></dl></div><div class='xr-var-data'><pre>array([[0., 0., 0., ..., 0., 0., 0.],
-       [0., 0., 0., ..., 0., 0., 0.],
-       [0., 0., 0., ..., 0., 0., 0.],
-       ...,
-       [0., 0., 0., ..., 0., 0., 0.],
-       [0., 0., 0., ..., 0., 0., 0.],
-       [0., 0., 0., ..., 0., 0., 0.]], dtype=float32)</pre></div></li><li class='xr-var-item'><div class='xr-var-name'><span>sea_surface_wave_mean_period_from_variance_spectral_density_second_frequency_moment</span></div><div class='xr-var-dims'>(trajectory, time)</div><div class='xr-var-dtype'>float32</div><div class='xr-var-preview xr-preview'>3.061 13.88 6.145 ... 6.157 6.157</div><input id='attrs-583a05e5-652a-4c11-ab77-4b10941657a2' class='xr-var-attrs-in' type='checkbox' ><label for='attrs-583a05e5-652a-4c11-ab77-4b10941657a2' title='Show/Hide attributes'><svg class='icon xr-icon-file-text2'><use xlink:href='#icon-file-text2'></use></svg></label><input id='data-19280b4a-4b2c-4341-ae6c-8c75d9d42911' class='xr-var-data-in' type='checkbox'><label for='data-19280b4a-4b2c-4341-ae6c-8c75d9d42911' title='Show/Hide data repr'><svg class='icon xr-icon-database'><use xlink:href='#icon-database'></use></svg></label><div class='xr-var-attrs'><dl class='xr-attrs'><dt><span>minval :</span></dt><dd>0.015643373</dd><dt><span>maxval :</span></dt><dd>21.890556</dd></dl></div><div class='xr-var-data'><pre>array([[ 3.0607488, 13.87997  ,  6.1449566, ...,  6.3836775, 12.745305 ,
-        12.745305 ],
-       [ 2.2742987,  4.685609 ,  4.7221613, ..., 11.30273  ,  8.863945 ,
-         8.863945 ],
-       [ 6.993826 ,  7.645015 , 12.7635765, ...,  9.205792 , 13.198375 ,
-        13.198375 ],
-       ...,
-       [ 7.320079 ,  8.084756 ,  1.6512973, ...,  9.923313 ,  7.980016 ,
-         7.980016 ],
-       [14.250275 ,  6.3049865,  7.5968227, ...,  9.552315 ,  6.2448354,
-         6.2448354],
-       [ 8.879934 ,  7.4861217,  7.6692395, ..., 10.488884 ,  6.157021 ,
-         6.157021 ]], dtype=float32)</pre></div></li><li class='xr-var-item'><div class='xr-var-name'><span>sea_surface_swell_wave_to_direction</span></div><div class='xr-var-dims'>(trajectory, time)</div><div class='xr-var-dtype'>float32</div><div class='xr-var-preview xr-preview'>0.0 0.0 0.0 0.0 ... 0.0 0.0 0.0 0.0</div><input id='attrs-08249412-b27b-4240-b10e-e47e3cef4a5c' class='xr-var-attrs-in' type='checkbox' ><label for='attrs-08249412-b27b-4240-b10e-e47e3cef4a5c' title='Show/Hide attributes'><svg class='icon xr-icon-file-text2'><use xlink:href='#icon-file-text2'></use></svg></label><input id='data-14ee6ba4-7021-4b61-88f7-6a1ac3090fd6' class='xr-var-data-in' type='checkbox'><label for='data-14ee6ba4-7021-4b61-88f7-6a1ac3090fd6' title='Show/Hide data repr'><svg class='icon xr-icon-database'><use xlink:href='#icon-database'></use></svg></label><div class='xr-var-attrs'><dl class='xr-attrs'><dt><span>minval :</span></dt><dd>0.0</dd><dt><span>maxval :</span></dt><dd>0.0</dd></dl></div><div class='xr-var-data'><pre>array([[0., 0., 0., ..., 0., 0., 0.],
-       [0., 0., 0., ..., 0., 0., 0.],
-       [0., 0., 0., ..., 0., 0., 0.],
-       ...,
-       [0., 0., 0., ..., 0., 0., 0.],
-       [0., 0., 0., ..., 0., 0., 0.],
-       [0., 0., 0., ..., 0., 0., 0.]], dtype=float32)</pre></div></li><li class='xr-var-item'><div class='xr-var-name'><span>sea_surface_swell_wave_peak_period_from_variance_spectral_density</span></div><div class='xr-var-dims'>(trajectory, time)</div><div class='xr-var-dtype'>float32</div><div class='xr-var-preview xr-preview'>0.0 0.0 0.0 0.0 ... 0.0 0.0 0.0 0.0</div><input id='attrs-7325960e-98ba-4576-a020-dda9d7693f9a' class='xr-var-attrs-in' type='checkbox' ><label for='attrs-7325960e-98ba-4576-a020-dda9d7693f9a' title='Show/Hide attributes'><svg class='icon xr-icon-file-text2'><use xlink:href='#icon-file-text2'></use></svg></label><input id='data-88a8970d-4386-48ad-bac1-642f230654e7' class='xr-var-data-in' type='checkbox'><label for='data-88a8970d-4386-48ad-bac1-642f230654e7' title='Show/Hide data repr'><svg class='icon xr-icon-database'><use xlink:href='#icon-database'></use></svg></label><div class='xr-var-attrs'><dl class='xr-attrs'><dt><span>minval :</span></dt><dd>0.0</dd><dt><span>maxval :</span></dt><dd>0.0</dd></dl></div><div class='xr-var-data'><pre>array([[0., 0., 0., ..., 0., 0., 0.],
-       [0., 0., 0., ..., 0., 0., 0.],
-       [0., 0., 0., ..., 0., 0., 0.],
-       ...,
-       [0., 0., 0., ..., 0., 0., 0.],
-       [0., 0., 0., ..., 0., 0., 0.],
-       [0., 0., 0., ..., 0., 0., 0.]], dtype=float32)</pre></div></li><li class='xr-var-item'><div class='xr-var-name'><span>sea_surface_swell_wave_significant_height</span></div><div class='xr-var-dims'>(trajectory, time)</div><div class='xr-var-dtype'>float32</div><div class='xr-var-preview xr-preview'>0.0 0.0 0.0 0.0 ... 0.0 0.0 0.0 0.0</div><input id='attrs-6d0f63af-dfac-48e0-8c09-4bfb93620403' class='xr-var-attrs-in' type='checkbox' ><label for='attrs-6d0f63af-dfac-48e0-8c09-4bfb93620403' title='Show/Hide attributes'><svg class='icon xr-icon-file-text2'><use xlink:href='#icon-file-text2'></use></svg></label><input id='data-0e3b357c-90c9-47e9-a9a6-a842484a6b66' class='xr-var-data-in' type='checkbox'><label for='data-0e3b357c-90c9-47e9-a9a6-a842484a6b66' title='Show/Hide data repr'><svg class='icon xr-icon-database'><use xlink:href='#icon-database'></use></svg></label><div class='xr-var-attrs'><dl class='xr-attrs'><dt><span>minval :</span></dt><dd>0.0</dd><dt><span>maxval :</span></dt><dd>0.0</dd></dl></div><div class='xr-var-data'><pre>array([[0., 0., 0., ..., 0., 0., 0.],
-       [0., 0., 0., ..., 0., 0., 0.],
-       [0., 0., 0., ..., 0., 0., 0.],
-       ...,
-       [0., 0., 0., ..., 0., 0., 0.],
-       [0., 0., 0., ..., 0., 0., 0.],
-       [0., 0., 0., ..., 0., 0., 0.]], dtype=float32)</pre></div></li><li class='xr-var-item'><div class='xr-var-name'><span>sea_surface_wind_wave_to_direction</span></div><div class='xr-var-dims'>(trajectory, time)</div><div class='xr-var-dtype'>float32</div><div class='xr-var-preview xr-preview'>0.0 0.0 0.0 0.0 ... 0.0 0.0 0.0 0.0</div><input id='attrs-de457ef9-2f97-4d67-9dfb-3b725a355766' class='xr-var-attrs-in' type='checkbox' ><label for='attrs-de457ef9-2f97-4d67-9dfb-3b725a355766' title='Show/Hide attributes'><svg class='icon xr-icon-file-text2'><use xlink:href='#icon-file-text2'></use></svg></label><input id='data-6a6986c9-a90e-4fc0-9bde-23d17dbcd2dc' class='xr-var-data-in' type='checkbox'><label for='data-6a6986c9-a90e-4fc0-9bde-23d17dbcd2dc' title='Show/Hide data repr'><svg class='icon xr-icon-database'><use xlink:href='#icon-database'></use></svg></label><div class='xr-var-attrs'><dl class='xr-attrs'><dt><span>minval :</span></dt><dd>0.0</dd><dt><span>maxval :</span></dt><dd>0.0</dd></dl></div><div class='xr-var-data'><pre>array([[0., 0., 0., ..., 0., 0., 0.],
-       [0., 0., 0., ..., 0., 0., 0.],
-       [0., 0., 0., ..., 0., 0., 0.],
-       ...,
-       [0., 0., 0., ..., 0., 0., 0.],
-       [0., 0., 0., ..., 0., 0., 0.],
-       [0., 0., 0., ..., 0., 0., 0.]], dtype=float32)</pre></div></li><li class='xr-var-item'><div class='xr-var-name'><span>sea_surface_wind_wave_mean_period</span></div><div class='xr-var-dims'>(trajectory, time)</div><div class='xr-var-dtype'>float32</div><div class='xr-var-preview xr-preview'>0.0 0.0 0.0 0.0 ... 0.0 0.0 0.0 0.0</div><input id='attrs-a20feb46-c1b5-4a0d-b595-d4ec205854ad' class='xr-var-attrs-in' type='checkbox' ><label for='attrs-a20feb46-c1b5-4a0d-b595-d4ec205854ad' title='Show/Hide attributes'><svg class='icon xr-icon-file-text2'><use xlink:href='#icon-file-text2'></use></svg></label><input id='data-a1074de0-1765-4313-9491-22826d1f2b05' class='xr-var-data-in' type='checkbox'><label for='data-a1074de0-1765-4313-9491-22826d1f2b05' title='Show/Hide data repr'><svg class='icon xr-icon-database'><use xlink:href='#icon-database'></use></svg></label><div class='xr-var-attrs'><dl class='xr-attrs'><dt><span>minval :</span></dt><dd>0.0</dd><dt><span>maxval :</span></dt><dd>0.0</dd></dl></div><div class='xr-var-data'><pre>array([[0., 0., 0., ..., 0., 0., 0.],
-       [0., 0., 0., ..., 0., 0., 0.],
-       [0., 0., 0., ..., 0., 0., 0.],
-       ...,
-       [0., 0., 0., ..., 0., 0., 0.],
-       [0., 0., 0., ..., 0., 0., 0.],
-       [0., 0., 0., ..., 0., 0., 0.]], dtype=float32)</pre></div></li><li class='xr-var-item'><div class='xr-var-name'><span>sea_surface_wind_wave_significant_height</span></div><div class='xr-var-dims'>(trajectory, time)</div><div class='xr-var-dtype'>float32</div><div class='xr-var-preview xr-preview'>0.0 0.0 0.0 0.0 ... 0.0 0.0 0.0 0.0</div><input id='attrs-07ffba3b-e4aa-4587-9609-6580be8c2602' class='xr-var-attrs-in' type='checkbox' ><label for='attrs-07ffba3b-e4aa-4587-9609-6580be8c2602' title='Show/Hide attributes'><svg class='icon xr-icon-file-text2'><use xlink:href='#icon-file-text2'></use></svg></label><input id='data-b182165f-0b40-49ea-a650-93a9bed869f1' class='xr-var-data-in' type='checkbox'><label for='data-b182165f-0b40-49ea-a650-93a9bed869f1' title='Show/Hide data repr'><svg class='icon xr-icon-database'><use xlink:href='#icon-database'></use></svg></label><div class='xr-var-attrs'><dl class='xr-attrs'><dt><span>minval :</span></dt><dd>0.0</dd><dt><span>maxval :</span></dt><dd>0.0</dd></dl></div><div class='xr-var-data'><pre>array([[0., 0., 0., ..., 0., 0., 0.],
-       [0., 0., 0., ..., 0., 0., 0.],
-       [0., 0., 0., ..., 0., 0., 0.],
-       ...,
-       [0., 0., 0., ..., 0., 0., 0.],
-       [0., 0., 0., ..., 0., 0., 0.],
-       [0., 0., 0., ..., 0., 0., 0.]], dtype=float32)</pre></div></li><li class='xr-var-item'><div class='xr-var-name'><span>surface_downward_x_stress</span></div><div class='xr-var-dims'>(trajectory, time)</div><div class='xr-var-dtype'>float32</div><div class='xr-var-preview xr-preview'>0.0 0.0 0.0 0.0 ... 0.0 0.0 0.0 0.0</div><input id='attrs-0c6ba6f6-515a-401c-899c-79dbeaa2a8d7' class='xr-var-attrs-in' type='checkbox' ><label for='attrs-0c6ba6f6-515a-401c-899c-79dbeaa2a8d7' title='Show/Hide attributes'><svg class='icon xr-icon-file-text2'><use xlink:href='#icon-file-text2'></use></svg></label><input id='data-cd587b02-8371-44b1-8a63-bb379d6320b6' class='xr-var-data-in' type='checkbox'><label for='data-cd587b02-8371-44b1-8a63-bb379d6320b6' title='Show/Hide data repr'><svg class='icon xr-icon-database'><use xlink:href='#icon-database'></use></svg></label><div class='xr-var-attrs'><dl class='xr-attrs'><dt><span>minval :</span></dt><dd>0.0</dd><dt><span>maxval :</span></dt><dd>0.0</dd></dl></div><div class='xr-var-data'><pre>array([[0., 0., 0., ..., 0., 0., 0.],
-       [0., 0., 0., ..., 0., 0., 0.],
-       [0., 0., 0., ..., 0., 0., 0.],
-       ...,
-       [0., 0., 0., ..., 0., 0., 0.],
-       [0., 0., 0., ..., 0., 0., 0.],
-       [0., 0., 0., ..., 0., 0., 0.]], dtype=float32)</pre></div></li><li class='xr-var-item'><div class='xr-var-name'><span>surface_downward_y_stress</span></div><div class='xr-var-dims'>(trajectory, time)</div><div class='xr-var-dtype'>float32</div><div class='xr-var-preview xr-preview'>0.0 0.0 0.0 0.0 ... 0.0 0.0 0.0 0.0</div><input id='attrs-4117e2c6-b17d-41b5-8e89-0e5088ae3aa7' class='xr-var-attrs-in' type='checkbox' ><label for='attrs-4117e2c6-b17d-41b5-8e89-0e5088ae3aa7' title='Show/Hide attributes'><svg class='icon xr-icon-file-text2'><use xlink:href='#icon-file-text2'></use></svg></label><input id='data-09583531-59e5-45d2-bd39-a70f0b1ce599' class='xr-var-data-in' type='checkbox'><label for='data-09583531-59e5-45d2-bd39-a70f0b1ce599' title='Show/Hide data repr'><svg class='icon xr-icon-database'><use xlink:href='#icon-database'></use></svg></label><div class='xr-var-attrs'><dl class='xr-attrs'><dt><span>minval :</span></dt><dd>0.0</dd><dt><span>maxval :</span></dt><dd>0.0</dd></dl></div><div class='xr-var-data'><pre>array([[0., 0., 0., ..., 0., 0., 0.],
-       [0., 0., 0., ..., 0., 0., 0.],
-       [0., 0., 0., ..., 0., 0., 0.],
-       ...,
-       [0., 0., 0., ..., 0., 0., 0.],
-       [0., 0., 0., ..., 0., 0., 0.],
-       [0., 0., 0., ..., 0., 0., 0.]], dtype=float32)</pre></div></li><li class='xr-var-item'><div class='xr-var-name'><span>turbulent_kinetic_energy</span></div><div class='xr-var-dims'>(trajectory, time)</div><div class='xr-var-dtype'>float32</div><div class='xr-var-preview xr-preview'>0.0 0.0 0.0 0.0 ... 0.0 0.0 0.0 0.0</div><input id='attrs-9e387267-6032-4fba-a9f9-a1686c0e6f26' class='xr-var-attrs-in' type='checkbox' ><label for='attrs-9e387267-6032-4fba-a9f9-a1686c0e6f26' title='Show/Hide attributes'><svg class='icon xr-icon-file-text2'><use xlink:href='#icon-file-text2'></use></svg></label><input id='data-eef2bfb8-32d1-457a-aa78-b387decd486c' class='xr-var-data-in' type='checkbox'><label for='data-eef2bfb8-32d1-457a-aa78-b387decd486c' title='Show/Hide data repr'><svg class='icon xr-icon-database'><use xlink:href='#icon-database'></use></svg></label><div class='xr-var-attrs'><dl class='xr-attrs'><dt><span>minval :</span></dt><dd>0.0</dd><dt><span>maxval :</span></dt><dd>0.0</dd></dl></div><div class='xr-var-data'><pre>array([[0., 0., 0., ..., 0., 0., 0.],
-       [0., 0., 0., ..., 0., 0., 0.],
-       [0., 0., 0., ..., 0., 0., 0.],
-       ...,
-       [0., 0., 0., ..., 0., 0., 0.],
-       [0., 0., 0., ..., 0., 0., 0.],
-       [0., 0., 0., ..., 0., 0., 0.]], dtype=float32)</pre></div></li><li class='xr-var-item'><div class='xr-var-name'><span>turbulent_generic_length_scale</span></div><div class='xr-var-dims'>(trajectory, time)</div><div class='xr-var-dtype'>float32</div><div class='xr-var-preview xr-preview'>0.0 0.0 0.0 0.0 ... 0.0 0.0 0.0 0.0</div><input id='attrs-5d694154-d102-496a-9042-d75bb600ff23' class='xr-var-attrs-in' type='checkbox' ><label for='attrs-5d694154-d102-496a-9042-d75bb600ff23' title='Show/Hide attributes'><svg class='icon xr-icon-file-text2'><use xlink:href='#icon-file-text2'></use></svg></label><input id='data-2ab0b319-1666-4b5a-a3e9-5b7d21624e73' class='xr-var-data-in' type='checkbox'><label for='data-2ab0b319-1666-4b5a-a3e9-5b7d21624e73' title='Show/Hide data repr'><svg class='icon xr-icon-database'><use xlink:href='#icon-database'></use></svg></label><div class='xr-var-attrs'><dl class='xr-attrs'><dt><span>minval :</span></dt><dd>0.0</dd><dt><span>maxval :</span></dt><dd>0.0</dd></dl></div><div class='xr-var-data'><pre>array([[0., 0., 0., ..., 0., 0., 0.],
-       [0., 0., 0., ..., 0., 0., 0.],
-       [0., 0., 0., ..., 0., 0., 0.],
-       ...,
-       [0., 0., 0., ..., 0., 0., 0.],
-       [0., 0., 0., ..., 0., 0., 0.],
-       [0., 0., 0., ..., 0., 0., 0.]], dtype=float32)</pre></div></li><li class='xr-var-item'><div class='xr-var-name'><span>ocean_mixed_layer_thickness</span></div><div class='xr-var-dims'>(trajectory, time)</div><div class='xr-var-dtype'>float32</div><div class='xr-var-preview xr-preview'>50.0 50.0 50.0 ... 50.0 50.0 50.0</div><input id='attrs-5e4d9729-0bd1-439b-9ad8-d546b40f4b3e' class='xr-var-attrs-in' type='checkbox' ><label for='attrs-5e4d9729-0bd1-439b-9ad8-d546b40f4b3e' title='Show/Hide attributes'><svg class='icon xr-icon-file-text2'><use xlink:href='#icon-file-text2'></use></svg></label><input id='data-9df593ef-aef6-4393-8c80-cc4629342d58' class='xr-var-data-in' type='checkbox'><label for='data-9df593ef-aef6-4393-8c80-cc4629342d58' title='Show/Hide data repr'><svg class='icon xr-icon-database'><use xlink:href='#icon-database'></use></svg></label><div class='xr-var-attrs'><dl class='xr-attrs'><dt><span>minval :</span></dt><dd>50.0</dd><dt><span>maxval :</span></dt><dd>50.0</dd></dl></div><div class='xr-var-data'><pre>array([[50., 50., 50., ..., 50., 50., 50.],
-       [50., 50., 50., ..., 50., 50., 50.],
-       [50., 50., 50., ..., 50., 50., 50.],
-       ...,
-       [50., 50., 50., ..., 50., 50., 50.],
-       [50., 50., 50., ..., 50., 50., 50.],
-       [50., 50., 50., ..., 50., 50., 50.]], dtype=float32)</pre></div></li><li class='xr-var-item'><div class='xr-var-name'><span>sea_floor_depth_below_sea_level</span></div><div class='xr-var-dims'>(trajectory, time)</div><div class='xr-var-dtype'>float32</div><div class='xr-var-preview xr-preview'>1e+04 1e+04 1e+04 ... 1e+04 1e+04</div><input id='attrs-987934da-25b0-4532-b736-394854548cbe' class='xr-var-attrs-in' type='checkbox' ><label for='attrs-987934da-25b0-4532-b736-394854548cbe' title='Show/Hide attributes'><svg class='icon xr-icon-file-text2'><use xlink:href='#icon-file-text2'></use></svg></label><input id='data-d97d4784-9374-4f53-a30e-f1ef72ebbbf5' class='xr-var-data-in' type='checkbox'><label for='data-d97d4784-9374-4f53-a30e-f1ef72ebbbf5' title='Show/Hide data repr'><svg class='icon xr-icon-database'><use xlink:href='#icon-database'></use></svg></label><div class='xr-var-attrs'><dl class='xr-attrs'><dt><span>minval :</span></dt><dd>10000.0</dd><dt><span>maxval :</span></dt><dd>10000.0</dd></dl></div><div class='xr-var-data'><pre>array([[10000., 10000., 10000., ..., 10000., 10000., 10000.],
-       [10000., 10000., 10000., ..., 10000., 10000., 10000.],
-       [10000., 10000., 10000., ..., 10000., 10000., 10000.],
-       ...,
-       [10000., 10000., 10000., ..., 10000., 10000., 10000.],
-       [10000., 10000., 10000., ..., 10000., 10000., 10000.],
-       [10000., 10000., 10000., ..., 10000., 10000., 10000.]],
-      dtype=float32)</pre></div></li><li class='xr-var-item'><div class='xr-var-name'><span>land_binary_mask</span></div><div class='xr-var-dims'>(trajectory, time)</div><div class='xr-var-dtype'>float32</div><div class='xr-var-preview xr-preview'>0.0 0.0 0.0 0.0 ... 0.0 0.0 0.0 0.0</div><input id='attrs-103d48ec-1a34-4900-980b-dcc17c8ebcf9' class='xr-var-attrs-in' type='checkbox' ><label for='attrs-103d48ec-1a34-4900-980b-dcc17c8ebcf9' title='Show/Hide attributes'><svg class='icon xr-icon-file-text2'><use xlink:href='#icon-file-text2'></use></svg></label><input id='data-b1153f57-2ce3-4648-835a-80965270699f' class='xr-var-data-in' type='checkbox'><label for='data-b1153f57-2ce3-4648-835a-80965270699f' title='Show/Hide data repr'><svg class='icon xr-icon-database'><use xlink:href='#icon-database'></use></svg></label><div class='xr-var-attrs'><dl class='xr-attrs'><dt><span>minval :</span></dt><dd>0.0</dd><dt><span>maxval :</span></dt><dd>0.0</dd></dl></div><div class='xr-var-data'><pre>array([[0., 0., 0., ..., 0., 0., 0.],
-       [0., 0., 0., ..., 0., 0., 0.],
-       [0., 0., 0., ..., 0., 0., 0.],
-       ...,
-       [0., 0., 0., ..., 0., 0., 0.],
-       [0., 0., 0., ..., 0., 0., 0.],
-       [0., 0., 0., ..., 0., 0., 0.]], dtype=float32)</pre></div></li></ul></div></li><li class='xr-section-item'><input id='section-7a515ad6-414d-4b47-8696-121d1929359f' class='xr-section-summary-in' type='checkbox'  ><label for='section-7a515ad6-414d-4b47-8696-121d1929359f' class='xr-section-summary' >Indexes: <span>(2)</span></label><div class='xr-section-inline-details'></div><div class='xr-section-details'><ul class='xr-var-list'><li class='xr-var-item'><div class='xr-index-name'><div>trajectory</div></div><div class='xr-index-preview'>PandasIndex</div><input type='checkbox' disabled/><label></label><input id='index-21dc2f4e-ddd5-4463-be5d-6fb50f50e08c' class='xr-index-data-in' type='checkbox'/><label for='index-21dc2f4e-ddd5-4463-be5d-6fb50f50e08c' title='Show/Hide index repr'><svg class='icon xr-icon-database'><use xlink:href='#icon-database'></use></svg></label><div class='xr-index-data'><pre>PandasIndex(Index([   0,    1,    2,    3,    4,    5,    6,    7,    8,    9,
-       ...
-       1990, 1991, 1992, 1993, 1994, 1995, 1996, 1997, 1998, 1999],
-      dtype=&#x27;int64&#x27;, name=&#x27;trajectory&#x27;, length=2000))</pre></div></li><li class='xr-var-item'><div class='xr-index-name'><div>time</div></div><div class='xr-index-preview'>PandasIndex</div><input type='checkbox' disabled/><label></label><input id='index-b2a55dcd-afaf-46d6-ab0c-2dddc7032b40' class='xr-index-data-in' type='checkbox'/><label for='index-b2a55dcd-afaf-46d6-ab0c-2dddc7032b40' title='Show/Hide index repr'><svg class='icon xr-icon-database'><use xlink:href='#icon-database'></use></svg></label><div class='xr-index-data'><pre>PandasIndex(DatetimeIndex([&#x27;2025-04-29 13:58:06.400670&#x27;, &#x27;2025-04-29 14:58:06.400670&#x27;,
-               &#x27;2025-04-29 15:58:06.400670&#x27;, &#x27;2025-04-29 16:58:06.400670&#x27;,
-               &#x27;2025-04-29 17:58:06.400670&#x27;, &#x27;2025-04-29 18:58:06.400670&#x27;,
-               &#x27;2025-04-29 19:58:06.400670&#x27;, &#x27;2025-04-29 20:58:06.400670&#x27;,
-               &#x27;2025-04-29 21:58:06.400670&#x27;, &#x27;2025-04-29 22:58:06.400670&#x27;,
-               &#x27;2025-04-29 23:58:06.400670&#x27;, &#x27;2025-04-30 00:58:06.400670&#x27;,
-               &#x27;2025-04-30 01:58:06.400670&#x27;, &#x27;2025-04-30 02:58:06.400670&#x27;,
-               &#x27;2025-04-30 03:58:06.400670&#x27;, &#x27;2025-04-30 04:58:06.400670&#x27;,
-               &#x27;2025-04-30 05:58:06.400670&#x27;, &#x27;2025-04-30 06:58:06.400670&#x27;,
-               &#x27;2025-04-30 07:58:06.400670&#x27;, &#x27;2025-04-30 08:58:06.400670&#x27;,
-               &#x27;2025-04-30 09:58:06.400670&#x27;, &#x27;2025-04-30 10:58:06.400670&#x27;,
-               &#x27;2025-04-30 11:58:06.400670&#x27;, &#x27;2025-04-30 12:58:06.400670&#x27;,
-               &#x27;2025-04-30 13:58:06.400670&#x27;, &#x27;2025-04-30 14:58:06.400670&#x27;,
-               &#x27;2025-04-30 15:58:06.400670&#x27;, &#x27;2025-04-30 16:58:06.400670&#x27;,
-               &#x27;2025-04-30 17:58:06.400670&#x27;, &#x27;2025-04-30 18:58:06.400670&#x27;,
-               &#x27;2025-04-30 19:58:06.400670&#x27;, &#x27;2025-04-30 20:58:06.400670&#x27;,
-               &#x27;2025-04-30 21:58:06.400670&#x27;, &#x27;2025-04-30 22:58:06.400670&#x27;,
-               &#x27;2025-04-30 23:58:06.400670&#x27;, &#x27;2025-05-01 00:58:06.400670&#x27;,
-               &#x27;2025-05-01 01:58:06.400670&#x27;, &#x27;2025-05-01 02:58:06.400670&#x27;,
-               &#x27;2025-05-01 03:58:06.400670&#x27;, &#x27;2025-05-01 04:58:06.400670&#x27;,
-               &#x27;2025-05-01 05:58:06.400670&#x27;, &#x27;2025-05-01 06:58:06.400670&#x27;,
-               &#x27;2025-05-01 07:58:06.400670&#x27;, &#x27;2025-05-01 08:58:06.400670&#x27;,
-               &#x27;2025-05-01 09:58:06.400670&#x27;, &#x27;2025-05-01 10:58:06.400670&#x27;,
-               &#x27;2025-05-01 11:58:06.400670&#x27;, &#x27;2025-05-01 12:58:06.400670&#x27;,
-               &#x27;2025-05-01 13:58:06.400670&#x27;, &#x27;2025-05-01 14:58:06.400670&#x27;,
-               &#x27;2025-05-01 15:58:06.400670&#x27;],
-              dtype=&#x27;datetime64[ns]&#x27;, name=&#x27;time&#x27;, freq=&#x27;h&#x27;))</pre></div></li></ul></div></li><li class='xr-section-item'><input id='section-70a50660-5138-485b-8003-e589279c687e' class='xr-section-summary-in' type='checkbox'  ><label for='section-70a50660-5138-485b-8003-e589279c687e' class='xr-section-summary' >Attributes: <span>(153)</span></label><div class='xr-section-inline-details'></div><div class='xr-section-details'><dl class='xr-attrs'><dt><span>Conventions :</span></dt><dd>CF-1.11, ACDD-1.3</dd><dt><span>standard_name_vocabulary :</span></dt><dd>CF Standard Name Table v85</dd><dt><span>featureType :</span></dt><dd>trajectory</dd><dt><span>title :</span></dt><dd>OpenDrift trajectory simulation</dd><dt><span>summary :</span></dt><dd>Output from simulation with OpenDrift framework</dd><dt><span>keywords :</span></dt><dd>trajectory, drift, lagrangian, simulation</dd><dt><span>history :</span></dt><dd>Created 2025-04-29 13:58:10.819545</dd><dt><span>date_created :</span></dt><dd>2025-04-29T13:58:10.819560</dd><dt><span>source :</span></dt><dd>Output from simulation with OpenDrift</dd><dt><span>model_url :</span></dt><dd>https://github.com/OpenDrift/opendrift</dd><dt><span>opendrift_class :</span></dt><dd>OceanDrift</dd><dt><span>opendrift_module :</span></dt><dd>opendrift.models.oceandrift</dd><dt><span>readers :</span></dt><dd>odict_keys([&#x27;global_landmask&#x27;])</dd><dt><span>time_coverage_start :</span></dt><dd>2025-04-29 13:58:06.400670</dd><dt><span>time_step_calculation :</span></dt><dd>1:00:00</dd><dt><span>time_step_output :</span></dt><dd>1:00:00</dd><dt><span>config_environment:constant:x_sea_water_velocity :</span></dt><dd>None</dd><dt><span>config_environment:fallback:x_sea_water_velocity :</span></dt><dd>0</dd><dt><span>config_environment:constant:y_sea_water_velocity :</span></dt><dd>None</dd><dt><span>config_environment:fallback:y_sea_water_velocity :</span></dt><dd>0</dd><dt><span>config_environment:constant:sea_surface_height :</span></dt><dd>None</dd><dt><span>config_environment:fallback:sea_surface_height :</span></dt><dd>0</dd><dt><span>config_environment:constant:x_wind :</span></dt><dd>None</dd><dt><span>config_environment:fallback:x_wind :</span></dt><dd>-4.0</dd><dt><span>config_environment:constant:y_wind :</span></dt><dd>None</dd><dt><span>config_environment:fallback:y_wind :</span></dt><dd>8.0</dd><dt><span>config_environment:constant:upward_sea_water_velocity :</span></dt><dd>None</dd><dt><span>config_environment:fallback:upward_sea_water_velocity :</span></dt><dd>0</dd><dt><span>config_environment:constant:ocean_vertical_diffusivity :</span></dt><dd>None</dd><dt><span>config_environment:fallback:ocean_vertical_diffusivity :</span></dt><dd>0</dd><dt><span>config_environment:constant:sea_surface_wave_significant_height :</span></dt><dd>None</dd><dt><span>config_environment:fallback:sea_surface_wave_significant_height :</span></dt><dd>0</dd><dt><span>config_environment:constant:sea_surface_wave_stokes_drift_x_velocity :</span></dt><dd>None</dd><dt><span>config_environment:fallback:sea_surface_wave_stokes_drift_x_velocity :</span></dt><dd>0</dd><dt><span>config_environment:constant:sea_surface_wave_stokes_drift_y_velocity :</span></dt><dd>None</dd><dt><span>config_environment:fallback:sea_surface_wave_stokes_drift_y_velocity :</span></dt><dd>0</dd><dt><span>config_environment:constant:sea_surface_wave_period_at_variance_spectral_density_maximum :</span></dt><dd>None</dd><dt><span>config_environment:fallback:sea_surface_wave_period_at_variance_spectral_density_maximum :</span></dt><dd>0</dd><dt><span>config_environment:constant:sea_surface_wave_mean_period_from_variance_spectral_density_second_frequency_moment :</span></dt><dd>None</dd><dt><span>config_environment:fallback:sea_surface_wave_mean_period_from_variance_spectral_density_second_frequency_moment :</span></dt><dd>0</dd><dt><span>config_environment:constant:sea_surface_swell_wave_to_direction :</span></dt><dd>None</dd><dt><span>config_environment:fallback:sea_surface_swell_wave_to_direction :</span></dt><dd>0</dd><dt><span>config_environment:constant:sea_surface_swell_wave_peak_period_from_variance_spectral_density :</span></dt><dd>None</dd><dt><span>config_environment:fallback:sea_surface_swell_wave_peak_period_from_variance_spectral_density :</span></dt><dd>0</dd><dt><span>config_environment:constant:sea_surface_swell_wave_significant_height :</span></dt><dd>None</dd><dt><span>config_environment:fallback:sea_surface_swell_wave_significant_height :</span></dt><dd>0</dd><dt><span>config_environment:constant:sea_surface_wind_wave_to_direction :</span></dt><dd>None</dd><dt><span>config_environment:fallback:sea_surface_wind_wave_to_direction :</span></dt><dd>0</dd><dt><span>config_environment:constant:sea_surface_wind_wave_mean_period :</span></dt><dd>None</dd><dt><span>config_environment:fallback:sea_surface_wind_wave_mean_period :</span></dt><dd>0</dd><dt><span>config_environment:constant:sea_surface_wind_wave_significant_height :</span></dt><dd>None</dd><dt><span>config_environment:fallback:sea_surface_wind_wave_significant_height :</span></dt><dd>0</dd><dt><span>config_environment:constant:surface_downward_x_stress :</span></dt><dd>None</dd><dt><span>config_environment:fallback:surface_downward_x_stress :</span></dt><dd>0</dd><dt><span>config_environment:constant:surface_downward_y_stress :</span></dt><dd>None</dd><dt><span>config_environment:fallback:surface_downward_y_stress :</span></dt><dd>0</dd><dt><span>config_environment:constant:turbulent_kinetic_energy :</span></dt><dd>None</dd><dt><span>config_environment:fallback:turbulent_kinetic_energy :</span></dt><dd>0</dd><dt><span>config_environment:constant:turbulent_generic_length_scale :</span></dt><dd>None</dd><dt><span>config_environment:fallback:turbulent_generic_length_scale :</span></dt><dd>0</dd><dt><span>config_environment:constant:ocean_mixed_layer_thickness :</span></dt><dd>None</dd><dt><span>config_environment:fallback:ocean_mixed_layer_thickness :</span></dt><dd>50</dd><dt><span>config_environment:constant:sea_floor_depth_below_sea_level :</span></dt><dd>None</dd><dt><span>config_environment:fallback:sea_floor_depth_below_sea_level :</span></dt><dd>10000</dd><dt><span>config_environment:constant:land_binary_mask :</span></dt><dd>None</dd><dt><span>config_environment:fallback:land_binary_mask :</span></dt><dd>None</dd><dt><span>config_general:use_auto_landmask :</span></dt><dd>True</dd><dt><span>config_drift:current_uncertainty :</span></dt><dd>0</dd><dt><span>config_drift:current_uncertainty_uniform :</span></dt><dd>0</dd><dt><span>config_drift:max_speed :</span></dt><dd>2.0</dd><dt><span>config_readers:max_number_of_fails :</span></dt><dd>1</dd><dt><span>config_general:simulation_name :</span></dt><dd></dd><dt><span>config_general:coastline_action :</span></dt><dd>stranding</dd><dt><span>config_general:coastline_approximation_precision :</span></dt><dd>0.001</dd><dt><span>config_general:time_step_minutes :</span></dt><dd>60</dd><dt><span>config_general:time_step_output_minutes :</span></dt><dd>None</dd><dt><span>config_seed:ocean_only :</span></dt><dd>True</dd><dt><span>config_seed:number :</span></dt><dd>1</dd><dt><span>config_drift:max_age_seconds :</span></dt><dd>None</dd><dt><span>config_drift:advection_scheme :</span></dt><dd>euler</dd><dt><span>config_drift:horizontal_diffusivity :</span></dt><dd>0</dd><dt><span>config_drift:profiles_depth :</span></dt><dd>50</dd><dt><span>config_drift:wind_uncertainty :</span></dt><dd>4.0</dd><dt><span>config_drift:relative_wind :</span></dt><dd>False</dd><dt><span>config_drift:deactivate_north_of :</span></dt><dd>None</dd><dt><span>config_drift:deactivate_south_of :</span></dt><dd>None</dd><dt><span>config_drift:deactivate_east_of :</span></dt><dd>None</dd><dt><span>config_drift:deactivate_west_of :</span></dt><dd>None</dd><dt><span>config_seed:origin_marker :</span></dt><dd>0</dd><dt><span>config_seed:z :</span></dt><dd>0</dd><dt><span>config_seed:wind_drift_factor :</span></dt><dd>0.02</dd><dt><span>config_seed:current_drift_factor :</span></dt><dd>1</dd><dt><span>config_seed:terminal_velocity :</span></dt><dd>0.0</dd><dt><span>config_drift:vertical_advection :</span></dt><dd>True</dd><dt><span>config_drift:vertical_mixing :</span></dt><dd>False</dd><dt><span>config_vertical_mixing:timestep :</span></dt><dd>60</dd><dt><span>config_vertical_mixing:diffusivitymodel :</span></dt><dd>environment</dd><dt><span>config_vertical_mixing:background_diffusivity :</span></dt><dd>1.2e-05</dd><dt><span>config_vertical_mixing:TSprofiles :</span></dt><dd>False</dd><dt><span>config_drift:wind_drift_depth :</span></dt><dd>0.1</dd><dt><span>config_drift:stokes_drift :</span></dt><dd>True</dd><dt><span>config_drift:stokes_drift_profile :</span></dt><dd>Phillips</dd><dt><span>config_drift:use_tabularised_stokes_drift :</span></dt><dd>False</dd><dt><span>config_drift:tabularised_stokes_drift_fetch :</span></dt><dd>25000</dd><dt><span>config_general:seafloor_action :</span></dt><dd>lift_to_seafloor</dd><dt><span>config_drift:truncate_ocean_model_below_m :</span></dt><dd>None</dd><dt><span>config_seed:seafloor :</span></dt><dd>False</dd><dt><span>opendrift_version :</span></dt><dd>1.13.1</dd><dt><span>seed_geojson :</span></dt><dd>{&quot;features&quot;: [], &quot;type&quot;: &quot;FeatureCollection&quot;}</dd><dt><span>simulation_time :</span></dt><dd>2025-04-29 13:58:10.878227</dd><dt><span>reader_x_sea_water_velocity :</span></dt><dd>0</dd><dt><span>reader_y_sea_water_velocity :</span></dt><dd>0</dd><dt><span>reader_sea_surface_height :</span></dt><dd>0</dd><dt><span>reader_x_wind :</span></dt><dd>-4.0</dd><dt><span>reader_y_wind :</span></dt><dd>8.0</dd><dt><span>reader_upward_sea_water_velocity :</span></dt><dd>0</dd><dt><span>reader_ocean_vertical_diffusivity :</span></dt><dd>0</dd><dt><span>reader_sea_surface_wave_significant_height :</span></dt><dd>0</dd><dt><span>reader_sea_surface_wave_stokes_drift_x_velocity :</span></dt><dd>0</dd><dt><span>reader_sea_surface_wave_stokes_drift_y_velocity :</span></dt><dd>0</dd><dt><span>reader_sea_surface_wave_period_at_variance_spectral_density_maximum :</span></dt><dd>0</dd><dt><span>reader_sea_surface_wave_mean_period_from_variance_spectral_density_second_frequency_moment :</span></dt><dd>0</dd><dt><span>reader_sea_surface_swell_wave_to_direction :</span></dt><dd>0</dd><dt><span>reader_sea_surface_swell_wave_peak_period_from_variance_spectral_density :</span></dt><dd>0</dd><dt><span>reader_sea_surface_swell_wave_significant_height :</span></dt><dd>0</dd><dt><span>reader_sea_surface_wind_wave_to_direction :</span></dt><dd>0</dd><dt><span>reader_sea_surface_wind_wave_mean_period :</span></dt><dd>0</dd><dt><span>reader_sea_surface_wind_wave_significant_height :</span></dt><dd>0</dd><dt><span>reader_surface_downward_x_stress :</span></dt><dd>0</dd><dt><span>reader_surface_downward_y_stress :</span></dt><dd>0</dd><dt><span>reader_turbulent_kinetic_energy :</span></dt><dd>0</dd><dt><span>reader_turbulent_generic_length_scale :</span></dt><dd>0</dd><dt><span>reader_ocean_mixed_layer_thickness :</span></dt><dd>50</dd><dt><span>reader_sea_floor_depth_below_sea_level :</span></dt><dd>10000</dd><dt><span>reader_land_binary_mask :</span></dt><dd>[&#x27;global_landmask&#x27;]</dd><dt><span>time_coverage_end :</span></dt><dd>2025-05-01 15:58:06.400670</dd><dt><span>time_coverage_duration :</span></dt><dd>P2DT2H0M0S</dd><dt><span>time_coverage_resolution :</span></dt><dd>P0DT1H0M0S</dd><dt><span>performance :</span></dt><dd>--------------------
-Reader performance:
---------------------
-global_landmask
- 0:00:01.6  total
- 0:00:00.0  preparing
- 0:00:01.6  reading
- 0:00:00.0  masking
---------------------
-Performance:
-   10.5 total time
-    4.4 configuration
-    0.0 preparing main loop
-      0.0 moving elements to ocean
-    6.0 main loop
-      0.1 updating elements
-    0.0 cleaning up
---------------------
-</dd><dt><span>geospatial_bounds_crs :</span></dt><dd>EPSG:4326</dd><dt><span>geospatial_bounds_vertical_crs :</span></dt><dd>EPSG:5831</dd><dt><span>geospatial_lat_min :</span></dt><dd>56.559807</dd><dt><span>geospatial_lat_max :</span></dt><dd>58.893112</dd><dt><span>geospatial_lat_units :</span></dt><dd>degrees_north</dd><dt><span>geospatial_lat_resolution :</span></dt><dd>point</dd><dt><span>geospatial_lon_min :</span></dt><dd>-3.73392</dd><dt><span>geospatial_lon_max :</span></dt><dd>6.669986</dd><dt><span>geospatial_lon_units :</span></dt><dd>degrees_east</dd><dt><span>geospatial_lon_resolution :</span></dt><dd>point</dd><dt><span>runtime :</span></dt><dd>0:00:10.571934</dd><dt><span>geospatial_vertical_min :</span></dt><dd>0.0</dd><dt><span>geospatial_vertical_max :</span></dt><dd>0.0</dd><dt><span>geospatial_vertical_positive :</span></dt><dd>up</dd></dl></div></li></ul></div></div>
-</div>
-<br />
-<br /><p>Print and plot results</p>
-<div class="highlight-Python notranslate"><div class="highlight"><pre><span></span><span class="nb">print</span><span class="p">(</span><span class="n">o</span><span class="p">)</span>
 <span class="n">o</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">fast</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
-<span class="n">o</span><span class="o">.</span><span class="n">animation</span><span class="p">(</span><span class="n">fast</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 </pre></div>
 </div>
-<img src="../_images/sphx_glr_example_seed_from_shapefile_001.png" srcset="../_images/sphx_glr_example_seed_from_shapefile_001.png" alt="OpenDrift - OceanDrift 2025-04-29 13:58 to 2025-05-01 15:58 UTC (51 steps)" class = "sphx-glr-single-img"/><div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>===========================
---------------------
-Reader performance:
---------------------
-global_landmask
- 0:00:01.6  total
- 0:00:00.0  preparing
- 0:00:01.6  reading
- 0:00:00.0  masking
---------------------
-Performance:
-   10.5 total time
-    4.4 configuration
-    0.0 preparing main loop
-      0.0 moving elements to ocean
-    6.0 main loop
-      0.1 updating elements
-    0.0 cleaning up
---------------------
-===========================
-Model:  OceanDrift     (OpenDrift version 1.13.1)
-        1911 active Lagrangian3DArray particles  (89 deactivated, 0 scheduled)
--------------------
-Environment variables:
-  -----
-  land_binary_mask
-     1) global_landmask
-  -----
-Readers not added for the following variables:
-  ocean_mixed_layer_thickness
-  ocean_vertical_diffusivity
-  sea_floor_depth_below_sea_level
-  sea_surface_height
-  sea_surface_swell_wave_peak_period_from_variance_spectral_density
-  sea_surface_swell_wave_significant_height
-  sea_surface_swell_wave_to_direction
-  sea_surface_wave_mean_period_from_variance_spectral_density_second_frequency_moment
-  sea_surface_wave_period_at_variance_spectral_density_maximum
-  sea_surface_wave_significant_height
-  sea_surface_wave_stokes_drift_x_velocity
-  sea_surface_wave_stokes_drift_y_velocity
-  sea_surface_wind_wave_mean_period
-  sea_surface_wind_wave_significant_height
-  sea_surface_wind_wave_to_direction
-  surface_downward_x_stress
-  surface_downward_y_stress
-  turbulent_generic_length_scale
-  turbulent_kinetic_energy
-  upward_sea_water_velocity
-  x_sea_water_velocity
-  x_wind
-  y_sea_water_velocity
-  y_wind
+<img src="../_images/sphx_glr_example_seed_from_shapefile_001.png" srcset="../_images/sphx_glr_example_seed_from_shapefile_001.png" alt="OpenDrift - OceanDrift 3000 elements seeded at 2025-05-08 16:44 UTC" class = "sphx-glr-single-img"/><div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>16:44:57 INFO    opendrift:1501: Seeding 2000 elements within 2 polygons
+16:44:57 INFO    opendrift:1508: Seeding 1171 elements within polygon number 1 of area 22025.651607662567 km2
+16:44:57 INFO    opendrift:1508: Seeding 829 elements within polygon number 2 of area 15582.701473774634 km2
+16:44:57 WARNING opendrift:2456: Plotting fast. This will make your plots less accurate.
 
-Discarded readers:
-
-Time:
-        Start: 2025-04-29 13:58:06.400670 UTC
-        Present: 2025-05-01 15:58:06.400670 UTC
-        Calculation steps: 50 * 1:00:00 - total time: 2 days, 2:00:00
-        Output steps: 51 * 1:00:00
-===========================
-
-13:58:17 WARNING opendrift:2437: Plotting fast. This will make your plots less accurate.
-13:58:26 WARNING opendrift:2437: Plotting fast. This will make your plots less accurate.
-13:58:27 INFO    opendrift:4608: Saving animation to /root/project/docs/source/gallery/animations/example_seed_from_shapefile_0.gif...
-13:59:01 INFO    opendrift:3044: Time to make animation: 0:00:34.801653
+(&lt;GeoAxes: title={&#39;center&#39;: &#39;OpenDrift - OceanDrift\n3000 elements seeded at 2025-05-08 16:44 UTC&#39;}&gt;, &lt;Figure size 719.781x1100 with 1 Axes&gt;)
 </pre></div>
 </div>
-<img alt="../_images/example_seed_from_shapefile_0.gif" src="../_images/example_seed_from_shapefile_0.gif" />
-<p class="sphx-glr-timing"><strong>Total running time of the script:</strong> (1 minutes 1.810 seconds)</p>
+<p class="sphx-glr-timing"><strong>Total running time of the script:</strong> (0 minutes 11.868 seconds)</p>
 <div class="sphx-glr-footer sphx-glr-footer-example docutils container" id="sphx-glr-download-gallery-example-seed-from-shapefile-py">
 <div class="sphx-glr-download sphx-glr-download-jupyter docutils container">
 <p><a class="reference download internal" download="" href="../_downloads/0949163d0816344312f1466804e216c7/example_seed_from_shapefile.ipynb"><code class="xref download docutils literal notranslate"><span class="pre">Download</span> <span class="pre">Jupyter</span> <span class="pre">notebook:</span> <span class="pre">example_seed_from_shapefile.ipynb</span></code></a></p>
@@ -1138,8 +293,8 @@ Time:
            </div>
           </div>
           <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
-        <a href="example_depth.html" class="btn btn-neutral float-left" title="Drift at different depths" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
-        <a href="example_long_global_thredds.html" class="btn btn-neutral float-right" title="Thredds (global)" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+        <a href="example_parameterized_stokesdrift.html" class="btn btn-neutral float-left" title="Parameterised Stokesdrift" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="example_constant_current.html" class="btn btn-neutral float-right" title="Constant current" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
     </div>
 
   <hr/>
