@@ -286,21 +286,48 @@ Module Contents
 
 
 
-   .. py:method:: write_netcdf_chemical_density_map(filename, pixelsize_m='auto', zlevels=None, deltat=None, density_proj=None, llcrnrlon=None, llcrnrlat=None, urcrnrlon=None, urcrnrlat=None, mass_unit=None, time_avg_conc=False, horizontal_smoothing=False, smoothing_cells=0, reader_sea_depth=None, landmask_shapefile=None, origin_marker=None)
+   .. py:method:: write_netcdf_chemical_density_map(filename, pixelsize_m='auto', zlevels=None, lat_resol=None, lon_resol=None, deltat=None, density_proj=None, llcrnrlon=None, llcrnrlat=None, urcrnrlon=None, urcrnrlat=None, mass_unit=None, time_avg_conc=False, horizontal_smoothing=False, smoothing_cells=0, reader_sea_depth=None, landmask_shapefile=None, origin_marker=None, elements_density=False, active_status=False, weight=None)
 
       Write netCDF file with map of Chemical species densities and concentrations
+      Arguments:
+          pixelsize_m:           float32, lenght of gridcells in m (default mode)
+          lat_resol:             float32, latitude resolution of gricells (in degrees using EPSG 4326)
+          lon_resol:             float32, longitude resolution of gricells (in degrees using EPSG 4326)
+          zlevels:               list of float32, depth levels at which concentration will be calculated
+                         Values must be negative and ordered from the lowest depth (e.g. [-50., -10., -5.])
+                         In the .nc file "depth" value will indicate the start of the vertical slice
+                         i.e. "depth = 0" indicates slice from 0 to 5 m, and "depth = 50" indicates
+                         slice from 50m to bathimietry 
+          density_proj:          None: add default projection with equal-area property (proj=moll +ellps=WGS84 +lon_0=0.0')
+                                 <proj4_string>: <longlat +datum=WGS84 +no_defs> for EPSG 4326
+                                 int, 4326 to indicate use of EPSG 4326
+          llcrnrlon:             float32, min longitude of grid (in degrees using EPSG 4326)
+          llcrnrlat:             float32, min latitude of grid (in degrees using EPSG 4326)
+          urcrnrlon:             float32, max longitude of grid (in degrees using EPSG 4326)
+          urcrnrlat:             float32, max latitude of grid (in degrees using EPSG 4326)
+          mass_unit:             string, mass unit of output concentration (ug/mg/g/kg)
+          time_avg_conc:         boolean, calculate concentration averaged each deltat
+          horizontal_smoothing:  boolean, smooth concentration horizontally
+          smoothing_cells:       int, number of cells for horizontal smoothing,
+          reader_sea_depth:      string, path of bathimethy .nc file,
+          landmask_shapefile:    string, path of bathimethylandmask .shp file
+          elements_density:      boolean, add number of elements present in each grid cell to output
+          origin_marker:         int, only elements with this value of "origin_marker" will be considered
+          active_status:         boolean, only active elements will be considered
+          weight:                string, elements property to be extracted to produce maps
 
 
 
-   .. py:method:: get_chemical_density_array(pixelsize_m, z_array, density_proj=None, llcrnrlon=None, llcrnrlat=None, urcrnrlon=None, urcrnrlat=None, weight=None, origin_marker=None)
+   .. py:method:: get_chemical_density_array(pixelsize_m, z_array, lat_resol=None, lon_resol=None, density_proj=None, llcrnrlon=None, llcrnrlat=None, urcrnrlon=None, urcrnrlat=None, weight=None, origin_marker=None, active_status=False, elements_density=False)
 
       compute a particle concentration map from particle positions
       Use user defined projection (density_proj=<proj4_string>)
       or create a lon/lat grid (density_proj=None)
+          Arguments are described at write_netcdf_chemical_density_map
 
 
 
-   .. py:method:: get_pixel_mean_depth(lons, lats)
+   .. py:method:: get_pixel_mean_depth(lons, lats, density_proj_str, lat_resol, lon_resol)
 
 
    .. py:method:: horizontal_smooth(a, n=0)
