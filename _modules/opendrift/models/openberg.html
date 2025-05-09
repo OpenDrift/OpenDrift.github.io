@@ -122,8 +122,9 @@
 <span class="sd">&quot;&quot;&quot;</span>
 
 <span class="kn">import</span><span class="w"> </span><span class="nn">logging</span><span class="p">;</span> <span class="n">logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">opendrift.models.oceandrift</span><span class="w"> </span><span class="kn">import</span> <span class="n">OceanDrift</span><span class="p">,</span> <span class="n">Lagrangian3DArray</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">opendrift.config</span><span class="w"> </span><span class="kn">import</span> <span class="n">CONFIG_LEVEL_BASIC</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">opendrift.elements</span><span class="w"> </span><span class="kn">import</span> <span class="n">LagrangianArray</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">opendrift.models.basemodel</span><span class="w"> </span><span class="kn">import</span> <span class="n">OpenDriftSimulation</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">opendrift.config</span><span class="w"> </span><span class="kn">import</span> <span class="n">CONFIG_LEVEL_BASIC</span><span class="p">,</span> <span class="n">CONFIG_LEVEL_ESSENTIAL</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">opendrift.models.physics_methods</span><span class="w"> </span><span class="kn">import</span> <span class="n">PhysicsMethods</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">scipy.integrate</span><span class="w"> </span><span class="kn">import</span> <span class="n">solve_ivp</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
@@ -143,22 +144,30 @@
 
 <div class="viewcode-block" id="IcebergObj">
 <a class="viewcode-back" href="../../../autoapi/opendrift/models/openberg/index.html#opendrift.models.openberg.IcebergObj">[docs]</a>
-<span class="k">class</span><span class="w"> </span><span class="nc">IcebergObj</span><span class="p">(</span><span class="n">Lagrangian3DArray</span><span class="p">):</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">IcebergObj</span><span class="p">(</span><span class="n">LagrangianArray</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot; Extending Lagrangian3DArray with relevant properties for an Iceberg &quot;&quot;&quot;</span>
 
-    <span class="n">variables</span> <span class="o">=</span> <span class="n">Lagrangian3DArray</span><span class="o">.</span><span class="n">add_variables</span><span class="p">([</span>
-        <span class="p">(</span><span class="s1">&#39;sail&#39;</span><span class="p">,</span> <span class="p">{</span><span class="s1">&#39;dtype&#39;</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">float32</span><span class="p">,</span>	           <span class="c1"># Sail of iceberg (part above waterline)</span>
-                               <span class="s1">&#39;units&#39;</span><span class="p">:</span> <span class="s1">&#39;m&#39;</span><span class="p">,</span>
-                               <span class="s1">&#39;default&#39;</span><span class="p">:</span> <span class="mi">10</span><span class="p">}),</span>
-        <span class="p">(</span><span class="s1">&#39;draft&#39;</span><span class="p">,</span> <span class="p">{</span><span class="s1">&#39;dtype&#39;</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">float32</span><span class="p">,</span>	           <span class="c1"># Draft of iceberg (part below waterline)</span>
-                               <span class="s1">&#39;units&#39;</span><span class="p">:</span> <span class="s1">&#39;m&#39;</span><span class="p">,</span>
-                               <span class="s1">&#39;default&#39;</span><span class="p">:</span> <span class="mi">90</span><span class="p">}),</span>
-        <span class="p">(</span><span class="s1">&#39;length&#39;</span><span class="p">,</span> <span class="p">{</span><span class="s1">&#39;dtype&#39;</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">float32</span><span class="p">,</span>	       <span class="c1"># length of iceberg </span>
-                               <span class="s1">&#39;units&#39;</span><span class="p">:</span> <span class="s1">&#39;m&#39;</span><span class="p">,</span>
-                               <span class="s1">&#39;default&#39;</span><span class="p">:</span> <span class="mi">100</span><span class="p">}),</span>
-        <span class="p">(</span><span class="s1">&#39;width&#39;</span><span class="p">,</span> <span class="p">{</span><span class="s1">&#39;dtype&#39;</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">float32</span><span class="p">,</span>		       <span class="c1"># width of iceberg </span>
-                               <span class="s1">&#39;units&#39;</span><span class="p">:</span> <span class="s1">&#39;m&#39;</span><span class="p">,</span>
-                               <span class="s1">&#39;default&#39;</span><span class="p">:</span> <span class="mi">30</span><span class="p">}),</span>
+    <span class="n">variables</span> <span class="o">=</span> <span class="n">LagrangianArray</span><span class="o">.</span><span class="n">add_variables</span><span class="p">([</span>
+        <span class="p">(</span><span class="s1">&#39;sail&#39;</span><span class="p">,</span> <span class="p">{</span><span class="s1">&#39;dtype&#39;</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">float32</span><span class="p">,</span>
+                  <span class="s1">&#39;units&#39;</span><span class="p">:</span> <span class="s1">&#39;m&#39;</span><span class="p">,</span>
+                  <span class="s1">&#39;default&#39;</span><span class="p">:</span> <span class="mi">10</span><span class="p">,</span>
+                  <span class="s1">&#39;description&#39;</span><span class="p">:</span> <span class="s1">&#39;Sail of iceberg (part above waterline)&#39;</span><span class="p">,</span>
+                  <span class="s1">&#39;level&#39;</span><span class="p">:</span> <span class="n">CONFIG_LEVEL_ESSENTIAL</span><span class="p">}),</span>
+        <span class="p">(</span><span class="s1">&#39;draft&#39;</span><span class="p">,</span> <span class="p">{</span><span class="s1">&#39;dtype&#39;</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">float32</span><span class="p">,</span>
+                   <span class="s1">&#39;units&#39;</span><span class="p">:</span> <span class="s1">&#39;m&#39;</span><span class="p">,</span>
+                   <span class="s1">&#39;default&#39;</span><span class="p">:</span> <span class="mi">90</span><span class="p">,</span>
+                   <span class="s1">&#39;description&#39;</span><span class="p">:</span> <span class="s1">&#39;Draft of iceberg (part below waterline)&#39;</span><span class="p">,</span>
+                   <span class="s1">&#39;level&#39;</span><span class="p">:</span> <span class="n">CONFIG_LEVEL_ESSENTIAL</span><span class="p">}),</span>
+        <span class="p">(</span><span class="s1">&#39;length&#39;</span><span class="p">,</span> <span class="p">{</span><span class="s1">&#39;dtype&#39;</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">float32</span><span class="p">,</span>
+                    <span class="s1">&#39;units&#39;</span><span class="p">:</span> <span class="s1">&#39;m&#39;</span><span class="p">,</span>
+                    <span class="s1">&#39;default&#39;</span><span class="p">:</span> <span class="mi">100</span><span class="p">,</span>
+                    <span class="s1">&#39;description&#39;</span><span class="p">:</span> <span class="s1">&#39;Length of iceberg&#39;</span><span class="p">,</span>
+                    <span class="s1">&#39;level&#39;</span><span class="p">:</span> <span class="n">CONFIG_LEVEL_ESSENTIAL</span><span class="p">}),</span>
+        <span class="p">(</span><span class="s1">&#39;width&#39;</span><span class="p">,</span> <span class="p">{</span><span class="s1">&#39;dtype&#39;</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">float32</span><span class="p">,</span>
+                   <span class="s1">&#39;units&#39;</span><span class="p">:</span> <span class="s1">&#39;m&#39;</span><span class="p">,</span>
+                   <span class="s1">&#39;default&#39;</span><span class="p">:</span> <span class="mi">30</span><span class="p">,</span>
+                   <span class="s1">&#39;description&#39;</span><span class="p">:</span> <span class="s1">&#39;Width of iceberg)&#39;</span><span class="p">,</span>
+                   <span class="s1">&#39;level&#39;</span><span class="p">:</span> <span class="n">CONFIG_LEVEL_ESSENTIAL</span><span class="p">}),</span>
         <span class="p">(</span><span class="s1">&#39;weight_coeff&#39;</span><span class="p">,</span> <span class="p">{</span><span class="s1">&#39;dtype&#39;</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">float32</span><span class="p">,</span>     <span class="c1"># Relative to the shape of iceberg (e.g. 1 for tabular; 0.3 for pinnacle: It affects the mass only !)</span>
                               <span class="s1">&#39;units&#39;</span><span class="p">:</span> <span class="s1">&#39;1&#39;</span><span class="p">,</span>
                               <span class="s1">&#39;default&#39;</span><span class="p">:</span> <span class="mi">1</span><span class="p">}),</span>
@@ -391,7 +400,7 @@
 
 <div class="viewcode-block" id="OpenBerg">
 <a class="viewcode-back" href="../../../autoapi/opendrift/models/openberg/index.html#opendrift.models.openberg.OpenBerg">[docs]</a>
-<span class="k">class</span><span class="w"> </span><span class="nc">OpenBerg</span><span class="p">(</span><span class="n">OceanDrift</span><span class="p">):</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">OpenBerg</span><span class="p">(</span><span class="n">OpenDriftSimulation</span><span class="p">):</span>
 
     <span class="n">ElementType</span> <span class="o">=</span> <span class="n">IcebergObj</span>
 
@@ -401,8 +410,8 @@
         <span class="s2">&quot;sea_floor_depth_below_sea_level&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;fallback&quot;</span><span class="p">:</span> <span class="mi">10000</span><span class="p">},</span>
         <span class="s2">&quot;sea_surface_x_slope&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;fallback&quot;</span><span class="p">:</span> <span class="mi">0</span><span class="p">},</span>
         <span class="s2">&quot;sea_surface_y_slope&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;fallback&quot;</span><span class="p">:</span> <span class="mi">0</span><span class="p">},</span>
-        <span class="s2">&quot;x_wind&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;fallback&quot;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span> <span class="s2">&quot;important&quot;</span><span class="p">:</span> <span class="kc">False</span><span class="p">},</span>
-        <span class="s2">&quot;y_wind&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;fallback&quot;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span> <span class="s2">&quot;important&quot;</span><span class="p">:</span> <span class="kc">False</span><span class="p">},</span>
+        <span class="s2">&quot;x_wind&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;fallback&quot;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span> <span class="s2">&quot;important&quot;</span><span class="p">:</span> <span class="kc">True</span><span class="p">},</span>
+        <span class="s2">&quot;y_wind&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;fallback&quot;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span> <span class="s2">&quot;important&quot;</span><span class="p">:</span> <span class="kc">True</span><span class="p">},</span>
         <span class="s2">&quot;sea_surface_wave_significant_height&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;fallback&quot;</span><span class="p">:</span> <span class="mi">0</span><span class="p">},</span>
         <span class="s2">&quot;sea_surface_wave_from_direction&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;fallback&quot;</span><span class="p">:</span> <span class="mi">0</span><span class="p">},</span>
         <span class="s2">&quot;sea_surface_wave_stokes_drift_x_velocity&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;fallback&quot;</span><span class="p">:</span> <span class="mi">0</span><span class="p">},</span>
@@ -555,11 +564,11 @@
         
                 
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_config</span><span class="p">(</span><span class="s1">&#39;drift:vertical_profile&#39;</span><span class="p">)</span> <span class="ow">is</span> <span class="kc">False</span><span class="p">:</span>
-            <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Surface Currents ...&quot;</span><span class="p">)</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;Advection with surface currents&quot;</span><span class="p">)</span>
             <span class="n">water_vel</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="bp">self</span><span class="o">.</span><span class="n">environment</span><span class="o">.</span><span class="n">x_sea_water_velocity</span> <span class="o">+</span> <span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="n">stokes_drift</span><span class="p">)</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">environment</span><span class="o">.</span><span class="n">sea_surface_wave_stokes_drift_x_velocity</span><span class="p">),</span>
                                   <span class="bp">self</span><span class="o">.</span><span class="n">environment</span><span class="o">.</span><span class="n">y_sea_water_velocity</span> <span class="o">+</span> <span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="n">stokes_drift</span><span class="p">)</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">environment</span><span class="o">.</span><span class="n">sea_surface_wave_stokes_drift_y_velocity</span><span class="p">)])</span>
         <span class="k">else</span><span class="p">:</span>
-            <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Depth Integrated Currents ...&quot;</span><span class="p">)</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;Advection with depth integrated currents&quot;</span><span class="p">)</span>
             <span class="n">uprof</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_profile_masked</span><span class="p">(</span><span class="s2">&quot;x_sea_water_velocity&quot;</span><span class="p">)</span>
             <span class="n">vprof</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_profile_masked</span><span class="p">(</span><span class="s2">&quot;y_sea_water_velocity&quot;</span><span class="p">)</span>
             <span class="n">z</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">environment_profiles</span><span class="p">[</span><span class="s2">&quot;z&quot;</span><span class="p">]</span>

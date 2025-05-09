@@ -173,7 +173,7 @@ of icebergs in the Barents Sea from 1987 to 2005, J. Geophys. Res., 115, C12062,
 <td><p>Extending Lagrangian3DArray with relevant properties for an Iceberg</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="#opendrift.models.openberg.OpenBerg" title="opendrift.models.openberg.OpenBerg"><code class="xref py py-obj docutils literal notranslate"><span class="pre">OpenBerg</span></code></a></p></td>
-<td><p>Open source buoyant particle trajectory model based on OpenDrift.</p></td>
+<td><p>Generic trajectory model class, to be extended (subclassed).</p></td>
 </tr>
 </tbody>
 </table>
@@ -265,7 +265,7 @@ of icebergs in the Barents Sea from 1987 to 2005, J. Geophys. Res., 115, C12062,
 <dl class="py class">
 <dt class="sig sig-object py" id="opendrift.models.openberg.IcebergObj">
 <em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">opendrift.models.openberg.</span></span><span class="sig-name descname"><span class="pre">IcebergObj</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../../_modules/opendrift/models/openberg.html#IcebergObj"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#opendrift.models.openberg.IcebergObj" title="Link to this definition"></a></dt>
-<dd><p>Bases: <a class="reference internal" href="../oceandrift/index.html#opendrift.models.oceandrift.Lagrangian3DArray" title="opendrift.models.oceandrift.Lagrangian3DArray"><code class="xref py py-obj docutils literal notranslate"><span class="pre">opendrift.models.oceandrift.Lagrangian3DArray</span></code></a></p>
+<dd><p>Bases: <a class="reference internal" href="../../elements/index.html#opendrift.elements.LagrangianArray" title="opendrift.elements.LagrangianArray"><code class="xref py py-obj docutils literal notranslate"><span class="pre">opendrift.elements.LagrangianArray</span></code></a></p>
 <p>Extending Lagrangian3DArray with relevant properties for an Iceberg</p>
 <p>Initialises a LagrangianArray with given properties.</p>
 <dl class="simple">
@@ -411,14 +411,50 @@ dt : Timestep of the simulation</p>
 <dl class="py class">
 <dt class="sig sig-object py" id="opendrift.models.openberg.OpenBerg">
 <em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">opendrift.models.openberg.</span></span><span class="sig-name descname"><span class="pre">OpenBerg</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../../_modules/opendrift/models/openberg.html#OpenBerg"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#opendrift.models.openberg.OpenBerg" title="Link to this definition"></a></dt>
-<dd><p>Bases: <a class="reference internal" href="../oceandrift/index.html#opendrift.models.oceandrift.OceanDrift" title="opendrift.models.oceandrift.OceanDrift"><code class="xref py py-obj docutils literal notranslate"><span class="pre">opendrift.models.oceandrift.OceanDrift</span></code></a></p>
-<p>Open source buoyant particle trajectory model based on OpenDrift.</p>
-<p>Developed at MET Norway</p>
-<p>Generic module for particles that move in 3 dimensions
-and may be to vertical turbulent mixing
-with the possibility for positive or negative buoyancy</p>
-<p>Particles could be e.g. oil droplets, plankton, nutrients or sediments,
-Model may be subclassed for more specific behaviour.</p>
+<dd><p>Bases: <a class="reference internal" href="../basemodel/index.html#opendrift.models.basemodel.OpenDriftSimulation" title="opendrift.models.basemodel.OpenDriftSimulation"><code class="xref py py-obj docutils literal notranslate"><span class="pre">opendrift.models.basemodel.OpenDriftSimulation</span></code></a></p>
+<p>Generic trajectory model class, to be extended (subclassed).</p>
+<p>This as an Abstract Base Class, meaning that only subclasses can
+be initiated and used.
+Any specific subclass (‘model’) must contain its own (or shared)
+specific type of particles (ElementType), whose properties are
+updated at each time_step using method update() on basis of model
+physics/chemistry/biology and ‘required_variables’ (environment)
+which are provided by one or more Reader objects.</p>
+<dl>
+<dt>Attributes:</dt><dd><p>ElementType: the type (class) of particles to be used by this model</p>
+<p>elements: object of the class ElementType, storing the specific
+particle properties (ndarrays and scalars) of all active particles
+as named attributes. Elements are added by seeding-functions
+(presently only one implemented: seed_elements).</p>
+<dl class="simple">
+<dt>elements_deactivated: ElementType object containing particles which</dt><dd><p>have been deactivated (and removed from ‘elements’)</p>
+</dd>
+<dt>elements_scheduled: ElementType object containing particles which</dt><dd><p>have been scheduled, but not yet activated</p>
+</dd>
+<dt>required_variables: list of strings of CF standard_names which is</dt><dd><p>needed by this model (update function) to update properties of
+particles (‘elements’) at each time_step. This core class has
+no required_elements, this is implemented by subclasses/modules.</p>
+</dd>
+<dt>environment: recarray storing environment variables (wind, waves,</dt><dd><p>current etc) as named attributes. Attribute names follow
+standard_name from CF-convention, allowing any OpenDriftSimulation
+module/subclass using environment data from any readers which
+can provide the requested variables. Used in method ‘update’
+to update properties of elements every time_step.</p>
+</dd>
+<dt>time_step: timedelta object, time interval at which element properties</dt><dd><p>are updated (including advection).</p>
+</dd>
+<dt>time_step_output: timedelta object, time interval at which element</dt><dd><p>properties are stored in memory and eventually written to file</p>
+</dd>
+<dt>readers: Dictionary where values are Reader objects, and names are</dt><dd><p>unique reference keywords used to access a given reader (typically
+filename or URL)</p>
+</dd>
+<dt>priority_list: OrderedDict where names are variable names,</dt><dd><p>and values are lists of names (kewywords) of the reader, in the
+order of priority (user defined) of which the readers shall be
+called to retrieve environmental data.</p>
+</dd>
+</dl>
+</dd>
+</dl>
 <p>Initialise OpenDriftSimulation</p>
 <dl>
 <dt>Args:</dt><dd><dl>

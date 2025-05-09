@@ -94,7 +94,7 @@ Module Contents
 
 .. py:class:: IcebergObj(**kwargs)
 
-   Bases: :py:obj:`opendrift.models.oceandrift.Lagrangian3DArray`
+   Bases: :py:obj:`opendrift.elements.LagrangianArray`
 
 
    Extending Lagrangian3DArray with relevant properties for an Iceberg 
@@ -211,20 +211,53 @@ Module Contents
 
 .. py:class:: OpenBerg(*args, **kwargs)
 
-   Bases: :py:obj:`opendrift.models.oceandrift.OceanDrift`
+   Bases: :py:obj:`opendrift.models.basemodel.OpenDriftSimulation`
 
 
-   Open source buoyant particle trajectory model based on OpenDrift.
+   Generic trajectory model class, to be extended (subclassed).
 
-   Developed at MET Norway
+   This as an Abstract Base Class, meaning that only subclasses can
+   be initiated and used.
+   Any specific subclass ('model') must contain its own (or shared)
+   specific type of particles (ElementType), whose properties are
+   updated at each time_step using method update() on basis of model
+   physics/chemistry/biology and 'required_variables' (environment)
+   which are provided by one or more Reader objects.
 
-   Generic module for particles that move in 3 dimensions
-   and may be to vertical turbulent mixing
-   with the possibility for positive or negative buoyancy
+   Attributes:
+       ElementType: the type (class) of particles to be used by this model
 
-   Particles could be e.g. oil droplets, plankton, nutrients or sediments,
-   Model may be subclassed for more specific behaviour.
+       elements: object of the class ElementType, storing the specific
+       particle properties (ndarrays and scalars) of all active particles
+       as named attributes. Elements are added by seeding-functions
+       (presently only one implemented: seed_elements).
 
+       elements_deactivated: ElementType object containing particles which
+           have been deactivated (and removed from 'elements')
+
+       elements_scheduled: ElementType object containing particles which
+           have been scheduled, but not yet activated
+       required_variables: list of strings of CF standard_names which is
+           needed by this model (update function) to update properties of
+           particles ('elements') at each time_step. This core class has
+           no required_elements, this is implemented by subclasses/modules.
+       environment: recarray storing environment variables (wind, waves,
+           current etc) as named attributes. Attribute names follow
+           standard_name from CF-convention, allowing any OpenDriftSimulation
+           module/subclass using environment data from any readers which
+           can provide the requested variables. Used in method 'update'
+           to update properties of elements every time_step.
+       time_step: timedelta object, time interval at which element properties
+           are updated (including advection).
+       time_step_output: timedelta object, time interval at which element
+           properties are stored in memory and eventually written to file
+       readers: Dictionary where values are Reader objects, and names are
+           unique reference keywords used to access a given reader (typically
+           filename or URL)
+       priority_list: OrderedDict where names are variable names,
+           and values are lists of names (kewywords) of the reader, in the
+           order of priority (user defined) of which the readers shall be
+           called to retrieve environmental data.
 
    Initialise OpenDriftSimulation
 
