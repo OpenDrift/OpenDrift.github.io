@@ -21,7 +21,7 @@
 Leeway backtracking
 ===================
 
-.. GENERATED FROM PYTHON SOURCE LINES 6-18
+.. GENERATED FROM PYTHON SOURCE LINES 6-19
 
 .. code-block:: Python
 
@@ -34,11 +34,12 @@ Leeway backtracking
     import matplotlib.pyplot as plt
     import xarray as xr
     import opendrift
+    from opendrift import test_data_folder as tdf
     from opendrift.readers import reader_netCDF_CF_generic
     from opendrift.models.leeway import Leeway
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 19-24
+.. GENERATED FROM PYTHON SOURCE LINES 20-25
 
 We try to find the likelihood of the origin of a found object by two different methods:
 1. backwards simulation from position where object is found ('Observation')
@@ -46,14 +47,14 @@ We try to find the likelihood of the origin of a found object by two different m
 
 We use 24 hours from the NorKyst ocean model (800m pixel size) and Arome atmospheric model (2.5km pixel size)
 
-.. GENERATED FROM PYTHON SOURCE LINES 24-48
+.. GENERATED FROM PYTHON SOURCE LINES 25-49
 
 .. code-block:: Python
 
     o = Leeway(loglevel=10)
-    reader_arome = reader_netCDF_CF_generic.Reader(o.test_data_folder() +
+    reader_arome = reader_netCDF_CF_generic.Reader(tdf +
         '16Nov2015_NorKyst_z_surface/arome_subset_16Nov2015.nc')
-    reader_norkyst = reader_netCDF_CF_generic.Reader(o.test_data_folder() +
+    reader_norkyst = reader_netCDF_CF_generic.Reader(tdf +
         '16Nov2015_NorKyst_z_surface/norkyst800_subset_16Nov2015.nc')
     o.add_reader([reader_norkyst, reader_arome])
 
@@ -75,11 +76,11 @@ We use 24 hours from the NorKyst ocean model (800m pixel size) and Arome atmosph
     lons, lats = np.meshgrid(lons, lats)
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 49-50
+.. GENERATED FROM PYTHON SOURCE LINES 50-51
 
 Simulating first backwards for 24 hours:
 
-.. GENERATED FROM PYTHON SOURCE LINES 50-63
+.. GENERATED FROM PYTHON SOURCE LINES 51-64
 
 .. code-block:: Python
 
@@ -97,11 +98,11 @@ Simulating first backwards for 24 hours:
     os.remove(outfile)
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 64-65
+.. GENERATED FROM PYTHON SOURCE LINES 65-66
 
 Simulating then forwards, starting at a uniform grid 24 hours earlier (440 x 320 = 140800 elements at ~500m separation)
 
-.. GENERATED FROM PYTHON SOURCE LINES 65-72
+.. GENERATED FROM PYTHON SOURCE LINES 66-73
 
 .. code-block:: Python
 
@@ -113,11 +114,11 @@ Simulating then forwards, starting at a uniform grid 24 hours earlier (440 x 320
     print(o)
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 73-74
+.. GENERATED FROM PYTHON SOURCE LINES 74-75
 
 Finding the elements actually hitting the target (within 5 km) after 24 hours:
 
-.. GENERATED FROM PYTHON SOURCE LINES 74-90
+.. GENERATED FROM PYTHON SOURCE LINES 75-91
 
 .. code-block:: Python
 
@@ -138,11 +139,11 @@ Finding the elements actually hitting the target (within 5 km) after 24 hours:
                 fast=True, corners=corners, text=text)
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 91-92
+.. GENERATED FROM PYTHON SOURCE LINES 92-93
 
 .. image:: /gallery/animations/example_leeway_backtrack_0.gif
 
-.. GENERATED FROM PYTHON SOURCE LINES 92-96
+.. GENERATED FROM PYTHON SOURCE LINES 93-97
 
 .. code-block:: Python
 
@@ -151,11 +152,11 @@ Finding the elements actually hitting the target (within 5 km) after 24 hours:
            show_elements=False, fast=True, corners=corners, text=text)
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 97-98
+.. GENERATED FROM PYTHON SOURCE LINES 98-99
 
 Plot the initial density of elements that actually hit the target after 24 hours. To be compared with the density figure from backwards simulation (see top)
 
-.. GENERATED FROM PYTHON SOURCE LINES 98-107
+.. GENERATED FROM PYTHON SOURCE LINES 99-108
 
 .. code-block:: Python
 
