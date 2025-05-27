@@ -341,8 +341,6 @@
 
         <span class="bp">self</span><span class="o">.</span><span class="n">profiles_depth</span> <span class="o">=</span> <span class="kc">None</span>
 
-        <span class="bp">self</span><span class="o">.</span><span class="n">show_continuous_performance</span> <span class="o">=</span> <span class="kc">False</span>
-
         <span class="bp">self</span><span class="o">.</span><span class="n">origin_marker</span> <span class="o">=</span> <span class="kc">None</span>  <span class="c1"># Dictionary to store named seeding locations</span>
 
         <span class="c1"># List to store GeoJSON dicts of seeding commands</span>
@@ -2294,8 +2292,8 @@
                 <span class="c1"># Release elements</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">release_elements</span><span class="p">()</span>
 
-                <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">num_elements_active</span><span class="p">(</span>
-                <span class="p">)</span> <span class="o">==</span> <span class="mi">0</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">num_elements_scheduled</span><span class="p">()</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="c1"># Jump to next timestep if no active elements</span>
+                <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">num_elements_active</span><span class="p">()</span> <span class="o">==</span> <span class="mi">0</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">num_elements_scheduled</span><span class="p">()</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
                     <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span>
                         <span class="s1">&#39;No active but </span><span class="si">%s</span><span class="s1"> scheduled elements, skipping timestep </span><span class="si">%s</span><span class="s1"> (</span><span class="si">%s</span><span class="s1">)&#39;</span>
                         <span class="o">%</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">num_elements_scheduled</span><span class="p">(),</span>
@@ -2306,10 +2304,6 @@
                         <span class="bp">self</span><span class="o">.</span><span class="n">time</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">time</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">time_step</span>
                     <span class="k">continue</span>
 
-                <span class="bp">self</span><span class="o">.</span><span class="n">interact_with_seafloor</span><span class="p">()</span>
-
-                <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">show_continuous_performance</span> <span class="ow">is</span> <span class="kc">True</span><span class="p">:</span>
-                    <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">performance</span><span class="p">())</span>
                 <span class="c1"># Display time to terminal</span>
                 <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;===================================&#39;</span> <span class="o">*</span> <span class="mi">2</span><span class="p">)</span>
                 <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s1">&#39;</span><span class="si">%s</span><span class="s1"> - step </span><span class="si">%i</span><span class="s1"> of </span><span class="si">%i</span><span class="s1"> - </span><span class="si">%i</span><span class="s1"> active elements &#39;</span>
@@ -2353,12 +2347,12 @@
                                          <span class="bp">self</span><span class="o">.</span><span class="n">required_profiles</span><span class="p">,</span>
                                          <span class="bp">self</span><span class="o">.</span><span class="n">profiles_depth</span><span class="p">)</span>
 
-                <span class="bp">self</span><span class="o">.</span><span class="n">store_previous_variables</span><span class="p">()</span>
-
                 <span class="bp">self</span><span class="o">.</span><span class="n">calculate_missing_environment_variables</span><span class="p">()</span>
 
                 <span class="k">if</span> <span class="nb">any</span><span class="p">(</span><span class="n">missing</span><span class="p">):</span>
                     <span class="bp">self</span><span class="o">.</span><span class="n">report_missing_variables</span><span class="p">()</span>
+
+                <span class="bp">self</span><span class="o">.</span><span class="n">store_previous_variables</span><span class="p">()</span>
 
                 <span class="bp">self</span><span class="o">.</span><span class="n">interact_with_coastline</span><span class="p">()</span>
 
