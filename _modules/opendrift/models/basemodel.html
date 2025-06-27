@@ -346,6 +346,8 @@
         <span class="c1"># List to store GeoJSON dicts of seeding commands</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">seed_geojson</span> <span class="o">=</span> <span class="p">[]</span>
 
+        <span class="bp">self</span><span class="o">.</span><span class="n">required_variables</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">required_variables</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>  <span class="c1"># Avoid modifying the class variable</span>
+
         <span class="bp">self</span><span class="o">.</span><span class="n">env</span> <span class="o">=</span> <span class="n">Environment</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">required_variables</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_config</span><span class="p">)</span>
 
         <span class="c1"># Make copies of dictionaries so that they are private to each instance</span>
@@ -2015,6 +2017,16 @@
         <span class="c1"># Some cleanup needed if starting from imported state</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">steps_calculation</span> <span class="o">&gt;=</span> <span class="mi">1</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">steps_calculation</span> <span class="o">=</span> <span class="mi">0</span>
+
+        <span class="c1">###################################################################################</span>
+        <span class="c1"># Remove variables from required_variables based on configuration and conditionals</span>
+        <span class="c1">###################################################################################</span>
+        <span class="k">for</span> <span class="n">vn</span><span class="p">,</span> <span class="n">var</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">required_variables</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="k">if</span> <span class="s1">&#39;skip_if&#39;</span> <span class="ow">in</span> <span class="n">var</span><span class="p">:</span>
+                <span class="n">skip</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">evaluate_conditional</span><span class="p">(</span><span class="o">*</span><span class="n">var</span><span class="p">[</span><span class="s1">&#39;skip_if&#39;</span><span class="p">])</span>
+                <span class="k">if</span> <span class="n">skip</span> <span class="ow">is</span> <span class="kc">True</span><span class="p">:</span>
+                    <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Skipping environment variable </span><span class="si">{</span><span class="n">vn</span><span class="si">}</span><span class="s1"> because of condition </span><span class="si">{</span><span class="n">var</span><span class="p">[</span><span class="s2">&quot;skip_if&quot;</span><span class="p">]</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">required_variables</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="n">vn</span><span class="p">)</span>
 
         <span class="c1">########################</span>
         <span class="c1"># Simulation time step</span>
@@ -5081,6 +5093,40 @@
     <span class="k">def</span><span class="w"> </span><span class="nf">gui_postproc</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&#39;&#39;&#39;To be overloaded by subclasses&#39;&#39;&#39;</span>
         <span class="k">pass</span></div>
+
+
+<div class="viewcode-block" id="OpenDriftSimulation.evaluate_conditional">
+<a class="viewcode-back" href="../../../autoapi/opendrift/models/basemodel/index.html#opendrift.models.basemodel.OpenDriftSimulation.evaluate_conditional">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">evaluate_conditional</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">key</span><span class="p">,</span> <span class="n">operator</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Evaluate a condition as True or False</span>
+
+<span class="sd">        This can be used to:</span>
+<span class="sd">        - skip required_variables that are not required, based on config setting</span>
+<span class="sd">        - store previous value of element property or environment variable, based on config setting</span>
+<span class="sd">        - disable a config setting based on another setting (for dynamic menus)</span>
+
+<span class="sd">        key: config key string</span>
+<span class="sd">        operator: one from operator_map below</span>
+<span class="sd">        value: the provided value to be matched with operator against actual config setting</span>
+
+<span class="sd">        Returns: True or False</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="n">operator_map</span> <span class="o">=</span> <span class="p">{</span> 
+            <span class="s1">&#39;==&#39;</span><span class="p">:</span> <span class="k">lambda</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">:</span> <span class="n">x</span> <span class="o">==</span> <span class="n">y</span><span class="p">,</span>
+            <span class="s1">&#39;!=&#39;</span><span class="p">:</span> <span class="k">lambda</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">:</span> <span class="n">x</span> <span class="o">!=</span> <span class="n">y</span><span class="p">,</span>
+            <span class="s1">&#39;&lt;&#39;</span><span class="p">:</span> <span class="k">lambda</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">:</span> <span class="n">x</span> <span class="o">&lt;</span> <span class="n">y</span><span class="p">,</span>
+            <span class="s1">&#39;&lt;=&#39;</span><span class="p">:</span> <span class="k">lambda</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">:</span> <span class="n">x</span> <span class="o">&lt;=</span> <span class="n">y</span><span class="p">,</span>
+            <span class="s1">&#39;&gt;&#39;</span><span class="p">:</span> <span class="k">lambda</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">:</span> <span class="n">x</span> <span class="o">&gt;</span> <span class="n">y</span><span class="p">,</span>
+            <span class="s1">&#39;&gt;=&#39;</span><span class="p">:</span> <span class="k">lambda</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">:</span> <span class="n">x</span> <span class="o">&gt;=</span> <span class="n">y</span><span class="p">,</span>
+            <span class="s1">&#39;is&#39;</span><span class="p">:</span> <span class="k">lambda</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">:</span> <span class="n">x</span> <span class="ow">is</span> <span class="n">y</span><span class="p">,</span>
+            <span class="s1">&#39;is not&#39;</span><span class="p">:</span> <span class="k">lambda</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">:</span> <span class="n">x</span> <span class="ow">is</span> <span class="ow">not</span> <span class="n">y</span><span class="p">,</span>
+        <span class="p">}</span>
+        
+        <span class="c1"># Presently assuming that key is a config key</span>
+        <span class="n">key</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_config</span><span class="p">(</span><span class="n">key</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">operator_map</span><span class="p">[</span><span class="n">operator</span><span class="p">](</span><span class="n">key</span><span class="p">,</span> <span class="n">value</span><span class="p">)</span></div>
 </div>
 
 </pre></div>
