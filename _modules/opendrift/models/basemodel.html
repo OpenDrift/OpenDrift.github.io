@@ -371,6 +371,8 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">elements</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">ElementType</span><span class="p">()</span>  <span class="c1"># Empty array</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_elements_previous</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_environment_previous</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">elements_previous</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">environment_previous</span> <span class="o">=</span> <span class="kc">None</span>
 
         <span class="c1"># Set up logging</span>
         <span class="n">logformat</span> <span class="o">=</span> <span class="s1">&#39;</span><span class="si">%(asctime)s</span><span class="s1"> </span><span class="si">%(levelname)-7s</span><span class="s1"> </span><span class="si">%(name)s</span><span class="s1">:</span><span class="si">%(lineno)d</span><span class="s1">: </span><span class="si">%(message)s</span><span class="s1">&#39;</span>
@@ -2003,7 +2005,6 @@
 
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">num_elements_scheduled</span><span class="p">()</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;Please seed elements before starting a run.&#39;</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">elements</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">ElementType</span><span class="p">()</span>
 
         <span class="c1"># Export seed_geojson as FeatureCollection string</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">add_metadata</span><span class="p">(</span><span class="s1">&#39;seed_geojson&#39;</span><span class="p">,</span>
@@ -2250,9 +2251,7 @@
             <span class="bp">self</span><span class="o">.</span><span class="n">timer_end</span><span class="p">(</span><span class="s1">&#39;preparing main loop:moving elements to ocean&#39;</span><span class="p">)</span>
 
         <span class="c1"># TODO: adjust store_previous according to config, later with upcming conditional mechanism</span>
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_config</span><span class="p">(</span><span class="s1">&#39;general:coastline_action&#39;</span><span class="p">)</span> <span class="ow">in</span> <span class="p">[</span><span class="s1">&#39;previous&#39;</span><span class="p">,</span> <span class="s1">&#39;stranding&#39;</span><span class="p">]</span> <span class="ow">or</span> <span class="p">(</span>
-                <span class="s1">&#39;general:coastline_action&#39;</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_config</span> <span class="ow">and</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">get_config</span><span class="p">(</span><span class="s1">&#39;general:coastline_action&#39;</span><span class="p">)</span> <span class="o">==</span> <span class="s1">&#39;previous&#39;</span><span class="p">):</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_config</span><span class="p">(</span><span class="s1">&#39;general:coastline_action&#39;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span> <span class="ow">in</span> <span class="p">[</span><span class="s1">&#39;stranding&#39;</span><span class="p">,</span> <span class="s1">&#39;previous&#39;</span><span class="p">]:</span>
             <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s1">&#39;Storing previous position of elements for coastline interaction&#39;</span><span class="p">)</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">elements</span><span class="o">.</span><span class="n">variables</span><span class="p">[</span><span class="s1">&#39;lon&#39;</span><span class="p">][</span><span class="s1">&#39;store_previous&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">True</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">elements</span><span class="o">.</span><span class="n">variables</span><span class="p">[</span><span class="s1">&#39;lat&#39;</span><span class="p">][</span><span class="s1">&#39;store_previous&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">True</span>
