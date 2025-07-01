@@ -141,6 +141,111 @@
     <span class="k">return</span> <span class="n">K</span></div>
 
 
+<span class="c1">#@require_mode(mode=Mode.Ready)</span>
+<div class="viewcode-block" id="seed_from_shapefile_old">
+<a class="viewcode-back" href="../../autoapi/opendrift/legacy/index.html#opendrift.legacy.seed_from_shapefile_old">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">seed_from_shapefile_old</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span>
+                        <span class="n">shapefile</span><span class="p">,</span>
+                        <span class="n">number</span><span class="p">,</span>
+                        <span class="n">layername</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                        <span class="n">featurenum</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                        <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Seeds elements within contours read from a shapefile</span>
+
+<span class="sd">    Obsolete, as new method based on geopandas is simpler&quot;&quot;&quot;</span>
+
+    <span class="k">try</span><span class="p">:</span>
+        <span class="kn">from</span><span class="w"> </span><span class="nn">osgeo</span><span class="w"> </span><span class="kn">import</span> <span class="n">ogr</span><span class="p">,</span> <span class="n">osr</span>
+    <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="n">e</span><span class="p">)</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;OGR library is needed to read shapefiles.&#39;</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="s1">&#39;timeformat&#39;</span> <span class="ow">in</span> <span class="n">kwargs</span><span class="p">:</span>
+        <span class="c1"># Recondstructing time from filename, where &#39;timeformat&#39;</span>
+        <span class="c1"># is forwarded to datetime.strptime()</span>
+        <span class="n">kwargs</span><span class="p">[</span><span class="s1">&#39;time&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">datetime</span><span class="o">.</span><span class="n">strptime</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">basename</span><span class="p">(</span><span class="n">shapefile</span><span class="p">),</span>
+                                            <span class="n">kwargs</span><span class="p">[</span><span class="s1">&#39;timeformat&#39;</span><span class="p">])</span>
+        <span class="k">del</span> <span class="n">kwargs</span><span class="p">[</span><span class="s1">&#39;timeformat&#39;</span><span class="p">]</span>
+
+    <span class="n">num_seeded_before</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">num_elements_scheduled</span><span class="p">()</span>
+
+    <span class="n">targetSRS</span> <span class="o">=</span> <span class="n">osr</span><span class="o">.</span><span class="n">SpatialReference</span><span class="p">()</span>
+    <span class="n">targetSRS</span><span class="o">.</span><span class="n">ImportFromEPSG</span><span class="p">(</span><span class="mi">4326</span><span class="p">)</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">s</span> <span class="o">=</span> <span class="n">ogr</span><span class="o">.</span><span class="n">Open</span><span class="p">(</span><span class="n">shapefile</span><span class="p">)</span>
+    <span class="k">except</span><span class="p">:</span>
+        <span class="n">s</span> <span class="o">=</span> <span class="n">shapefile</span>
+
+    <span class="k">for</span> <span class="n">layer</span> <span class="ow">in</span> <span class="n">s</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">layername</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">layer</span><span class="o">.</span><span class="n">GetName</span><span class="p">()</span> <span class="o">!=</span> <span class="n">layername</span><span class="p">:</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s1">&#39;Skipping layer: &#39;</span> <span class="o">+</span> <span class="n">layer</span><span class="o">.</span><span class="n">GetName</span><span class="p">())</span>
+            <span class="k">continue</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s1">&#39;Seeding for layer: </span><span class="si">%s</span><span class="s1"> (</span><span class="si">%s</span><span class="s1"> features)&#39;</span> <span class="o">%</span>
+                        <span class="p">(</span><span class="n">layer</span><span class="o">.</span><span class="n">GetDescription</span><span class="p">(),</span> <span class="n">layer</span><span class="o">.</span><span class="n">GetFeatureCount</span><span class="p">()))</span>
+
+        <span class="n">coordTrans</span> <span class="o">=</span> <span class="n">osr</span><span class="o">.</span><span class="n">CoordinateTransformation</span><span class="p">(</span><span class="n">layer</span><span class="o">.</span><span class="n">GetSpatialRef</span><span class="p">(),</span>
+                                                    <span class="n">targetSRS</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">featurenum</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">featurenum</span> <span class="o">=</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">layer</span><span class="o">.</span><span class="n">GetFeatureCount</span><span class="p">()</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">featurenum</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">atleast_1d</span><span class="p">(</span><span class="n">featurenum</span><span class="p">)</span>
+        <span class="k">if</span> <span class="nb">max</span><span class="p">(</span><span class="n">featurenum</span><span class="p">)</span> <span class="o">&gt;</span> <span class="n">layer</span><span class="o">.</span><span class="n">GetFeatureCount</span><span class="p">():</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;Only </span><span class="si">%s</span><span class="s1"> features in layer.&#39;</span> <span class="o">%</span>
+                                <span class="n">layer</span><span class="o">.</span><span class="n">GetFeatureCount</span><span class="p">())</span>
+
+        <span class="c1"># Loop first through all features to determine total area</span>
+        <span class="n">layer</span><span class="o">.</span><span class="n">ResetReading</span><span class="p">()</span>
+        <span class="n">area_srs</span> <span class="o">=</span> <span class="n">osr</span><span class="o">.</span><span class="n">SpatialReference</span><span class="p">()</span>
+        <span class="n">area_srs</span><span class="o">.</span><span class="n">ImportFromEPSG</span><span class="p">(</span><span class="mi">3857</span><span class="p">)</span>
+        <span class="n">areaTransform</span> <span class="o">=</span> <span class="n">osr</span><span class="o">.</span><span class="n">CoordinateTransformation</span><span class="p">(</span>
+            <span class="n">layer</span><span class="o">.</span><span class="n">GetSpatialRef</span><span class="p">(),</span> <span class="n">area_srs</span><span class="p">)</span>
+
+        <span class="n">areas</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">featurenum</span><span class="p">))</span>
+        <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">f</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">featurenum</span><span class="p">):</span>
+            <span class="n">feature</span> <span class="o">=</span> <span class="n">layer</span><span class="o">.</span><span class="n">GetFeature</span><span class="p">(</span><span class="n">f</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span>  <span class="c1"># Note 1-indexing, not 0</span>
+            <span class="k">if</span> <span class="n">feature</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="n">gom</span> <span class="o">=</span> <span class="n">feature</span><span class="o">.</span><span class="n">GetGeometryRef</span><span class="p">()</span><span class="o">.</span><span class="n">Clone</span><span class="p">()</span>
+                <span class="n">gom</span><span class="o">.</span><span class="n">Transform</span><span class="p">(</span><span class="n">areaTransform</span><span class="p">)</span>
+                <span class="n">areas</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">gom</span><span class="o">.</span><span class="n">GetArea</span><span class="p">()</span>
+
+        <span class="n">total_area</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">areas</span><span class="p">)</span>
+        <span class="n">layer</span><span class="o">.</span><span class="n">ResetReading</span><span class="p">()</span>  <span class="c1"># Rewind to first layer</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s1">&#39;Total area of all polygons: </span><span class="si">%s</span><span class="s1"> m2&#39;</span> <span class="o">%</span> <span class="n">total_area</span><span class="p">)</span>
+        <span class="c1"># Find number of points per polygon</span>
+        <span class="n">numbers</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="n">number</span> <span class="o">*</span> <span class="n">areas</span> <span class="o">/</span> <span class="n">total_area</span><span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">int</span><span class="p">)</span>
+        <span class="n">numbers</span><span class="p">[</span><span class="n">numbers</span><span class="o">.</span><span class="n">argmax</span><span class="p">()]</span> <span class="o">+=</span> <span class="nb">int</span><span class="p">(</span><span class="n">number</span> <span class="o">-</span> <span class="nb">sum</span><span class="p">(</span><span class="n">numbers</span><span class="p">))</span>
+
+        <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">f</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">featurenum</span><span class="p">):</span>
+            <span class="n">feature</span> <span class="o">=</span> <span class="n">layer</span><span class="o">.</span><span class="n">GetFeature</span><span class="p">(</span><span class="n">f</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">feature</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="k">continue</span>
+            <span class="n">num_elements</span> <span class="o">=</span> <span class="n">numbers</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
+            <span class="n">geom</span> <span class="o">=</span> <span class="n">feature</span><span class="o">.</span><span class="n">GetGeometryRef</span><span class="p">()</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;</span><span class="se">\t</span><span class="s1">Seeding </span><span class="si">{</span><span class="n">num_elements</span><span class="si">}</span><span class="s1"> elements within polygon number </span><span class="si">{</span><span class="n">featurenum</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="si">}</span><span class="s1"> of area </span><span class="si">{</span><span class="n">areas</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="si">}</span><span class="s1"> m3&#39;</span><span class="p">)</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="n">geom</span><span class="o">.</span><span class="n">Transform</span><span class="p">(</span><span class="n">coordTrans</span><span class="p">)</span>
+            <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+                <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="s1">&#39;Could not transform coordinates:&#39;</span><span class="p">)</span>
+                <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="n">e</span><span class="p">)</span>
+                <span class="k">pass</span>
+            <span class="c1">#b = geom.GetBoundary()</span>
+            <span class="c1">#if b is not None:</span>
+            <span class="c1">#    points = b.GetPoints()</span>
+            <span class="c1">#    lons = [p[0] for p in points]</span>
+            <span class="c1">#    lats = [p[1] for p in points]</span>
+            <span class="c1">#else:</span>
+            <span class="c1"># Alternative if OGR is not built with GEOS support</span>
+            <span class="n">r</span> <span class="o">=</span> <span class="n">geom</span><span class="o">.</span><span class="n">GetGeometryRef</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+            <span class="n">lons</span> <span class="o">=</span> <span class="p">[</span><span class="n">r</span><span class="o">.</span><span class="n">GetY</span><span class="p">(</span><span class="n">j</span><span class="p">)</span> <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">r</span><span class="o">.</span><span class="n">GetPointCount</span><span class="p">())]</span>
+            <span class="n">lats</span> <span class="o">=</span> <span class="p">[</span><span class="n">r</span><span class="o">.</span><span class="n">GetX</span><span class="p">(</span><span class="n">j</span><span class="p">)</span> <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">r</span><span class="o">.</span><span class="n">GetPointCount</span><span class="p">())]</span>
+
+            <span class="bp">self</span><span class="o">.</span><span class="n">seed_within_polygon</span><span class="p">(</span><span class="n">lons</span><span class="o">=</span><span class="n">lons</span><span class="p">,</span>
+                                        <span class="n">lats</span><span class="o">=</span><span class="n">lats</span><span class="p">,</span>
+                                        <span class="n">number</span><span class="o">=</span><span class="n">num_elements</span><span class="p">,</span>
+                                        <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span></div>
+
 </pre></div>
 
            </div>
