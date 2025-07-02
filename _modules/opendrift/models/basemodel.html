@@ -577,8 +577,8 @@
 
         <span class="c1"># Add default element properties to config</span>
         <span class="n">c</span> <span class="o">=</span> <span class="p">{}</span>
-        <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">ElementType</span><span class="o">.</span><span class="n">variables</span><span class="p">:</span>
-            <span class="n">v</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">ElementType</span><span class="o">.</span><span class="n">variables</span><span class="p">[</span><span class="n">p</span><span class="p">]</span>
+        <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">elements</span><span class="o">.</span><span class="n">variables</span><span class="p">:</span>
+            <span class="n">v</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">elements</span><span class="o">.</span><span class="n">variables</span><span class="p">[</span><span class="n">p</span><span class="p">]</span>
             <span class="k">if</span> <span class="s1">&#39;seed&#39;</span> <span class="ow">in</span> <span class="n">v</span> <span class="ow">and</span> <span class="n">v</span><span class="p">[</span><span class="s1">&#39;seed&#39;</span><span class="p">]</span> <span class="ow">is</span> <span class="kc">False</span><span class="p">:</span>
                 <span class="k">continue</span>  <span class="c1"># Properties which may not be provided by user</span>
             <span class="n">c</span><span class="p">[</span><span class="s1">&#39;seed:</span><span class="si">%s</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="n">p</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span>
@@ -1926,10 +1926,21 @@
         <span class="c1">###################################################################################</span>
         <span class="k">for</span> <span class="n">vn</span><span class="p">,</span> <span class="n">var</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">required_variables</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
             <span class="k">if</span> <span class="s1">&#39;skip_if&#39;</span> <span class="ow">in</span> <span class="n">var</span><span class="p">:</span>
-                <span class="n">skip</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">evaluate_conditional</span><span class="p">(</span><span class="o">*</span><span class="n">var</span><span class="p">[</span><span class="s1">&#39;skip_if&#39;</span><span class="p">])</span>
+                <span class="n">skip</span> <span class="o">=</span> <span class="n">evaluate_conditional</span><span class="p">(</span><span class="o">*</span><span class="n">var</span><span class="p">[</span><span class="s1">&#39;skip_if&#39;</span><span class="p">],</span> <span class="bp">self</span><span class="p">)</span>
                 <span class="k">if</span> <span class="n">skip</span> <span class="ow">is</span> <span class="kc">True</span><span class="p">:</span>
                     <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Skipping environment variable </span><span class="si">{</span><span class="n">vn</span><span class="si">}</span><span class="s1"> because of condition </span><span class="si">{</span><span class="n">var</span><span class="p">[</span><span class="s2">&quot;skip_if&quot;</span><span class="p">]</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
                     <span class="bp">self</span><span class="o">.</span><span class="n">required_variables</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="n">vn</span><span class="p">)</span>
+
+        <span class="c1">####################################################################################</span>
+        <span class="c1"># Evaluate conditionals to determine if previous element properties shall be stored</span>
+        <span class="c1">####################################################################################</span>
+        <span class="k">for</span> <span class="n">en</span><span class="p">,</span> <span class="n">prop</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">elements</span><span class="o">.</span><span class="n">variables</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="k">if</span> <span class="s1">&#39;store_previous_if&#39;</span> <span class="ow">in</span> <span class="n">prop</span><span class="p">:</span>
+                <span class="n">store</span> <span class="o">=</span> <span class="n">evaluate_conditional</span><span class="p">(</span><span class="o">*</span><span class="n">prop</span><span class="p">[</span><span class="s1">&#39;store_previous_if&#39;</span><span class="p">],</span> <span class="bp">self</span><span class="p">)</span>
+                <span class="k">if</span> <span class="n">store</span> <span class="ow">is</span> <span class="kc">True</span><span class="p">:</span>
+                    <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Storing previous values of element property </span><span class="si">{</span><span class="n">en</span><span class="si">}</span><span class="s1"> because of condition </span><span class="si">{</span><span class="n">prop</span><span class="p">[</span><span class="s2">&quot;store_previous_if&quot;</span><span class="p">]</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">elements</span><span class="o">.</span><span class="n">variables</span><span class="p">[</span><span class="n">en</span><span class="p">][</span><span class="s1">&#39;store_previous&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">True</span>
+                <span class="k">del</span> <span class="bp">self</span><span class="o">.</span><span class="n">elements</span><span class="o">.</span><span class="n">variables</span><span class="p">[</span><span class="n">en</span><span class="p">][</span><span class="s1">&#39;store_previous_if&#39;</span><span class="p">]</span>  <span class="c1"># To avoid writing this to netCDF metadata</span>
 
         <span class="c1">########################</span>
         <span class="c1"># Simulation time step</span>
@@ -2087,7 +2098,7 @@
 
         <span class="n">element_vars</span> <span class="o">=</span> <span class="p">{}</span>
         <span class="n">default_dtype</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">float32</span>  <span class="c1"># Allows NaN (in contrast to np.int)</span>
-        <span class="k">for</span> <span class="n">varname</span><span class="p">,</span> <span class="n">attrs</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">ElementType</span><span class="o">.</span><span class="n">variables</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+        <span class="k">for</span> <span class="n">varname</span><span class="p">,</span> <span class="n">attrs</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">elements</span><span class="o">.</span><span class="n">variables</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
             <span class="k">if</span> <span class="n">varname</span> <span class="o">==</span> <span class="s1">&#39;ID&#39;</span> <span class="ow">or</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">export_variables</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span>
                                    <span class="n">varname</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">export_variables</span><span class="p">):</span>
                 <span class="k">continue</span>
@@ -2132,7 +2143,7 @@
 
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">origin_marker</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="s1">&#39;origin_marker&#39;</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">result</span><span class="o">.</span><span class="n">data_vars</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">result</span><span class="p">[</span><span class="s1">&#39;origin_marker&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">result</span><span class="o">.</span><span class="n">origin_marker</span><span class="o">.</span><span class="n">assign_attrs</span><span class="p">(</span>
-                <span class="p">{</span><span class="s1">&#39;flag_values&#39;</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">origin_marker</span><span class="p">))</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">ElementType</span><span class="o">.</span><span class="n">variables</span><span class="p">[</span><span class="s1">&#39;origin_marker&#39;</span><span class="p">][</span><span class="s1">&#39;dtype&#39;</span><span class="p">]),</span>
+                <span class="p">{</span><span class="s1">&#39;flag_values&#39;</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">origin_marker</span><span class="p">))</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">elements</span><span class="o">.</span><span class="n">variables</span><span class="p">[</span><span class="s1">&#39;origin_marker&#39;</span><span class="p">][</span><span class="s1">&#39;dtype&#39;</span><span class="p">]),</span>
                  <span class="s1">&#39;flag_meanings&#39;</span><span class="p">:</span> <span class="s2">&quot; &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">origin_marker</span><span class="o">.</span><span class="n">values</span><span class="p">())</span>
                 <span class="p">})</span>
 
@@ -2152,11 +2163,6 @@
                                           <span class="bp">self</span><span class="o">.</span><span class="n">elements_scheduled</span><span class="o">.</span><span class="n">lat</span><span class="p">)</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">timer_end</span><span class="p">(</span><span class="s1">&#39;preparing main loop:moving elements to ocean&#39;</span><span class="p">)</span>
 
-        <span class="c1"># TODO: adjust store_previous according to config, later with upcming conditional mechanism</span>
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_config</span><span class="p">(</span><span class="s1">&#39;general:coastline_action&#39;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span> <span class="ow">in</span> <span class="p">[</span><span class="s1">&#39;stranding&#39;</span><span class="p">,</span> <span class="s1">&#39;previous&#39;</span><span class="p">]:</span>
-            <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s1">&#39;Storing previous position of elements for coastline interaction&#39;</span><span class="p">)</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">elements</span><span class="o">.</span><span class="n">variables</span><span class="p">[</span><span class="s1">&#39;lon&#39;</span><span class="p">][</span><span class="s1">&#39;store_previous&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">True</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">elements</span><span class="o">.</span><span class="n">variables</span><span class="p">[</span><span class="s1">&#39;lat&#39;</span><span class="p">][</span><span class="s1">&#39;store_previous&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">True</span>
 
         <span class="c1"># Make Xarray datasets to store environment variables and element properties from previous time step</span>
         <span class="n">environment_previous</span> <span class="o">=</span> <span class="p">[</span><span class="n">vn</span> <span class="k">for</span> <span class="n">vn</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">required_variables</span><span class="o">.</span><span class="n">items</span><span class="p">()</span>
@@ -2426,7 +2432,7 @@
                 <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Truncating buffer from </span><span class="si">{</span><span class="n">numtimes_before</span><span class="si">}</span><span class="s1"> to </span><span class="si">{</span><span class="n">numtimes_after</span><span class="si">}</span><span class="s1"> times&#39;</span><span class="p">)</span>
 
             <span class="c1"># Final update some variable attributes</span>
-            <span class="n">status_dtype</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">ElementType</span><span class="o">.</span><span class="n">variables</span><span class="p">[</span><span class="s1">&#39;status&#39;</span><span class="p">][</span><span class="s1">&#39;dtype&#39;</span><span class="p">]</span>
+            <span class="n">status_dtype</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">elements</span><span class="o">.</span><span class="n">variables</span><span class="p">[</span><span class="s1">&#39;status&#39;</span><span class="p">][</span><span class="s1">&#39;dtype&#39;</span><span class="p">]</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">result</span><span class="p">[</span><span class="s1">&#39;status&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">result</span><span class="o">.</span><span class="n">status</span><span class="o">.</span><span class="n">assign_attrs</span><span class="p">(</span>
                 <span class="p">{</span><span class="s1">&#39;valid_range&#39;</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">((</span><span class="mi">0</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">status_categories</span><span class="p">)</span> <span class="o">-</span> <span class="mi">1</span><span class="p">))</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">status_dtype</span><span class="p">),</span>
                  <span class="s1">&#39;flag_values&#39;</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">status_categories</span><span class="p">)))</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">status_dtype</span><span class="p">),</span>
@@ -5003,39 +5009,56 @@
         <span class="k">pass</span></div>
 
 
-<div class="viewcode-block" id="OpenDriftSimulation.evaluate_conditional">
-<a class="viewcode-back" href="../../../autoapi/opendrift/models/basemodel/index.html#opendrift.models.basemodel.OpenDriftSimulation.evaluate_conditional">[docs]</a>
-    <span class="k">def</span><span class="w"> </span><span class="nf">evaluate_conditional</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">key</span><span class="p">,</span> <span class="n">operator</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Evaluate a condition as True or False</span>
-
-<span class="sd">        This can be used to:</span>
-<span class="sd">        - skip required_variables that are not required, based on config setting</span>
-<span class="sd">        - store previous value of element property or environment variable, based on config setting</span>
-<span class="sd">        - disable a config setting based on another setting (for dynamic menus)</span>
-
-<span class="sd">        key: config key string</span>
-<span class="sd">        operator: one from operator_map below</span>
-<span class="sd">        value: the provided value to be matched with operator against actual config setting</span>
-
-<span class="sd">        Returns: True or False</span>
-<span class="sd">        &quot;&quot;&quot;</span>
-
-        <span class="n">operator_map</span> <span class="o">=</span> <span class="p">{</span> 
-            <span class="s1">&#39;==&#39;</span><span class="p">:</span> <span class="k">lambda</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">:</span> <span class="n">x</span> <span class="o">==</span> <span class="n">y</span><span class="p">,</span>
-            <span class="s1">&#39;!=&#39;</span><span class="p">:</span> <span class="k">lambda</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">:</span> <span class="n">x</span> <span class="o">!=</span> <span class="n">y</span><span class="p">,</span>
-            <span class="s1">&#39;&lt;&#39;</span><span class="p">:</span> <span class="k">lambda</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">:</span> <span class="n">x</span> <span class="o">&lt;</span> <span class="n">y</span><span class="p">,</span>
-            <span class="s1">&#39;&lt;=&#39;</span><span class="p">:</span> <span class="k">lambda</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">:</span> <span class="n">x</span> <span class="o">&lt;=</span> <span class="n">y</span><span class="p">,</span>
-            <span class="s1">&#39;&gt;&#39;</span><span class="p">:</span> <span class="k">lambda</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">:</span> <span class="n">x</span> <span class="o">&gt;</span> <span class="n">y</span><span class="p">,</span>
-            <span class="s1">&#39;&gt;=&#39;</span><span class="p">:</span> <span class="k">lambda</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">:</span> <span class="n">x</span> <span class="o">&gt;=</span> <span class="n">y</span><span class="p">,</span>
-            <span class="s1">&#39;is&#39;</span><span class="p">:</span> <span class="k">lambda</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">:</span> <span class="n">x</span> <span class="ow">is</span> <span class="n">y</span><span class="p">,</span>
-            <span class="s1">&#39;is not&#39;</span><span class="p">:</span> <span class="k">lambda</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">:</span> <span class="n">x</span> <span class="ow">is</span> <span class="ow">not</span> <span class="n">y</span><span class="p">,</span>
-        <span class="p">}</span>
-        
+<div class="viewcode-block" id="OpenDriftSimulation._evaluate_key">
+<a class="viewcode-back" href="../../../autoapi/opendrift/models/basemodel/index.html#opendrift.models.basemodel.OpenDriftSimulation._evaluate_key">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_evaluate_key</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">key</span><span class="p">):</span>
         <span class="c1"># Presently assuming that key is a config key</span>
-        <span class="n">key</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_config</span><span class="p">(</span><span class="n">key</span><span class="p">)</span>
-
-        <span class="k">return</span> <span class="n">operator_map</span><span class="p">[</span><span class="n">operator</span><span class="p">](</span><span class="n">key</span><span class="p">,</span> <span class="n">value</span><span class="p">)</span></div>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_config</span><span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="s1">&#39;not_implemented&#39;</span><span class="p">)</span></div>
 </div>
+
+
+<div class="viewcode-block" id="evaluate_conditional">
+<a class="viewcode-back" href="../../../autoapi/opendrift/models/basemodel/index.html#opendrift.models.basemodel.evaluate_conditional">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">evaluate_conditional</span><span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="n">operator</span><span class="p">,</span> <span class="n">value</span><span class="p">,</span> <span class="bp">self</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Evaluate a condition as True or False</span>
+
+<span class="sd">    This can be used to:</span>
+<span class="sd">    - skip required_variables that are not required, based on config setting</span>
+<span class="sd">    - store previous value of element property or environment variable, based on config setting</span>
+<span class="sd">    - disable a config setting based on another setting (for dynamic menus)</span>
+
+<span class="sd">    key: e.g. config key/setting as string</span>
+<span class="sd">    operator: relation between key and value, one from operator_map below</span>
+<span class="sd">    value: the provided value to be matched with operator against actual key</span>
+
+<span class="sd">    Returns: True or False</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">operator_map</span> <span class="o">=</span> <span class="p">{</span> 
+        <span class="s1">&#39;==&#39;</span><span class="p">:</span> <span class="k">lambda</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">:</span> <span class="n">x</span> <span class="o">==</span> <span class="n">y</span><span class="p">,</span>
+        <span class="s1">&#39;!=&#39;</span><span class="p">:</span> <span class="k">lambda</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">:</span> <span class="n">x</span> <span class="o">!=</span> <span class="n">y</span><span class="p">,</span>
+        <span class="s1">&#39;&lt;&#39;</span><span class="p">:</span> <span class="k">lambda</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">:</span> <span class="n">x</span> <span class="o">&lt;</span> <span class="n">y</span><span class="p">,</span>
+        <span class="s1">&#39;&lt;=&#39;</span><span class="p">:</span> <span class="k">lambda</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">:</span> <span class="n">x</span> <span class="o">&lt;=</span> <span class="n">y</span><span class="p">,</span>
+        <span class="s1">&#39;&gt;&#39;</span><span class="p">:</span> <span class="k">lambda</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">:</span> <span class="n">x</span> <span class="o">&gt;</span> <span class="n">y</span><span class="p">,</span>
+        <span class="s1">&#39;&gt;=&#39;</span><span class="p">:</span> <span class="k">lambda</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">:</span> <span class="n">x</span> <span class="o">&gt;=</span> <span class="n">y</span><span class="p">,</span>
+        <span class="s1">&#39;in&#39;</span><span class="p">:</span> <span class="k">lambda</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">:</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">y</span><span class="p">,</span>
+        <span class="s1">&#39;is&#39;</span><span class="p">:</span> <span class="k">lambda</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">:</span> <span class="n">x</span> <span class="ow">is</span> <span class="n">y</span><span class="p">,</span>
+        <span class="s1">&#39;is not&#39;</span><span class="p">:</span> <span class="k">lambda</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">:</span> <span class="n">x</span> <span class="ow">is</span> <span class="ow">not</span> <span class="n">y</span><span class="p">,</span>
+        <span class="s1">&#39;or&#39;</span><span class="p">:</span> <span class="k">lambda</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">:</span> <span class="n">x</span> <span class="ow">or</span> <span class="n">y</span><span class="p">,</span>
+        <span class="s1">&#39;and&#39;</span><span class="p">:</span> <span class="k">lambda</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">:</span> <span class="n">x</span> <span class="ow">and</span> <span class="n">y</span><span class="p">,</span>
+    <span class="p">}</span>
+    
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="nb">tuple</span><span class="p">):</span>
+        <span class="n">key</span> <span class="o">=</span> <span class="n">evaluate_conditional</span><span class="p">(</span><span class="n">key</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">key</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">key</span><span class="p">[</span><span class="mi">2</span><span class="p">],</span> <span class="bp">self</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="bp">self</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="nb">bool</span><span class="p">):</span>
+        <span class="c1"># If a OpenDrift instance is provided, this will evaluate the key, e.g. with get_config</span>
+        <span class="n">key</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_evaluate_key</span><span class="p">(</span><span class="n">key</span><span class="p">)</span>
+    
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="nb">tuple</span><span class="p">):</span>
+        <span class="n">value</span> <span class="o">=</span> <span class="n">evaluate_conditional</span><span class="p">(</span><span class="n">value</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">value</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">value</span><span class="p">[</span><span class="mi">2</span><span class="p">],</span> <span class="bp">self</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">operator_map</span><span class="p">[</span><span class="n">operator</span><span class="p">](</span><span class="n">key</span><span class="p">,</span> <span class="n">value</span><span class="p">)</span></div>
 
 </pre></div>
 
