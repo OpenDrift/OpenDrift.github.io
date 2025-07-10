@@ -172,7 +172,8 @@
     <span class="n">required_variables</span> <span class="o">=</span> <span class="p">{</span>
         <span class="s1">&#39;x_sea_water_velocity&#39;</span><span class="p">:</span> <span class="p">{</span><span class="s1">&#39;fallback&#39;</span><span class="p">:</span> <span class="mi">0</span><span class="p">},</span>
         <span class="s1">&#39;y_sea_water_velocity&#39;</span><span class="p">:</span> <span class="p">{</span><span class="s1">&#39;fallback&#39;</span><span class="p">:</span> <span class="mi">0</span><span class="p">},</span>
-        <span class="s1">&#39;sea_surface_height&#39;</span><span class="p">:</span> <span class="p">{</span><span class="s1">&#39;fallback&#39;</span><span class="p">:</span> <span class="mi">0</span><span class="p">},</span>
+        <span class="s1">&#39;sea_surface_height&#39;</span><span class="p">:</span> <span class="p">{</span><span class="s1">&#39;fallback&#39;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>
+            <span class="s1">&#39;store_previous_if&#39;</span><span class="p">:</span> <span class="p">[</span><span class="s1">&#39;drift:vertical_advection&#39;</span><span class="p">,</span> <span class="s1">&#39;is&#39;</span><span class="p">,</span> <span class="kc">True</span><span class="p">]},</span>
         <span class="s1">&#39;x_wind&#39;</span><span class="p">:</span> <span class="p">{</span><span class="s1">&#39;fallback&#39;</span><span class="p">:</span> <span class="mi">0</span><span class="p">},</span>
         <span class="s1">&#39;y_wind&#39;</span><span class="p">:</span> <span class="p">{</span><span class="s1">&#39;fallback&#39;</span><span class="p">:</span> <span class="mi">0</span><span class="p">},</span>
         <span class="s1">&#39;upward_sea_water_velocity&#39;</span><span class="p">:</span> <span class="p">{</span><span class="s1">&#39;fallback&#39;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>
@@ -281,6 +282,8 @@
     <span class="k">def</span><span class="w"> </span><span class="nf">update</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Update positions and properties of elements.&quot;&quot;&quot;</span>
 
+        <span class="bp">self</span><span class="o">.</span><span class="n">water_column_stretching</span><span class="p">()</span>
+
         <span class="c1"># Simply move particles with ambient current</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">advect_ocean_current</span><span class="p">()</span>
 
@@ -330,7 +333,6 @@
             <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">isnan</span><span class="p">(</span><span class="n">lo</span><span class="p">):</span>
                 <span class="k">continue</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">seed_elements</span><span class="p">(</span><span class="n">lon</span><span class="o">=</span><span class="n">lo</span><span class="p">,</span> <span class="n">lat</span><span class="o">=</span><span class="n">la</span><span class="p">,</span> <span class="n">time</span><span class="o">=</span><span class="n">time</span><span class="p">,</span> <span class="n">number</span><span class="o">=</span><span class="n">number</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
-        <span class="nb">print</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">outfile</span><span class="o">=</span><span class="n">outfile</span><span class="p">,</span> <span class="n">end_time</span><span class="o">=</span><span class="n">start_times</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">+</span><span class="n">simulation_duration</span><span class="p">)</span></div>
 
         <span class="c1"># Simulate and save to file</span>
@@ -405,6 +407,15 @@
 <a class="viewcode-back" href="../../../autoapi/opendrift/models/openoil/index.html#opendrift.models.oceandrift.OceanDrift.prepare_run">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">prepare_run</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="nb">super</span><span class="p">(</span><span class="n">OceanDrift</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">prepare_run</span><span class="p">()</span></div>
+
+
+<div class="viewcode-block" id="OceanDrift.water_column_stretching">
+<a class="viewcode-back" href="../../../autoapi/opendrift/models/openoil/index.html#opendrift.models.oceandrift.OceanDrift.water_column_stretching">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">water_column_stretching</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;If sea_water_level changes, adjust z for continuity&quot;&quot;&quot;</span>
+
+        <span class="k">return</span>  <span class="c1"># To be implemented</span>
+        <span class="n">delta_zeta</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">environment</span><span class="o">.</span><span class="n">sea_surface_height</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">environment_previous</span><span class="o">.</span><span class="n">sea_surface_height</span></div>
 
 
 <div class="viewcode-block" id="OceanDrift.vertical_advection">

@@ -120,6 +120,7 @@
 
 <span class="kn">import</span><span class="w"> </span><span class="nn">sys</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">os</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">copy</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">types</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Union</span><span class="p">,</span> <span class="n">List</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">traceback</span>
@@ -346,8 +347,7 @@
         <span class="c1"># List to store GeoJSON dicts of seeding commands</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">seed_geojson</span> <span class="o">=</span> <span class="p">[]</span>
 
-        <span class="bp">self</span><span class="o">.</span><span class="n">required_variables</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">required_variables</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>  <span class="c1"># Avoid modifying the class variable</span>
-
+        <span class="bp">self</span><span class="o">.</span><span class="n">required_variables</span> <span class="o">=</span> <span class="n">copy</span><span class="o">.</span><span class="n">deepcopy</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">required_variables</span><span class="p">)</span>  <span class="c1"># Avoid modifying the class variable</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">env</span> <span class="o">=</span> <span class="n">Environment</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">required_variables</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_config</span><span class="p">)</span>
 
         <span class="c1"># Make copies of dictionaries so that they are private to each instance</span>
@@ -707,16 +707,26 @@
     <span class="k">def</span><span class="w"> </span><span class="nf">update_previous_state</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Store some properties and variables, for access at next time step&quot;&quot;&quot;</span>
 
-        <span class="c1"># Retrieve previous from storage</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">newly_seeded_IDs</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>  <span class="c1"># For newly seeded elements, we set previous equal to present</span>
+            <span class="n">newly_seeded_rel_indices</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">elements</span><span class="o">.</span><span class="n">age_seconds</span><span class="o">==</span><span class="bp">self</span><span class="o">.</span><span class="n">time_step</span><span class="o">.</span><span class="n">total_seconds</span><span class="p">())[</span><span class="mi">0</span><span class="p">]</span>    
+
+        <span class="c1"># Environment variables</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_environment_previous</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
             <span class="c1"># Update previous environment</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">newly_seeded_IDs</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="k">for</span> <span class="n">var</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_environment_previous</span><span class="p">:</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">_environment_previous</span><span class="p">[</span><span class="n">var</span><span class="p">][</span><span class="n">newly_seeded_rel_indices</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">environment</span><span class="p">[</span><span class="n">var</span><span class="p">][</span><span class="n">newly_seeded_rel_indices</span><span class="p">]</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">environment_previous</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_environment_previous</span><span class="o">.</span><span class="n">isel</span><span class="p">(</span><span class="n">trajectory</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">elements</span><span class="o">.</span><span class="n">ID</span><span class="p">)</span>
             <span class="c1"># Store present environment variables</span>
             <span class="k">for</span> <span class="n">var</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_environment_previous</span><span class="p">:</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">_environment_previous</span><span class="p">[</span><span class="n">var</span><span class="p">][</span><span class="bp">self</span><span class="o">.</span><span class="n">elements</span><span class="o">.</span><span class="n">ID</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">environment</span><span class="p">[</span><span class="n">var</span><span class="p">]</span>
 
+        <span class="c1"># Element properties</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_elements_previous</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
             <span class="c1"># Update previous elements</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">newly_seeded_IDs</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>  <span class="c1"># For new elements there is no previous, so using present</span>
+                <span class="k">for</span> <span class="n">var</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_elements_previous</span><span class="p">:</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">_elements_previous</span><span class="p">[</span><span class="n">var</span><span class="p">][</span><span class="n">newly_seeded_rel_indices</span><span class="p">]</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">elements</span><span class="p">,</span> <span class="n">var</span><span class="p">)[</span><span class="n">newly_seeded_rel_indices</span><span class="p">]</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">elements_previous</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_elements_previous</span><span class="o">.</span><span class="n">isel</span><span class="p">(</span><span class="n">trajectory</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">elements</span><span class="o">.</span><span class="n">ID</span><span class="p">)</span>
             <span class="c1"># Store present element properties</span>
             <span class="k">for</span> <span class="n">var</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_elements_previous</span><span class="p">:</span>
@@ -1931,9 +1941,10 @@
                     <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Skipping environment variable </span><span class="si">{</span><span class="n">vn</span><span class="si">}</span><span class="s1"> because of condition </span><span class="si">{</span><span class="n">var</span><span class="p">[</span><span class="s2">&quot;skip_if&quot;</span><span class="p">]</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
                     <span class="bp">self</span><span class="o">.</span><span class="n">required_variables</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="n">vn</span><span class="p">)</span>
 
-        <span class="c1">####################################################################################</span>
-        <span class="c1"># Evaluate conditionals to determine if previous element properties shall be stored</span>
-        <span class="c1">####################################################################################</span>
+        <span class="c1">#########################################################################################</span>
+        <span class="c1"># Evaluate conditionals to determine if previous properties or variables shall be stored</span>
+        <span class="c1">#########################################################################################</span>
+        <span class="c1"># Element properties</span>
         <span class="k">for</span> <span class="n">en</span><span class="p">,</span> <span class="n">prop</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">elements</span><span class="o">.</span><span class="n">variables</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
             <span class="k">if</span> <span class="s1">&#39;store_previous_if&#39;</span> <span class="ow">in</span> <span class="n">prop</span><span class="p">:</span>
                 <span class="n">store</span> <span class="o">=</span> <span class="n">evaluate_conditional</span><span class="p">(</span><span class="o">*</span><span class="n">prop</span><span class="p">[</span><span class="s1">&#39;store_previous_if&#39;</span><span class="p">],</span> <span class="bp">self</span><span class="p">)</span>
@@ -1941,6 +1952,15 @@
                     <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Storing previous values of element property </span><span class="si">{</span><span class="n">en</span><span class="si">}</span><span class="s1"> because of condition </span><span class="si">{</span><span class="n">prop</span><span class="p">[</span><span class="s2">&quot;store_previous_if&quot;</span><span class="p">]</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
                     <span class="bp">self</span><span class="o">.</span><span class="n">elements</span><span class="o">.</span><span class="n">variables</span><span class="p">[</span><span class="n">en</span><span class="p">][</span><span class="s1">&#39;store_previous&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">True</span>
                 <span class="k">del</span> <span class="bp">self</span><span class="o">.</span><span class="n">elements</span><span class="o">.</span><span class="n">variables</span><span class="p">[</span><span class="n">en</span><span class="p">][</span><span class="s1">&#39;store_previous_if&#39;</span><span class="p">]</span>  <span class="c1"># To avoid writing this to netCDF metadata</span>
+        <span class="c1"># Environment variables</span>
+        <span class="k">for</span> <span class="n">en</span><span class="p">,</span> <span class="n">var</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">required_variables</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="k">if</span> <span class="s1">&#39;store_previous_if&#39;</span> <span class="ow">in</span> <span class="n">var</span><span class="p">:</span>
+                <span class="n">store</span> <span class="o">=</span> <span class="n">evaluate_conditional</span><span class="p">(</span><span class="o">*</span><span class="n">var</span><span class="p">[</span><span class="s1">&#39;store_previous_if&#39;</span><span class="p">],</span> <span class="bp">self</span><span class="p">)</span>
+                <span class="k">if</span> <span class="n">store</span> <span class="ow">is</span> <span class="kc">True</span><span class="p">:</span>
+                    <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Storing previous values of environment variable </span><span class="si">{</span><span class="n">en</span><span class="si">}</span><span class="s1"> because of condition </span><span class="si">{</span><span class="n">var</span><span class="p">[</span><span class="s2">&quot;store_previous_if&quot;</span><span class="p">]</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">required_variables</span><span class="p">[</span><span class="n">en</span><span class="p">][</span><span class="s1">&#39;store_previous&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">True</span>
+                <span class="k">del</span> <span class="bp">self</span><span class="o">.</span><span class="n">required_variables</span><span class="p">[</span><span class="n">en</span><span class="p">][</span><span class="s1">&#39;store_previous_if&#39;</span><span class="p">]</span>  <span class="c1"># To avoid writing this to netCDF metadata</span>
+
 
         <span class="c1">########################</span>
         <span class="c1"># Simulation time step</span>
