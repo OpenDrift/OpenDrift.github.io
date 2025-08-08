@@ -1063,7 +1063,7 @@
             <span class="n">o</span><span class="o">.</span><span class="n">env</span><span class="o">.</span><span class="n">finalize</span><span class="p">()</span>  <span class="c1"># This is not env of the main simulation</span>
             <span class="n">land_reader</span> <span class="o">=</span> <span class="n">reader_landmask</span>
         <span class="k">else</span><span class="p">:</span>
-            <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s1">&#39;Using existing reader for land_binary_mask&#39;</span><span class="p">)</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s1">&#39;Using existing reader for land_binary_mask to move elements to ocean&#39;</span><span class="p">)</span>
             <span class="n">land_reader_name</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">env</span><span class="o">.</span><span class="n">priority_list</span><span class="p">[</span><span class="s1">&#39;land_binary_mask&#39;</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span>
             <span class="n">land_reader</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">env</span><span class="o">.</span><span class="n">readers</span><span class="p">[</span><span class="n">land_reader_name</span><span class="p">]</span>
             <span class="n">o</span> <span class="o">=</span> <span class="bp">self</span>
@@ -1071,6 +1071,7 @@
         <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">land_reader</span><span class="p">,</span> <span class="n">ShapeReader</span><span class="p">):</span>
             <span class="c1"># can do this better</span>
             <span class="n">land_indices</span> <span class="o">=</span> <span class="n">land_reader</span><span class="o">.</span><span class="n">__on_land__</span><span class="p">(</span><span class="n">lon</span><span class="p">,</span> <span class="n">lat</span><span class="p">)</span>
+            <span class="n">land_indices</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">land_indices</span><span class="o">==</span><span class="mi">1</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
             <span class="n">lon</span><span class="p">[</span><span class="n">land_indices</span><span class="p">],</span> <span class="n">lat</span><span class="p">[</span><span class="n">land_indices</span><span class="p">],</span> <span class="n">_</span> <span class="o">=</span> <span class="n">land_reader</span><span class="o">.</span><span class="n">get_nearest_outside</span><span class="p">(</span>
                 <span class="n">lon</span><span class="p">[</span><span class="n">land_indices</span><span class="p">],</span>
                 <span class="n">lat</span><span class="p">[</span><span class="n">land_indices</span><span class="p">],</span>
@@ -2708,9 +2709,15 @@
             <span class="k">if</span> <span class="s1">&#39;land_binary_mask&#39;</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">env</span><span class="o">.</span><span class="n">priority_list</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">env</span><span class="o">.</span><span class="n">priority_list</span><span class="p">[</span>
                     <span class="s1">&#39;land_binary_mask&#39;</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="s1">&#39;shape&#39;</span><span class="p">:</span>
                 <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;Using custom shapes for plotting land..&#39;</span><span class="p">)</span>
+                <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">env</span><span class="o">.</span><span class="n">readers</span><span class="p">[</span><span class="s1">&#39;shape&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">invert</span> <span class="ow">is</span> <span class="kc">True</span><span class="p">:</span>  <span class="c1"># Switching land and ocean colors</span>
+                    <span class="n">facecolor</span> <span class="o">=</span> <span class="n">ocean_color</span>
+                    <span class="n">ax</span><span class="o">.</span><span class="n">patch</span><span class="o">.</span><span class="n">set_facecolor</span><span class="p">(</span><span class="n">land_color</span><span class="p">)</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">facecolor</span> <span class="o">=</span> <span class="n">land_color</span>
+
                 <span class="n">ax</span><span class="o">.</span><span class="n">add_geometries</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">env</span><span class="o">.</span><span class="n">readers</span><span class="p">[</span><span class="s1">&#39;shape&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">polys</span><span class="p">,</span>
                                   <span class="bp">self</span><span class="o">.</span><span class="n">crs_lonlat</span><span class="p">,</span>
-                                  <span class="n">facecolor</span><span class="o">=</span><span class="n">land_color</span><span class="p">,</span>
+                                  <span class="n">facecolor</span><span class="o">=</span><span class="n">facecolor</span><span class="p">,</span>
                                   <span class="n">edgecolor</span><span class="o">=</span><span class="s1">&#39;black&#39;</span><span class="p">)</span>
             <span class="k">else</span><span class="p">:</span>
                 <span class="n">reader_global_landmask</span><span class="o">.</span><span class="n">plot_land</span><span class="p">(</span><span class="n">ax</span><span class="p">,</span> <span class="n">lonmin</span><span class="p">,</span> <span class="n">latmin</span><span class="p">,</span> <span class="n">lonmax</span><span class="p">,</span>
