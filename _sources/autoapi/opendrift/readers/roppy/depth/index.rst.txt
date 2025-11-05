@@ -20,6 +20,14 @@ opendrift.readers.roppy.depth
 
 
 
+Attributes
+----------
+
+.. autoapisummary::
+
+   opendrift.readers.roppy.depth.Array
+
+
 Functions
 ---------
 
@@ -31,27 +39,30 @@ Functions
    opendrift.readers.roppy.depth.multi_zslice
    opendrift.readers.roppy.depth.z_average
    opendrift.readers.roppy.depth.s_stretch
+   opendrift.readers.roppy.depth.stretch5
    opendrift.readers.roppy.depth.s_stretch_w
 
 
 Module Contents
 ---------------
 
-.. py:function:: sdepth(H, zeta, Hc, C, stagger='rho', Vtransform=1)
+.. py:data:: Array
+
+.. py:function:: sdepth(H, zeta, Hc, C, S = None, stagger = 'rho', Vtransform = 1, Vstretching = 1)
 
    Depth of s-levels
 
    *H* : arraylike
-     Bottom depths [meter, positive]
-
-   *zeta* : scalar, arraylike
-     Surface elevation [meter]
+       Bottom depths [meter, positive]
 
    *Hc* : scalar
-      Critical depth
+       Critical depth
 
-   *cs_r* : 1D array
-      s-level stretching curve
+   *C* : 1D array
+       s-level stretching curve
+
+   *S* : 1D array
+       s coordinate at rho or w points
 
    *stagger* : [ 'rho' | 'w' ]
 
@@ -64,14 +75,11 @@ Module Contents
 
    Typical usage::
 
-   .. code::
-
-       fid = Dataset(roms_file)
-       H = fid.variables['h'][:, :]
-       zeta = fid.variables['zeta'][:, :]
-       C = fid.variables['Cs_r'][:]
-       Hc = fid.variables['hc'].getValue()
-       z_rho = sdepth(H, zeta, Hc, C)
+   >> fid = Dataset(roms_file)
+   >> H = fid.variables['h'][:, :]
+   >> C = fid.variables['Cs_r'][:]
+   >> Hc = fid.variables['hc'].getValue()
+   >> z_rho = sdepth(H, Hc, C)
 
 
 
@@ -93,7 +101,8 @@ Module Contents
 
    *F* : array with vertical profiles, first dimension is vertical
 
-   *S* : array with depths of the F-values,
+   *S* : array with depths of the F-values, S.shape = F.shape
+         typically, S = z_rho or S = z_w
 
    *z* : Depth level(s) for output, scalar or ``shape = F.shape[1:]``
          The z values should be negative
@@ -105,11 +114,6 @@ Module Contents
    Hc is the critical depth
    C is 1D containing the s-coordinate stretching at rho-points
    returns F50, interpolated values at 50 meter with F50.shape = H.shape
-
-   .. code::
-
-      z_rho = sdepth(H, Hc, C)
-      F50 = zslice(F, z_rho, -50.0)
 
 
 
@@ -150,7 +154,7 @@ Module Contents
 
 
 
-.. py:function:: s_stretch(N, theta_s, theta_b, stagger='rho', Vstretching=1)
+.. py:function:: s_stretch(N, theta_s, theta_b, stagger = 'rho', Vstretching = 1)
 
    Compute a s-level stretching array
 
@@ -162,8 +166,13 @@ Module Contents
 
    *stagger* : "rho"|"w"
 
-   *Vstretching* : 1|2|4
+   *Vstretching* : 1|2|3|4|5
 
+
+
+.. py:function:: stretch5(N, stagger = 'rho')
+
+   Returns S for Vstretching = 5
 
 
 .. py:function:: s_stretch_w(N, theta_s, theta_b, Vstretching=1)
