@@ -1,0 +1,477 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../../../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>opendrift.readers.reader_FVCOM_xarray &mdash; OpenDrift  documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../../../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../../../../_static/css/theme.css?v=e59714d7" />
+      <link rel="stylesheet" type="text/css" href="../../../../_static/graphviz.css?v=4ae1632d" />
+      <link rel="stylesheet" type="text/css" href="../../../../_static/plot_directive.css" />
+      <link rel="stylesheet" type="text/css" href="../../../../_static/sg_gallery.css?v=d2d258e8" />
+      <link rel="stylesheet" type="text/css" href="../../../../_static/sg_gallery-binder.css?v=f4aeca0c" />
+      <link rel="stylesheet" type="text/css" href="../../../../_static/sg_gallery-dataframe.css?v=2082cf3c" />
+      <link rel="stylesheet" type="text/css" href="../../../../_static/sg_gallery-rendered-html.css?v=1277b6f3" />
+      <link rel="stylesheet" type="text/css" href="../../../../_static/theme_overrides.css" />
+
+  
+      <script src="../../../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../../../_static/documentation_options.js?v=5929fcd5"></script>
+      <script src="../../../../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../../search.html" />
+    <link rel="next" title="opendrift.readers.reader_ROMS_native" href="../reader_ROMS_native/index.html" />
+    <link rel="prev" title="opendrift.readers.reader_ArtificialOceanEddy" href="../reader_ArtificialOceanEddy/index.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../../../index.html" class="icon icon-home">
+            OpenDrift
+              <img src="../../../../_static/opendrift_logo.png" class="logo" alt="Logo"/>
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../index.html">Introduction to OpenDrift</a></li>
+</ul>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../../../../history_link.html">History</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../install.html">Installing OpenDrift</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../performance.html">Performance in OpenDrift</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../tutorial.html">Tutorial</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../theory/index.html">Theory</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../theory/index.html#drift-in-the-ocean">Drift in the Ocean</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../choosing_a_model.html">How to choose which model to use</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../writing_a_new_model.html">How to write a new module</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../gallery/index.html">Gallery</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../oil_types.html">Oil types</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../interaction_with_coastline.html">Interaction with coastline</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../docker.html">Using OpenDrift in a container</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../gui.html">Graphical User Interface</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../references.html">Publications</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../services.html">Services using OpenDrift</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="../../../index.html">API Reference</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="../../../shyfem/index.html">shyfem</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../openhns/index.html">openhns</a></li>
+<li class="toctree-l2 current"><a class="reference internal" href="../../index.html">opendrift</a><ul class="current">
+<li class="toctree-l3 current"><a class="reference internal" href="../../index.html#submodules">Submodules</a><ul class="current">
+<li class="toctree-l4"><a class="reference internal" href="../../config/index.html">opendrift.config</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../elements/index.html">opendrift.elements</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../errors/index.html">opendrift.errors</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../export/index.html">opendrift.export</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../legacy/index.html">opendrift.legacy</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../models/index.html">opendrift.models</a></li>
+<li class="toctree-l4 current"><a class="reference internal" href="../index.html">opendrift.readers</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../timer/index.html">opendrift.timer</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../version/index.html">opendrift.version</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../../index.html#attributes">Attributes</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../index.html#functions">Functions</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../index.html#package-contents">Package Contents</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../../../hodograph/index.html">hodograph</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../readerinfo/index.html">readerinfo</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../openberg_old/index.html">openberg_old</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../opendrift_gui/index.html">opendrift_gui</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../opendrift_plot/index.html">opendrift_plot</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../opendrift_animate/index.html">opendrift_animate</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../opendrift_animate_profile/index.html">opendrift_animate_profile</a></li>
+</ul>
+</li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../../index.html">OpenDrift</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../../../index.html">API Reference</a></li>
+          <li class="breadcrumb-item"><a href="../../index.html">opendrift</a></li>
+          <li class="breadcrumb-item"><a href="../index.html">opendrift.readers</a></li>
+      <li class="breadcrumb-item active">opendrift.readers.reader_FVCOM_xarray</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../../../../_sources/autoapi/opendrift/readers/reader_FVCOM_xarray/index.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="module-opendrift.readers.reader_FVCOM_xarray">
+<span id="opendrift-readers-reader-fvcom-xarray"></span><h1>opendrift.readers.reader_FVCOM_xarray<a class="headerlink" href="#module-opendrift.readers.reader_FVCOM_xarray" title="Link to this heading"></a></h1>
+<section id="attributes">
+<h2>Attributes<a class="headerlink" href="#attributes" title="Link to this heading"></a></h2>
+<table class="autosummary longtable docutils align-default">
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="#opendrift.readers.reader_FVCOM_xarray.logger" title="opendrift.readers.reader_FVCOM_xarray.logger"><code class="xref py py-obj docutils literal notranslate"><span class="pre">logger</span></code></a></p></td>
+<td><p></p></td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="classes">
+<h2>Classes<a class="headerlink" href="#classes" title="Link to this heading"></a></h2>
+<table class="autosummary longtable docutils align-default">
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="#opendrift.readers.reader_FVCOM_xarray.Reader" title="opendrift.readers.reader_FVCOM_xarray.Reader"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Reader</span></code></a></p></td>
+<td><p>A reader for unstructured (irregularily gridded) <a href="#id1"><span class="problematic" id="id2">`</span></a>CF compliant</p></td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="functions">
+<h2>Functions<a class="headerlink" href="#functions" title="Link to this heading"></a></h2>
+<table class="autosummary longtable docutils align-default">
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="#opendrift.readers.reader_FVCOM_xarray.open_fvcom_files_as_xarray" title="opendrift.readers.reader_FVCOM_xarray.open_fvcom_files_as_xarray"><code class="xref py py-obj docutils literal notranslate"><span class="pre">open_fvcom_files_as_xarray</span></code></a>(fname[, load])</p></td>
+<td><p>Works around xarray limitation to load FVCOM grid data</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#opendrift.readers.reader_FVCOM_xarray._timestamps_from_days_since_epoch" title="opendrift.readers.reader_FVCOM_xarray._timestamps_from_days_since_epoch"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_timestamps_from_days_since_epoch</span></code></a>(days)</p></td>
+<td><p>Convert from iterable of days since epoch to a list of pandas Timestamps</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#opendrift.readers.reader_FVCOM_xarray._rename_sigma" title="opendrift.readers.reader_FVCOM_xarray._rename_sigma"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_rename_sigma</span></code></a>(ds, f, name)</p></td>
+<td><p>name: siglay or siglev</p></td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="module-contents">
+<h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading"></a></h2>
+<dl class="py data">
+<dt class="sig sig-object py" id="opendrift.readers.reader_FVCOM_xarray.logger">
+<span class="sig-prename descclassname"><span class="pre">opendrift.readers.reader_FVCOM_xarray.</span></span><span class="sig-name descname"><span class="pre">logger</span></span><a class="headerlink" href="#opendrift.readers.reader_FVCOM_xarray.logger" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="opendrift.readers.reader_FVCOM_xarray.Reader">
+<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">opendrift.readers.reader_FVCOM_xarray.</span></span><span class="sig-name descname"><span class="pre">Reader</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">filename</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">proj4</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">filetype</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'zarr'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cache</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../../_modules/opendrift/readers/reader_FVCOM_xarray.html#Reader"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#opendrift.readers.reader_FVCOM_xarray.Reader" title="Link to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="../basereader/index.html#opendrift.readers.basereader.BaseReader" title="opendrift.readers.basereader.BaseReader"><code class="xref py py-obj docutils literal notranslate"><span class="pre">opendrift.readers.basereader.BaseReader</span></code></a>, <a class="reference internal" href="../basereader/index.html#opendrift.readers.basereader.UnstructuredReader" title="opendrift.readers.basereader.UnstructuredReader"><code class="xref py py-obj docutils literal notranslate"><span class="pre">opendrift.readers.basereader.UnstructuredReader</span></code></a></p>
+<p>A reader for unstructured (irregularily gridded) <a class="reference external" href="https://cfconventions.org/">CF compliant</a> netCDF files.</p>
+<dl class="simple">
+<dt>Args:</dt><dd><dl class="field-list simple">
+<dt class="field-odd">param filename<span class="colon">:</span></dt>
+<dd class="field-odd"><p>A pattern of  netCDF files or a zarr archive. The
+netCDF file can also be an URL to an OPeNDAP server.</p>
+</dd>
+<dt class="field-even">type filename<span class="colon">:</span></dt>
+<dd class="field-even"><p>string, required.</p>
+</dd>
+<dt class="field-odd">param filetype<span class="colon">:</span></dt>
+<dd class="field-odd"><p>‘netcdf’ or ‘zarr’.</p>
+</dd>
+<dt class="field-even">type filetype<span class="colon">:</span></dt>
+<dd class="field-even"><p>string, required.</p>
+</dd>
+<dt class="field-odd">param name<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Name of reader</p>
+</dd>
+<dt class="field-even">type name<span class="colon">:</span></dt>
+<dd class="field-even"><p>string, optional</p>
+</dd>
+<dt class="field-odd">param proj4<span class="colon">:</span></dt>
+<dd class="field-odd"><p>PROJ.4 string describing projection of data.</p>
+</dd>
+<dt class="field-even">type proj4<span class="colon">:</span></dt>
+<dd class="field-even"><p>string, optional</p>
+</dd>
+</dl>
+</dd>
+</dl>
+<div class="admonition seealso">
+<p class="admonition-title">See also</p>
+<p>py:mod:<cite>opendrift.readers.basereader.unstructured</cite>.</p>
+</div>
+<p>filename: zarr store or netcdf file
+proj4: PROJ4 string
+filetype: “zarr” or “netcdf”
+cache: either None (no caching) or int (size of cache in bytes).</p>
+<blockquote>
+<div><p>Only respected for zarr stores.</p>
+</div></blockquote>
+<p>name: name of Reader.</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="opendrift.readers.reader_FVCOM_xarray.Reader.variable_aliases">
+<span class="sig-name descname"><span class="pre">variable_aliases</span></span><a class="headerlink" href="#opendrift.readers.reader_FVCOM_xarray.Reader.variable_aliases" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="opendrift.readers.reader_FVCOM_xarray.Reader.node_variables">
+<span class="sig-name descname"><span class="pre">node_variables</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">['sea_floor_depth_below_sea_level',</span> <span class="pre">'sea_water_salinity',</span> <span class="pre">'sea_water_temperature',...</span></em><a class="headerlink" href="#opendrift.readers.reader_FVCOM_xarray.Reader.node_variables" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="opendrift.readers.reader_FVCOM_xarray.Reader.face_variables">
+<span class="sig-name descname"><span class="pre">face_variables</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">['x_wind',</span> <span class="pre">'y_wind',</span> <span class="pre">'x_sea_water_velocity',</span> <span class="pre">'y_sea_water_velocity',</span> <span class="pre">'upward_sea_water_velocity']</span></em><a class="headerlink" href="#opendrift.readers.reader_FVCOM_xarray.Reader.face_variables" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="opendrift.readers.reader_FVCOM_xarray.Reader.dataset">
+<span class="sig-name descname"><span class="pre">dataset</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">None</span></em><a class="headerlink" href="#opendrift.readers.reader_FVCOM_xarray.Reader.dataset" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="opendrift.readers.reader_FVCOM_xarray.Reader.siglay">
+<span class="sig-name descname"><span class="pre">siglay</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">None</span></em><a class="headerlink" href="#opendrift.readers.reader_FVCOM_xarray.Reader.siglay" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="opendrift.readers.reader_FVCOM_xarray.Reader.siglev">
+<span class="sig-name descname"><span class="pre">siglev</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">None</span></em><a class="headerlink" href="#opendrift.readers.reader_FVCOM_xarray.Reader.siglev" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="opendrift.readers.reader_FVCOM_xarray.Reader.siglay_center">
+<span class="sig-name descname"><span class="pre">siglay_center</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">None</span></em><a class="headerlink" href="#opendrift.readers.reader_FVCOM_xarray.Reader.siglay_center" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="opendrift.readers.reader_FVCOM_xarray.Reader.siglev_center">
+<span class="sig-name descname"><span class="pre">siglev_center</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">None</span></em><a class="headerlink" href="#opendrift.readers.reader_FVCOM_xarray.Reader.siglev_center" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="opendrift.readers.reader_FVCOM_xarray.Reader.ocean_depth_nele">
+<span class="sig-name descname"><span class="pre">ocean_depth_nele</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">None</span></em><a class="headerlink" href="#opendrift.readers.reader_FVCOM_xarray.Reader.ocean_depth_nele" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="opendrift.readers.reader_FVCOM_xarray.Reader.ocean_depth_node">
+<span class="sig-name descname"><span class="pre">ocean_depth_node</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">None</span></em><a class="headerlink" href="#opendrift.readers.reader_FVCOM_xarray.Reader.ocean_depth_node" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="opendrift.readers.reader_FVCOM_xarray.Reader.proj4">
+<span class="sig-name descname"><span class="pre">proj4</span></span><a class="headerlink" href="#opendrift.readers.reader_FVCOM_xarray.Reader.proj4" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="opendrift.readers.reader_FVCOM_xarray.Reader.times">
+<span class="sig-name descname"><span class="pre">times</span></span><a class="headerlink" href="#opendrift.readers.reader_FVCOM_xarray.Reader.times" title="Link to this definition"></a></dt>
+<dd><p>Setting this to <cite>True</cite> overrides temporal and spatial bounds checks.
+Also useful for readers that are constant and do not have a temporal
+dimension.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="opendrift.readers.reader_FVCOM_xarray.Reader.start_time">
+<span class="sig-name descname"><span class="pre">start_time</span></span><a class="headerlink" href="#opendrift.readers.reader_FVCOM_xarray.Reader.start_time" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="opendrift.readers.reader_FVCOM_xarray.Reader.end_time">
+<span class="sig-name descname"><span class="pre">end_time</span></span><a class="headerlink" href="#opendrift.readers.reader_FVCOM_xarray.Reader.end_time" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="opendrift.readers.reader_FVCOM_xarray.Reader.xmin">
+<span class="sig-name descname"><span class="pre">xmin</span></span><a class="headerlink" href="#opendrift.readers.reader_FVCOM_xarray.Reader.xmin" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="opendrift.readers.reader_FVCOM_xarray.Reader.xmax">
+<span class="sig-name descname"><span class="pre">xmax</span></span><a class="headerlink" href="#opendrift.readers.reader_FVCOM_xarray.Reader.xmax" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="opendrift.readers.reader_FVCOM_xarray.Reader.ymin">
+<span class="sig-name descname"><span class="pre">ymin</span></span><a class="headerlink" href="#opendrift.readers.reader_FVCOM_xarray.Reader.ymin" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="opendrift.readers.reader_FVCOM_xarray.Reader.ymax">
+<span class="sig-name descname"><span class="pre">ymax</span></span><a class="headerlink" href="#opendrift.readers.reader_FVCOM_xarray.Reader.ymax" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="opendrift.readers.reader_FVCOM_xarray.Reader.variable_mapping">
+<span class="sig-name descname"><span class="pre">variable_mapping</span></span><a class="headerlink" href="#opendrift.readers.reader_FVCOM_xarray.Reader.variable_mapping" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="opendrift.readers.reader_FVCOM_xarray.Reader.variables">
+<span class="sig-name descname"><span class="pre">variables</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">[]</span></em><a class="headerlink" href="#opendrift.readers.reader_FVCOM_xarray.Reader.variables" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="opendrift.readers.reader_FVCOM_xarray.Reader.boundary">
+<span class="sig-name descname"><span class="pre">boundary</span></span><a class="headerlink" href="#opendrift.readers.reader_FVCOM_xarray.Reader.boundary" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="opendrift.readers.reader_FVCOM_xarray.Reader.nodes_idx">
+<span class="sig-name descname"><span class="pre">nodes_idx</span></span><a class="headerlink" href="#opendrift.readers.reader_FVCOM_xarray.Reader.nodes_idx" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="opendrift.readers.reader_FVCOM_xarray.Reader.faces_idx">
+<span class="sig-name descname"><span class="pre">faces_idx</span></span><a class="headerlink" href="#opendrift.readers.reader_FVCOM_xarray.Reader.faces_idx" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="opendrift.readers.reader_FVCOM_xarray.Reader.plot_mesh">
+<span class="sig-name descname"><span class="pre">plot_mesh</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../../../../_modules/opendrift/readers/reader_FVCOM_xarray.html#Reader.plot_mesh"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#opendrift.readers.reader_FVCOM_xarray.Reader.plot_mesh" title="Link to this definition"></a></dt>
+<dd><p>Plot the grid mesh. Does not automatically show the figure.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="opendrift.readers.reader_FVCOM_xarray.Reader.get_variables">
+<span class="sig-name descname"><span class="pre">get_variables</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">requested_variables</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">time</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">x</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">y</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">z</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../../_modules/opendrift/readers/reader_FVCOM_xarray.html#Reader.get_variables"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#opendrift.readers.reader_FVCOM_xarray.Reader.get_variables" title="Link to this definition"></a></dt>
+<dd><p>FVCOM Grid:</p>
+<p>FVCOM uses ‘triangular prisms’ for gridding. Some variables are defined
+on the faces of the triangles, while others at the node.</p>
+<p><cite>x</cite> and <cite>y</cite> holds the positions of the node, while <cite>xc</cite> and <cite>yc</cite> holds
+the positions on the centroids/faces. The centroids/faces are also
+known as ‘zonal’, or elements (presumably as in finite element).</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Currently this reader does not really interpolate. It looks up the
+closest point in time and space.</p>
+</div>
+<p>Each element has a lookup-table of its surrounding elements, this list can be
+used when looking up elements for the interpolator of an arbitrary
+point on the grid. The same goes for the nodes.</p>
+<p>Let E be number of elements and N be number of nodes.</p>
+<p>Relevant lookup-tables:</p>
+<p>nbe:        [3 x E]  elements surround each element
+nbve:       [9 x N]  elements surrounding each node, minimum 3
+nbsn:       [11 x N] nodes surrounding each node</p>
+<p>Variables:</p>
+<p>Face:
+* u
+* v</p>
+<p>Node:
+* temperature
+* salinity</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="opendrift.readers.reader_FVCOM_xarray.Reader._vector_nearest_">
+<em class="property"><span class="k"><span class="pre">static</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">_vector_nearest_</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">X</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">xp</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../../_modules/opendrift/readers/reader_FVCOM_xarray.html#Reader._vector_nearest_"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#opendrift.readers.reader_FVCOM_xarray.Reader._vector_nearest_" title="Link to this definition"></a></dt>
+<dd><p>Find nearest element in vector of vectors <cite>X</cite> for each <cite>xp</cite>.</p>
+<p>Args:</p>
+<blockquote>
+<div><p>X   NxM matrix of levels
+xp  M   vector of positions</p>
+</div></blockquote>
+<dl class="simple">
+<dt>Returns:</dt><dd><dl class="simple">
+<dt>i   M   vector of indices [0..N] of closest element in</dt><dd><p>X[0..N, i] to xp[i]</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="opendrift.readers.reader_FVCOM_xarray.Reader.__nearest_node_sigma__">
+<span class="sig-name descname"><span class="pre">__nearest_node_sigma__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">var</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">nodes</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">z</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../../_modules/opendrift/readers/reader_FVCOM_xarray.html#Reader.__nearest_node_sigma__"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#opendrift.readers.reader_FVCOM_xarray.Reader.__nearest_node_sigma__" title="Link to this definition"></a></dt>
+<dd><p>Find nearest depth at node (sigma layer or sigma level depending on where the variable is defined).</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="opendrift.readers.reader_FVCOM_xarray.Reader.__nearest_face_sigma__">
+<span class="sig-name descname"><span class="pre">__nearest_face_sigma__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">var</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">el</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">z</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../../_modules/opendrift/readers/reader_FVCOM_xarray.html#Reader.__nearest_face_sigma__"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#opendrift.readers.reader_FVCOM_xarray.Reader.__nearest_face_sigma__" title="Link to this definition"></a></dt>
+<dd><p>TBD: This is extremely hacky…</p>
+<p>Find nearest depth at element (sigma layer or sigma level depending on where the variable is defined).</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="opendrift.readers.reader_FVCOM_xarray.Reader.z_from_sigma">
+<em class="property"><span class="k"><span class="pre">static</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">z_from_sigma</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">sigma</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">depth</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">elevation</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../../_modules/opendrift/readers/reader_FVCOM_xarray.html#Reader.z_from_sigma"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#opendrift.readers.reader_FVCOM_xarray.Reader.z_from_sigma" title="Link to this definition"></a></dt>
+<dd><p>Calculate z-depth from sigma constant.</p>
+<p><a class="reference external" href="https://rdrr.io/github/edwardlavender/fvcom.tbx/src/R/depth_from_known.R">https://rdrr.io/github/edwardlavender/fvcom.tbx/src/R/depth_from_known.R</a></p>
+<p>Args:</p>
+<blockquote>
+<div><p>sigma       Sigma coefficient(s)
+depth       Depth below mean sea-surface
+elevation   Elevation of sea-surface (e.g. tidal)</p>
+</div></blockquote>
+<p>Returns: z, depth below sea-surface in meters.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="opendrift.readers.reader_FVCOM_xarray.open_fvcom_files_as_xarray">
+<span class="sig-prename descclassname"><span class="pre">opendrift.readers.reader_FVCOM_xarray.</span></span><span class="sig-name descname"><span class="pre">open_fvcom_files_as_xarray</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">fname</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">load</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwarg</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../../_modules/opendrift/readers/reader_FVCOM_xarray.html#open_fvcom_files_as_xarray"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#opendrift.readers.reader_FVCOM_xarray.open_fvcom_files_as_xarray" title="Link to this definition"></a></dt>
+<dd><p>Works around xarray limitation to load FVCOM grid data</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="opendrift.readers.reader_FVCOM_xarray._timestamps_from_days_since_epoch">
+<span class="sig-prename descclassname"><span class="pre">opendrift.readers.reader_FVCOM_xarray.</span></span><span class="sig-name descname"><span class="pre">_timestamps_from_days_since_epoch</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">days</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../../_modules/opendrift/readers/reader_FVCOM_xarray.html#_timestamps_from_days_since_epoch"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#opendrift.readers.reader_FVCOM_xarray._timestamps_from_days_since_epoch" title="Link to this definition"></a></dt>
+<dd><p>Convert from iterable of days since epoch to a list of pandas Timestamps</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="opendrift.readers.reader_FVCOM_xarray._rename_sigma">
+<span class="sig-prename descclassname"><span class="pre">opendrift.readers.reader_FVCOM_xarray.</span></span><span class="sig-name descname"><span class="pre">_rename_sigma</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ds</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">f</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">name</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../../_modules/opendrift/readers/reader_FVCOM_xarray.html#_rename_sigma"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#opendrift.readers.reader_FVCOM_xarray._rename_sigma" title="Link to this definition"></a></dt>
+<dd><p>name: siglay or siglev</p>
+</dd></dl>
+
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="../reader_ArtificialOceanEddy/index.html" class="btn btn-neutral float-left" title="opendrift.readers.reader_ArtificialOceanEddy" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="../reader_ROMS_native/index.html" class="btn btn-neutral float-right" title="opendrift.readers.reader_ROMS_native" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2020, Knut-Frode Dagestad (knutfd@met.no) and Gaute Hope (gauteh@met.no)..</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>
