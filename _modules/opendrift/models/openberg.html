@@ -210,7 +210,7 @@
 <span class="sd">        water_vel : Ocean current velocity</span>
 <span class="sd">        rho_water : Water density</span>
 <span class="sd">        Avo : Vertical area of the iceberg in the ocean (length x draft)</span>
-<span class="sd">        Aho : Horizontal area of the iceberg in contact with the ocean (width x draft)</span>
+<span class="sd">        Aho : Horizontal area of the iceberg in contact with the ocean (width x length)</span>
 <span class="sd">        water_form_drag_coef : Co is the ocean form drag coefficient</span>
 <span class="sd">        water_skin_drag_coef : Cdo is the ocean skin drag coefficient</span>
 <span class="sd">    &quot;&quot;&quot;</span>
@@ -234,7 +234,7 @@
 <span class="sd">        iceb_vel : Iceberg&#39;s velocity at time t</span>
 <span class="sd">        wind_vel : Wind velocity</span>
 <span class="sd">        Ava : Vertical area of the iceberg in the air (length x sail)</span>
-<span class="sd">        Aha : Horizontal area of the iceberg in contact with the air (width x sail)</span>
+<span class="sd">        Aha : Horizontal area of the iceberg in contact with the air (width x length)</span>
 <span class="sd">        wind_form_drag_coef : Ca is the air form drag coefficient</span>
 <span class="sd">        wind_skin_drag_coef : Cda is the air skin drag coefficient</span>
 <span class="sd">    &quot;&quot;&quot;</span>
@@ -262,8 +262,8 @@
 <span class="sd">        wave_direction : Wave direction</span>
 <span class="sd">        iceb_length    : Iceberg&#39;s length</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="n">F_wave_x</span> <span class="o">=</span> <span class="p">(</span><span class="mf">0.5</span> <span class="o">*</span> <span class="n">rho_water</span> <span class="o">*</span> <span class="n">wave_drag_coef</span> <span class="o">*</span> <span class="n">g</span> <span class="o">*</span> <span class="n">iceb_length</span> <span class="o">*</span> <span class="p">(</span><span class="n">wave_height</span> <span class="o">/</span> <span class="mi">2</span><span class="p">)</span> <span class="o">**</span> <span class="mi">2</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">deg2rad</span><span class="p">(</span><span class="n">wave_direction</span><span class="p">)))</span>
-    <span class="n">F_wave_y</span> <span class="o">=</span> <span class="p">(</span><span class="mf">0.5</span> <span class="o">*</span> <span class="n">rho_water</span> <span class="o">*</span> <span class="n">wave_drag_coef</span> <span class="o">*</span> <span class="n">g</span> <span class="o">*</span> <span class="n">iceb_length</span> <span class="o">*</span> <span class="p">(</span><span class="n">wave_height</span> <span class="o">/</span> <span class="mi">2</span><span class="p">)</span> <span class="o">**</span> <span class="mi">2</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">cos</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">deg2rad</span><span class="p">(</span><span class="n">wave_direction</span><span class="p">)))</span>
+    <span class="n">F_wave_x</span> <span class="o">=</span> <span class="p">(</span><span class="mf">0.25</span> <span class="o">*</span> <span class="n">rho_water</span> <span class="o">*</span> <span class="n">wave_drag_coef</span> <span class="o">*</span> <span class="n">g</span> <span class="o">*</span> <span class="n">iceb_length</span> <span class="o">*</span> <span class="p">(</span><span class="n">wave_height</span> <span class="o">/</span> <span class="mi">2</span><span class="p">)</span> <span class="o">**</span> <span class="mi">2</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">deg2rad</span><span class="p">(</span><span class="n">wave_direction</span><span class="p">)))</span>
+    <span class="n">F_wave_y</span> <span class="o">=</span> <span class="p">(</span><span class="mf">0.25</span> <span class="o">*</span> <span class="n">rho_water</span> <span class="o">*</span> <span class="n">wave_drag_coef</span> <span class="o">*</span> <span class="n">g</span> <span class="o">*</span> <span class="n">iceb_length</span> <span class="o">*</span> <span class="p">(</span><span class="n">wave_height</span> <span class="o">/</span> <span class="mi">2</span><span class="p">)</span> <span class="o">**</span> <span class="mi">2</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">cos</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">deg2rad</span><span class="p">(</span><span class="n">wave_direction</span><span class="p">)))</span>
     <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">F_wave_x</span><span class="p">,</span> <span class="n">F_wave_y</span><span class="p">])</span></div>
 
 
@@ -587,10 +587,10 @@
         <span class="n">sea_ice_thickness</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">environment</span><span class="o">.</span><span class="n">sea_ice_thickness</span>
         <span class="n">sea_ice_conc</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">environment</span><span class="o">.</span><span class="n">sea_ice_area_fraction</span>
         <span class="n">water_depth</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">environment</span><span class="o">.</span><span class="n">sea_floor_depth_below_sea_level</span>
-        <span class="n">Avo</span> <span class="o">=</span> <span class="n">length</span> <span class="o">*</span> <span class="nb">abs</span><span class="p">(</span><span class="n">draft</span><span class="p">)</span>
-        <span class="n">Aho</span> <span class="o">=</span> <span class="n">width</span> <span class="o">*</span> <span class="nb">abs</span><span class="p">(</span><span class="n">draft</span><span class="p">)</span>
+        <span class="n">Avo</span> <span class="o">=</span> <span class="n">length</span> <span class="o">*</span> <span class="n">draft</span>
+        <span class="n">Aho</span> <span class="o">=</span> <span class="n">width</span> <span class="o">*</span> <span class="n">length</span>
         <span class="n">Ava</span> <span class="o">=</span> <span class="n">length</span> <span class="o">*</span> <span class="n">sail</span>
-        <span class="n">Aha</span> <span class="o">=</span> <span class="n">width</span> <span class="o">*</span> <span class="n">sail</span>
+        <span class="n">Aha</span> <span class="o">=</span> <span class="n">width</span> <span class="o">*</span> <span class="n">length</span>
         <span class="n">Ai</span> <span class="o">=</span> <span class="n">sea_ice_thickness</span> <span class="o">*</span> <span class="n">length</span>
         
         <span class="n">mass</span> <span class="o">=</span> <span class="n">width</span> <span class="o">*</span> <span class="p">(</span><span class="n">Ava</span> <span class="o">+</span> <span class="n">Avo</span><span class="p">)</span> <span class="o">*</span> <span class="n">rho_iceb</span> <span class="o">*</span> <span class="n">weight_coef</span>
