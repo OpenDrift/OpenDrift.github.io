@@ -215,12 +215,14 @@
 <div class="viewcode-block" id="import_file">
 <a class="viewcode-back" href="../../../autoapi/opendrift/export/io_netcdf/index.html#opendrift.export.io_netcdf.import_file">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">import_file</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">filename</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Create OpenDrift object from imported file.</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Create OpenDrift object from imported file or from Xarray Dataset.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
-    <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;Importing from &#39;</span> <span class="o">+</span> <span class="n">filename</span><span class="p">)</span>
-
-    <span class="bp">self</span><span class="o">.</span><span class="n">result</span> <span class="o">=</span> <span class="n">xr</span><span class="o">.</span><span class="n">open_dataset</span><span class="p">(</span><span class="n">filename</span><span class="p">)</span>
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="n">xr</span><span class="o">.</span><span class="n">Dataset</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">result</span> <span class="o">=</span> <span class="n">filename</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;Importing from &#39;</span> <span class="o">+</span> <span class="n">filename</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">result</span> <span class="o">=</span> <span class="n">xr</span><span class="o">.</span><span class="n">open_dataset</span><span class="p">(</span><span class="n">filename</span><span class="p">)</span>
 
     <span class="bp">self</span><span class="o">.</span><span class="n">steps_output</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">result</span><span class="o">.</span><span class="n">sizes</span><span class="p">[</span><span class="s1">&#39;time&#39;</span><span class="p">]</span>
     <span class="bp">self</span><span class="o">.</span><span class="n">start_time</span> <span class="o">=</span> <span class="n">datetime_from_datetime64</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">result</span><span class="o">.</span><span class="n">time</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
