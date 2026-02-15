@@ -821,7 +821,8 @@
                                      <span class="bp">self</span><span class="o">.</span><span class="n">time</span><span class="p">,</span>
                                      <span class="bp">self</span><span class="o">.</span><span class="n">elements</span><span class="o">.</span><span class="n">lon</span><span class="p">,</span>
                                      <span class="bp">self</span><span class="o">.</span><span class="n">elements</span><span class="o">.</span><span class="n">lat</span><span class="p">,</span>
-                                     <span class="bp">self</span><span class="o">.</span><span class="n">elements</span><span class="o">.</span><span class="n">z</span><span class="p">)</span>
+                                     <span class="bp">self</span><span class="o">.</span><span class="n">elements</span><span class="o">.</span><span class="n">z</span><span class="p">,</span>
+                                     <span class="n">element_ID</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">elements</span><span class="o">.</span><span class="n">ID</span><span class="p">)</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">environment</span><span class="o">.</span><span class="n">land_binary_mask</span> <span class="o">=</span> <span class="n">en</span><span class="o">.</span><span class="n">land_binary_mask</span>
 
         <span class="k">if</span> <span class="n">i</span> <span class="o">==</span> <span class="s1">&#39;stranding&#39;</span><span class="p">:</span>  <span class="c1"># Deactivate elements on land, but not in air</span>
@@ -1147,7 +1148,8 @@
                                         <span class="n">lon</span><span class="o">=</span><span class="n">lon</span><span class="p">,</span>
                                         <span class="n">lat</span><span class="o">=</span><span class="n">lat</span><span class="p">,</span>
                                         <span class="n">z</span><span class="o">=</span><span class="mi">0</span> <span class="o">*</span> <span class="n">lon</span><span class="p">,</span>
-                                        <span class="n">time</span><span class="o">=</span><span class="n">land_reader</span><span class="o">.</span><span class="n">start_time</span><span class="p">)[</span><span class="mi">0</span><span class="p">][</span><span class="s1">&#39;land_binary_mask&#39;</span><span class="p">]</span>
+                                        <span class="n">time</span><span class="o">=</span><span class="n">land_reader</span><span class="o">.</span><span class="n">start_time</span><span class="p">,</span>
+                                        <span class="n">element_ID</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">elements</span><span class="o">.</span><span class="n">ID</span><span class="p">)[</span><span class="mi">0</span><span class="p">][</span><span class="s1">&#39;land_binary_mask&#39;</span><span class="p">]</span>
             <span class="k">if</span> <span class="n">land</span><span class="o">.</span><span class="n">max</span><span class="p">()</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
                 <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s1">&#39;All points are in ocean&#39;</span><span class="p">)</span>
                 <span class="k">return</span> <span class="n">lon</span><span class="p">,</span> <span class="n">lat</span><span class="p">,</span> <span class="kc">None</span>
@@ -1173,7 +1175,8 @@
                                             <span class="n">lon</span><span class="o">=</span><span class="n">longrid</span><span class="p">,</span>
                                             <span class="n">lat</span><span class="o">=</span><span class="n">latgrid</span><span class="p">,</span>
                                             <span class="n">z</span><span class="o">=</span><span class="mi">0</span> <span class="o">*</span> <span class="n">longrid</span><span class="p">,</span>
-                                            <span class="n">time</span><span class="o">=</span><span class="n">land_reader</span><span class="o">.</span><span class="n">start_time</span><span class="p">)[</span><span class="mi">0</span><span class="p">][</span><span class="s1">&#39;land_binary_mask&#39;</span><span class="p">]</span>
+                                            <span class="n">time</span><span class="o">=</span><span class="n">land_reader</span><span class="o">.</span><span class="n">start_time</span><span class="p">,</span>
+                                            <span class="n">element_ID</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">elements</span><span class="o">.</span><span class="n">ID</span><span class="p">)[</span><span class="mi">0</span><span class="p">][</span><span class="s1">&#39;land_binary_mask&#39;</span><span class="p">]</span>
             <span class="k">if</span> <span class="n">landgrid</span><span class="o">.</span><span class="n">size</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
                 <span class="c1"># Need to catch this before trying .min() on it...</span>
                 <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="s1">&#39;Land grid has zero size, cannot move elements.&#39;</span><span class="p">)</span>
@@ -1866,8 +1869,13 @@
 <a class="viewcode-back" href="../../../autoapi/opendrift/models/basemodel/index.html#opendrift.models.basemodel.OpenDriftSimulation.horizontal_diffusion">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">horizontal_diffusion</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Move elements with random walk according to given horizontal diffuivity.&quot;&quot;&quot;</span>
-        <span class="n">D</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_config</span><span class="p">(</span><span class="s1">&#39;drift:horizontal_diffusivity&#39;</span><span class="p">)</span>
-        <span class="k">if</span> <span class="n">D</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="k">if</span> <span class="s1">&#39;horizontal_diffusivity&#39;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">required_variables</span><span class="p">:</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;No horizontal diffusion&#39;</span><span class="p">)</span>
+            <span class="k">return</span>
+        <span class="n">D</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">environment</span><span class="o">.</span><span class="n">horizontal_diffusivity</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">D</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="k">return</span>  <span class="c1"># no active elements</span>
+        <span class="k">if</span> <span class="n">D</span><span class="o">.</span><span class="n">max</span><span class="p">()</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
             <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;Horizontal diffusivity is 0, no random walk.&#39;</span><span class="p">)</span>
             <span class="k">return</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">num_elements_active</span><span class="p">()</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
@@ -1879,9 +1887,12 @@
         <span class="n">y_vel</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">elements</span><span class="o">.</span><span class="n">moving</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="mi">2</span> <span class="o">*</span> <span class="n">D</span> <span class="o">/</span> <span class="n">dt</span><span class="p">)</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">normal</span><span class="p">(</span>
             <span class="n">scale</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">size</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">num_elements_active</span><span class="p">())</span>
         <span class="n">speed</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">x_vel</span> <span class="o">*</span> <span class="n">x_vel</span> <span class="o">+</span> <span class="n">y_vel</span> <span class="o">*</span> <span class="n">y_vel</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">D</span><span class="o">.</span><span class="n">min</span><span class="p">()</span> <span class="o">==</span> <span class="n">D</span><span class="o">.</span><span class="n">max</span><span class="p">():</span>
+            <span class="n">dstring</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">D</span><span class="o">.</span><span class="n">min</span><span class="p">()</span><span class="si">}</span><span class="s1">&#39;</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">dstring</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">D</span><span class="o">.</span><span class="n">min</span><span class="p">()</span><span class="si">}</span><span class="s1"> - </span><span class="si">{</span><span class="n">D</span><span class="o">.</span><span class="n">max</span><span class="p">()</span><span class="si">}</span><span class="s1">&#39;</span>
         <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span>
-            <span class="s1">&#39;Moving elements according to horizontal diffusivity of </span><span class="si">%s</span><span class="s1">, with speeds between </span><span class="si">%s</span><span class="s1"> and </span><span class="si">%s</span><span class="s1"> m/s&#39;</span>
-            <span class="o">%</span> <span class="p">(</span><span class="n">D</span><span class="p">,</span> <span class="n">speed</span><span class="o">.</span><span class="n">min</span><span class="p">(),</span> <span class="n">speed</span><span class="o">.</span><span class="n">max</span><span class="p">()))</span>
+            <span class="sa">f</span><span class="s1">&#39;Moving elements according to horizontal diffusivity of </span><span class="si">{</span><span class="n">dstring</span><span class="si">}</span><span class="s1">, with speeds between </span><span class="si">{</span><span class="n">speed</span><span class="o">.</span><span class="n">min</span><span class="p">()</span><span class="si">}</span><span class="s1"> and </span><span class="si">{</span><span class="n">speed</span><span class="o">.</span><span class="n">max</span><span class="p">()</span><span class="si">}</span><span class="s1"> m/s&#39;</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">update_positions</span><span class="p">(</span><span class="n">x_vel</span><span class="p">,</span> <span class="n">y_vel</span><span class="p">)</span></div>
 
 
@@ -2362,7 +2373,8 @@
                                          <span class="bp">self</span><span class="o">.</span><span class="n">elements</span><span class="o">.</span><span class="n">lat</span><span class="p">,</span>
                                          <span class="bp">self</span><span class="o">.</span><span class="n">elements</span><span class="o">.</span><span class="n">z</span><span class="p">,</span>
                                          <span class="bp">self</span><span class="o">.</span><span class="n">required_profiles</span><span class="p">,</span>
-                                         <span class="bp">self</span><span class="o">.</span><span class="n">profiles_depth</span><span class="p">)</span>
+                                         <span class="bp">self</span><span class="o">.</span><span class="n">profiles_depth</span><span class="p">,</span>
+                                         <span class="n">element_ID</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">elements</span><span class="o">.</span><span class="n">ID</span><span class="p">)</span>
 
                 <span class="bp">self</span><span class="o">.</span><span class="n">calculate_missing_environment_variables</span><span class="p">()</span>
 
