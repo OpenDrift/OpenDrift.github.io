@@ -1066,7 +1066,9 @@
                              <span class="nb">str</span><span class="p">(</span><span class="n">min_time</span><span class="p">))</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">start_time</span> <span class="o">=</span> <span class="n">min_time</span>
-            <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;Setting simulation start time to </span><span class="si">%s</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="nb">str</span><span class="p">(</span><span class="n">min_time</span><span class="p">))</span></div>
+            <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;Setting simulation start time to </span><span class="si">%s</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="nb">str</span><span class="p">(</span><span class="n">min_time</span><span class="p">))</span>
+
+        <span class="k">return</span> <span class="n">elements</span><span class="o">.</span><span class="n">ID</span></div>
 
 
 <div class="viewcode-block" id="OpenDriftSimulation.release_elements">
@@ -1388,10 +1390,23 @@
             <span class="k">if</span> <span class="n">prop</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">ElementType</span><span class="o">.</span><span class="n">variables</span><span class="p">:</span>
                 <span class="n">kwargs</span><span class="p">[</span><span class="n">prop</span><span class="p">]</span> <span class="o">=</span> <span class="n">seed_config</span><span class="p">[</span><span class="sa">f</span><span class="s1">&#39;seed:</span><span class="si">{</span><span class="n">prop</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">][</span><span class="s1">&#39;value&#39;</span><span class="p">]</span>
 
+        <span class="n">environment</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s1">&#39;environment&#39;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+
         <span class="c1"># Creating and scheduling elements</span>
         <span class="n">elements</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">ElementType</span><span class="p">(</span><span class="n">lon</span><span class="o">=</span><span class="n">lon</span><span class="p">,</span> <span class="n">lat</span><span class="o">=</span><span class="n">lat</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
         <span class="n">time_array</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">time</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">schedule_elements</span><span class="p">(</span><span class="n">elements</span><span class="p">,</span> <span class="n">time</span><span class="p">)</span></div>
+        <span class="n">new_element_IDs</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">schedule_elements</span><span class="p">(</span><span class="n">elements</span><span class="p">,</span> <span class="n">time</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">environment</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;enviroment is provided to seed method, adding constant reader for </span><span class="si">{</span><span class="n">environment</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
+            <span class="kn">from</span><span class="w"> </span><span class="nn">opendrift.readers.reader_constant</span><span class="w"> </span><span class="kn">import</span> <span class="n">Reader</span> <span class="k">as</span> <span class="n">ConstantReader</span>
+            <span class="n">environment</span><span class="p">[</span><span class="s1">&#39;element_ID&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">new_element_IDs</span>
+            <span class="n">cr</span> <span class="o">=</span> <span class="n">ConstantReader</span><span class="p">(</span><span class="n">environment</span><span class="p">)</span>
+            <span class="c1"># Must change mode tomporarily to be allowed to add a new reader</span>
+            <span class="n">tmp_mode</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">mode</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">mode</span> <span class="o">=</span> <span class="n">opendrift</span><span class="o">.</span><span class="n">models</span><span class="o">.</span><span class="n">basemodel</span><span class="o">.</span><span class="n">Mode</span><span class="o">.</span><span class="n">Config</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">add_reader</span><span class="p">(</span><span class="n">cr</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">mode</span> <span class="o">=</span> <span class="n">tmp_mode</span></div>
 
 
 <div class="viewcode-block" id="OpenDriftSimulation.seed_cone">
