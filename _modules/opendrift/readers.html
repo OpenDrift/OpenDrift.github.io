@@ -122,6 +122,7 @@
 <span class="kn">import</span><span class="w"> </span><span class="nn">logging</span><span class="p">;</span> <span class="n">logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">glob</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">json</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">opendrift</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">xarray</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">xr</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">copernicusmarine</span>
@@ -182,6 +183,43 @@
                 <span class="n">ds</span> <span class="o">=</span> <span class="n">open_dataset_opendrift</span><span class="p">(</span><span class="n">source</span><span class="p">,</span> <span class="n">zarr_storage_options</span><span class="o">=</span><span class="n">zarr_storage_options</span><span class="p">,</span>
                                             <span class="n">open_mfdataset_options</span><span class="o">=</span><span class="n">open_mfdataset_options</span><span class="p">,</span> <span class="n">chunks</span><span class="o">=</span><span class="p">{</span><span class="n">dim</span><span class="p">:</span> <span class="mi">1</span><span class="p">})</span>
 
+    <span class="k">return</span> <span class="n">ds</span></div>
+
+
+<div class="viewcode-block" id="add_standard_name_for_surface_grib_variables">
+<a class="viewcode-back" href="../../autoapi/opendrift/readers/index.html#opendrift.readers.add_standard_name_for_surface_grib_variables">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">add_standard_name_for_surface_grib_variables</span><span class="p">(</span><span class="n">ds</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Try to identify surface variables from GRIB datasets</span>
+<span class="sd">       and add standard_name attribute&quot;&quot;&quot;</span>
+    <span class="n">mapping</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="s1">&#39;wind_speed&#39;</span><span class="p">:</span> <span class="p">{</span><span class="s1">&#39;Grib2_Parameter&#39;</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mi">0</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">1</span><span class="p">])},</span>
+        <span class="s1">&#39;x_wind&#39;</span><span class="p">:</span> <span class="p">{</span><span class="s1">&#39;Grib2_Parameter&#39;</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mi">0</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">2</span><span class="p">])},</span>
+        <span class="s1">&#39;y_wind&#39;</span><span class="p">:</span> <span class="p">{</span><span class="s1">&#39;Grib2_Parameter&#39;</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mi">0</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">])},</span>
+        <span class="p">}</span>
+
+    <span class="k">for</span> <span class="n">var_name</span><span class="p">,</span> <span class="n">var</span> <span class="ow">in</span> <span class="n">ds</span><span class="o">.</span><span class="n">data_vars</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+        <span class="k">if</span> <span class="nb">any</span><span class="p">(</span><span class="n">forbidden</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="ow">in</span> <span class="n">var_name</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="k">for</span> <span class="n">forbidden</span> <span class="ow">in</span> <span class="p">(</span><span class="s1">&#39;percentile&#39;</span><span class="p">,</span> <span class="s1">&#39;pctl&#39;</span><span class="p">)):</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Skipping percentile variable </span><span class="si">{</span><span class="n">var_name</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
+            <span class="k">continue</span>
+        <span class="k">if</span> <span class="s1">&#39;standard_name&#39;</span> <span class="ow">in</span> <span class="n">var</span><span class="o">.</span><span class="n">attrs</span><span class="p">:</span>
+            <span class="k">continue</span>
+        <span class="k">if</span> <span class="n">var</span><span class="o">.</span><span class="n">attrs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;Grib2_Level_Type&#39;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span> <span class="o">!=</span> <span class="mi">103</span><span class="p">:</span>
+            <span class="k">continue</span>  <span class="c1"># Not surface variable</span>
+        <span class="k">for</span> <span class="n">standard_name</span><span class="p">,</span> <span class="n">maps</span> <span class="ow">in</span> <span class="n">mapping</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">maps</span><span class="p">,</span> <span class="nb">dict</span><span class="p">):</span>
+                <span class="n">maps</span> <span class="o">=</span> <span class="p">[</span><span class="n">maps</span><span class="p">]</span>
+            <span class="k">if</span> <span class="nb">any</span><span class="p">(</span>
+                <span class="n">np</span><span class="o">.</span><span class="n">all</span><span class="p">(</span><span class="n">attval</span> <span class="o">==</span> <span class="n">var</span><span class="o">.</span><span class="n">attrs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">att</span><span class="p">))</span>  <span class="c1"># attribute value is found in map</span>
+                <span class="k">for</span> <span class="n">ma</span> <span class="ow">in</span> <span class="n">maps</span>
+                <span class="k">for</span> <span class="n">att</span><span class="p">,</span> <span class="n">attval</span> <span class="ow">in</span> <span class="n">ma</span><span class="o">.</span><span class="n">items</span><span class="p">()</span>
+                <span class="k">if</span> <span class="n">att</span> <span class="ow">in</span> <span class="n">var</span><span class="o">.</span><span class="n">attrs</span>  <span class="c1"># variable has attribute</span>
+            <span class="p">):</span>
+                <span class="c1"># Must check that height is 10m or surface</span>
+                <span class="k">for</span> <span class="n">coordname</span><span class="p">,</span> <span class="n">coordvar</span> <span class="ow">in</span> <span class="n">var</span><span class="o">.</span><span class="n">coords</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+                    <span class="k">if</span> <span class="n">coordvar</span><span class="o">.</span><span class="n">attrs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;_CoordinateAxisType&#39;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span> <span class="o">==</span> <span class="s1">&#39;Height&#39;</span> <span class="ow">and</span> <span class="mi">10</span> <span class="ow">in</span> <span class="n">coordvar</span><span class="o">.</span><span class="n">values</span><span class="p">:</span>
+                        <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Selecting GRIB variable </span><span class="si">{</span><span class="n">var_name</span><span class="si">}</span><span class="s1"> at 10m height and adding standard_name </span><span class="si">{</span><span class="n">standard_name</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
+                        <span class="n">ds</span><span class="p">[</span><span class="n">var_name</span><span class="p">]</span> <span class="o">=</span> <span class="n">var</span><span class="o">.</span><span class="n">sel</span><span class="p">({</span><span class="n">coordname</span><span class="p">:</span> <span class="mi">10</span><span class="p">})</span>
+                        <span class="n">ds</span><span class="p">[</span><span class="n">var_name</span><span class="p">]</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s1">&#39;standard_name&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">standard_name</span>
     <span class="k">return</span> <span class="n">ds</span></div>
 
 
