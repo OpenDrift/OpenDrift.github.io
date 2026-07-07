@@ -30,18 +30,21 @@ Module Contents
 
 .. py:class:: Reader(filename=None, name=None)
 
-   Bases: :py:obj:`opendrift.readers.basereader.BaseReader`, :py:obj:`opendrift.readers.basereader.StructuredReader`
+   Bases: :py:obj:`opendrift.readers.basereader.structured.StructuredReader`
 
 
-   An abstract reader. Implementors provide a method to read data and specify how it is interpolated.
+   A structured reader. Data is gridded on a regular grid. Used by e.g.:
+   :class:`opendrift.readers.reader_netCDF_CF_generic.Reader`.
 
-   This class inherits :class:`.variables.Variables` which inherits :class:`.variables.ReaderDomain`. `ReaderDomain` is responsible for the extent and domain of the reader, including checking for out-of-bounds and projection conversion. `Variables` is responsible for returning interpolated data at the requests positions or profiles. Apart from coercing the returned data into the right type for :py:mod:`opendrift.models.basemodel`, it defines the abstract interface to :meth:`.variables.Variables._get_variables_interpolated_` which reader-implementations must provide (_usually_ through one of the main reader-types, see: :py:mod:`opendrift.readers`).
+   Attributes:
+
+       projected: is `True` if :class:`.fakeproj.fakeproj` is used because of missing projection information. The data points are assumed to be approximately equidistant on the surface (i.e. in meters).
+
+       clipped: pixels to to remove along boundary (e.g. in case of bad data).
 
    .. seealso::
 
-       :py:mod:`opendrift.readers`.
-
-       :py:mod:`.variables`.
+       :py:mod:`opendrift.readers`
 
    Common constructor for all readers
 
