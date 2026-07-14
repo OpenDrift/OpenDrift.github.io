@@ -2584,12 +2584,25 @@
         <span class="c1"># Deacticate any elements outside validity domain set by user</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">validity_domain</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
             <span class="n">W</span><span class="p">,</span> <span class="n">E</span><span class="p">,</span> <span class="n">S</span><span class="p">,</span> <span class="n">N</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">validity_domain</span>
+            <span class="n">lon</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">elements</span><span class="o">.</span><span class="n">lon</span>
+            <span class="k">if</span> <span class="n">E</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">E</span> <span class="o">&gt;</span> <span class="mi">180</span> <span class="ow">and</span> <span class="n">np</span><span class="o">.</span><span class="n">any</span><span class="p">(</span><span class="n">lon</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="p">):</span>
+                <span class="c1"># Elements have crossed the dateline and wrapped to the</span>
+                <span class="c1"># native -180..180 convention (lon&lt;0), while E&gt;180 indicates</span>
+                <span class="c1"># that drift:deactivate_east_of was given in 0-360 convention.</span>
+                <span class="c1"># Convert wrapped longitudes back to 0-360 before comparing</span>
+                <span class="c1"># against either boundary, so that the west boundary check</span>
+                <span class="c1"># below does not misinterpret wrapped (now negative) values</span>
+                <span class="c1"># as having moved too far west.</span>
+                <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span>
+                    <span class="s1">&#39;Some elements have crossed the dateline (lon&lt;0), while &#39;</span>
+                    <span class="s1">&#39;drift:deactivate_east_of=</span><span class="si">%s</span><span class="s1"> is given in 0-360 convention. &#39;</span>
+                    <span class="s1">&#39;Converting wrapped longitudes to 0-360 convention before &#39;</span>
+                    <span class="s1">&#39;checking against deactivate_east_of/west_of.&#39;</span> <span class="o">%</span> <span class="n">E</span><span class="p">)</span>
+                <span class="n">lon</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">lon</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="p">,</span> <span class="n">lon</span> <span class="o">+</span> <span class="mi">360</span><span class="p">,</span> <span class="n">lon</span><span class="p">)</span>
             <span class="k">if</span> <span class="n">W</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">deactivate_elements</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">elements</span><span class="o">.</span><span class="n">lon</span> <span class="o">&lt;</span> <span class="n">W</span><span class="p">,</span>
-                                         <span class="n">reason</span><span class="o">=</span><span class="s1">&#39;outside&#39;</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">deactivate_elements</span><span class="p">(</span><span class="n">lon</span> <span class="o">&lt;</span> <span class="n">W</span><span class="p">,</span> <span class="n">reason</span><span class="o">=</span><span class="s1">&#39;outside&#39;</span><span class="p">)</span>
             <span class="k">if</span> <span class="n">E</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">deactivate_elements</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">elements</span><span class="o">.</span><span class="n">lon</span> <span class="o">&gt;</span> <span class="n">E</span><span class="p">,</span>
-                                         <span class="n">reason</span><span class="o">=</span><span class="s1">&#39;outside&#39;</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">deactivate_elements</span><span class="p">(</span><span class="n">lon</span> <span class="o">&gt;</span> <span class="n">E</span><span class="p">,</span> <span class="n">reason</span><span class="o">=</span><span class="s1">&#39;outside&#39;</span><span class="p">)</span>
             <span class="k">if</span> <span class="n">S</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">deactivate_elements</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">elements</span><span class="o">.</span><span class="n">lat</span> <span class="o">&lt;</span> <span class="n">S</span><span class="p">,</span>
                                          <span class="n">reason</span><span class="o">=</span><span class="s1">&#39;outside&#39;</span><span class="p">)</span>
