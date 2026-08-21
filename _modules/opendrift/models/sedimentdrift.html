@@ -112,10 +112,10 @@
 <span class="c1">#</span>
 <span class="c1"># Copyright 2020, Knut-Frode Dagestad, MET Norway</span>
 
-<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">"""</span>
 <span class="sd">SedimentDrift is an OpenDrift module for drift and settling of sediments.</span>
 <span class="sd">Based on work by Simon Weppe, MetOcean Solutions Ltd.</span>
-<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">"""</span>
 
 <span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">logging</span><span class="p">;</span> <span class="n">logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span>
@@ -127,12 +127,12 @@
 <a class="viewcode-back" href="../../../autoapi/opendrift/models/sedimentdrift/index.html#opendrift.models.sedimentdrift.SedimentElement">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">SedimentElement</span><span class="p">(</span><span class="n">Lagrangian3DArray</span><span class="p">):</span>
     <span class="n">variables</span> <span class="o">=</span> <span class="n">Lagrangian3DArray</span><span class="o">.</span><span class="n">add_variables</span><span class="p">([</span>
-        <span class="p">(</span><span class="s1">&#39;settled&#39;</span><span class="p">,</span> <span class="p">{</span><span class="s1">&#39;dtype&#39;</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">uint8</span><span class="p">,</span>  <span class="c1"># 0 is active, 1 is settled</span>
-                     <span class="s1">&#39;units&#39;</span><span class="p">:</span> <span class="s1">&#39;1&#39;</span><span class="p">,</span>
-                     <span class="s1">&#39;default&#39;</span><span class="p">:</span> <span class="mi">0</span><span class="p">}),</span>
-        <span class="p">(</span><span class="s1">&#39;terminal_velocity&#39;</span><span class="p">,</span> <span class="p">{</span><span class="s1">&#39;dtype&#39;</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">float32</span><span class="p">,</span>
-                               <span class="s1">&#39;units&#39;</span><span class="p">:</span> <span class="s1">&#39;m/s&#39;</span><span class="p">,</span>
-                               <span class="s1">&#39;default&#39;</span><span class="p">:</span> <span class="o">-</span><span class="mf">0.001</span><span class="p">})</span>  <span class="c1"># 1 mm/s negative buoyancy</span>
+        <span class="p">(</span><span class="s1">'settled'</span><span class="p">,</span> <span class="p">{</span><span class="s1">'dtype'</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">uint8</span><span class="p">,</span>  <span class="c1"># 0 is active, 1 is settled</span>
+                     <span class="s1">'units'</span><span class="p">:</span> <span class="s1">'1'</span><span class="p">,</span>
+                     <span class="s1">'default'</span><span class="p">:</span> <span class="mi">0</span><span class="p">}),</span>
+        <span class="p">(</span><span class="s1">'terminal_velocity'</span><span class="p">,</span> <span class="p">{</span><span class="s1">'dtype'</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">float32</span><span class="p">,</span>
+                               <span class="s1">'units'</span><span class="p">:</span> <span class="s1">'m/s'</span><span class="p">,</span>
+                               <span class="s1">'default'</span><span class="p">:</span> <span class="o">-</span><span class="mf">0.001</span><span class="p">})</span>  <span class="c1"># 1 mm/s negative buoyancy</span>
         <span class="p">])</span></div>
 
 
@@ -140,59 +140,59 @@
 <div class="viewcode-block" id="SedimentDrift">
 <a class="viewcode-back" href="../../../autoapi/opendrift/models/sedimentdrift/index.html#opendrift.models.sedimentdrift.SedimentDrift">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">SedimentDrift</span><span class="p">(</span><span class="n">OceanDrift</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Model for sediment drift, under development</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""Model for sediment drift, under development</span>
+<span class="sd">    """</span>
 
     <span class="n">ElementType</span> <span class="o">=</span> <span class="n">SedimentElement</span>
 
     <span class="n">required_variables</span> <span class="o">=</span> <span class="p">{</span>
-        <span class="s1">&#39;x_sea_water_velocity&#39;</span><span class="p">:</span> <span class="p">{</span><span class="s1">&#39;fallback&#39;</span><span class="p">:</span> <span class="mi">0</span><span class="p">},</span>
-        <span class="s1">&#39;y_sea_water_velocity&#39;</span><span class="p">:</span> <span class="p">{</span><span class="s1">&#39;fallback&#39;</span><span class="p">:</span> <span class="mi">0</span><span class="p">},</span>
-        <span class="s1">&#39;sea_surface_height&#39;</span><span class="p">:</span> <span class="p">{</span><span class="s1">&#39;fallback&#39;</span><span class="p">:</span> <span class="mi">0</span><span class="p">},</span>
-        <span class="s1">&#39;upward_sea_water_velocity&#39;</span><span class="p">:</span> <span class="p">{</span><span class="s1">&#39;fallback&#39;</span><span class="p">:</span> <span class="mi">0</span><span class="p">},</span>
-        <span class="s1">&#39;x_wind&#39;</span><span class="p">:</span> <span class="p">{</span><span class="s1">&#39;fallback&#39;</span><span class="p">:</span> <span class="mi">0</span><span class="p">},</span>
-        <span class="s1">&#39;y_wind&#39;</span><span class="p">:</span> <span class="p">{</span><span class="s1">&#39;fallback&#39;</span><span class="p">:</span> <span class="mi">0</span><span class="p">},</span>
-        <span class="s1">&#39;sea_surface_wave_stokes_drift_x_velocity&#39;</span><span class="p">:</span> <span class="p">{</span><span class="s1">&#39;fallback&#39;</span><span class="p">:</span> <span class="mi">0</span><span class="p">},</span>
-        <span class="s1">&#39;sea_surface_wave_stokes_drift_y_velocity&#39;</span><span class="p">:</span> <span class="p">{</span><span class="s1">&#39;fallback&#39;</span><span class="p">:</span> <span class="mi">0</span><span class="p">},</span>
-        <span class="s1">&#39;sea_surface_wave_period_at_variance_spectral_density_maximum&#39;</span><span class="p">:</span> <span class="p">{</span><span class="s1">&#39;fallback&#39;</span><span class="p">:</span> <span class="mi">0</span><span class="p">},</span>
-        <span class="s1">&#39;sea_surface_wave_mean_period_from_variance_spectral_density_second_frequency_moment&#39;</span><span class="p">:</span> <span class="p">{</span><span class="s1">&#39;fallback&#39;</span><span class="p">:</span> <span class="mi">0</span><span class="p">},</span>
-        <span class="s1">&#39;land_binary_mask&#39;</span><span class="p">:</span> <span class="p">{</span><span class="s1">&#39;fallback&#39;</span><span class="p">:</span> <span class="kc">None</span><span class="p">},</span>
-        <span class="s1">&#39;ocean_vertical_diffusivity&#39;</span><span class="p">:</span> <span class="p">{</span><span class="s1">&#39;fallback&#39;</span><span class="p">:</span> <span class="mf">0.02</span><span class="p">,</span>
-                                      <span class="s1">&#39;profiles&#39;</span><span class="p">:</span> <span class="kc">True</span><span class="p">},</span>
-        <span class="s1">&#39;ocean_mixed_layer_thickness&#39;</span><span class="p">:</span> <span class="p">{</span><span class="s1">&#39;fallback&#39;</span><span class="p">:</span> <span class="mi">50</span><span class="p">},</span>
-        <span class="s1">&#39;sea_floor_depth_below_sea_level&#39;</span><span class="p">:</span> <span class="p">{</span><span class="s1">&#39;fallback&#39;</span><span class="p">:</span> <span class="mi">10000</span><span class="p">},</span>
+        <span class="s1">'x_sea_water_velocity'</span><span class="p">:</span> <span class="p">{</span><span class="s1">'fallback'</span><span class="p">:</span> <span class="mi">0</span><span class="p">},</span>
+        <span class="s1">'y_sea_water_velocity'</span><span class="p">:</span> <span class="p">{</span><span class="s1">'fallback'</span><span class="p">:</span> <span class="mi">0</span><span class="p">},</span>
+        <span class="s1">'sea_surface_height'</span><span class="p">:</span> <span class="p">{</span><span class="s1">'fallback'</span><span class="p">:</span> <span class="mi">0</span><span class="p">},</span>
+        <span class="s1">'upward_sea_water_velocity'</span><span class="p">:</span> <span class="p">{</span><span class="s1">'fallback'</span><span class="p">:</span> <span class="mi">0</span><span class="p">},</span>
+        <span class="s1">'x_wind'</span><span class="p">:</span> <span class="p">{</span><span class="s1">'fallback'</span><span class="p">:</span> <span class="mi">0</span><span class="p">},</span>
+        <span class="s1">'y_wind'</span><span class="p">:</span> <span class="p">{</span><span class="s1">'fallback'</span><span class="p">:</span> <span class="mi">0</span><span class="p">},</span>
+        <span class="s1">'sea_surface_wave_stokes_drift_x_velocity'</span><span class="p">:</span> <span class="p">{</span><span class="s1">'fallback'</span><span class="p">:</span> <span class="mi">0</span><span class="p">},</span>
+        <span class="s1">'sea_surface_wave_stokes_drift_y_velocity'</span><span class="p">:</span> <span class="p">{</span><span class="s1">'fallback'</span><span class="p">:</span> <span class="mi">0</span><span class="p">},</span>
+        <span class="s1">'sea_surface_wave_period_at_variance_spectral_density_maximum'</span><span class="p">:</span> <span class="p">{</span><span class="s1">'fallback'</span><span class="p">:</span> <span class="mi">0</span><span class="p">},</span>
+        <span class="s1">'sea_surface_wave_mean_period_from_variance_spectral_density_second_frequency_moment'</span><span class="p">:</span> <span class="p">{</span><span class="s1">'fallback'</span><span class="p">:</span> <span class="mi">0</span><span class="p">},</span>
+        <span class="s1">'land_binary_mask'</span><span class="p">:</span> <span class="p">{</span><span class="s1">'fallback'</span><span class="p">:</span> <span class="kc">None</span><span class="p">},</span>
+        <span class="s1">'ocean_vertical_diffusivity'</span><span class="p">:</span> <span class="p">{</span><span class="s1">'fallback'</span><span class="p">:</span> <span class="mf">0.02</span><span class="p">,</span>
+                                      <span class="s1">'profiles'</span><span class="p">:</span> <span class="kc">True</span><span class="p">},</span>
+        <span class="s1">'ocean_mixed_layer_thickness'</span><span class="p">:</span> <span class="p">{</span><span class="s1">'fallback'</span><span class="p">:</span> <span class="mi">50</span><span class="p">},</span>
+        <span class="s1">'sea_floor_depth_below_sea_level'</span><span class="p">:</span> <span class="p">{</span><span class="s1">'fallback'</span><span class="p">:</span> <span class="mi">10000</span><span class="p">},</span>
         <span class="p">}</span>
 
     <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot; Constructor of SedimentDrift module</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">""" Constructor of SedimentDrift module</span>
+<span class="sd">        """</span>
 
         <span class="nb">super</span><span class="p">(</span><span class="n">SedimentDrift</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">_add_config</span><span class="p">({</span>
-            <span class="s1">&#39;vertical_mixing:resuspension_threshold&#39;</span><span class="p">:</span> <span class="p">{</span>
-                <span class="s1">&#39;type&#39;</span><span class="p">:</span> <span class="s1">&#39;float&#39;</span><span class="p">,</span>
-                <span class="s1">&#39;default&#39;</span><span class="p">:</span> <span class="mf">0.2</span><span class="p">,</span>
-                <span class="s1">&#39;min&#39;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>
-                <span class="s1">&#39;max&#39;</span><span class="p">:</span> <span class="mi">3</span><span class="p">,</span>
-                <span class="s1">&#39;units&#39;</span><span class="p">:</span> <span class="s1">&#39;m/s&#39;</span><span class="p">,</span>
-                <span class="s1">&#39;description&#39;</span><span class="p">:</span>
-                <span class="s1">&#39;Sedimented particles will be resuspended if bottom current shear exceeds this value.&#39;</span><span class="p">,</span>
-                <span class="s1">&#39;level&#39;</span><span class="p">:</span> <span class="n">CONFIG_LEVEL_ESSENTIAL</span>
+            <span class="s1">'vertical_mixing:resuspension_threshold'</span><span class="p">:</span> <span class="p">{</span>
+                <span class="s1">'type'</span><span class="p">:</span> <span class="s1">'float'</span><span class="p">,</span>
+                <span class="s1">'default'</span><span class="p">:</span> <span class="mf">0.2</span><span class="p">,</span>
+                <span class="s1">'min'</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>
+                <span class="s1">'max'</span><span class="p">:</span> <span class="mi">3</span><span class="p">,</span>
+                <span class="s1">'units'</span><span class="p">:</span> <span class="s1">'m/s'</span><span class="p">,</span>
+                <span class="s1">'description'</span><span class="p">:</span>
+                <span class="s1">'Sedimented particles will be resuspended if bottom current shear exceeds this value.'</span><span class="p">,</span>
+                <span class="s1">'level'</span><span class="p">:</span> <span class="n">CONFIG_LEVEL_ESSENTIAL</span>
             <span class="p">}})</span>
 
         <span class="c1"># By default, sediments do not strand towards coastline</span>
         <span class="c1"># TODO: A more sophisticated stranding algorithm is needed</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_set_config_default</span><span class="p">(</span><span class="s1">&#39;general:coastline_action&#39;</span><span class="p">,</span> <span class="s1">&#39;previous&#39;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_set_config_default</span><span class="p">(</span><span class="s1">'general:coastline_action'</span><span class="p">,</span> <span class="s1">'previous'</span><span class="p">)</span>
 
         <span class="c1"># Vertical mixing is enabled as default</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_set_config_default</span><span class="p">(</span><span class="s1">&#39;drift:vertical_mixing&#39;</span><span class="p">,</span> <span class="kc">True</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_set_config_default</span><span class="p">(</span><span class="s1">'drift:vertical_mixing'</span><span class="p">,</span> <span class="kc">True</span><span class="p">)</span>
 
 <div class="viewcode-block" id="SedimentDrift.update">
 <a class="viewcode-back" href="../../../autoapi/opendrift/models/sedimentdrift/index.html#opendrift.models.sedimentdrift.SedimentDrift.update">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">update</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Update positions and properties of sediment particles.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""Update positions and properties of sediment particles.</span>
+<span class="sd">        """</span>
 
         <span class="c1"># Advecting here all elements, but want to soon add</span>
         <span class="c1"># possibility of not moving settled elements, until</span>
@@ -214,21 +214,21 @@
 <div class="viewcode-block" id="SedimentDrift.bottom_interaction">
 <a class="viewcode-back" href="../../../autoapi/opendrift/models/sedimentdrift/index.html#opendrift.models.sedimentdrift.SedimentDrift.bottom_interaction">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">bottom_interaction</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">seafloor_depth</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Sub method of vertical_mixing, determines settling&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""Sub method of vertical_mixing, determines settling"""</span>
         <span class="c1"># Elements at or below seafloor are settled, by setting</span>
         <span class="c1"># self.elements.moving to 0.</span>
         <span class="c1"># These elements will not move until eventual later resuspension.</span>
         <span class="n">settling</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">logical_and</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">elements</span><span class="o">.</span><span class="n">z</span> <span class="o">&lt;=</span> <span class="n">seafloor_depth</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">elements</span><span class="o">.</span><span class="n">moving</span><span class="o">==</span><span class="mi">1</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">settling</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
-            <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;Settling </span><span class="si">%s</span><span class="s1"> elements at seafloor&#39;</span> <span class="o">%</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">settling</span><span class="p">))</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">'Settling </span><span class="si">%s</span><span class="s1"> elements at seafloor'</span> <span class="o">%</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">settling</span><span class="p">))</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">elements</span><span class="o">.</span><span class="n">moving</span><span class="p">[</span><span class="n">settling</span><span class="p">]</span> <span class="o">=</span> <span class="mi">0</span></div>
 
 
 <div class="viewcode-block" id="SedimentDrift.resuspension">
 <a class="viewcode-back" href="../../../autoapi/opendrift/models/sedimentdrift/index.html#opendrift.models.sedimentdrift.SedimentDrift.resuspension">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">resuspension</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Resuspending elements if current speed &gt; .5 m/s&quot;&quot;&quot;</span>
-        <span class="n">threshold</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_config</span><span class="p">(</span><span class="s1">&#39;vertical_mixing:resuspension_threshold&#39;</span><span class="p">)</span>
+<span class="w">        </span><span class="sd">"""Resuspending elements if current speed &gt; .5 m/s"""</span>
+        <span class="n">threshold</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_config</span><span class="p">(</span><span class="s1">'vertical_mixing:resuspension_threshold'</span><span class="p">)</span>
         <span class="n">resuspending</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">logical_and</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">current_speed</span><span class="p">()</span> <span class="o">&gt;</span> <span class="n">threshold</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">elements</span><span class="o">.</span><span class="n">moving</span><span class="o">==</span><span class="mi">0</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">resuspending</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
             <span class="c1"># Allow moving again</span>

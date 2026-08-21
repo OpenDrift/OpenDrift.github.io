@@ -221,39 +221,39 @@ to download the full example code.</p>
 <span class="kn">import</span><span class="w"> </span><span class="nn">opendrift</span>
 
 <span class="k">def</span><span class="w"> </span><span class="nf">concatenate_outputs</span><span class="p">(</span><span class="n">input_files</span><span class="p">,</span> <span class="n">output_file</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    Concatenate OpenDrift NetCDF outputs from multiple workers into one single output file.</span>
 
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
 
     <span class="n">ds_list</span> <span class="o">=</span> <span class="p">[]</span>
     <span class="n">trajectory_offset</span> <span class="o">=</span> <span class="mi">0</span>
     <span class="k">for</span> <span class="n">f</span> <span class="ow">in</span> <span class="n">input_files</span><span class="p">:</span>
             <span class="n">dsi</span> <span class="o">=</span> <span class="n">xr</span><span class="o">.</span><span class="n">open_dataset</span><span class="p">(</span><span class="n">f</span><span class="p">)</span>
-            <span class="n">traj_vars</span> <span class="o">=</span> <span class="p">[</span><span class="n">var</span> <span class="k">for</span> <span class="n">var</span> <span class="ow">in</span> <span class="nb">list</span><span class="p">(</span><span class="n">dsi</span><span class="o">.</span><span class="n">variables</span><span class="p">)</span> <span class="k">if</span> <span class="s2">&quot;trajectory&quot;</span> <span class="ow">in</span> <span class="n">dsi</span><span class="p">[</span><span class="n">var</span><span class="p">]</span><span class="o">.</span><span class="n">dims</span><span class="p">]</span>
+            <span class="n">traj_vars</span> <span class="o">=</span> <span class="p">[</span><span class="n">var</span> <span class="k">for</span> <span class="n">var</span> <span class="ow">in</span> <span class="nb">list</span><span class="p">(</span><span class="n">dsi</span><span class="o">.</span><span class="n">variables</span><span class="p">)</span> <span class="k">if</span> <span class="s2">"trajectory"</span> <span class="ow">in</span> <span class="n">dsi</span><span class="p">[</span><span class="n">var</span><span class="p">]</span><span class="o">.</span><span class="n">dims</span><span class="p">]</span>
             <span class="n">ds_traj</span> <span class="o">=</span> <span class="n">dsi</span><span class="p">[</span><span class="n">traj_vars</span><span class="p">]</span>
             <span class="n">ds_traj</span> <span class="o">=</span> <span class="n">ds_traj</span><span class="o">.</span><span class="n">assign_coords</span><span class="p">(</span><span class="n">trajectory</span><span class="o">=</span><span class="n">ds_traj</span><span class="o">.</span><span class="n">trajectory</span> <span class="o">+</span> <span class="n">trajectory_offset</span><span class="p">)</span>
 
-            <span class="n">trajectory_offset</span> <span class="o">+=</span> <span class="n">ds_traj</span><span class="o">.</span><span class="n">dims</span><span class="p">[</span><span class="s2">&quot;trajectory&quot;</span><span class="p">]</span>
+            <span class="n">trajectory_offset</span> <span class="o">+=</span> <span class="n">ds_traj</span><span class="o">.</span><span class="n">dims</span><span class="p">[</span><span class="s2">"trajectory"</span><span class="p">]</span>
             <span class="n">ds_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">ds_traj</span><span class="p">)</span>
 
-    <span class="n">ds_conc</span> <span class="o">=</span> <span class="n">xr</span><span class="o">.</span><span class="n">concat</span><span class="p">(</span><span class="n">ds_list</span><span class="p">,</span> <span class="n">dim</span><span class="o">=</span><span class="s2">&quot;trajectory&quot;</span><span class="p">)</span>
+    <span class="n">ds_conc</span> <span class="o">=</span> <span class="n">xr</span><span class="o">.</span><span class="n">concat</span><span class="p">(</span><span class="n">ds_list</span><span class="p">,</span> <span class="n">dim</span><span class="o">=</span><span class="s2">"trajectory"</span><span class="p">)</span>
     <span class="n">ds_conc</span><span class="o">.</span><span class="n">to_netcdf</span><span class="p">(</span><span class="n">output_file</span><span class="p">)</span>
 
     <span class="k">return</span> <span class="n">ds_conc</span>
 
 <span class="k">def</span><span class="w"> </span><span class="nf">RunOceanDrift</span><span class="p">(</span><span class="n">pool_number</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    Configure and run one OpenDrift instance</span>
 
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
 
-    <span class="n">o</span> <span class="o">=</span> <span class="n">OceanDrift</span><span class="p">(</span><span class="n">loglevel</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">logfile</span><span class="o">=</span><span class="s2">&quot;output_W&quot;</span><span class="o">+</span><span class="nb">str</span><span class="p">(</span><span class="n">pool_number</span><span class="p">)</span><span class="o">+</span><span class="s2">&quot;.log&quot;</span><span class="p">,</span> <span class="n">seed</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+    <span class="n">o</span> <span class="o">=</span> <span class="n">OceanDrift</span><span class="p">(</span><span class="n">loglevel</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">logfile</span><span class="o">=</span><span class="s2">"output_W"</span><span class="o">+</span><span class="nb">str</span><span class="p">(</span><span class="n">pool_number</span><span class="p">)</span><span class="o">+</span><span class="s2">".log"</span><span class="p">,</span> <span class="n">seed</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
 
-    <span class="n">reader_topaz4</span> <span class="o">=</span> <span class="n">reader_netCDF_CF_generic</span><span class="o">.</span><span class="n">Reader</span><span class="p">(</span><span class="s2">&quot;https://thredds.met.no/thredds/dodsC/topaz/dataset-topaz4-arc-myoceanv2-be&quot;</span><span class="p">)</span>
-    <span class="n">o</span><span class="o">.</span><span class="n">add_reader</span><span class="p">(</span><span class="n">reader_topaz4</span><span class="p">,</span> <span class="n">variables</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;x_sea_water_velocity&#39;</span><span class="p">,</span> <span class="s1">&#39;y_sea_water_velocity&#39;</span><span class="p">,</span><span class="s1">&#39;sea_water_temperature&#39;</span><span class="p">,</span><span class="s1">&#39;sea_water_salinity&#39;</span><span class="p">,</span><span class="s1">&#39;sea_floor_depth_below_sea_level&#39;</span><span class="p">])</span>
+    <span class="n">reader_topaz4</span> <span class="o">=</span> <span class="n">reader_netCDF_CF_generic</span><span class="o">.</span><span class="n">Reader</span><span class="p">(</span><span class="s2">"https://thredds.met.no/thredds/dodsC/topaz/dataset-topaz4-arc-myoceanv2-be"</span><span class="p">)</span>
+    <span class="n">o</span><span class="o">.</span><span class="n">add_reader</span><span class="p">(</span><span class="n">reader_topaz4</span><span class="p">,</span> <span class="n">variables</span><span class="o">=</span><span class="p">[</span><span class="s1">'x_sea_water_velocity'</span><span class="p">,</span> <span class="s1">'y_sea_water_velocity'</span><span class="p">,</span><span class="s1">'sea_water_temperature'</span><span class="p">,</span><span class="s1">'sea_water_salinity'</span><span class="p">,</span><span class="s1">'sea_floor_depth_below_sea_level'</span><span class="p">])</span>
 
-    <span class="n">o</span><span class="o">.</span><span class="n">set_config</span><span class="p">(</span><span class="s1">&#39;environment:constant:horizontal_diffusivity&#39;</span><span class="p">,</span> <span class="mi">50</span><span class="p">)</span>
+    <span class="n">o</span><span class="o">.</span><span class="n">set_config</span><span class="p">(</span><span class="s1">'environment:constant:horizontal_diffusivity'</span><span class="p">,</span> <span class="mi">50</span><span class="p">)</span>
 
     <span class="n">time</span> <span class="o">=</span> <span class="n">datetime</span><span class="p">(</span><span class="mi">2023</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">)</span>
 
@@ -262,7 +262,7 @@ to download the full example code.</p>
 
     <span class="n">o</span><span class="o">.</span><span class="n">seed_elements</span><span class="p">(</span><span class="n">lat</span><span class="o">=</span><span class="n">positions</span><span class="p">[</span><span class="n">pool_number</span><span class="p">][</span><span class="mi">0</span><span class="p">],</span> <span class="n">lon</span><span class="o">=</span><span class="n">positions</span><span class="p">[</span><span class="n">pool_number</span><span class="p">][</span><span class="mi">1</span><span class="p">],</span> <span class="n">z</span><span class="o">=</span><span class="n">iniz</span><span class="p">,</span> <span class="n">radius</span><span class="o">=</span><span class="mi">2000</span><span class="p">,</span> <span class="n">number</span><span class="o">=</span><span class="n">ntraj</span><span class="p">,</span> <span class="n">time</span><span class="o">=</span><span class="n">time</span><span class="p">,</span> <span class="n">origin_marker</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">ones</span><span class="p">(</span><span class="n">ntraj</span><span class="p">)</span><span class="o">*</span><span class="p">(</span><span class="n">pool_number</span><span class="p">))</span>
 
-    <span class="n">o</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">steps</span><span class="o">=</span><span class="mi">7</span><span class="o">*</span><span class="mi">4</span><span class="p">,</span> <span class="n">time_step</span><span class="o">=</span><span class="mi">3600</span><span class="o">*</span><span class="mi">6</span><span class="p">,</span> <span class="n">time_step_output</span><span class="o">=</span><span class="mi">3600</span><span class="o">*</span><span class="mi">6</span><span class="p">,</span> <span class="n">outfile</span> <span class="o">=</span> <span class="s2">&quot;output_W&quot;</span><span class="o">+</span><span class="nb">str</span><span class="p">(</span><span class="n">pool_number</span><span class="p">)</span><span class="o">+</span><span class="s2">&quot;.nc&quot;</span><span class="p">)</span>
+    <span class="n">o</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">steps</span><span class="o">=</span><span class="mi">7</span><span class="o">*</span><span class="mi">4</span><span class="p">,</span> <span class="n">time_step</span><span class="o">=</span><span class="mi">3600</span><span class="o">*</span><span class="mi">6</span><span class="p">,</span> <span class="n">time_step_output</span><span class="o">=</span><span class="mi">3600</span><span class="o">*</span><span class="mi">6</span><span class="p">,</span> <span class="n">outfile</span> <span class="o">=</span> <span class="s2">"output_W"</span><span class="o">+</span><span class="nb">str</span><span class="p">(</span><span class="n">pool_number</span><span class="p">)</span><span class="o">+</span><span class="s2">".nc"</span><span class="p">)</span>
 
 
 <span class="n">positions</span><span class="o">=</span><span class="p">[(</span><span class="mf">58.5</span><span class="p">,</span><span class="mi">3</span><span class="p">),(</span><span class="mf">58.2</span><span class="p">,</span> <span class="mf">2.5</span><span class="p">),(</span><span class="mi">58</span><span class="p">,</span><span class="mi">1</span><span class="p">),(</span><span class="mf">57.8</span><span class="p">,</span><span class="mf">1.2</span><span class="p">),(</span><span class="mi">57</span><span class="p">,</span><span class="mi">1</span><span class="p">),(</span><span class="mf">56.8</span><span class="p">,</span><span class="mf">1.8</span><span class="p">),(</span><span class="mf">56.5</span><span class="p">,</span><span class="mi">2</span><span class="p">),(</span><span class="mi">56</span><span class="p">,</span><span class="mf">2.2</span><span class="p">)]</span>
@@ -272,30 +272,30 @@ to download the full example code.</p>
 <div class="highlight-Python notranslate"><div class="highlight"><pre><span></span><span class="k">with</span> <span class="n">Pool</span><span class="p">(</span><span class="n">pool_size</span><span class="p">)</span> <span class="k">as</span> <span class="n">p</span><span class="p">:</span>
     <span class="n">p</span><span class="o">.</span><span class="n">starmap</span><span class="p">(</span><span class="n">RunOceanDrift</span><span class="p">,</span> <span class="p">[(</span><span class="n">i</span><span class="p">,)</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">pool_size</span><span class="p">)])</span>
 
-<span class="n">concatenate_outputs</span><span class="p">(</span><span class="n">input_files</span><span class="o">=</span><span class="n">glob</span><span class="o">.</span><span class="n">glob</span><span class="p">(</span><span class="s2">&quot;output_W*.nc&quot;</span><span class="p">),</span> <span class="n">output_file</span><span class="o">=</span><span class="s2">&quot;output_total.nc&quot;</span><span class="p">)</span>
+<span class="n">concatenate_outputs</span><span class="p">(</span><span class="n">input_files</span><span class="o">=</span><span class="n">glob</span><span class="o">.</span><span class="n">glob</span><span class="p">(</span><span class="s2">"output_W*.nc"</span><span class="p">),</span> <span class="n">output_file</span><span class="o">=</span><span class="s2">"output_total.nc"</span><span class="p">)</span>
 </pre></div>
 </div>
-<div class="highlight-Python notranslate"><div class="highlight"><pre><span></span><span class="n">o0</span> <span class="o">=</span> <span class="n">opendrift</span><span class="o">.</span><span class="n">open</span><span class="p">(</span><span class="s2">&quot;output_W0.nc&quot;</span><span class="p">)</span>
+<div class="highlight-Python notranslate"><div class="highlight"><pre><span></span><span class="n">o0</span> <span class="o">=</span> <span class="n">opendrift</span><span class="o">.</span><span class="n">open</span><span class="p">(</span><span class="s2">"output_W0.nc"</span><span class="p">)</span>
 </pre></div>
 </div>
 <img alt="gallery/animations/example_multiprocessing_0.gif" src="gallery/animations/example_multiprocessing_0.gif" />
-<div class="highlight-Python notranslate"><div class="highlight"><pre><span></span><span class="n">o0</span><span class="o">.</span><span class="n">animation</span><span class="p">(</span><span class="n">color</span><span class="o">=</span><span class="s1">&#39;origin_marker&#39;</span><span class="p">,</span>
+<div class="highlight-Python notranslate"><div class="highlight"><pre><span></span><span class="n">o0</span><span class="o">.</span><span class="n">animation</span><span class="p">(</span><span class="n">color</span><span class="o">=</span><span class="s1">'origin_marker'</span><span class="p">,</span>
             <span class="n">markersize</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span>
             <span class="n">vmin</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span><span class="n">vmax</span><span class="o">=</span><span class="n">pool_size</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span>
             <span class="n">colorbar</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
             <span class="n">fast</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
-            <span class="n">lscale</span> <span class="o">=</span> <span class="s1">&#39;l&#39;</span><span class="p">)</span>
+            <span class="n">lscale</span> <span class="o">=</span> <span class="s1">'l'</span><span class="p">)</span>
 
-<span class="n">o</span> <span class="o">=</span> <span class="n">opendrift</span><span class="o">.</span><span class="n">open</span><span class="p">(</span><span class="s2">&quot;output_total.nc&quot;</span><span class="p">)</span>
+<span class="n">o</span> <span class="o">=</span> <span class="n">opendrift</span><span class="o">.</span><span class="n">open</span><span class="p">(</span><span class="s2">"output_total.nc"</span><span class="p">)</span>
 </pre></div>
 </div>
 <img alt="gallery/animations/example_multiprocessing_1.gif" src="gallery/animations/example_multiprocessing_1.gif" />
-<div class="highlight-Python notranslate"><div class="highlight"><pre><span></span><span class="n">o</span><span class="o">.</span><span class="n">animation</span><span class="p">(</span><span class="n">color</span><span class="o">=</span><span class="s1">&#39;origin_marker&#39;</span><span class="p">,</span>
+<div class="highlight-Python notranslate"><div class="highlight"><pre><span></span><span class="n">o</span><span class="o">.</span><span class="n">animation</span><span class="p">(</span><span class="n">color</span><span class="o">=</span><span class="s1">'origin_marker'</span><span class="p">,</span>
             <span class="n">markersize</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span>
             <span class="n">vmin</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span><span class="n">vmax</span><span class="o">=</span><span class="n">pool_size</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span>
             <span class="n">colorbar</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
             <span class="n">fast</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
-            <span class="n">lscale</span> <span class="o">=</span> <span class="s1">&#39;l&#39;</span><span class="p">)</span>
+            <span class="n">lscale</span> <span class="o">=</span> <span class="s1">'l'</span><span class="p">)</span>
 </pre></div>
 </div>
 <div class="sphx-glr-footer sphx-glr-footer-example docutils container" id="sphx-glr-download-gallery-example-long-multiprocessing-py">

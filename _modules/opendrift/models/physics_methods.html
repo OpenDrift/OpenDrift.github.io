@@ -126,16 +126,16 @@
 <div class="viewcode-block" id="wind_drift_factor_from_trajectory">
 <a class="viewcode-back" href="../../../autoapi/opendrift/models/physics_methods/index.html#opendrift.models.basemodel.wind_drift_factor_from_trajectory">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">wind_drift_factor_from_trajectory</span><span class="p">(</span><span class="n">trajectory_dict</span><span class="p">,</span> <span class="n">min_period</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&#39;&#39;&#39;Estimate wind_drift_fator based on wind and current along given trajectory</span>
+<span class="w">    </span><span class="sd">'''Estimate wind_drift_fator based on wind and current along given trajectory</span>
 
 <span class="sd">    trajectory_dict: dictionary with arrays of same length of the following variables:</span>
 <span class="sd">    time, lon, lat, x_wind, y_wind, x_sea_water_velocity, y_sea_water_velocity</span>
 
 <span class="sd">    Returns array of same length minus one of the fitted wind_drift_factor</span>
-<span class="sd">    &#39;&#39;&#39;</span>
+<span class="sd">    '''</span>
 
-    <span class="n">geod</span> <span class="o">=</span> <span class="n">pyproj</span><span class="o">.</span><span class="n">Geod</span><span class="p">(</span><span class="n">ellps</span><span class="o">=</span><span class="s1">&#39;WGS84&#39;</span><span class="p">)</span>
-    <span class="n">time</span> <span class="o">=</span> <span class="n">trajectory_dict</span><span class="p">[</span><span class="s1">&#39;time&#39;</span><span class="p">]</span>
+    <span class="n">geod</span> <span class="o">=</span> <span class="n">pyproj</span><span class="o">.</span><span class="n">Geod</span><span class="p">(</span><span class="n">ellps</span><span class="o">=</span><span class="s1">'WGS84'</span><span class="p">)</span>
+    <span class="n">time</span> <span class="o">=</span> <span class="n">trajectory_dict</span><span class="p">[</span><span class="s1">'time'</span><span class="p">]</span>
     <span class="k">try</span><span class="p">:</span>
         <span class="kn">import</span><span class="w"> </span><span class="nn">pandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pd</span>
         <span class="n">time</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">to_datetime</span><span class="p">(</span><span class="n">time</span><span class="p">)</span>
@@ -147,19 +147,19 @@
         <span class="n">timestep</span> <span class="o">=</span> <span class="n">time</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">-</span> <span class="n">time</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
         <span class="n">s</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="n">min_period</span><span class="o">.</span><span class="n">total_seconds</span><span class="p">()</span><span class="o">/</span><span class="p">(</span><span class="n">timestep</span><span class="p">)</span><span class="o">.</span><span class="n">total_seconds</span><span class="p">())</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">int</span><span class="p">)</span>
         <span class="n">ind</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">time</span><span class="p">),</span> <span class="n">s</span><span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">int32</span><span class="p">)</span>
-        <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Original timestep (</span><span class="si">%s</span><span class="s1">) multiplied by </span><span class="si">%i</span><span class="s1">: </span><span class="si">%s</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">timestep</span><span class="p">,</span> <span class="n">s</span><span class="p">,</span> <span class="n">timestep</span><span class="o">*</span><span class="n">s</span><span class="p">))</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s1">'Original timestep (</span><span class="si">%s</span><span class="s1">) multiplied by </span><span class="si">%i</span><span class="s1">: </span><span class="si">%s</span><span class="s1">'</span> <span class="o">%</span> <span class="p">(</span><span class="n">timestep</span><span class="p">,</span> <span class="n">s</span><span class="p">,</span> <span class="n">timestep</span><span class="o">*</span><span class="n">s</span><span class="p">))</span>
         <span class="n">ind2</span> <span class="o">=</span> <span class="n">ind</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
         <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">s</span><span class="p">):</span>
             <span class="n">ind2</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">concatenate</span><span class="p">((</span><span class="n">ind2</span><span class="p">,</span> <span class="n">ind</span><span class="o">+</span><span class="n">i</span><span class="p">))</span>
         <span class="n">ind</span> <span class="o">=</span> <span class="n">ind2</span>
         <span class="n">ind</span> <span class="o">=</span> <span class="n">ind</span><span class="p">[</span><span class="n">ind</span><span class="o">&lt;</span><span class="nb">len</span><span class="p">(</span><span class="n">time</span><span class="p">)]</span>
         <span class="n">time</span> <span class="o">=</span> <span class="n">time</span><span class="p">[</span><span class="n">ind</span><span class="p">]</span>
-    <span class="n">cu</span> <span class="o">=</span> <span class="n">trajectory_dict</span><span class="p">[</span><span class="s1">&#39;x_sea_water_velocity&#39;</span><span class="p">][</span><span class="n">ind</span><span class="p">]</span>
-    <span class="n">cv</span> <span class="o">=</span> <span class="n">trajectory_dict</span><span class="p">[</span><span class="s1">&#39;y_sea_water_velocity&#39;</span><span class="p">][</span><span class="n">ind</span><span class="p">]</span>
-    <span class="n">wu</span> <span class="o">=</span> <span class="n">trajectory_dict</span><span class="p">[</span><span class="s1">&#39;x_wind&#39;</span><span class="p">][</span><span class="n">ind</span><span class="p">]</span>
-    <span class="n">wv</span> <span class="o">=</span> <span class="n">trajectory_dict</span><span class="p">[</span><span class="s1">&#39;y_wind&#39;</span><span class="p">][</span><span class="n">ind</span><span class="p">]</span>
-    <span class="n">lon</span> <span class="o">=</span> <span class="n">trajectory_dict</span><span class="p">[</span><span class="s1">&#39;lon&#39;</span><span class="p">][</span><span class="n">ind</span><span class="p">]</span>
-    <span class="n">lat</span> <span class="o">=</span> <span class="n">trajectory_dict</span><span class="p">[</span><span class="s1">&#39;lat&#39;</span><span class="p">][</span><span class="n">ind</span><span class="p">]</span>
+    <span class="n">cu</span> <span class="o">=</span> <span class="n">trajectory_dict</span><span class="p">[</span><span class="s1">'x_sea_water_velocity'</span><span class="p">][</span><span class="n">ind</span><span class="p">]</span>
+    <span class="n">cv</span> <span class="o">=</span> <span class="n">trajectory_dict</span><span class="p">[</span><span class="s1">'y_sea_water_velocity'</span><span class="p">][</span><span class="n">ind</span><span class="p">]</span>
+    <span class="n">wu</span> <span class="o">=</span> <span class="n">trajectory_dict</span><span class="p">[</span><span class="s1">'x_wind'</span><span class="p">][</span><span class="n">ind</span><span class="p">]</span>
+    <span class="n">wv</span> <span class="o">=</span> <span class="n">trajectory_dict</span><span class="p">[</span><span class="s1">'y_wind'</span><span class="p">][</span><span class="n">ind</span><span class="p">]</span>
+    <span class="n">lon</span> <span class="o">=</span> <span class="n">trajectory_dict</span><span class="p">[</span><span class="s1">'lon'</span><span class="p">][</span><span class="n">ind</span><span class="p">]</span>
+    <span class="n">lat</span> <span class="o">=</span> <span class="n">trajectory_dict</span><span class="p">[</span><span class="s1">'lat'</span><span class="p">][</span><span class="n">ind</span><span class="p">]</span>
     <span class="n">current_speed</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">cu</span><span class="o">**</span><span class="mi">2</span><span class="o">+</span><span class="n">cv</span><span class="o">**</span><span class="mi">2</span><span class="p">)</span>
     <span class="n">current_azimuth</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">degrees</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">arctan2</span><span class="p">(</span><span class="n">cu</span><span class="p">,</span> <span class="n">cv</span><span class="p">))</span>
     <span class="n">wind_speed</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">wu</span><span class="o">**</span><span class="mi">2</span><span class="o">+</span><span class="n">wv</span><span class="o">**</span><span class="mi">2</span><span class="p">)</span>
@@ -195,20 +195,20 @@
 <div class="viewcode-block" id="plot_wind_drift_factor">
 <a class="viewcode-back" href="../../../autoapi/opendrift/models/physics_methods/index.html#opendrift.models.basemodel.plot_wind_drift_factor">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">plot_wind_drift_factor</span><span class="p">(</span><span class="n">wdf</span><span class="p">,</span> <span class="n">azimuth</span><span class="p">,</span> <span class="n">wmax_plot</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&#39;&#39;&#39;Polar plot of array of wind drift factor, with associated azimuthal offset&#39;&#39;&#39;</span>
+<span class="w">    </span><span class="sd">'''Polar plot of array of wind drift factor, with associated azimuthal offset'''</span>
 
     <span class="n">wmax</span> <span class="o">=</span> <span class="n">wdf</span><span class="o">.</span><span class="n">max</span><span class="p">()</span>
     <span class="n">wbins</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">wmax</span><span class="o">+</span><span class="mf">.005</span><span class="p">,</span> <span class="mf">.005</span><span class="p">)</span>
     <span class="n">abins</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="o">-</span><span class="mi">180</span><span class="p">,</span> <span class="mi">180</span><span class="p">,</span> <span class="mi">30</span><span class="p">)</span>
     <span class="n">hist</span><span class="p">,</span> <span class="n">_</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">histogram2d</span><span class="p">(</span><span class="n">azimuth</span><span class="p">,</span> <span class="n">wdf</span><span class="p">,</span> <span class="n">bins</span><span class="o">=</span><span class="p">(</span><span class="n">abins</span><span class="p">,</span> <span class="n">wbins</span><span class="p">))</span>
     <span class="n">A</span><span class="p">,</span> <span class="n">W</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">meshgrid</span><span class="p">(</span><span class="n">abins</span><span class="p">,</span> <span class="n">wbins</span><span class="p">)</span>
-    <span class="n">fig</span><span class="p">,</span> <span class="n">ax</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span><span class="n">subplot_kw</span><span class="o">=</span><span class="nb">dict</span><span class="p">(</span><span class="n">projection</span><span class="o">=</span><span class="s1">&#39;polar&#39;</span><span class="p">))</span>
-    <span class="n">ax</span><span class="o">.</span><span class="n">set_theta_zero_location</span><span class="p">(</span><span class="s1">&#39;N&#39;</span><span class="p">,</span> <span class="n">offset</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+    <span class="n">fig</span><span class="p">,</span> <span class="n">ax</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span><span class="n">subplot_kw</span><span class="o">=</span><span class="nb">dict</span><span class="p">(</span><span class="n">projection</span><span class="o">=</span><span class="s1">'polar'</span><span class="p">))</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">set_theta_zero_location</span><span class="p">(</span><span class="s1">'N'</span><span class="p">,</span> <span class="n">offset</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
     <span class="n">ax</span><span class="o">.</span><span class="n">set_theta_direction</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span>
     <span class="n">pc</span> <span class="o">=</span> <span class="n">ax</span><span class="o">.</span><span class="n">pcolormesh</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">radians</span><span class="p">(</span><span class="n">A</span><span class="p">),</span> <span class="n">W</span><span class="p">,</span> <span class="n">hist</span><span class="o">.</span><span class="n">T</span><span class="p">,</span> <span class="n">cmap</span><span class="o">=</span><span class="n">cmocean</span><span class="o">.</span><span class="n">cm</span><span class="o">.</span><span class="n">dense</span><span class="p">)</span>
-    <span class="n">plt</span><span class="o">.</span><span class="n">arrow</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">pi</span><span class="p">,</span> <span class="n">wmax</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="o">-</span><span class="n">wmax</span><span class="p">,</span> <span class="n">width</span><span class="o">=</span><span class="mf">.015</span><span class="p">,</span> <span class="n">facecolor</span><span class="o">=</span><span class="s1">&#39;k&#39;</span><span class="p">,</span> <span class="n">zorder</span><span class="o">=</span><span class="mi">100</span><span class="p">,</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">arrow</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">pi</span><span class="p">,</span> <span class="n">wmax</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="o">-</span><span class="n">wmax</span><span class="p">,</span> <span class="n">width</span><span class="o">=</span><span class="mf">.015</span><span class="p">,</span> <span class="n">facecolor</span><span class="o">=</span><span class="s1">'k'</span><span class="p">,</span> <span class="n">zorder</span><span class="o">=</span><span class="mi">100</span><span class="p">,</span>
               <span class="n">head_width</span><span class="o">=</span><span class="mf">.8</span><span class="p">,</span> <span class="n">lw</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">head_length</span><span class="o">=</span><span class="mf">.005</span><span class="p">,</span> <span class="n">length_includes_head</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
-    <span class="n">plt</span><span class="o">.</span><span class="n">text</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">pi</span><span class="p">,</span> <span class="n">wmax</span><span class="o">*</span><span class="mf">.5</span><span class="p">,</span> <span class="s1">&#39; Wind direction&#39;</span><span class="p">,</span> <span class="n">fontsize</span><span class="o">=</span><span class="mi">18</span><span class="p">)</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">text</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">pi</span><span class="p">,</span> <span class="n">wmax</span><span class="o">*</span><span class="mf">.5</span><span class="p">,</span> <span class="s1">' Wind direction'</span><span class="p">,</span> <span class="n">fontsize</span><span class="o">=</span><span class="mi">18</span><span class="p">)</span>
     <span class="n">plt</span><span class="o">.</span><span class="n">grid</span><span class="p">()</span>
     <span class="k">if</span> <span class="n">wmax_plot</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
         <span class="n">plt</span><span class="o">.</span><span class="n">ylim</span><span class="p">([</span><span class="mi">0</span><span class="p">,</span> <span class="n">wmax_plot</span><span class="p">])</span>
@@ -227,43 +227,43 @@
 
     <span class="k">if</span> <span class="n">wave_breaking_fraction</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
         <span class="k">if</span> <span class="n">wind_speed</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;wave_breaking_fraction or wind_speed must be provided&#39;</span><span class="p">)</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">'wave_breaking_fraction or wind_speed must be provided'</span><span class="p">)</span>
         <span class="n">wave_breaking_fraction</span> <span class="o">=</span> <span class="n">wave_breaking_fraction_from_wind</span><span class="p">(</span><span class="n">wind_speed</span><span class="p">)</span>
     <span class="k">if</span> <span class="n">significant_wave_height</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
         <span class="k">if</span> <span class="n">wind_speed</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;significant_wave_height or wind_speed must be provided&#39;</span><span class="p">)</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">'significant_wave_height or wind_speed must be provided'</span><span class="p">)</span>
         <span class="n">significant_wave_height</span> <span class="o">=</span> <span class="n">significant_wave_height_from_wind_neumann_pierson</span><span class="p">(</span><span class="n">wind_speed</span><span class="p">)</span>
     <span class="n">g</span> <span class="o">=</span> <span class="mf">9.81</span>
     <span class="n">delta_rho</span> <span class="o">=</span> <span class="n">sea_water_density</span> <span class="o">-</span> <span class="n">oil_density</span>
     <span class="n">d_o</span> <span class="o">=</span> <span class="mi">4</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">interfacial_tension</span> <span class="o">/</span> <span class="p">(</span><span class="n">delta_rho</span><span class="o">*</span><span class="n">g</span><span class="p">))</span>
     <span class="n">we</span> <span class="o">=</span> <span class="n">sea_water_density</span><span class="o">*</span><span class="n">g</span><span class="o">*</span><span class="n">significant_wave_height</span><span class="o">*</span><span class="n">d_o</span><span class="o">/</span><span class="n">interfacial_tension</span>
     <span class="n">oh</span> <span class="o">=</span> <span class="n">dynamic_viscosity</span><span class="o">/</span><span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">oil_density</span><span class="o">*</span><span class="n">interfacial_tension</span><span class="o">*</span><span class="n">d_o</span><span class="p">)</span>
-    <span class="k">with</span> <span class="n">np</span><span class="o">.</span><span class="n">errstate</span><span class="p">(</span><span class="n">divide</span><span class="o">=</span><span class="s1">&#39;ignore&#39;</span><span class="p">):</span>
+    <span class="k">with</span> <span class="n">np</span><span class="o">.</span><span class="n">errstate</span><span class="p">(</span><span class="n">divide</span><span class="o">=</span><span class="s1">'ignore'</span><span class="p">):</span>
         <span class="n">entrainment_rate</span> <span class="o">=</span> <span class="p">(</span><span class="mf">4.604e-10</span><span class="o">*</span><span class="n">we</span><span class="o">**</span><span class="mf">1.805</span><span class="o">*</span><span class="n">oh</span><span class="o">**-</span><span class="mf">1.023</span><span class="p">)</span><span class="o">*</span><span class="n">wave_breaking_fraction</span>
     <span class="k">return</span> <span class="n">entrainment_rate</span></div>
 
 
 <div class="viewcode-block" id="seawater_dynamic_viscosity">
 <a class="viewcode-back" href="../../../autoapi/opendrift/models/physics_methods/index.html#opendrift.models.basemodel.seawater_dynamic_viscosity">[docs]</a>
-<span class="k">def</span><span class="w"> </span><span class="nf">seawater_dynamic_viscosity</span><span class="p">(</span><span class="n">T</span><span class="p">,</span> <span class="n">S</span><span class="p">,</span> <span class="n">model</span><span class="o">=</span><span class="s1">&#39;sharqawy&#39;</span><span class="p">):</span>
-    <span class="k">if</span> <span class="n">model</span> <span class="o">==</span> <span class="s1">&#39;ladim&#39;</span><span class="p">:</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">seawater_dynamic_viscosity</span><span class="p">(</span><span class="n">T</span><span class="p">,</span> <span class="n">S</span><span class="p">,</span> <span class="n">model</span><span class="o">=</span><span class="s1">'sharqawy'</span><span class="p">):</span>
+    <span class="k">if</span> <span class="n">model</span> <span class="o">==</span> <span class="s1">'ladim'</span><span class="p">:</span>
         <span class="k">return</span> <span class="n">seawater_dynamic_viscosity_ladim</span><span class="p">(</span><span class="n">T</span><span class="p">,</span> <span class="n">S</span><span class="p">)</span>
-    <span class="k">elif</span> <span class="n">model</span> <span class="o">==</span> <span class="s1">&#39;sharqawy&#39;</span><span class="p">:</span>
+    <span class="k">elif</span> <span class="n">model</span> <span class="o">==</span> <span class="s1">'sharqawy'</span><span class="p">:</span>
         <span class="k">return</span> <span class="n">seawater_dynamic_viscosity_sharqawy</span><span class="p">(</span><span class="n">T</span><span class="p">,</span> <span class="n">S</span><span class="p">)</span>
     <span class="k">else</span><span class="p">:</span>
-        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Model </span><span class="si">{</span><span class="n">model</span><span class="si">}</span><span class="s1"> not available&#39;</span><span class="p">)</span></div>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s1">'Model </span><span class="si">{</span><span class="n">model</span><span class="si">}</span><span class="s1"> not available'</span><span class="p">)</span></div>
 
 
 <div class="viewcode-block" id="seawater_dynamic_viscosity_ladim">
 <a class="viewcode-back" href="../../../autoapi/opendrift/models/physics_methods/index.html#opendrift.models.basemodel.seawater_dynamic_viscosity_ladim">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">seawater_dynamic_viscosity_ladim</span><span class="p">(</span><span class="n">T</span><span class="p">,</span> <span class="n">S</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    Dynamic viscosity of seawater (Pa·s).</span>
 <span class="sd">    T: temperature in degrees C</span>
 <span class="sd">    S: salinity in g/kg (PSU)</span>
 
 <span class="sd">    From Ladim code</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
 
     <span class="k">return</span> <span class="mf">0.001</span> <span class="o">*</span> <span class="p">(</span><span class="mf">1.7915</span> <span class="o">-</span> <span class="mf">0.0538</span> <span class="o">*</span> <span class="n">T</span> <span class="o">+</span>
                     <span class="mf">0.0007</span> <span class="o">*</span> <span class="p">(</span><span class="n">T</span> <span class="o">**</span> <span class="p">(</span><span class="mf">2.0</span><span class="p">))</span> <span class="o">+</span> <span class="mf">0.0023</span> <span class="o">*</span> <span class="n">S</span><span class="p">)</span></div>
@@ -272,14 +272,14 @@
 <div class="viewcode-block" id="seawater_dynamic_viscosity_sharqawy">
 <a class="viewcode-back" href="../../../autoapi/opendrift/models/physics_methods/index.html#opendrift.models.basemodel.seawater_dynamic_viscosity_sharqawy">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">seawater_dynamic_viscosity_sharqawy</span><span class="p">(</span><span class="n">T</span><span class="p">,</span> <span class="n">S</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    Dynamic viscosity of seawater (Pa·s).</span>
 <span class="sd">    T: temperature in degrees C</span>
 <span class="sd">    S: salinity in g/kg (PSU)</span>
 
 <span class="sd">    Sharqawy et al. (2010), Desalination and Water Treatment</span>
 <span class="sd">    Valid: 0-180°C, 0-150 g/kg</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
 
     <span class="c1"># Pure water viscosity</span>
     <span class="n">mu_w</span> <span class="o">=</span> <span class="p">(</span><span class="mf">4.2844e-5</span> <span class="o">+</span>
@@ -328,12 +328,12 @@
 <div class="viewcode-block" id="verticaldiffusivity_Sundby1983">
 <a class="viewcode-back" href="../../../autoapi/opendrift/models/physics_methods/index.html#opendrift.models.basemodel.verticaldiffusivity_Sundby1983">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">verticaldiffusivity_Sundby1983</span><span class="p">(</span><span class="n">windspeed</span><span class="p">,</span> <span class="n">depth</span><span class="p">,</span> <span class="n">mixedlayerdepth</span><span class="o">=</span><span class="mi">50</span><span class="p">,</span> <span class="n">background_diffusivity</span><span class="o">=</span><span class="mi">0</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&#39;&#39;&#39; Vertical diffusivity from Sundby (1983)</span>
+<span class="w">    </span><span class="sd">''' Vertical diffusivity from Sundby (1983)</span>
 
 <span class="sd">    S. Sundby (1983): A one-dimensional model for the vertical</span>
 <span class="sd">        distribution of pelagic fish eggs in the mixed layer</span>
 <span class="sd">        Deep Sea Research (30) pp. 645-661</span>
-<span class="sd">    &#39;&#39;&#39;</span>
+<span class="sd">    '''</span>
 
     <span class="n">K</span> <span class="o">=</span> <span class="mf">76.1e-4</span> <span class="o">+</span> <span class="mf">2.26e-4</span> <span class="o">*</span> <span class="n">windspeed</span><span class="o">*</span><span class="n">windspeed</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">ones</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">atleast_1d</span><span class="p">(</span><span class="n">depth</span><span class="o">.</span><span class="n">shape</span><span class="p">))</span>
     <span class="n">K</span><span class="p">[</span><span class="n">depth</span><span class="o">&gt;</span><span class="n">mixedlayerdepth</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="n">K</span><span class="p">[</span><span class="n">depth</span><span class="o">&gt;</span><span class="n">mixedlayerdepth</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">+</span><span class="n">background_diffusivity</span><span class="p">)</span><span class="o">/</span><span class="mi">2</span>  <span class="c1"># Transition</span>
@@ -345,9 +345,9 @@
 <div class="viewcode-block" id="verticaldiffusivity_Large1994">
 <a class="viewcode-back" href="../../../autoapi/opendrift/models/physics_methods/index.html#opendrift.models.basemodel.verticaldiffusivity_Large1994">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">verticaldiffusivity_Large1994</span><span class="p">(</span><span class="n">windspeed</span><span class="p">,</span> <span class="n">depth</span><span class="p">,</span> <span class="n">mixedlayerdepth</span><span class="o">=</span><span class="mi">50</span><span class="p">,</span> <span class="n">background_diffusivity</span><span class="o">=</span><span class="mi">0</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&#39;&#39;&#39; Vertical diffusivity from Large et al. (1994)</span>
+<span class="w">    </span><span class="sd">''' Vertical diffusivity from Large et al. (1994)</span>
 
-<span class="sd">    Depending on windspeed, depth and mixed layer depth (default 50m).&#39;&#39;&#39;</span>
+<span class="sd">    Depending on windspeed, depth and mixed layer depth (default 50m).'''</span>
 
     <span class="c1"># Defining two helper methods:</span>
 
@@ -383,7 +383,7 @@
 <a class="viewcode-back" href="../../../autoapi/opendrift/models/physics_methods/index.html#opendrift.models.basemodel.verticaldiffusivity_stepfunction">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">verticaldiffusivity_stepfunction</span><span class="p">(</span><span class="n">depth</span><span class="p">,</span> <span class="n">MLD</span><span class="o">=</span><span class="mi">20</span><span class="p">,</span>
                                      <span class="n">k_above</span><span class="o">=</span><span class="mf">.1</span><span class="p">,</span> <span class="n">k_below</span><span class="o">=</span><span class="mf">.02</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&#39;&#39;&#39; eddy diffusivity with discontinuity for testing of mixing scheme&#39;&#39;&#39;</span>
+<span class="w">    </span><span class="sd">''' eddy diffusivity with discontinuity for testing of mixing scheme'''</span>
     <span class="n">depth</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">depth</span><span class="p">)</span>  <span class="c1"># Making sure depth is positive value</span>
     <span class="n">K</span> <span class="o">=</span> <span class="n">k_above</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">ones</span><span class="p">(</span><span class="n">depth</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span>
     <span class="n">K</span><span class="p">[</span><span class="n">depth</span><span class="o">&gt;</span><span class="n">MLD</span><span class="p">]</span> <span class="o">=</span> <span class="n">k_below</span>
@@ -392,8 +392,8 @@
 
 <div class="viewcode-block" id="plot_stokes_profile">
 <a class="viewcode-back" href="../../../autoapi/opendrift/models/physics_methods/index.html#opendrift.models.basemodel.plot_stokes_profile">[docs]</a>
-<span class="k">def</span><span class="w"> </span><span class="nf">plot_stokes_profile</span><span class="p">(</span><span class="n">profiles</span><span class="p">,</span> <span class="n">view</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;vertical&#39;</span><span class="p">,</span> <span class="s1">&#39;birdseye&#39;</span><span class="p">,</span> <span class="s1">&#39;u&#39;</span><span class="p">,</span> <span class="s1">&#39;v&#39;</span><span class="p">],</span> <span class="n">filename</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&#39;&#39;&#39;Plot vertical profile of Stokes drift</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">plot_stokes_profile</span><span class="p">(</span><span class="n">profiles</span><span class="p">,</span> <span class="n">view</span><span class="o">=</span><span class="p">[</span><span class="s1">'vertical'</span><span class="p">,</span> <span class="s1">'birdseye'</span><span class="p">,</span> <span class="s1">'u'</span><span class="p">,</span> <span class="s1">'v'</span><span class="p">],</span> <span class="n">filename</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">'''Plot vertical profile of Stokes drift</span>
 
 <span class="sd">    Args:</span>
 <span class="sd">        list of dictionary with:</span>
@@ -401,10 +401,10 @@
 <span class="sd">            z: depth in meters, 0 at surface and negative below (e.g. -5 = 5m depth)</span>
 <span class="sd">            kwargs: forwarded to plot method</span>
 <span class="sd">        view:</span>
-<span class="sd">            - &#39;vertical&#39;: magnitude versus depth</span>
-<span class="sd">            - &#39;birdseye&#39;: viewed from above</span>
+<span class="sd">            - 'vertical': magnitude versus depth</span>
+<span class="sd">            - 'birdseye': viewed from above</span>
 <span class="sd">            - or list of both above with one axis for each case (default)</span>
-<span class="sd">    &#39;&#39;&#39;</span>
+<span class="sd">    '''</span>
 
     <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">view</span><span class="p">)</span><span class="o">&gt;</span><span class="mi">2</span><span class="p">:</span>
         <span class="n">fig</span><span class="p">,</span> <span class="n">axs</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">12</span><span class="p">,</span><span class="mi">12</span><span class="p">))</span>
@@ -413,46 +413,46 @@
         <span class="n">fig</span><span class="p">,</span> <span class="n">axs</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">view</span><span class="p">))</span>
     <span class="k">for</span> <span class="n">vi</span><span class="p">,</span> <span class="n">ax</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">view</span><span class="p">,</span> <span class="n">axs</span><span class="p">):</span>
         <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">profiles</span><span class="p">:</span>
-            <span class="k">if</span> <span class="s1">&#39;kwargs&#39;</span> <span class="ow">in</span> <span class="n">p</span><span class="p">:</span>
-                <span class="n">kwargs</span> <span class="o">=</span> <span class="n">p</span><span class="p">[</span><span class="s1">&#39;kwargs&#39;</span><span class="p">]</span>
+            <span class="k">if</span> <span class="s1">'kwargs'</span> <span class="ow">in</span> <span class="n">p</span><span class="p">:</span>
+                <span class="n">kwargs</span> <span class="o">=</span> <span class="n">p</span><span class="p">[</span><span class="s1">'kwargs'</span><span class="p">]</span>
             <span class="k">else</span><span class="p">:</span>
                 <span class="n">kwargs</span><span class="o">=</span><span class="kc">None</span>
-            <span class="n">u</span> <span class="o">=</span> <span class="n">p</span><span class="p">[</span><span class="s1">&#39;u&#39;</span><span class="p">]</span>
-            <span class="n">v</span> <span class="o">=</span> <span class="n">p</span><span class="p">[</span><span class="s1">&#39;v&#39;</span><span class="p">]</span>
-            <span class="n">z</span> <span class="o">=</span> <span class="n">p</span><span class="p">[</span><span class="s1">&#39;z&#39;</span><span class="p">]</span>
-            <span class="k">if</span> <span class="n">vi</span> <span class="o">==</span> <span class="s1">&#39;vertical&#39;</span><span class="p">:</span>
+            <span class="n">u</span> <span class="o">=</span> <span class="n">p</span><span class="p">[</span><span class="s1">'u'</span><span class="p">]</span>
+            <span class="n">v</span> <span class="o">=</span> <span class="n">p</span><span class="p">[</span><span class="s1">'v'</span><span class="p">]</span>
+            <span class="n">z</span> <span class="o">=</span> <span class="n">p</span><span class="p">[</span><span class="s1">'z'</span><span class="p">]</span>
+            <span class="k">if</span> <span class="n">vi</span> <span class="o">==</span> <span class="s1">'vertical'</span><span class="p">:</span>
                 <span class="n">speed</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">u</span><span class="o">**</span><span class="mi">2</span> <span class="o">+</span> <span class="n">v</span><span class="o">**</span><span class="mi">2</span><span class="p">)</span>
                 <span class="n">ax</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">speed</span><span class="p">,</span> <span class="o">-</span><span class="n">z</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
-            <span class="k">elif</span> <span class="n">vi</span> <span class="o">==</span> <span class="s1">&#39;birdseye&#39;</span><span class="p">:</span>
+            <span class="k">elif</span> <span class="n">vi</span> <span class="o">==</span> <span class="s1">'birdseye'</span><span class="p">:</span>
                 <span class="n">ax</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">u</span><span class="p">,</span> <span class="n">v</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
-            <span class="k">elif</span> <span class="n">vi</span> <span class="o">==</span> <span class="s1">&#39;u&#39;</span><span class="p">:</span>
+            <span class="k">elif</span> <span class="n">vi</span> <span class="o">==</span> <span class="s1">'u'</span><span class="p">:</span>
                 <span class="n">ax</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">u</span><span class="p">,</span> <span class="o">-</span><span class="n">z</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
-            <span class="k">elif</span> <span class="n">vi</span> <span class="o">==</span> <span class="s1">&#39;v&#39;</span><span class="p">:</span>
+            <span class="k">elif</span> <span class="n">vi</span> <span class="o">==</span> <span class="s1">'v'</span><span class="p">:</span>
                 <span class="n">ax</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">v</span><span class="p">,</span> <span class="o">-</span><span class="n">z</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
 
-        <span class="k">if</span> <span class="n">vi</span> <span class="o">==</span> <span class="s1">&#39;vertical&#39;</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">vi</span> <span class="o">==</span> <span class="s1">'vertical'</span><span class="p">:</span>
             <span class="n">ax</span><span class="o">.</span><span class="n">invert_yaxis</span><span class="p">()</span>
-            <span class="n">ax</span><span class="o">.</span><span class="n">set_xlabel</span><span class="p">(</span><span class="s1">&#39;Speed  [m/s]&#39;</span><span class="p">)</span>
-            <span class="n">ax</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="s1">&#39;Depth  [m]&#39;</span><span class="p">)</span>
+            <span class="n">ax</span><span class="o">.</span><span class="n">set_xlabel</span><span class="p">(</span><span class="s1">'Speed  [m/s]'</span><span class="p">)</span>
+            <span class="n">ax</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="s1">'Depth  [m]'</span><span class="p">)</span>
             <span class="n">ax</span><span class="o">.</span><span class="n">set_ylim</span><span class="p">(</span><span class="n">ax</span><span class="o">.</span><span class="n">get_ylim</span><span class="p">()[</span><span class="mi">0</span><span class="p">],</span> <span class="mi">0</span><span class="p">)</span>
-        <span class="k">elif</span> <span class="n">vi</span> <span class="o">==</span> <span class="s1">&#39;birdseye&#39;</span><span class="p">:</span>
-            <span class="n">ax</span><span class="o">.</span><span class="n">set_xlabel</span><span class="p">(</span><span class="s1">&#39;u  [m/s]&#39;</span><span class="p">)</span>
-            <span class="n">ax</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="s1">&#39;v  [m/s]&#39;</span><span class="p">)</span>
-            <span class="n">ax</span><span class="o">.</span><span class="n">set_aspect</span><span class="p">(</span><span class="s1">&#39;equal&#39;</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="n">vi</span> <span class="o">==</span> <span class="s1">'birdseye'</span><span class="p">:</span>
+            <span class="n">ax</span><span class="o">.</span><span class="n">set_xlabel</span><span class="p">(</span><span class="s1">'u  [m/s]'</span><span class="p">)</span>
+            <span class="n">ax</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="s1">'v  [m/s]'</span><span class="p">)</span>
+            <span class="n">ax</span><span class="o">.</span><span class="n">set_aspect</span><span class="p">(</span><span class="s1">'equal'</span><span class="p">)</span>
             <span class="n">xlim</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">ax</span><span class="o">.</span><span class="n">get_xlim</span><span class="p">())</span>
             <span class="n">ylim</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">ax</span><span class="o">.</span><span class="n">get_ylim</span><span class="p">())</span>
             <span class="n">m</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">maximum</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">xlim</span><span class="p">)</span><span class="o">.</span><span class="n">max</span><span class="p">(),</span> <span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">ylim</span><span class="p">)</span><span class="o">.</span><span class="n">max</span><span class="p">())</span>
             <span class="n">ax</span><span class="o">.</span><span class="n">set_xlim</span><span class="p">(</span><span class="o">-</span><span class="n">m</span><span class="p">,</span> <span class="n">m</span><span class="p">)</span>
             <span class="n">ax</span><span class="o">.</span><span class="n">set_ylim</span><span class="p">(</span><span class="o">-</span><span class="n">m</span><span class="p">,</span> <span class="n">m</span><span class="p">)</span>
-        <span class="k">if</span> <span class="n">vi</span> <span class="o">==</span> <span class="s1">&#39;u&#39;</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">vi</span> <span class="o">==</span> <span class="s1">'u'</span><span class="p">:</span>
             <span class="n">ax</span><span class="o">.</span><span class="n">invert_yaxis</span><span class="p">()</span>
-            <span class="n">ax</span><span class="o">.</span><span class="n">set_xlabel</span><span class="p">(</span><span class="s1">&#39;U-component  [m/s]&#39;</span><span class="p">)</span>
-            <span class="n">ax</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="s1">&#39;Depth  [m]&#39;</span><span class="p">)</span>
+            <span class="n">ax</span><span class="o">.</span><span class="n">set_xlabel</span><span class="p">(</span><span class="s1">'U-component  [m/s]'</span><span class="p">)</span>
+            <span class="n">ax</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="s1">'Depth  [m]'</span><span class="p">)</span>
             <span class="n">ax</span><span class="o">.</span><span class="n">set_ylim</span><span class="p">(</span><span class="n">ax</span><span class="o">.</span><span class="n">get_ylim</span><span class="p">()[</span><span class="mi">0</span><span class="p">],</span> <span class="mi">0</span><span class="p">)</span>
-        <span class="k">if</span> <span class="n">vi</span> <span class="o">==</span> <span class="s1">&#39;v&#39;</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">vi</span> <span class="o">==</span> <span class="s1">'v'</span><span class="p">:</span>
             <span class="n">ax</span><span class="o">.</span><span class="n">invert_yaxis</span><span class="p">()</span>
-            <span class="n">ax</span><span class="o">.</span><span class="n">set_xlabel</span><span class="p">(</span><span class="s1">&#39;V-component  [m/s]&#39;</span><span class="p">)</span>
-            <span class="n">ax</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="s1">&#39;Depth  [m]&#39;</span><span class="p">)</span>
+            <span class="n">ax</span><span class="o">.</span><span class="n">set_xlabel</span><span class="p">(</span><span class="s1">'V-component  [m/s]'</span><span class="p">)</span>
+            <span class="n">ax</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="s1">'Depth  [m]'</span><span class="p">)</span>
             <span class="n">ax</span><span class="o">.</span><span class="n">set_ylim</span><span class="p">(</span><span class="n">ax</span><span class="o">.</span><span class="n">get_ylim</span><span class="p">()[</span><span class="mi">0</span><span class="p">],</span> <span class="mi">0</span><span class="p">)</span>
         <span class="n">ax</span><span class="o">.</span><span class="n">legend</span><span class="p">()</span>
 
@@ -473,11 +473,11 @@
 <a class="viewcode-back" href="../../../autoapi/opendrift/models/physics_methods/index.html#opendrift.models.basemodel.stokes_drift_profile_monochromatic">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">stokes_drift_profile_monochromatic</span><span class="p">(</span><span class="n">stokes_u_surface</span><span class="p">,</span> <span class="n">stokes_v_surface</span><span class="p">,</span>
                                        <span class="n">significant_wave_height</span><span class="p">,</span> <span class="n">mean_wave_period</span><span class="p">,</span> <span class="n">z</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    Vertical Stokes drift profile assuming a single monochromatic wave</span>
 <span class="sd">    Breivik, O., Janssen, P., Bidlot, J., 2014. Approximate stokes drift profiles in deep water.</span>
 <span class="sd">    J. Phys. Oceanogr. 44, 2433-2445.  doi:10.1175/JPO-D-14-0020.1.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="n">stokes_surface_speed</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">stokes_u_surface</span><span class="o">**</span><span class="mi">2</span> <span class="o">+</span>
                                    <span class="n">stokes_v_surface</span><span class="o">**</span><span class="mi">2</span><span class="p">)</span>
 
@@ -504,10 +504,10 @@
 <span class="k">def</span><span class="w"> </span><span class="nf">stokes_drift_profile_exponential</span><span class="p">(</span><span class="n">stokes_u_surface</span><span class="p">,</span> <span class="n">stokes_v_surface</span><span class="p">,</span>
                                      <span class="n">significant_wave_height</span><span class="p">,</span> <span class="n">mean_wave_period</span><span class="p">,</span> <span class="n">z</span><span class="p">):</span>
 
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    Breivik, O., Janssen, P., Bidlot, J., 2014. Approximate stokes drift profiles in deep water.</span>
 <span class="sd">    J. Phys. Oceanogr. 44, 2433-2445.  doi:10.1175/JPO-D-14-0020.1.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
 
     <span class="n">stokes_surface_speed</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">stokes_u_surface</span><span class="o">**</span><span class="mi">2</span> <span class="o">+</span>
                                      <span class="n">stokes_v_surface</span><span class="o">**</span><span class="mi">2</span><span class="p">)</span>
@@ -535,10 +535,10 @@
 <a class="viewcode-back" href="../../../autoapi/opendrift/models/physics_methods/index.html#opendrift.models.basemodel.stokes_drift_profile_phillips">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">stokes_drift_profile_phillips</span><span class="p">(</span><span class="n">stokes_u_surface</span><span class="p">,</span> <span class="n">stokes_v_surface</span><span class="p">,</span>
                                   <span class="n">significant_wave_height</span><span class="p">,</span> <span class="n">mean_wave_period</span><span class="p">,</span> <span class="n">z</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    Calculate vertical Stokes drift profile from</span>
 <span class="sd">    Breivik et al. 2016, A Stokes drift approximation based on the Phillips spectrum, Ocean Mod. 100</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
 
     <span class="n">alpha</span> <span class="o">=</span> <span class="mf">0.0083</span>
     <span class="n">stokes_surface_speed</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">stokes_u_surface</span><span class="o">**</span><span class="mi">2</span> <span class="o">+</span>
@@ -569,11 +569,11 @@
 <span class="k">def</span><span class="w"> </span><span class="nf">stokes_drift_profile_windsea_swell</span><span class="p">(</span><span class="n">stokes_u_surface</span><span class="p">,</span> <span class="n">stokes_v_surface</span><span class="p">,</span>
                                        <span class="n">swell_mean_direction_to</span><span class="p">,</span> <span class="n">swell_mean_period</span><span class="p">,</span> <span class="n">swell_height</span><span class="p">,</span>
                                        <span class="n">wind_sea_mean_direction_to</span><span class="p">,</span> <span class="n">wind_sea_mean_period</span><span class="p">,</span> <span class="n">wind_sea_height</span><span class="p">,</span> <span class="n">z</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    Calculate vertical Stokes drift profile from</span>
 <span class="sd">    Breivik, O., and K. H. Christensen, 2020: A Combined Stokes Drift Profile under Swell and Wind Sea.</span>
 <span class="sd">        J. Phys. Oceanogr., 50, 2819-2833, https://doi.org/10.1175/JPO-D-20-0087.1.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
 
     <span class="c1"># NB / TODO: assuming here that u is east and v is north</span>
 
@@ -610,7 +610,7 @@
 <div class="viewcode-block" id="ftle">
 <a class="viewcode-back" href="../../../autoapi/opendrift/models/physics_methods/index.html#opendrift.models.basemodel.ftle">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">ftle</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="n">Y</span><span class="p">,</span> <span class="n">delta</span><span class="p">,</span> <span class="n">duration</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Calculate Finite Time Lyapunov Exponents&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""Calculate Finite Time Lyapunov Exponents"""</span>
     <span class="c1"># From Johannes Rohrs</span>
     <span class="n">nx</span> <span class="o">=</span> <span class="n">X</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
     <span class="n">ny</span> <span class="o">=</span> <span class="n">X</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
@@ -643,34 +643,34 @@
 <div class="viewcode-block" id="wave_stokes_drift_parameterised">
 <a class="viewcode-back" href="../../../autoapi/opendrift/models/physics_methods/index.html#opendrift.models.basemodel.wave_stokes_drift_parameterised">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">wave_stokes_drift_parameterised</span><span class="p">(</span><span class="n">wind</span><span class="p">,</span> <span class="n">fetch</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    Parameterise stokes drift based on pre calculated tables and fetch.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="k">global</span> <span class="n">__stokes_coefficients__</span>
 
     <span class="n">Wf</span>       <span class="o">=</span> <span class="p">{}</span>
-    <span class="n">Wf</span><span class="p">[</span><span class="s1">&#39;5000&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="mf">0.0173</span><span class="p">,</span><span class="mf">0.0160</span><span class="p">,</span><span class="mf">0.0152</span><span class="p">,</span><span class="mf">0.0145</span><span class="p">,</span><span class="mf">0.0139</span><span class="p">,</span><span class="mf">0.0135</span><span class="p">,</span>
+    <span class="n">Wf</span><span class="p">[</span><span class="s1">'5000'</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="mf">0.0173</span><span class="p">,</span><span class="mf">0.0160</span><span class="p">,</span><span class="mf">0.0152</span><span class="p">,</span><span class="mf">0.0145</span><span class="p">,</span><span class="mf">0.0139</span><span class="p">,</span><span class="mf">0.0135</span><span class="p">,</span>
                 <span class="mf">0.0132</span><span class="p">,</span><span class="mf">0.0129</span><span class="p">,</span><span class="mf">0.0126</span><span class="p">,</span><span class="mf">0.0124</span><span class="p">,</span><span class="mf">0.0122</span><span class="p">,</span><span class="mf">0.0121</span><span class="p">,</span>
                 <span class="mf">0.0119</span><span class="p">,</span><span class="mf">0.0118</span><span class="p">,</span><span class="mf">0.0117</span><span class="p">,</span><span class="mf">0.0116</span><span class="p">,</span><span class="mf">0.0114</span><span class="p">,</span><span class="mf">0.0113</span><span class="p">,</span>
                 <span class="mf">0.0112</span><span class="p">,</span><span class="mf">0.0112</span><span class="p">,</span><span class="mf">0.0111</span><span class="p">,</span><span class="mf">0.0110</span><span class="p">,</span><span class="mf">0.0109</span><span class="p">,</span><span class="mf">0.0109</span><span class="p">,</span>
                 <span class="mf">0.0108</span><span class="p">,</span><span class="mf">0.0107</span><span class="p">,</span><span class="mf">0.0106</span><span class="p">,</span><span class="mf">0.0106</span><span class="p">,</span><span class="mf">0.0106</span><span class="p">,</span><span class="mf">0.0105</span><span class="p">)</span>
 
-    <span class="n">Wf</span><span class="p">[</span><span class="s1">&#39;25000&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="mf">0.0173</span><span class="p">,</span><span class="mf">0.0197</span><span class="p">,</span><span class="mf">0.0201</span><span class="p">,</span><span class="mf">0.0185</span><span class="p">,</span><span class="mf">0.0181</span><span class="p">,</span><span class="mf">0.0176</span><span class="p">,</span>
+    <span class="n">Wf</span><span class="p">[</span><span class="s1">'25000'</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="mf">0.0173</span><span class="p">,</span><span class="mf">0.0197</span><span class="p">,</span><span class="mf">0.0201</span><span class="p">,</span><span class="mf">0.0185</span><span class="p">,</span><span class="mf">0.0181</span><span class="p">,</span><span class="mf">0.0176</span><span class="p">,</span>
                     <span class="mf">0.0171</span><span class="p">,</span><span class="mf">0.0167</span><span class="p">,</span><span class="mf">0.0164</span><span class="p">,</span><span class="mf">0.0160</span><span class="p">,</span><span class="mf">0.0158</span><span class="p">,</span><span class="mf">0.0155</span><span class="p">,</span>
                     <span class="mf">0.0153</span><span class="p">,</span><span class="mf">0.0151</span><span class="p">,</span><span class="mf">0.0149</span><span class="p">,</span><span class="mf">0.0147</span><span class="p">,</span><span class="mf">0.0146</span><span class="p">,</span><span class="mf">0.0144</span><span class="p">,</span>
                     <span class="mf">0.0143</span><span class="p">,</span><span class="mf">0.0142</span><span class="p">,</span><span class="mf">0.0140</span><span class="p">,</span><span class="mf">0.0139</span><span class="p">,</span><span class="mf">0.0138</span><span class="p">,</span><span class="mf">0.0137</span><span class="p">,</span>
                     <span class="mf">0.0136</span><span class="p">,</span><span class="mf">0.0135</span><span class="p">,</span><span class="mf">0.0135</span><span class="p">,</span><span class="mf">0.0134</span><span class="p">,</span><span class="mf">0.0133</span><span class="p">,</span><span class="mf">0.0132</span><span class="p">)</span>
 
-    <span class="n">Wf</span><span class="p">[</span><span class="s1">&#39;50000&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="mf">0.0173</span><span class="p">,</span><span class="mf">0.0197</span><span class="p">,</span><span class="mf">0.0210</span><span class="p">,</span><span class="mf">0.0216</span><span class="p">,</span><span class="mf">0.0201</span><span class="p">,</span><span class="mf">0.0194</span><span class="p">,</span>
+    <span class="n">Wf</span><span class="p">[</span><span class="s1">'50000'</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="mf">0.0173</span><span class="p">,</span><span class="mf">0.0197</span><span class="p">,</span><span class="mf">0.0210</span><span class="p">,</span><span class="mf">0.0216</span><span class="p">,</span><span class="mf">0.0201</span><span class="p">,</span><span class="mf">0.0194</span><span class="p">,</span>
                     <span class="mf">0.0190</span><span class="p">,</span><span class="mf">0.0186</span><span class="p">,</span><span class="mf">0.0183</span><span class="p">,</span><span class="mf">0.0179</span><span class="p">,</span><span class="mf">0.0176</span><span class="p">,</span><span class="mf">0.0173</span><span class="p">,</span>
                     <span class="mf">0.0171</span><span class="p">,</span><span class="mf">0.0168</span><span class="p">,</span><span class="mf">0.0166</span><span class="p">,</span><span class="mf">0.0164</span><span class="p">,</span><span class="mf">0.0162</span><span class="p">,</span><span class="mf">0.0160</span><span class="p">,</span>
                     <span class="mf">0.0159</span><span class="p">,</span><span class="mf">0.0157</span><span class="p">,</span><span class="mf">0.0156</span><span class="p">,</span><span class="mf">0.0155</span><span class="p">,</span><span class="mf">0.0153</span><span class="p">,</span><span class="mf">0.0152</span><span class="p">,</span>
                     <span class="mf">0.0151</span><span class="p">,</span><span class="mf">0.0150</span><span class="p">,</span><span class="mf">0.0149</span><span class="p">,</span><span class="mf">0.0148</span><span class="p">,</span><span class="mf">0.0147</span><span class="p">,</span><span class="mf">0.0146</span><span class="p">)</span>
-    <span class="n">n</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;5000&#39;</span><span class="p">:</span> <span class="mi">3</span><span class="p">,</span> <span class="s1">&#39;25000&#39;</span><span class="p">:</span><span class="mi">6</span><span class="p">,</span> <span class="s1">&#39;50000&#39;</span><span class="p">:</span> <span class="mi">6</span><span class="p">}</span>  <span class="c1"># Polynom order</span>
+    <span class="n">n</span> <span class="o">=</span> <span class="p">{</span><span class="s1">'5000'</span><span class="p">:</span> <span class="mi">3</span><span class="p">,</span> <span class="s1">'25000'</span><span class="p">:</span><span class="mi">6</span><span class="p">,</span> <span class="s1">'50000'</span><span class="p">:</span> <span class="mi">6</span><span class="p">}</span>  <span class="c1"># Polynom order</span>
 
     <span class="k">if</span> <span class="n">__stokes_coefficients__</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
         <span class="n">c</span> <span class="o">=</span> <span class="p">{}</span>
-        <span class="k">for</span> <span class="n">f</span> <span class="ow">in</span> <span class="p">[</span><span class="s1">&#39;5000&#39;</span><span class="p">,</span> <span class="s1">&#39;25000&#39;</span><span class="p">,</span> <span class="s1">&#39;50000&#39;</span><span class="p">]:</span>
+        <span class="k">for</span> <span class="n">f</span> <span class="ow">in</span> <span class="p">[</span><span class="s1">'5000'</span><span class="p">,</span> <span class="s1">'25000'</span><span class="p">,</span> <span class="s1">'50000'</span><span class="p">]:</span>
             <span class="n">c</span><span class="p">[</span><span class="n">f</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">polyfit</span><span class="p">(</span>
                 <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">Wf</span><span class="p">[</span><span class="n">f</span><span class="p">])),</span> <span class="n">Wf</span><span class="p">[</span><span class="n">f</span><span class="p">],</span> <span class="n">n</span><span class="p">[</span><span class="n">f</span><span class="p">])</span>
         <span class="n">__stokes_coefficients__</span> <span class="o">=</span> <span class="n">c</span>
@@ -688,26 +688,26 @@
 <div class="viewcode-block" id="wave_significant_height_parameterised">
 <a class="viewcode-back" href="../../../autoapi/opendrift/models/physics_methods/index.html#opendrift.models.basemodel.wave_significant_height_parameterised">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">wave_significant_height_parameterised</span><span class="p">(</span><span class="n">wind</span><span class="p">,</span> <span class="n">fetch</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    Parameterise significant wave height based on pre calculated tables and fetch.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
 
     <span class="k">global</span> <span class="n">__stokes_hs_coefficients__</span>
 
     <span class="n">Sw</span>       <span class="o">=</span> <span class="p">{}</span>
-    <span class="n">Sw</span><span class="p">[</span><span class="s1">&#39;5000&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="mf">0.030</span><span class="p">,</span><span class="mf">0.077</span><span class="p">,</span><span class="mf">0.124</span><span class="p">,</span><span class="mf">0.170</span><span class="p">,</span><span class="mf">0.216</span><span class="p">,</span><span class="mf">0.263</span><span class="p">,</span>
+    <span class="n">Sw</span><span class="p">[</span><span class="s1">'5000'</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="mf">0.030</span><span class="p">,</span><span class="mf">0.077</span><span class="p">,</span><span class="mf">0.124</span><span class="p">,</span><span class="mf">0.170</span><span class="p">,</span><span class="mf">0.216</span><span class="p">,</span><span class="mf">0.263</span><span class="p">,</span>
                 <span class="mf">0.311</span><span class="p">,</span><span class="mf">0.360</span><span class="p">,</span><span class="mf">0.409</span><span class="p">,</span><span class="mf">0.459</span><span class="p">,</span><span class="mf">0.509</span><span class="p">,</span><span class="mf">0.560</span><span class="p">,</span>
                 <span class="mf">0.612</span><span class="p">,</span><span class="mf">0.664</span><span class="p">,</span><span class="mf">0.716</span><span class="p">,</span><span class="mf">0.771</span><span class="p">,</span><span class="mf">0.823</span><span class="p">,</span><span class="mf">0.876</span><span class="p">,</span>
                 <span class="mf">0.932</span><span class="p">,</span><span class="mf">0.987</span><span class="p">,</span><span class="mf">1.041</span><span class="p">,</span><span class="mf">1.095</span><span class="p">,</span><span class="mf">1.152</span><span class="p">,</span><span class="mf">1.210</span><span class="p">,</span>
                 <span class="mf">1.265</span><span class="p">,</span><span class="mf">1.319</span><span class="p">,</span><span class="mf">1.375</span><span class="p">,</span><span class="mf">1.434</span><span class="p">,</span><span class="mf">1.494</span><span class="p">,</span><span class="mf">1.552</span><span class="p">)</span>
 
-    <span class="n">Sw</span><span class="p">[</span><span class="s1">&#39;25000&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="mf">0.030</span><span class="p">,</span><span class="mf">0.122</span><span class="p">,</span><span class="mf">0.251</span><span class="p">,</span><span class="mf">0.336</span><span class="p">,</span><span class="mf">0.442</span><span class="p">,</span><span class="mf">0.546</span><span class="p">,</span>
+    <span class="n">Sw</span><span class="p">[</span><span class="s1">'25000'</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="mf">0.030</span><span class="p">,</span><span class="mf">0.122</span><span class="p">,</span><span class="mf">0.251</span><span class="p">,</span><span class="mf">0.336</span><span class="p">,</span><span class="mf">0.442</span><span class="p">,</span><span class="mf">0.546</span><span class="p">,</span>
                     <span class="mf">0.650</span><span class="p">,</span><span class="mf">0.753</span><span class="p">,</span><span class="mf">0.856</span><span class="p">,</span><span class="mf">0.959</span><span class="p">,</span><span class="mf">1.063</span><span class="p">,</span><span class="mf">1.168</span><span class="p">,</span>
                     <span class="mf">1.273</span><span class="p">,</span><span class="mf">1.379</span><span class="p">,</span><span class="mf">1.486</span><span class="p">,</span><span class="mf">1.593</span><span class="p">,</span><span class="mf">1.702</span><span class="p">,</span><span class="mf">1.811</span><span class="p">,</span>
                     <span class="mf">1.920</span><span class="p">,</span><span class="mf">2.030</span><span class="p">,</span><span class="mf">2.142</span><span class="p">,</span><span class="mf">2.254</span><span class="p">,</span><span class="mf">2.366</span><span class="p">,</span><span class="mf">2.478</span><span class="p">,</span>
                     <span class="mf">2.592</span><span class="p">,</span><span class="mf">2.707</span><span class="p">,</span><span class="mf">2.822</span><span class="p">,</span><span class="mf">2.936</span><span class="p">,</span><span class="mf">3.051</span><span class="p">,</span><span class="mf">3.166</span><span class="p">)</span>
 
-    <span class="n">Sw</span><span class="p">[</span><span class="s1">&#39;50000&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="mf">0.030</span><span class="p">,</span><span class="mf">0.122</span><span class="p">,</span><span class="mf">0.274</span><span class="p">,</span><span class="mf">0.474</span><span class="p">,</span><span class="mf">0.591</span><span class="p">,</span><span class="mf">0.724</span><span class="p">,</span>
+    <span class="n">Sw</span><span class="p">[</span><span class="s1">'50000'</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="mf">0.030</span><span class="p">,</span><span class="mf">0.122</span><span class="p">,</span><span class="mf">0.274</span><span class="p">,</span><span class="mf">0.474</span><span class="p">,</span><span class="mf">0.591</span><span class="p">,</span><span class="mf">0.724</span><span class="p">,</span>
                     <span class="mf">0.873</span><span class="p">,</span><span class="mf">1.021</span><span class="p">,</span><span class="mf">1.168</span><span class="p">,</span><span class="mf">1.314</span><span class="p">,</span><span class="mf">1.460</span><span class="p">,</span><span class="mf">1.606</span><span class="p">,</span>
                     <span class="mf">1.752</span><span class="p">,</span><span class="mf">1.898</span><span class="p">,</span><span class="mf">2.045</span><span class="p">,</span><span class="mf">2.192</span><span class="p">,</span><span class="mf">2.340</span><span class="p">,</span><span class="mf">2.489</span><span class="p">,</span>
                     <span class="mf">2.639</span><span class="p">,</span><span class="mf">2.789</span><span class="p">,</span><span class="mf">2.940</span><span class="p">,</span><span class="mf">3.092</span><span class="p">,</span><span class="mf">3.244</span><span class="p">,</span><span class="mf">3.397</span><span class="p">,</span>
@@ -715,7 +715,7 @@
 
     <span class="k">if</span> <span class="n">__stokes_hs_coefficients__</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
         <span class="n">c</span> <span class="o">=</span> <span class="p">{}</span>
-        <span class="k">for</span> <span class="n">f</span> <span class="ow">in</span> <span class="p">[</span><span class="s1">&#39;5000&#39;</span><span class="p">,</span> <span class="s1">&#39;25000&#39;</span><span class="p">,</span> <span class="s1">&#39;50000&#39;</span><span class="p">]:</span>
+        <span class="k">for</span> <span class="n">f</span> <span class="ow">in</span> <span class="p">[</span><span class="s1">'5000'</span><span class="p">,</span> <span class="s1">'25000'</span><span class="p">,</span> <span class="s1">'50000'</span><span class="p">]:</span>
             <span class="n">c</span><span class="p">[</span><span class="n">f</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">polyfit</span><span class="p">(</span>
                 <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">Sw</span><span class="p">[</span><span class="n">f</span><span class="p">])),</span> <span class="n">Sw</span><span class="p">[</span><span class="n">f</span><span class="p">],</span> <span class="mi">1</span><span class="p">)</span>
         <span class="n">__stokes_hs_coefficients__</span> <span class="o">=</span> <span class="n">c</span>
@@ -731,13 +731,13 @@
 <div class="viewcode-block" id="PhysicsMethods">
 <a class="viewcode-back" href="../../../autoapi/opendrift/models/physics_methods/index.html#opendrift.models.basemodel.PhysicsMethods">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">PhysicsMethods</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Physics methods to be inherited by OpenDriftSimulation class&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""Physics methods to be inherited by OpenDriftSimulation class"""</span>
 
 <div class="viewcode-block" id="PhysicsMethods.sea_water_density">
 <a class="viewcode-back" href="../../../autoapi/opendrift/models/physics_methods/index.html#opendrift.models.basemodel.PhysicsMethods.sea_water_density">[docs]</a>
     <span class="nd">@staticmethod</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">sea_water_density</span><span class="p">(</span><span class="n">T</span><span class="o">=</span><span class="mf">10.</span><span class="p">,</span> <span class="n">S</span><span class="o">=</span><span class="mf">35.</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&#39;&#39;&#39;The function gives the density of seawater at one atmosphere</span>
+<span class="w">        </span><span class="sd">'''The function gives the density of seawater at one atmosphere</span>
 <span class="sd">        pressure as given in :</span>
 
 <span class="sd">        N.P. Fofonoff and R.C. Millard Jr.,1983,</span>
@@ -745,10 +745,10 @@
 
 <span class="sd">        S   = Salinity in promille of the seawater</span>
 <span class="sd">        T   = Temperature of the seawater in degrees Celsius</span>
-<span class="sd">        &#39;&#39;&#39;</span>
+<span class="sd">        '''</span>
 
         <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">atleast_1d</span><span class="p">(</span><span class="n">T</span><span class="p">)</span><span class="o">.</span><span class="n">max</span><span class="p">()</span> <span class="o">&gt;</span> <span class="mi">100</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;Temperature should be in celcius, but is &gt; 100&#39;</span><span class="p">)</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">'Temperature should be in celcius, but is &gt; 100'</span><span class="p">)</span>
 
         <span class="n">R4</span> <span class="o">=</span> <span class="mf">4.8314E-04</span>
         <span class="n">DR350</span> <span class="o">=</span> <span class="mf">28.106331</span>
@@ -783,13 +783,13 @@
         <span class="n">cdfmax</span> <span class="o">=</span> <span class="n">cdf</span><span class="o">.</span><span class="n">max</span><span class="p">()</span>
         <span class="k">if</span> <span class="n">cdfmin</span> <span class="o">!=</span> <span class="mi">1</span> <span class="ow">or</span> <span class="n">cdfmax</span> <span class="o">!=</span> <span class="mi">1</span><span class="p">:</span>
             <span class="k">if</span> <span class="n">cdfmin</span> <span class="o">==</span> <span class="n">cdfmax</span><span class="p">:</span>
-                <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;Using currrent drift factor of </span><span class="si">%s</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="n">cdf</span><span class="p">)</span>
+                <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">'Using currrent drift factor of </span><span class="si">%s</span><span class="s1">'</span> <span class="o">%</span> <span class="n">cdf</span><span class="p">)</span>
             <span class="k">else</span><span class="p">:</span>
-                <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;Using currrent drift factor between </span><span class="si">%s</span><span class="s1"> and </span><span class="si">%s</span><span class="s1">&#39;</span>
+                <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">'Using currrent drift factor between </span><span class="si">%s</span><span class="s1"> and </span><span class="si">%s</span><span class="s1">'</span>
                              <span class="o">%</span> <span class="p">(</span><span class="n">cdfmin</span><span class="p">,</span> <span class="n">cdfmax</span><span class="p">))</span>
         <span class="n">factor</span> <span class="o">=</span> <span class="n">factor</span><span class="o">*</span><span class="n">cdf</span>
         <span class="c1"># Runge-Kutta scheme</span>
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_config</span><span class="p">(</span><span class="s1">&#39;drift:advection_scheme&#39;</span><span class="p">)[</span><span class="mi">0</span><span class="p">:</span><span class="mi">11</span><span class="p">]</span> <span class="o">==</span> <span class="s1">&#39;runge-kutta&#39;</span><span class="p">:</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_config</span><span class="p">(</span><span class="s1">'drift:advection_scheme'</span><span class="p">)[</span><span class="mi">0</span><span class="p">:</span><span class="mi">11</span><span class="p">]</span> <span class="o">==</span> <span class="s1">'runge-kutta'</span><span class="p">:</span>
             <span class="n">x_vel</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">environment</span><span class="o">.</span><span class="n">x_sea_water_velocity</span>
             <span class="n">y_vel</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">environment</span><span class="o">.</span><span class="n">y_sea_water_velocity</span>
 
@@ -797,20 +797,20 @@
             <span class="n">az</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">degrees</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">arctan2</span><span class="p">(</span><span class="n">x_vel</span><span class="p">,</span> <span class="n">y_vel</span><span class="p">))</span>
             <span class="n">speed</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">x_vel</span><span class="o">*</span><span class="n">x_vel</span> <span class="o">+</span> <span class="n">y_vel</span><span class="o">*</span><span class="n">y_vel</span><span class="p">)</span>
             <span class="n">dist</span> <span class="o">=</span> <span class="n">speed</span><span class="o">*</span><span class="bp">self</span><span class="o">.</span><span class="n">time_step</span><span class="o">.</span><span class="n">total_seconds</span><span class="p">()</span><span class="o">*</span><span class="mf">.5</span>
-            <span class="n">geod</span> <span class="o">=</span> <span class="n">pyproj</span><span class="o">.</span><span class="n">Geod</span><span class="p">(</span><span class="n">ellps</span><span class="o">=</span><span class="s1">&#39;WGS84&#39;</span><span class="p">)</span>
+            <span class="n">geod</span> <span class="o">=</span> <span class="n">pyproj</span><span class="o">.</span><span class="n">Geod</span><span class="p">(</span><span class="n">ellps</span><span class="o">=</span><span class="s1">'WGS84'</span><span class="p">)</span>
             <span class="n">mid_lon</span><span class="p">,</span> <span class="n">mid_lat</span><span class="p">,</span> <span class="n">dummy</span> <span class="o">=</span> <span class="n">geod</span><span class="o">.</span><span class="n">fwd</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">elements</span><span class="o">.</span><span class="n">lon</span><span class="p">,</span>
                                                <span class="bp">self</span><span class="o">.</span><span class="n">elements</span><span class="o">.</span><span class="n">lat</span><span class="p">,</span>
                                                <span class="n">az</span><span class="p">,</span> <span class="n">dist</span><span class="p">,</span> <span class="n">radians</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
             <span class="c1"># Find current at midpoint, a half timestep later</span>
-            <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;Runge-kutta, fetching half time-step later...&#39;</span><span class="p">)</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">'Runge-kutta, fetching half time-step later...'</span><span class="p">)</span>
             <span class="n">mid_env</span><span class="p">,</span> <span class="n">profiles</span><span class="p">,</span> <span class="n">missing</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">env</span><span class="o">.</span><span class="n">get_environment</span><span class="p">(</span>
-                <span class="p">[</span><span class="s1">&#39;x_sea_water_velocity&#39;</span><span class="p">,</span> <span class="s1">&#39;y_sea_water_velocity&#39;</span><span class="p">],</span>
+                <span class="p">[</span><span class="s1">'x_sea_water_velocity'</span><span class="p">,</span> <span class="s1">'y_sea_water_velocity'</span><span class="p">],</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">time</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">time_step</span><span class="o">/</span><span class="mi">2</span><span class="p">,</span>
                 <span class="n">mid_lon</span><span class="p">,</span> <span class="n">mid_lat</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">elements</span><span class="o">.</span><span class="n">z</span><span class="p">,</span> <span class="n">profiles</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">element_ID</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">elements</span><span class="o">.</span><span class="n">ID</span><span class="p">)</span>
-            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_config</span><span class="p">(</span><span class="s1">&#39;drift:advection_scheme&#39;</span><span class="p">)</span> <span class="o">==</span> <span class="s1">&#39;runge-kutta4&#39;</span><span class="p">:</span>
-                <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;Runge-kutta 4th order...&#39;</span><span class="p">)</span>
-                <span class="n">x_vel2</span> <span class="o">=</span> <span class="n">mid_env</span><span class="p">[</span><span class="s1">&#39;x_sea_water_velocity&#39;</span><span class="p">]</span>
-                <span class="n">y_vel2</span> <span class="o">=</span> <span class="n">mid_env</span><span class="p">[</span><span class="s1">&#39;y_sea_water_velocity&#39;</span><span class="p">]</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_config</span><span class="p">(</span><span class="s1">'drift:advection_scheme'</span><span class="p">)</span> <span class="o">==</span> <span class="s1">'runge-kutta4'</span><span class="p">:</span>
+                <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">'Runge-kutta 4th order...'</span><span class="p">)</span>
+                <span class="n">x_vel2</span> <span class="o">=</span> <span class="n">mid_env</span><span class="p">[</span><span class="s1">'x_sea_water_velocity'</span><span class="p">]</span>
+                <span class="n">y_vel2</span> <span class="o">=</span> <span class="n">mid_env</span><span class="p">[</span><span class="s1">'y_sea_water_velocity'</span><span class="p">]</span>
                 <span class="n">az2</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">degrees</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">arctan2</span><span class="p">(</span><span class="n">x_vel2</span><span class="p">,</span> <span class="n">y_vel2</span><span class="p">))</span>
                 <span class="n">speed2</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">x_vel2</span><span class="o">*</span><span class="n">x_vel2</span> <span class="o">+</span> <span class="n">y_vel2</span><span class="o">*</span><span class="n">y_vel2</span><span class="p">)</span>
                 <span class="n">dist2</span> <span class="o">=</span> <span class="n">speed2</span><span class="o">*</span><span class="bp">self</span><span class="o">.</span><span class="n">time_step</span><span class="o">.</span><span class="n">total_seconds</span><span class="p">()</span><span class="o">*</span><span class="mf">.5</span>
@@ -819,12 +819,12 @@
                              <span class="bp">self</span><span class="o">.</span><span class="n">elements</span><span class="o">.</span><span class="n">lat</span><span class="p">,</span>
                              <span class="n">az2</span><span class="p">,</span> <span class="n">dist2</span><span class="p">,</span> <span class="n">radians</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
                 <span class="n">env2</span><span class="p">,</span> <span class="n">profiles</span><span class="p">,</span> <span class="n">missing</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">env</span><span class="o">.</span><span class="n">get_environment</span><span class="p">(</span>
-                    <span class="p">[</span><span class="s1">&#39;x_sea_water_velocity&#39;</span><span class="p">,</span> <span class="s1">&#39;y_sea_water_velocity&#39;</span><span class="p">],</span>
+                    <span class="p">[</span><span class="s1">'x_sea_water_velocity'</span><span class="p">,</span> <span class="s1">'y_sea_water_velocity'</span><span class="p">],</span>
                     <span class="bp">self</span><span class="o">.</span><span class="n">time</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">time_step</span><span class="o">/</span><span class="mi">2</span><span class="p">,</span>
                     <span class="n">lon2</span><span class="p">,</span> <span class="n">lat2</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">elements</span><span class="o">.</span><span class="n">z</span><span class="p">,</span> <span class="n">profiles</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">element_ID</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">elements</span><span class="o">.</span><span class="n">ID</span><span class="p">)</span>
                 <span class="c1"># Third step</span>
-                <span class="n">x_vel3</span> <span class="o">=</span> <span class="n">env2</span><span class="p">[</span><span class="s1">&#39;x_sea_water_velocity&#39;</span><span class="p">]</span>
-                <span class="n">y_vel3</span> <span class="o">=</span> <span class="n">env2</span><span class="p">[</span><span class="s1">&#39;y_sea_water_velocity&#39;</span><span class="p">]</span>
+                <span class="n">x_vel3</span> <span class="o">=</span> <span class="n">env2</span><span class="p">[</span><span class="s1">'x_sea_water_velocity'</span><span class="p">]</span>
+                <span class="n">y_vel3</span> <span class="o">=</span> <span class="n">env2</span><span class="p">[</span><span class="s1">'y_sea_water_velocity'</span><span class="p">]</span>
                 <span class="n">az3</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">degrees</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">arctan2</span><span class="p">(</span><span class="n">x_vel3</span><span class="p">,</span> <span class="n">y_vel3</span><span class="p">))</span>
                 <span class="n">speed3</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">x_vel3</span><span class="o">*</span><span class="n">x_vel3</span> <span class="o">+</span> <span class="n">y_vel3</span><span class="o">*</span><span class="n">y_vel3</span><span class="p">)</span>
                 <span class="n">dist3</span> <span class="o">=</span> <span class="n">speed3</span><span class="o">*</span><span class="bp">self</span><span class="o">.</span><span class="n">time_step</span><span class="o">.</span><span class="n">total_seconds</span><span class="p">()</span><span class="o">*</span><span class="mf">.5</span>
@@ -833,12 +833,12 @@
                              <span class="bp">self</span><span class="o">.</span><span class="n">elements</span><span class="o">.</span><span class="n">lat</span><span class="p">,</span>
                              <span class="n">az3</span><span class="p">,</span> <span class="n">dist3</span><span class="p">,</span> <span class="n">radians</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
                 <span class="n">env3</span><span class="p">,</span> <span class="n">profiles</span><span class="p">,</span> <span class="n">missing</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">env</span><span class="o">.</span><span class="n">get_environment</span><span class="p">(</span>
-                    <span class="p">[</span><span class="s1">&#39;x_sea_water_velocity&#39;</span><span class="p">,</span> <span class="s1">&#39;y_sea_water_velocity&#39;</span><span class="p">],</span>
+                    <span class="p">[</span><span class="s1">'x_sea_water_velocity'</span><span class="p">,</span> <span class="s1">'y_sea_water_velocity'</span><span class="p">],</span>
                     <span class="bp">self</span><span class="o">.</span><span class="n">time</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">time_step</span><span class="p">,</span>
                     <span class="n">lon3</span><span class="p">,</span> <span class="n">lat3</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">elements</span><span class="o">.</span><span class="n">z</span><span class="p">,</span> <span class="n">profiles</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">element_ID</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">elements</span><span class="o">.</span><span class="n">ID</span><span class="p">)</span>
                 <span class="c1"># Fourth step</span>
-                <span class="n">x_vel4</span> <span class="o">=</span> <span class="n">env3</span><span class="p">[</span><span class="s1">&#39;x_sea_water_velocity&#39;</span><span class="p">]</span>
-                <span class="n">y_vel4</span> <span class="o">=</span> <span class="n">env3</span><span class="p">[</span><span class="s1">&#39;y_sea_water_velocity&#39;</span><span class="p">]</span>
+                <span class="n">x_vel4</span> <span class="o">=</span> <span class="n">env3</span><span class="p">[</span><span class="s1">'x_sea_water_velocity'</span><span class="p">]</span>
+                <span class="n">y_vel4</span> <span class="o">=</span> <span class="n">env3</span><span class="p">[</span><span class="s1">'y_sea_water_velocity'</span><span class="p">]</span>
                 <span class="n">u4</span> <span class="o">=</span> <span class="p">(</span><span class="n">x_vel</span> <span class="o">+</span> <span class="mi">2</span><span class="o">*</span><span class="n">x_vel2</span> <span class="o">+</span> <span class="mi">2</span><span class="o">*</span> <span class="n">x_vel3</span> <span class="o">+</span> <span class="n">x_vel4</span><span class="p">)</span><span class="o">/</span><span class="mf">6.0</span>
                 <span class="n">v4</span> <span class="o">=</span> <span class="p">(</span><span class="n">y_vel</span> <span class="o">+</span> <span class="mi">2</span><span class="o">*</span><span class="n">y_vel2</span> <span class="o">+</span> <span class="mi">2</span><span class="o">*</span> <span class="n">y_vel3</span> <span class="o">+</span> <span class="n">y_vel4</span><span class="p">)</span><span class="o">/</span><span class="mf">6.0</span>
                 <span class="c1"># Move particles using runge-kutta4 velocity</span>
@@ -847,28 +847,28 @@
             <span class="k">else</span><span class="p">:</span>
                 <span class="c1"># Move particles using runge-kutta velocity</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">update_positions</span><span class="p">(</span>
-                        <span class="n">factor</span><span class="o">*</span><span class="n">mid_env</span><span class="p">[</span><span class="s1">&#39;x_sea_water_velocity&#39;</span><span class="p">],</span>
-                        <span class="n">factor</span><span class="o">*</span><span class="n">mid_env</span><span class="p">[</span><span class="s1">&#39;y_sea_water_velocity&#39;</span><span class="p">])</span>
-        <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_config</span><span class="p">(</span><span class="s1">&#39;drift:advection_scheme&#39;</span><span class="p">)</span> <span class="o">==</span> <span class="s1">&#39;euler&#39;</span><span class="p">:</span>
+                        <span class="n">factor</span><span class="o">*</span><span class="n">mid_env</span><span class="p">[</span><span class="s1">'x_sea_water_velocity'</span><span class="p">],</span>
+                        <span class="n">factor</span><span class="o">*</span><span class="n">mid_env</span><span class="p">[</span><span class="s1">'y_sea_water_velocity'</span><span class="p">])</span>
+        <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_config</span><span class="p">(</span><span class="s1">'drift:advection_scheme'</span><span class="p">)</span> <span class="o">==</span> <span class="s1">'euler'</span><span class="p">:</span>
             <span class="c1"># Euler scheme</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">update_positions</span><span class="p">(</span>
                     <span class="n">factor</span><span class="o">*</span><span class="bp">self</span><span class="o">.</span><span class="n">environment</span><span class="o">.</span><span class="n">x_sea_water_velocity</span><span class="p">,</span>
                     <span class="n">factor</span><span class="o">*</span><span class="bp">self</span><span class="o">.</span><span class="n">environment</span><span class="o">.</span><span class="n">y_sea_water_velocity</span><span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;Drift scheme not recognised: &#39;</span> <span class="o">+</span>
-                             <span class="bp">self</span><span class="o">.</span><span class="n">get_config</span><span class="p">(</span><span class="s1">&#39;drift:advection_scheme&#39;</span><span class="p">))</span></div>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">'Drift scheme not recognised: '</span> <span class="o">+</span>
+                             <span class="bp">self</span><span class="o">.</span><span class="n">get_config</span><span class="p">(</span><span class="s1">'drift:advection_scheme'</span><span class="p">))</span></div>
 
 
 <div class="viewcode-block" id="PhysicsMethods.advect_with_sea_ice">
 <a class="viewcode-back" href="../../../autoapi/opendrift/models/physics_methods/index.html#opendrift.models.basemodel.PhysicsMethods.advect_with_sea_ice">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">advect_with_sea_ice</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">factor</span><span class="o">=</span><span class="mi">1</span><span class="p">):</span>
-        <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">environment</span><span class="p">,</span> <span class="s1">&#39;sea_ice_x_velocity&#39;</span><span class="p">):</span>
+        <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">environment</span><span class="p">,</span> <span class="s1">'sea_ice_x_velocity'</span><span class="p">):</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">update_positions</span><span class="p">(</span>
                     <span class="n">factor</span><span class="o">*</span><span class="bp">self</span><span class="o">.</span><span class="n">environment</span><span class="o">.</span><span class="n">sea_ice_x_velocity</span><span class="p">,</span>
                     <span class="n">factor</span><span class="o">*</span><span class="bp">self</span><span class="o">.</span><span class="n">environment</span><span class="o">.</span><span class="n">sea_ice_y_velocity</span><span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
-            <span class="k">if</span> <span class="ow">not</span> <span class="nb">hasattr</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">environment</span><span class="p">,</span> <span class="s1">&#39;x_sea_water_velocity&#39;</span><span class="p">):</span>
-                <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s1">&#39;No sea ice velocity available&#39;</span><span class="p">)</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="nb">hasattr</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">environment</span><span class="p">,</span> <span class="s1">'x_sea_water_velocity'</span><span class="p">):</span>
+                <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s1">'No sea ice velocity available'</span><span class="p">)</span>
                 <span class="k">return</span>
             <span class="c1"># Sea ice velocity, rule-of-thumb from Nordam,</span>
             <span class="c1"># doi:10.1016/j.marpolbul.2019.01.019</span>
@@ -894,7 +894,7 @@
         <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">atleast_1d</span><span class="p">(</span><span class="n">wind_drift_factor</span><span class="p">))</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
             <span class="n">wind_drift_factor</span> <span class="o">=</span> <span class="n">wind_drift_factor</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">ones</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">elements</span><span class="p">))</span>
         <span class="c1"># Convert z to array</span>
-        <span class="k">if</span> <span class="ow">not</span> <span class="nb">hasattr</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">elements</span><span class="p">,</span> <span class="s1">&#39;z&#39;</span><span class="p">):</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">hasattr</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">elements</span><span class="p">,</span> <span class="s1">'z'</span><span class="p">):</span>
             <span class="n">z</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">elements</span><span class="p">))</span>  <span class="c1"># Assumed on surface, if no z</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="n">z</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">elements</span><span class="o">.</span><span class="n">z</span>
@@ -902,7 +902,7 @@
             <span class="n">z</span> <span class="o">=</span> <span class="n">z</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">ones</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">elements</span><span class="p">))</span>
 
         <span class="k">try</span><span class="p">:</span>
-            <span class="n">wind_drift_depth</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_config</span><span class="p">(</span><span class="s1">&#39;drift:wind_drift_depth&#39;</span><span class="p">)</span>
+            <span class="n">wind_drift_depth</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_config</span><span class="p">(</span><span class="s1">'drift:wind_drift_depth'</span><span class="p">)</span>
         <span class="k">except</span><span class="p">:</span>
             <span class="n">wind_drift_depth</span> <span class="o">=</span> <span class="mi">0</span>
         <span class="k">if</span> <span class="n">wind_drift_depth</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
@@ -914,9 +914,9 @@
         <span class="n">surface</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">elements</span><span class="o">.</span><span class="n">z</span> <span class="o">&gt;=</span> <span class="o">-</span><span class="n">wind_drift_depth</span>
         <span class="k">if</span> <span class="n">surface</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
             <span class="k">if</span> <span class="n">surface_only</span> <span class="ow">is</span> <span class="kc">True</span><span class="p">:</span>
-                <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;All elements are below surface, no wind-induced shear drift&#39;</span><span class="p">)</span>
+                <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">'All elements are below surface, no wind-induced shear drift'</span><span class="p">)</span>
             <span class="k">else</span><span class="p">:</span>
-                <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;All elements are below </span><span class="si">%f</span><span class="s1">m, no wind-induced shear drift&#39;</span> <span class="o">%</span> <span class="n">wind_drift_depth</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+                <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">'All elements are below </span><span class="si">%f</span><span class="s1">m, no wind-induced shear drift'</span> <span class="o">%</span> <span class="n">wind_drift_depth</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
             <span class="k">return</span>
 
         <span class="n">wdf</span> <span class="o">=</span> <span class="n">wind_drift_factor</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
@@ -934,7 +934,7 @@
         <span class="n">y_wind</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">environment</span><span class="o">.</span><span class="n">y_wind</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
 
         <span class="k">try</span><span class="p">:</span>
-            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_config</span><span class="p">(</span><span class="s1">&#39;drift:relative_wind&#39;</span><span class="p">)</span> <span class="ow">is</span> <span class="kc">True</span><span class="p">:</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_config</span><span class="p">(</span><span class="s1">'drift:relative_wind'</span><span class="p">)</span> <span class="ow">is</span> <span class="kc">True</span><span class="p">:</span>
                 <span class="c1"># Use wind relative to (subtracted) ocean current</span>
                 <span class="n">x_wind</span> <span class="o">=</span> <span class="n">x_wind</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">environment</span><span class="o">.</span><span class="n">x_sea_water_velocity</span>
                 <span class="n">y_wind</span> <span class="o">=</span> <span class="n">y_wind</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">environment</span><span class="o">.</span><span class="n">y_sea_water_velocity</span>
@@ -943,21 +943,21 @@
 
         <span class="n">speed</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">x_wind</span><span class="p">[</span><span class="n">surface</span><span class="p">]</span><span class="o">*</span><span class="n">x_wind</span><span class="p">[</span><span class="n">surface</span><span class="p">]</span> <span class="o">+</span> <span class="n">y_wind</span><span class="p">[</span><span class="n">surface</span><span class="p">]</span><span class="o">*</span><span class="n">y_wind</span><span class="p">[</span><span class="n">surface</span><span class="p">])</span>
         <span class="k">if</span> <span class="n">wdf</span><span class="p">[</span><span class="n">surface</span><span class="p">]</span><span class="o">.</span><span class="n">max</span><span class="p">()</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
-            <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;Wind drift factor is 0&#39;</span><span class="p">)</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">'Wind drift factor is 0'</span><span class="p">)</span>
             <span class="k">return</span>
         <span class="k">if</span> <span class="n">speed</span><span class="o">.</span><span class="n">max</span><span class="p">()</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
-            <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;No wind for wind-sheared ocean drift&#39;</span><span class="p">)</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">'No wind for wind-sheared ocean drift'</span><span class="p">)</span>
             <span class="k">return</span>
 
         <span class="n">speed</span> <span class="o">=</span> <span class="n">speed</span><span class="o">*</span><span class="n">wdf</span><span class="p">[</span><span class="n">surface</span><span class="p">]</span>
         <span class="k">if</span> <span class="n">surface_only</span> <span class="ow">is</span> <span class="kc">True</span><span class="p">:</span>
-            <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;Advecting </span><span class="si">%s</span><span class="s1"> of </span><span class="si">%i</span><span class="s1"> elements at surface with &#39;</span>
-                          <span class="s1">&#39;wind-sheared ocean current (</span><span class="si">%f</span><span class="s1"> m/s - </span><span class="si">%f</span><span class="s1"> m/s)&#39;</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">'Advecting </span><span class="si">%s</span><span class="s1"> of </span><span class="si">%i</span><span class="s1"> elements at surface with '</span>
+                          <span class="s1">'wind-sheared ocean current (</span><span class="si">%f</span><span class="s1"> m/s - </span><span class="si">%f</span><span class="s1"> m/s)'</span>
                           <span class="o">%</span> <span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">surface</span><span class="p">),</span> <span class="bp">self</span><span class="o">.</span><span class="n">num_elements_active</span><span class="p">(),</span>
                              <span class="n">speed</span><span class="o">.</span><span class="n">min</span><span class="p">(),</span> <span class="n">speed</span><span class="o">.</span><span class="n">max</span><span class="p">()))</span>
         <span class="k">else</span><span class="p">:</span>
-            <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;Advecting </span><span class="si">%s</span><span class="s1"> of </span><span class="si">%i</span><span class="s1"> elements above </span><span class="si">%.3f</span><span class="s1">m with &#39;</span>
-                          <span class="s1">&#39;wind-sheared ocean current (</span><span class="si">%f</span><span class="s1"> m/s - </span><span class="si">%f</span><span class="s1"> m/s)&#39;</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">'Advecting </span><span class="si">%s</span><span class="s1"> of </span><span class="si">%i</span><span class="s1"> elements above </span><span class="si">%.3f</span><span class="s1">m with '</span>
+                          <span class="s1">'wind-sheared ocean current (</span><span class="si">%f</span><span class="s1"> m/s - </span><span class="si">%f</span><span class="s1"> m/s)'</span>
                           <span class="o">%</span> <span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">surface</span><span class="p">),</span> <span class="bp">self</span><span class="o">.</span><span class="n">num_elements_active</span><span class="p">(),</span>
                              <span class="n">wind_drift_depth</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span>
                              <span class="n">speed</span><span class="o">.</span><span class="n">min</span><span class="p">(),</span> <span class="n">speed</span><span class="o">.</span><span class="n">max</span><span class="p">()))</span>
@@ -969,43 +969,43 @@
 <a class="viewcode-back" href="../../../autoapi/opendrift/models/physics_methods/index.html#opendrift.models.basemodel.PhysicsMethods.stokes_drift">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">stokes_drift</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">factor</span><span class="o">=</span><span class="mi">1</span><span class="p">):</span>
 
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_config</span><span class="p">(</span><span class="s1">&#39;drift:stokes_drift&#39;</span><span class="p">)</span> <span class="ow">is</span> <span class="kc">False</span><span class="p">:</span>
-            <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;Stokes drift not activated&#39;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_config</span><span class="p">(</span><span class="s1">'drift:stokes_drift'</span><span class="p">)</span> <span class="ow">is</span> <span class="kc">False</span><span class="p">:</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">'Stokes drift not activated'</span><span class="p">)</span>
             <span class="k">return</span>
 
         <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">environment</span><span class="o">.</span><span class="n">sea_surface_wave_stokes_drift_x_velocity</span><span class="o">+</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">environment</span><span class="o">.</span><span class="n">sea_surface_wave_stokes_drift_y_velocity</span><span class="p">))</span> \
                 <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
-            <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;No Stokes drift velocity available&#39;</span><span class="p">)</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">'No Stokes drift velocity available'</span><span class="p">)</span>
             <span class="k">return</span>
 
         <span class="n">wave_height</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">significant_wave_height</span><span class="p">()</span>
         <span class="n">wave_period</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">wave_period</span><span class="p">()</span>
         <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">wave_height</span><span class="p">))</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
-            <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;Stokes drift is available, but not Hs: using Hs=1 for Stokes profile&#39;</span><span class="p">)</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">'Stokes drift is available, but not Hs: using Hs=1 for Stokes profile'</span><span class="p">)</span>
             <span class="n">wave_height</span> <span class="o">=</span> <span class="mi">1</span>
         <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">wave_period</span><span class="p">))</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
-            <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;Stokes drift is available, but not Tp: using Tp=8 for Stokes profile&#39;</span><span class="p">)</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">'Stokes drift is available, but not Tp: using Tp=8 for Stokes profile'</span><span class="p">)</span>
             <span class="n">wave_period</span> <span class="o">=</span> <span class="mi">8</span>
 
-        <span class="n">stokes_profile</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_config</span><span class="p">(</span><span class="s1">&#39;drift:stokes_drift_profile&#39;</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="s1">&#39;monochromatic&#39;</span><span class="p">)</span>
-        <span class="k">if</span> <span class="n">stokes_profile</span> <span class="o">==</span> <span class="s1">&#39;monochromatic&#39;</span><span class="p">:</span>
+        <span class="n">stokes_profile</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_config</span><span class="p">(</span><span class="s1">'drift:stokes_drift_profile'</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="s1">'monochromatic'</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">stokes_profile</span> <span class="o">==</span> <span class="s1">'monochromatic'</span><span class="p">:</span>
             <span class="n">stokes_u</span><span class="p">,</span> <span class="n">stokes_v</span><span class="p">,</span> <span class="n">s</span> <span class="o">=</span> <span class="n">stokes_drift_profile_monochromatic</span><span class="p">(</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">environment</span><span class="o">.</span><span class="n">sea_surface_wave_stokes_drift_x_velocity</span><span class="p">,</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">environment</span><span class="o">.</span><span class="n">sea_surface_wave_stokes_drift_y_velocity</span><span class="p">,</span>
                 <span class="n">wave_height</span><span class="p">,</span> <span class="n">wave_period</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">elements</span><span class="o">.</span><span class="n">z</span><span class="p">)</span>
-        <span class="k">if</span> <span class="n">stokes_profile</span> <span class="o">==</span> <span class="s1">&#39;exponential&#39;</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">stokes_profile</span> <span class="o">==</span> <span class="s1">'exponential'</span><span class="p">:</span>
             <span class="n">stokes_u</span><span class="p">,</span> <span class="n">stokes_v</span><span class="p">,</span> <span class="n">s</span> <span class="o">=</span> <span class="n">stokes_drift_profile_exponential</span><span class="p">(</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">environment</span><span class="o">.</span><span class="n">sea_surface_wave_stokes_drift_x_velocity</span><span class="p">,</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">environment</span><span class="o">.</span><span class="n">sea_surface_wave_stokes_drift_y_velocity</span><span class="p">,</span>
                 <span class="n">wave_height</span><span class="p">,</span> <span class="n">wave_period</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">elements</span><span class="o">.</span><span class="n">z</span><span class="p">)</span>
-        <span class="k">if</span> <span class="n">stokes_profile</span> <span class="o">==</span> <span class="s1">&#39;Phillips&#39;</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">stokes_profile</span> <span class="o">==</span> <span class="s1">'Phillips'</span><span class="p">:</span>
             <span class="n">stokes_u</span><span class="p">,</span> <span class="n">stokes_v</span><span class="p">,</span> <span class="n">s</span> <span class="o">=</span> <span class="n">stokes_drift_profile_phillips</span><span class="p">(</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">environment</span><span class="o">.</span><span class="n">sea_surface_wave_stokes_drift_x_velocity</span><span class="p">,</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">environment</span><span class="o">.</span><span class="n">sea_surface_wave_stokes_drift_y_velocity</span><span class="p">,</span>
                 <span class="n">wave_height</span><span class="p">,</span> <span class="n">wave_period</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">elements</span><span class="o">.</span><span class="n">z</span><span class="p">)</span>
-        <span class="k">elif</span> <span class="n">stokes_profile</span> <span class="o">==</span> <span class="s1">&#39;windsea_swell&#39;</span><span class="p">:</span>
+        <span class="k">elif</span> <span class="n">stokes_profile</span> <span class="o">==</span> <span class="s1">'windsea_swell'</span><span class="p">:</span>
             <span class="n">stokes_u</span><span class="p">,</span> <span class="n">stokes_v</span><span class="p">,</span> <span class="n">s</span> <span class="o">=</span> <span class="n">stokes_drift_profile_windsea_swell</span><span class="p">(</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">environment</span><span class="o">.</span><span class="n">sea_surface_wave_stokes_drift_x_velocity</span><span class="p">,</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">environment</span><span class="o">.</span><span class="n">sea_surface_wave_stokes_drift_y_velocity</span><span class="p">,</span>
@@ -1019,9 +1019,9 @@
 
         <span class="bp">self</span><span class="o">.</span><span class="n">update_positions</span><span class="p">(</span><span class="n">stokes_u</span><span class="o">*</span><span class="n">factor</span><span class="p">,</span> <span class="n">stokes_v</span><span class="o">*</span><span class="n">factor</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">s</span><span class="o">.</span><span class="n">min</span><span class="p">()</span> <span class="o">==</span> <span class="n">s</span><span class="o">.</span><span class="n">max</span><span class="p">():</span>
-            <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;Advecting with Stokes drift (</span><span class="si">%s</span><span class="s1"> m/s)&#39;</span> <span class="o">%</span> <span class="n">s</span><span class="o">.</span><span class="n">min</span><span class="p">())</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">'Advecting with Stokes drift (</span><span class="si">%s</span><span class="s1"> m/s)'</span> <span class="o">%</span> <span class="n">s</span><span class="o">.</span><span class="n">min</span><span class="p">())</span>
         <span class="k">else</span><span class="p">:</span>
-            <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;Advecting with Stokes drift (</span><span class="si">%s</span><span class="s1"> to </span><span class="si">%s</span><span class="s1"> m/s)&#39;</span> <span class="o">%</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">'Advecting with Stokes drift (</span><span class="si">%s</span><span class="s1"> to </span><span class="si">%s</span><span class="s1"> m/s)'</span> <span class="o">%</span>
                       <span class="p">(</span><span class="n">s</span><span class="o">.</span><span class="n">min</span><span class="p">(),</span> <span class="n">s</span><span class="o">.</span><span class="n">max</span><span class="p">()))</span></div>
 
 
@@ -1041,27 +1041,27 @@
         <span class="c1"># TODO: we need a better mechanism to detect missing variables</span>
         <span class="c1"># Missing significant wave height</span>
         <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">environment</span><span class="p">,</span>
-                   <span class="s1">&#39;sea_surface_wave_significant_height&#39;</span><span class="p">)</span> <span class="ow">and</span> \
+                   <span class="s1">'sea_surface_wave_significant_height'</span><span class="p">)</span> <span class="ow">and</span> \
                 <span class="bp">self</span><span class="o">.</span><span class="n">environment</span><span class="o">.</span><span class="n">sea_surface_wave_significant_height</span><span class="o">.</span><span class="n">max</span><span class="p">()</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
             <span class="n">Hs</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">significant_wave_height</span><span class="p">()</span>
-            <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;Calculating Hs from wind, min: </span><span class="si">%f</span><span class="s1">, mean: </span><span class="si">%f</span><span class="s1">, max: </span><span class="si">%f</span><span class="s1">&#39;</span> <span class="o">%</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">'Calculating Hs from wind, min: </span><span class="si">%f</span><span class="s1">, mean: </span><span class="si">%f</span><span class="s1">, max: </span><span class="si">%f</span><span class="s1">'</span> <span class="o">%</span>
                           <span class="p">(</span><span class="n">Hs</span><span class="o">.</span><span class="n">min</span><span class="p">(),</span> <span class="n">Hs</span><span class="o">.</span><span class="n">mean</span><span class="p">(),</span> <span class="n">Hs</span><span class="o">.</span><span class="n">max</span><span class="p">()))</span>
 
         <span class="c1"># Missing wave direction related to previously calculated significant wave height.</span>
         <span class="c1"># Set equal to wind direction. (Andrea Gierisch)</span>
-        <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">environment</span><span class="p">,</span> <span class="s1">&#39;sea_surface_wave_from_direction&#39;</span><span class="p">)</span> <span class="ow">and</span> \
+        <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">environment</span><span class="p">,</span> <span class="s1">'sea_surface_wave_from_direction'</span><span class="p">)</span> <span class="ow">and</span> \
                 <span class="bp">self</span><span class="o">.</span><span class="n">environment</span><span class="o">.</span><span class="n">sea_surface_wave_from_direction</span><span class="o">.</span><span class="n">max</span><span class="p">()</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
             <span class="n">wave_direction</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">rad2deg</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">arctan2</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">environment</span><span class="o">.</span><span class="n">x_wind</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">environment</span><span class="o">.</span><span class="n">y_wind</span><span class="p">))</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">environment</span><span class="o">.</span><span class="n">sea_surface_wave_from_direction</span> <span class="o">=</span> <span class="p">(</span><span class="n">wave_direction</span><span class="o">+</span><span class="mi">180</span><span class="p">)</span> <span class="o">%</span> <span class="mi">360</span>
-            <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="s1">&#39;Setting wave direction equal to wind direction, min: </span><span class="si">%f</span><span class="s1">, mean: </span><span class="si">%f</span><span class="s1">, max: </span><span class="si">%f</span><span class="s1">&#39;</span> <span class="o">%</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="s1">'Setting wave direction equal to wind direction, min: </span><span class="si">%f</span><span class="s1">, mean: </span><span class="si">%f</span><span class="s1">, max: </span><span class="si">%f</span><span class="s1">'</span> <span class="o">%</span>
                 <span class="p">(</span><span class="n">wave_direction</span><span class="o">.</span><span class="n">min</span><span class="p">(),</span> <span class="n">wave_direction</span><span class="o">.</span><span class="n">mean</span><span class="p">(),</span> <span class="n">wave_direction</span><span class="o">.</span><span class="n">max</span><span class="p">()))</span>
 
         <span class="c1"># Missing wave period</span>
         <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">environment</span><span class="p">,</span>
-                   <span class="s1">&#39;sea_surface_wave_mean_period_from_variance_spectral_density_second_frequency_moment&#39;</span><span class="p">)</span> <span class="ow">and</span> \
+                   <span class="s1">'sea_surface_wave_mean_period_from_variance_spectral_density_second_frequency_moment'</span><span class="p">)</span> <span class="ow">and</span> \
                 <span class="bp">self</span><span class="o">.</span><span class="n">environment</span><span class="o">.</span><span class="n">sea_surface_wave_mean_period_from_variance_spectral_density_second_frequency_moment</span><span class="o">.</span><span class="n">max</span><span class="p">()</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
             <span class="n">wave_period</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">wave_period</span><span class="p">()</span>
-            <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;Calculating wave period from wind, min: </span><span class="si">%f</span><span class="s1">, mean: </span><span class="si">%f</span><span class="s1">, max: </span><span class="si">%f</span><span class="s1">&#39;</span> <span class="o">%</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">'Calculating wave period from wind, min: </span><span class="si">%f</span><span class="s1">, mean: </span><span class="si">%f</span><span class="s1">, max: </span><span class="si">%f</span><span class="s1">'</span> <span class="o">%</span>
                           <span class="p">(</span><span class="n">wave_period</span><span class="o">.</span><span class="n">min</span><span class="p">(),</span> <span class="n">wave_period</span><span class="o">.</span><span class="n">mean</span><span class="p">(),</span> <span class="n">wave_period</span><span class="o">.</span><span class="n">max</span><span class="p">()))</span></div>
 
 
@@ -1085,7 +1085,7 @@
     <span class="k">def</span><span class="w"> </span><span class="nf">significant_wave_height</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="c1"># Significant wave height, parameterise from wind if not available</span>
         <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">environment</span><span class="p">,</span>
-                   <span class="s1">&#39;sea_surface_wave_significant_height&#39;</span><span class="p">)</span> <span class="ow">and</span> \
+                   <span class="s1">'sea_surface_wave_significant_height'</span><span class="p">)</span> <span class="ow">and</span> \
                 <span class="bp">self</span><span class="o">.</span><span class="n">environment</span><span class="o">.</span><span class="n">sea_surface_wave_significant_height</span><span class="o">.</span><span class="n">max</span><span class="p">()</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
             <span class="n">Hs</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">environment</span><span class="o">.</span><span class="n">sea_surface_wave_significant_height</span>
         <span class="k">else</span><span class="p">:</span>
@@ -1114,29 +1114,29 @@
 <div class="viewcode-block" id="PhysicsMethods.wave_period">
 <a class="viewcode-back" href="../../../autoapi/opendrift/models/physics_methods/index.html#opendrift.models.basemodel.PhysicsMethods.wave_period">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">wave_period</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">environment</span><span class="p">,</span> <span class="s1">&#39;sea_surface_wave_mean_period_from_variance_spectral_density_second_frequency_moment&#39;</span>
+        <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">environment</span><span class="p">,</span> <span class="s1">'sea_surface_wave_mean_period_from_variance_spectral_density_second_frequency_moment'</span>
                 <span class="p">)</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">environment</span><span class="o">.</span><span class="n">sea_surface_wave_mean_period_from_variance_spectral_density_second_frequency_moment</span><span class="o">.</span><span class="n">max</span><span class="p">()</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
             <span class="c1"># prefer using Tm02:</span>
             <span class="n">T</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">environment</span><span class="o">.</span><span class="n">sea_surface_wave_mean_period_from_variance_spectral_density_second_frequency_moment</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
-            <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;Using mean period Tm02 as wave period&#39;</span><span class="p">)</span>
-        <span class="k">elif</span> <span class="nb">hasattr</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">environment</span><span class="p">,</span> <span class="s1">&#39;sea_surface_wave_period_at_variance_spectral_density_maximum&#39;</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">'Using mean period Tm02 as wave period'</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="nb">hasattr</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">environment</span><span class="p">,</span> <span class="s1">'sea_surface_wave_period_at_variance_spectral_density_maximum'</span>
                 <span class="p">)</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">environment</span><span class="o">.</span><span class="n">sea_surface_wave_period_at_variance_spectral_density_maximum</span><span class="o">.</span><span class="n">max</span><span class="p">()</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
             <span class="c1"># alternatively use Tp</span>
             <span class="n">T</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">environment</span><span class="o">.</span><span class="n">sea_surface_wave_period_at_variance_spectral_density_maximum</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
-            <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;Using peak period Tp as wave period&#39;</span><span class="p">)</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">'Using peak period Tp as wave period'</span><span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="c1"># calculate Tp from wind speed:</span>
-            <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;Calculating wave period Tm02 from wind&#39;</span><span class="p">)</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">'Calculating wave period Tm02 from wind'</span><span class="p">)</span>
             <span class="n">T</span> <span class="o">=</span> <span class="p">(</span><span class="mi">2</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">pi</span><span class="p">)</span><span class="o">/</span><span class="bp">self</span><span class="o">.</span><span class="n">_wave_frequency</span><span class="p">()</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">environment</span><span class="o">.</span><span class="n">sea_surface_wave_mean_period_from_variance_spectral_density_second_frequency_moment</span> <span class="o">=</span> <span class="n">T</span>
 
-        <span class="c1">#print &#39;\n T %s \n&#39; % str(T.mean())</span>
+        <span class="c1">#print '\n T %s \n' % str(T.mean())</span>
         <span class="k">if</span> <span class="n">T</span><span class="o">.</span><span class="n">min</span><span class="p">()</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
-            <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="s1">&#39;Zero wave period found - &#39;</span>
-                            <span class="s1">&#39;replacing with mean&#39;</span><span class="p">)</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="s1">'Zero wave period found - '</span>
+                            <span class="s1">'replacing with mean'</span><span class="p">)</span>
             <span class="n">T</span><span class="p">[</span><span class="n">T</span><span class="o">==</span><span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">T</span><span class="p">[</span><span class="n">T</span><span class="o">&gt;</span><span class="mi">0</span><span class="p">])</span>
 
-        <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;   min: </span><span class="si">%f</span><span class="s1">, mean: </span><span class="si">%f</span><span class="s1">, max: </span><span class="si">%f</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">T</span><span class="o">.</span><span class="n">min</span><span class="p">(),</span> <span class="n">T</span><span class="o">.</span><span class="n">mean</span><span class="p">(),</span> <span class="n">T</span><span class="o">.</span><span class="n">max</span><span class="p">()))</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">'   min: </span><span class="si">%f</span><span class="s1">, mean: </span><span class="si">%f</span><span class="s1">, max: </span><span class="si">%f</span><span class="s1">'</span> <span class="o">%</span> <span class="p">(</span><span class="n">T</span><span class="o">.</span><span class="n">min</span><span class="p">(),</span> <span class="n">T</span><span class="o">.</span><span class="n">mean</span><span class="p">(),</span> <span class="n">T</span><span class="o">.</span><span class="n">max</span><span class="p">()))</span>
 
         <span class="k">return</span> <span class="n">T</span></div>
 
@@ -1194,7 +1194,7 @@
 <div class="viewcode-block" id="PhysicsMethods.solar_elevation">
 <a class="viewcode-back" href="../../../autoapi/opendrift/models/physics_methods/index.html#opendrift.models.basemodel.PhysicsMethods.solar_elevation">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">solar_elevation</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&#39;&#39;&#39;Solar elevation at present time and position of active elements.&#39;&#39;&#39;</span>
+<span class="w">        </span><span class="sd">'''Solar elevation at present time and position of active elements.'''</span>
         <span class="k">return</span> <span class="n">solar_elevation</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">time</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">elements</span><span class="o">.</span><span class="n">lon</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">elements</span><span class="o">.</span><span class="n">lat</span><span class="p">)</span></div>
 </div>
 
@@ -1202,7 +1202,7 @@
 <div class="viewcode-block" id="wind_drag_coefficient">
 <a class="viewcode-back" href="../../../autoapi/opendrift/models/physics_methods/index.html#opendrift.models.basemodel.wind_drag_coefficient">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">wind_drag_coefficient</span><span class="p">(</span><span class="n">windspeed</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&#39;&#39;&#39;Large and Pond (1981), J. Phys. Oceanog., 11, 324-336.&#39;&#39;&#39;</span>
+<span class="w">    </span><span class="sd">'''Large and Pond (1981), J. Phys. Oceanog., 11, 324-336.'''</span>
     <span class="n">Cd</span> <span class="o">=</span> <span class="mf">0.0012</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">ones</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">windspeed</span><span class="p">))</span>
     <span class="n">Cd</span><span class="p">[</span><span class="n">windspeed</span> <span class="o">&gt;</span> <span class="mi">11</span><span class="p">]</span> <span class="o">=</span> <span class="mf">0.001</span><span class="o">*</span><span class="p">(</span><span class="mf">0.49</span> <span class="o">+</span> <span class="mf">0.065</span><span class="o">*</span><span class="n">windspeed</span><span class="p">[</span><span class="n">windspeed</span> <span class="o">&gt;</span> <span class="mi">11</span><span class="p">])</span>
     <span class="k">return</span> <span class="n">Cd</span></div>
@@ -1211,7 +1211,7 @@
 <div class="viewcode-block" id="windspeed_from_stress_polyfit">
 <a class="viewcode-back" href="../../../autoapi/opendrift/models/physics_methods/index.html#opendrift.models.basemodel.windspeed_from_stress_polyfit">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">windspeed_from_stress_polyfit</span><span class="p">(</span><span class="n">wind_stress</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&#39;&#39;&#39;Inverting Large and Pond (1981) using polyfit&#39;&#39;&#39;</span>
+<span class="w">    </span><span class="sd">'''Inverting Large and Pond (1981) using polyfit'''</span>
     <span class="n">windspeed</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">30</span><span class="p">,</span> <span class="mi">30</span><span class="p">)</span>
     <span class="n">rho_air</span> <span class="o">=</span> <span class="mf">1.225</span>
     <span class="n">stress</span> <span class="o">=</span> <span class="n">wind_drag_coefficient</span><span class="p">(</span><span class="n">windspeed</span><span class="p">)</span><span class="o">*</span><span class="n">rho_air</span><span class="o">*</span><span class="p">(</span><span class="n">windspeed</span><span class="o">**</span><span class="mi">2</span><span class="p">)</span>
@@ -1224,7 +1224,7 @@
 <div class="viewcode-block" id="solar_declination">
 <a class="viewcode-back" href="../../../autoapi/opendrift/models/physics_methods/index.html#opendrift.models.basemodel.solar_declination">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">solar_declination</span><span class="p">(</span><span class="n">time</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&#39;&#39;&#39;Solar declination in degrees.&#39;&#39;&#39;</span>
+<span class="w">    </span><span class="sd">'''Solar declination in degrees.'''</span>
     <span class="k">try</span><span class="p">:</span>
         <span class="n">day_of_year</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">timetuple</span><span class="p">()</span><span class="o">.</span><span class="n">tm_yday</span>
     <span class="k">except</span><span class="p">:</span>
@@ -1243,7 +1243,7 @@
 <div class="viewcode-block" id="equation_of_time">
 <a class="viewcode-back" href="../../../autoapi/opendrift/models/physics_methods/index.html#opendrift.models.basemodel.equation_of_time">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">equation_of_time</span><span class="p">(</span><span class="n">time</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&#39;&#39;&#39;Equation of time in minutes.&#39;&#39;&#39;</span>
+<span class="w">    </span><span class="sd">'''Equation of time in minutes.'''</span>
     <span class="n">time</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">atleast_1d</span><span class="p">(</span><span class="n">time</span><span class="p">)</span>
     <span class="n">day_of_year</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">([</span><span class="n">t</span><span class="o">.</span><span class="n">timetuple</span><span class="p">()</span><span class="o">.</span><span class="n">tm_yday</span> <span class="k">for</span> <span class="n">t</span> <span class="ow">in</span> <span class="n">time</span><span class="p">])</span>
     <span class="n">hour</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">([</span><span class="n">t</span><span class="o">.</span><span class="n">hour</span> <span class="k">for</span> <span class="n">t</span> <span class="ow">in</span> <span class="n">time</span><span class="p">])</span>
@@ -1259,7 +1259,7 @@
 <div class="viewcode-block" id="hour_angle">
 <a class="viewcode-back" href="../../../autoapi/opendrift/models/physics_methods/index.html#opendrift.models.basemodel.hour_angle">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">hour_angle</span><span class="p">(</span><span class="n">time</span><span class="p">,</span> <span class="n">longitude</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&#39;&#39;&#39;Solar hour angle in degrees.&#39;&#39;&#39;</span>
+<span class="w">    </span><span class="sd">'''Solar hour angle in degrees.'''</span>
     <span class="n">time</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">atleast_1d</span><span class="p">(</span><span class="n">time</span><span class="p">)</span>
     <span class="n">time_offset</span> <span class="o">=</span> <span class="n">equation_of_time</span><span class="p">(</span><span class="n">time</span><span class="p">)</span> <span class="o">+</span> <span class="mi">4</span><span class="o">*</span><span class="n">longitude</span>
     <span class="n">day_minutes</span> <span class="o">=</span> <span class="p">[</span><span class="n">t</span><span class="o">.</span><span class="n">hour</span><span class="o">*</span><span class="mf">60.0</span> <span class="o">+</span> <span class="n">t</span><span class="o">.</span><span class="n">minute</span> <span class="o">+</span> <span class="n">t</span><span class="o">.</span><span class="n">second</span><span class="o">/</span><span class="mf">60.0</span> <span class="k">for</span> <span class="n">t</span> <span class="ow">in</span> <span class="n">time</span><span class="p">]</span>
@@ -1272,7 +1272,7 @@
 <div class="viewcode-block" id="solar_elevation">
 <a class="viewcode-back" href="../../../autoapi/opendrift/models/physics_methods/index.html#opendrift.models.basemodel.solar_elevation">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">solar_elevation</span><span class="p">(</span><span class="n">time</span><span class="p">,</span> <span class="n">longitude</span><span class="p">,</span> <span class="n">latitude</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&#39;&#39;&#39;Solar elevation in degrees.&#39;&#39;&#39;</span>
+<span class="w">    </span><span class="sd">'''Solar elevation in degrees.'''</span>
     <span class="n">d_rad</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">deg2rad</span><span class="p">(</span><span class="n">solar_declination</span><span class="p">(</span><span class="n">time</span><span class="p">))</span>
     <span class="n">h</span> <span class="o">=</span> <span class="n">hour_angle</span><span class="p">(</span><span class="n">time</span><span class="p">,</span> <span class="n">longitude</span><span class="p">)</span>
     <span class="n">solar_elevation</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">rad2deg</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">arcsin</span><span class="p">(</span>

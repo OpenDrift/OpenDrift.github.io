@@ -97,7 +97,7 @@
            <div itemprop="articleBody">
              
   <h1>Source code for opendrift.readers.roppy.depth</h1><div class="highlight"><pre>
-<span></span><span class="sd">&quot;&quot;&quot;Vertical structure functions for ROMS</span>
+<span></span><span class="sd">"""Vertical structure functions for ROMS</span>
 
 <span class="sd">:func:`sdepth`</span>
 <span class="sd">  Depth of s-levels</span>
@@ -110,7 +110,7 @@
 <span class="sd">:func:`s_stretch`</span>
 <span class="sd">  Compute vertical stretching arrays Cs_r or Cs_w</span>
 
-<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">"""</span>
 
 <span class="c1"># -----------------------------------</span>
 <span class="c1"># Bjørn Ådlandsvik &lt;bjorn@imr.no&gt;</span>
@@ -135,11 +135,11 @@
     <span class="n">Hc</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
     <span class="n">C</span><span class="p">:</span> <span class="n">NDArray</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">float64</span><span class="p">],</span>
     <span class="n">S</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">NDArray</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">float64</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-    <span class="n">stagger</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;rho&quot;</span><span class="p">,</span>
+    <span class="n">stagger</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">"rho"</span><span class="p">,</span>
     <span class="n">Vtransform</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">1</span><span class="p">,</span>
     <span class="n">Vstretching</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">1</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">NDArray</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">float64</span><span class="p">]:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Depth of s-levels</span>
+<span class="w">    </span><span class="sd">"""Depth of s-levels</span>
 
 <span class="sd">    *H* : arraylike</span>
 <span class="sd">        Bottom depths [meter, positive]</span>
@@ -153,7 +153,7 @@
 <span class="sd">    *S* : 1D array</span>
 <span class="sd">        s coordinate at rho or w points</span>
 
-<span class="sd">    *stagger* : [ &#39;rho&#39; | &#39;w&#39; ]</span>
+<span class="sd">    *stagger* : [ 'rho' | 'w' ]</span>
 
 <span class="sd">    *Vtransform* : [ 1 | 2 ]</span>
 <span class="sd">       defines the transform used, defaults 1 = Song-Haidvogel</span>
@@ -165,30 +165,30 @@
 <span class="sd">    Typical usage::</span>
 
 <span class="sd">    &gt;&gt; fid = Dataset(roms_file)</span>
-<span class="sd">    &gt;&gt; H = fid.variables[&#39;h&#39;][:, :]</span>
-<span class="sd">    &gt;&gt; C = fid.variables[&#39;Cs_r&#39;][:]</span>
-<span class="sd">    &gt;&gt; Hc = fid.variables[&#39;hc&#39;].getValue()</span>
+<span class="sd">    &gt;&gt; H = fid.variables['h'][:, :]</span>
+<span class="sd">    &gt;&gt; C = fid.variables['Cs_r'][:]</span>
+<span class="sd">    &gt;&gt; Hc = fid.variables['hc'].getValue()</span>
 <span class="sd">    &gt;&gt; z_rho = sdepth(H, Hc, C)</span>
 
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
 
     <span class="n">H</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">H</span><span class="p">)</span>
     <span class="n">zeta</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">zeta</span><span class="p">)</span>
     <span class="n">Hshape</span> <span class="o">=</span> <span class="n">H</span><span class="o">.</span><span class="n">shape</span>  <span class="c1"># Save the shape of H</span>
     <span class="n">H</span> <span class="o">=</span> <span class="n">H</span><span class="o">.</span><span class="n">ravel</span><span class="p">()</span>  <span class="c1"># and make H 1D for easy shape maniplation</span>
     <span class="n">C</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">C</span><span class="p">)</span>
-    <span class="k">if</span> <span class="n">stagger</span> <span class="o">==</span> <span class="s2">&quot;rho&quot;</span><span class="p">:</span>
+    <span class="k">if</span> <span class="n">stagger</span> <span class="o">==</span> <span class="s2">"rho"</span><span class="p">:</span>
         <span class="n">N</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">C</span><span class="p">)</span>
         <span class="n">outshape</span> <span class="o">=</span> <span class="p">(</span><span class="n">N</span><span class="p">,</span> <span class="o">*</span><span class="n">Hshape</span><span class="p">)</span>
-    <span class="k">elif</span> <span class="n">stagger</span> <span class="o">==</span> <span class="s2">&quot;w&quot;</span><span class="p">:</span>
+    <span class="k">elif</span> <span class="n">stagger</span> <span class="o">==</span> <span class="s2">"w"</span><span class="p">:</span>
         <span class="n">N</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">C</span><span class="p">)</span> <span class="o">-</span> <span class="mi">1</span>
         <span class="n">outshape</span> <span class="o">=</span> <span class="p">(</span><span class="n">N</span> <span class="o">+</span> <span class="mi">1</span><span class="p">,</span> <span class="o">*</span><span class="n">Hshape</span><span class="p">)</span>
     <span class="k">else</span><span class="p">:</span>
-        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Stagger must be &#39;rho&#39; (default) or &#39;w&#39;&quot;</span><span class="p">)</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">"Stagger must be 'rho' (default) or 'w'"</span><span class="p">)</span>
 
     <span class="c1"># Get S if not prescribed</span>
     <span class="k">if</span> <span class="n">S</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="k">if</span> <span class="n">stagger</span> <span class="o">==</span> <span class="s2">&quot;w&quot;</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">stagger</span> <span class="o">==</span> <span class="s2">"w"</span><span class="p">:</span>
             <span class="n">K</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="n">N</span> <span class="o">+</span> <span class="mi">1</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">float64</span><span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="n">K</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="mf">0.5</span><span class="p">,</span> <span class="n">N</span><span class="p">)</span>
@@ -212,7 +212,7 @@
         <span class="k">return</span> <span class="n">z_rho</span>
 
     <span class="k">else</span><span class="p">:</span>
-        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Unknown Vtransform&quot;</span><span class="p">)</span></div>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">"Unknown Vtransform"</span><span class="p">)</span></div>
 
 
 
@@ -222,13 +222,13 @@
 <div class="viewcode-block" id="sdepth_w">
 <a class="viewcode-back" href="../../../../autoapi/opendrift/readers/roppy/depth/index.html#opendrift.readers.roppy.depth.sdepth_w">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">sdepth_w</span><span class="p">(</span><span class="n">H</span><span class="p">,</span> <span class="n">Hc</span><span class="p">,</span> <span class="n">cs_w</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Return depth of w-points in s-levels</span>
+<span class="w">    </span><span class="sd">"""Return depth of w-points in s-levels</span>
 
 <span class="sd">    Kept for backwards compatibility</span>
-<span class="sd">    use *sdepth(H, Hc, cs_w, stagger=&#39;w&#39;)* instead</span>
+<span class="sd">    use *sdepth(H, Hc, cs_w, stagger='w')* instead</span>
 
-<span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">return</span> <span class="n">sdepth</span><span class="p">(</span><span class="n">H</span><span class="p">,</span> <span class="n">Hc</span><span class="p">,</span> <span class="n">cs_w</span><span class="p">,</span> <span class="n">stagger</span><span class="o">=</span><span class="s2">&quot;w&quot;</span><span class="p">)</span></div>
+<span class="sd">    """</span>
+    <span class="k">return</span> <span class="n">sdepth</span><span class="p">(</span><span class="n">H</span><span class="p">,</span> <span class="n">Hc</span><span class="p">,</span> <span class="n">cs_w</span><span class="p">,</span> <span class="n">stagger</span><span class="o">=</span><span class="s2">"w"</span><span class="p">)</span></div>
 
 
 
@@ -242,7 +242,7 @@
 <span class="k">def</span><span class="w"> </span><span class="nf">zslice</span><span class="p">(</span>
     <span class="n">F</span><span class="p">:</span> <span class="n">NDArray</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">float64</span><span class="p">],</span> <span class="n">S</span><span class="p">:</span> <span class="n">NDArray</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">float64</span><span class="p">],</span> <span class="n">z</span><span class="p">:</span> <span class="n">Array</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">NDArray</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">float64</span><span class="p">]:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Vertical slice of a 3D ROMS field</span>
+<span class="w">    </span><span class="sd">"""Vertical slice of a 3D ROMS field</span>
 
 <span class="sd">    Vertical interpolation of a field in s-coordinates to</span>
 <span class="sd">    (possibly varying) depth level</span>
@@ -263,7 +263,7 @@
 <span class="sd">    C is 1D containing the s-coordinate stretching at rho-points</span>
 <span class="sd">    returns F50, interpolated values at 50 meter with F50.shape = H.shape</span>
 
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
 
     <span class="c1"># TODO:</span>
     <span class="c1"># Option to Save A, D, Dm</span>
@@ -271,12 +271,12 @@
 
     <span class="n">F</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">F</span><span class="p">)</span>
     <span class="n">S</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">S</span><span class="p">)</span>
-    <span class="n">z</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">z</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="s2">&quot;float&quot;</span><span class="p">)</span>
+    <span class="n">z</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">z</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="s2">"float"</span><span class="p">)</span>
     <span class="n">Fshape</span> <span class="o">=</span> <span class="n">F</span><span class="o">.</span><span class="n">shape</span>  <span class="c1"># Save original shape</span>
     <span class="k">if</span> <span class="n">S</span><span class="o">.</span><span class="n">shape</span> <span class="o">!=</span> <span class="n">Fshape</span><span class="p">:</span>
-        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;F and z_r must have same shape&quot;</span><span class="p">)</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">"F and z_r must have same shape"</span><span class="p">)</span>
     <span class="k">if</span> <span class="n">z</span><span class="o">.</span><span class="n">shape</span> <span class="ow">and</span> <span class="n">z</span><span class="o">.</span><span class="n">shape</span> <span class="o">!=</span> <span class="n">Fshape</span><span class="p">[</span><span class="mi">1</span><span class="p">:]:</span>
-        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;z must be scalar or have shape = F.shape[1:]&quot;</span><span class="p">)</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">"z must be scalar or have shape = F.shape[1:]"</span><span class="p">)</span>
 
     <span class="c1"># Flatten all non-vertical dimensions</span>
     <span class="n">N</span> <span class="o">=</span> <span class="n">F</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>  <span class="c1"># Length of vertical dimension</span>
@@ -297,7 +297,7 @@
     <span class="c1"># construct index array tuples D and Dm such that</span>
     <span class="c1">#   F[D][i]  = F[C[i], i]</span>
     <span class="c1">#   F[Dm][i] = F[C[i]-1, i]</span>
-    <span class="n">I</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="n">M</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="s2">&quot;int&quot;</span><span class="p">)</span>
+    <span class="n">I</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="n">M</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="s2">"int"</span><span class="p">)</span>
     <span class="n">D</span> <span class="o">=</span> <span class="p">(</span><span class="n">C</span><span class="p">,</span> <span class="n">I</span><span class="p">)</span>
     <span class="n">Dm</span> <span class="o">=</span> <span class="p">(</span><span class="n">C</span> <span class="o">-</span> <span class="mi">1</span><span class="p">,</span> <span class="n">I</span><span class="p">)</span>
 
@@ -321,7 +321,7 @@
 <div class="viewcode-block" id="multi_zslice">
 <a class="viewcode-back" href="../../../../autoapi/opendrift/readers/roppy/depth/index.html#opendrift.readers.roppy.depth.multi_zslice">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">multi_zslice</span><span class="p">(</span><span class="n">F</span><span class="p">,</span> <span class="n">S</span><span class="p">,</span> <span class="n">Z</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Slice a 3D ROMS field to fixed depth</span>
+<span class="w">    </span><span class="sd">"""Slice a 3D ROMS field to fixed depth</span>
 
 <span class="sd">    Vertical interpolation of a field in s-coordinates to</span>
 <span class="sd">    fixed vertical level</span>
@@ -335,7 +335,7 @@
 
 <span class="sd">    Returns : array, ``shape = F.shape[1:]`` the vertical slice</span>
 
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
 
     <span class="c1"># TODO:</span>
     <span class="c1"># Option to Save A, D, Dm</span>
@@ -352,7 +352,7 @@
     <span class="n">S</span> <span class="o">=</span> <span class="n">S</span><span class="o">.</span><span class="n">reshape</span><span class="p">((</span><span class="n">N</span><span class="p">,</span> <span class="n">M</span><span class="p">))</span>
 
     <span class="c1"># Make z.shape = (M,)</span>
-    <span class="n">Z</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">Z</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="s2">&quot;float&quot;</span><span class="p">)</span>
+    <span class="n">Z</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">Z</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="s2">"float"</span><span class="p">)</span>
     <span class="c1"># Valid possibilities</span>
     <span class="c1"># 1) Z = single scalar (shape = ()), one constant value</span>
     <span class="c1"># 2) Z = 1D array, shape=(kmax), a set of constant depths</span>
@@ -398,7 +398,7 @@
 <div class="viewcode-block" id="z_average">
 <a class="viewcode-back" href="../../../../autoapi/opendrift/readers/roppy/depth/index.html#opendrift.readers.roppy.depth.z_average">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">z_average</span><span class="p">(</span><span class="n">F</span><span class="p">,</span> <span class="n">z_r</span><span class="p">,</span> <span class="n">z0</span><span class="p">,</span> <span class="n">z1</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Slice a 3D ROMS field to fixed depth</span>
+<span class="w">    </span><span class="sd">"""Slice a 3D ROMS field to fixed depth</span>
 
 <span class="sd">    Vertical interpolation of a field in s-coordinates to</span>
 <span class="sd">    fixed vertical level</span>
@@ -413,7 +413,7 @@
 <span class="sd">    return value : array</span>
 <span class="sd">      `shape = F.shape[1:]`, the vertical average</span>
 
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
 
     <span class="n">F</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">F</span><span class="p">)</span>
     <span class="n">z_r</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">z_r</span><span class="p">)</span>
@@ -448,7 +448,7 @@
 
     <span class="c1"># Use advanced indexing for vectorisation</span>
     <span class="c1">#   F[(C0,I)][i]  = F[C0[i], i]</span>
-    <span class="n">I</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="n">M</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="s2">&quot;int&quot;</span><span class="p">)</span>
+    <span class="n">I</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="n">M</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="s2">"int"</span><span class="p">)</span>
     <span class="c1"># Interpolate F to the two levels</span>
     <span class="n">A0</span> <span class="o">=</span> <span class="p">(</span><span class="n">z0</span> <span class="o">-</span> <span class="n">z_r</span><span class="p">[(</span><span class="n">C0</span> <span class="o">-</span> <span class="mi">1</span><span class="p">,</span> <span class="n">I</span><span class="p">)])</span> <span class="o">/</span> <span class="p">(</span><span class="n">z_r</span><span class="p">[(</span><span class="n">C0</span><span class="p">,</span> <span class="n">I</span><span class="p">)]</span> <span class="o">-</span> <span class="n">z_r</span><span class="p">[(</span><span class="n">C0</span> <span class="o">-</span> <span class="mi">1</span><span class="p">,</span> <span class="n">I</span><span class="p">)])</span>
     <span class="n">A0</span> <span class="o">=</span> <span class="n">A0</span><span class="o">.</span><span class="n">clip</span><span class="p">(</span><span class="mf">0.0</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">)</span>  <span class="c1"># Control the extrapolation</span>
@@ -497,9 +497,9 @@
 <div class="viewcode-block" id="s_stretch">
 <a class="viewcode-back" href="../../../../autoapi/opendrift/readers/roppy/depth/index.html#opendrift.readers.roppy.depth.s_stretch">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">s_stretch</span><span class="p">(</span>
-    <span class="n">N</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">theta_s</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">theta_b</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">stagger</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;rho&quot;</span><span class="p">,</span> <span class="n">Vstretching</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">1</span>
+    <span class="n">N</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">theta_s</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">theta_b</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">stagger</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">"rho"</span><span class="p">,</span> <span class="n">Vstretching</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">1</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">NDArray</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">float64</span><span class="p">]:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Compute a s-level stretching array</span>
+<span class="w">    </span><span class="sd">"""Compute a s-level stretching array</span>
 
 <span class="sd">    *N* : Number of vertical levels</span>
 
@@ -507,18 +507,18 @@
 
 <span class="sd">    *theta_b* : Bottom stretching factor</span>
 
-<span class="sd">    *stagger* : &quot;rho&quot;|&quot;w&quot;</span>
+<span class="sd">    *stagger* : "rho"|"w"</span>
 
 <span class="sd">    *Vstretching* : 1|2|3|4|5</span>
 
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
 
-    <span class="k">if</span> <span class="n">stagger</span> <span class="o">==</span> <span class="s2">&quot;rho&quot;</span><span class="p">:</span>
+    <span class="k">if</span> <span class="n">stagger</span> <span class="o">==</span> <span class="s2">"rho"</span><span class="p">:</span>
         <span class="n">K</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="mf">0.5</span><span class="p">,</span> <span class="n">N</span><span class="p">)</span>
-    <span class="k">elif</span> <span class="n">stagger</span> <span class="o">==</span> <span class="s2">&quot;w&quot;</span><span class="p">:</span>
+    <span class="k">elif</span> <span class="n">stagger</span> <span class="o">==</span> <span class="s2">"w"</span><span class="p">:</span>
         <span class="n">K</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="n">N</span> <span class="o">+</span> <span class="mi">1</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">float64</span><span class="p">)</span>
     <span class="k">else</span><span class="p">:</span>
-        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;stagger must be &#39;rho&#39; or &#39;w&#39;&quot;</span><span class="p">)</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">"stagger must be 'rho' or 'w'"</span><span class="p">)</span>
     <span class="n">S</span> <span class="o">=</span> <span class="o">-</span><span class="mi">1</span> <span class="o">+</span> <span class="n">K</span> <span class="o">/</span> <span class="n">N</span>
 
     <span class="k">if</span> <span class="n">Vstretching</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
@@ -556,17 +556,17 @@
         <span class="k">return</span> <span class="n">C</span>
 
     <span class="k">else</span><span class="p">:</span>
-        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Unknown Vstretching&quot;</span><span class="p">)</span></div>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">"Unknown Vstretching"</span><span class="p">)</span></div>
 
 
 
 <div class="viewcode-block" id="stretch5">
 <a class="viewcode-back" href="../../../../autoapi/opendrift/readers/roppy/depth/index.html#opendrift.readers.roppy.depth.stretch5">[docs]</a>
-<span class="k">def</span><span class="w"> </span><span class="nf">stretch5</span><span class="p">(</span><span class="n">N</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">stagger</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;rho&quot;</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">NDArray</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Returns S for Vstretching = 5&quot;&quot;&quot;</span>
-    <span class="k">if</span> <span class="n">stagger</span> <span class="o">==</span> <span class="s2">&quot;w&quot;</span><span class="p">:</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">stretch5</span><span class="p">(</span><span class="n">N</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">stagger</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">"rho"</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">NDArray</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""Returns S for Vstretching = 5"""</span>
+    <span class="k">if</span> <span class="n">stagger</span> <span class="o">==</span> <span class="s2">"w"</span><span class="p">:</span>
         <span class="n">K</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="n">N</span> <span class="o">+</span> <span class="mi">1</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">float64</span><span class="p">)</span>
-    <span class="k">else</span><span class="p">:</span>  <span class="c1"># Default, stagger = &quot;rho&quot;</span>
+    <span class="k">else</span><span class="p">:</span>  <span class="c1"># Default, stagger = "rho"</span>
         <span class="n">K</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="mf">0.5</span><span class="p">,</span> <span class="n">N</span><span class="p">)</span>
     <span class="n">S1</span> <span class="o">=</span> <span class="p">(</span><span class="n">K</span> <span class="o">*</span> <span class="n">K</span> <span class="o">-</span> <span class="mi">2</span> <span class="o">*</span> <span class="n">K</span> <span class="o">*</span> <span class="n">N</span> <span class="o">+</span> <span class="n">K</span> <span class="o">+</span> <span class="n">N</span> <span class="o">*</span> <span class="n">N</span> <span class="o">-</span> <span class="n">N</span><span class="p">)</span> <span class="o">/</span> <span class="p">(</span><span class="n">N</span> <span class="o">*</span> <span class="n">N</span> <span class="o">-</span> <span class="n">N</span><span class="p">)</span>
     <span class="n">S2</span> <span class="o">=</span> <span class="p">(</span><span class="n">K</span> <span class="o">*</span> <span class="n">K</span> <span class="o">-</span> <span class="n">K</span> <span class="o">*</span> <span class="n">N</span><span class="p">)</span> <span class="o">/</span> <span class="p">(</span><span class="mi">1</span> <span class="o">-</span> <span class="n">N</span><span class="p">)</span>
@@ -578,9 +578,9 @@
 <div class="viewcode-block" id="s_stretch_w">
 <a class="viewcode-back" href="../../../../autoapi/opendrift/readers/roppy/depth/index.html#opendrift.readers.roppy.depth.s_stretch_w">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">s_stretch_w</span><span class="p">(</span><span class="n">N</span><span class="p">,</span> <span class="n">theta_s</span><span class="p">,</span> <span class="n">theta_b</span><span class="p">,</span> <span class="n">Vstretching</span><span class="o">=</span><span class="mi">1</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Obsolete use *s_stretch* instead&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""Obsolete use *s_stretch* instead"""</span>
 
-    <span class="k">return</span> <span class="n">s_stretch</span><span class="p">(</span><span class="n">N</span><span class="p">,</span> <span class="n">theta_s</span><span class="p">,</span> <span class="n">theta_b</span><span class="p">,</span> <span class="n">stagger</span><span class="o">=</span><span class="s2">&quot;w&quot;</span><span class="p">,</span> <span class="n">Vstretching</span><span class="o">=</span><span class="n">Vstretching</span><span class="p">)</span></div>
+    <span class="k">return</span> <span class="n">s_stretch</span><span class="p">(</span><span class="n">N</span><span class="p">,</span> <span class="n">theta_s</span><span class="p">,</span> <span class="n">theta_b</span><span class="p">,</span> <span class="n">stagger</span><span class="o">=</span><span class="s2">"w"</span><span class="p">,</span> <span class="n">Vstretching</span><span class="o">=</span><span class="n">Vstretching</span><span class="p">)</span></div>
 
 </pre></div>
 
