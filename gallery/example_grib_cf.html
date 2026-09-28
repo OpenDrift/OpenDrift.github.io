@@ -11,7 +11,7 @@
       <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=9edc463e" />
       <link rel="stylesheet" type="text/css" href="../_static/graphviz.css?v=4ae1632d" />
       <link rel="stylesheet" type="text/css" href="../_static/plot_directive.css" />
-      <link rel="stylesheet" type="text/css" href="../_static/sg_gallery.css?v=fd6457a4" />
+      <link rel="stylesheet" type="text/css" href="../_static/sg_gallery.css?v=c83e6b79" />
       <link rel="stylesheet" type="text/css" href="../_static/sg_gallery-binder.css?v=f4aeca0c" />
       <link rel="stylesheet" type="text/css" href="../_static/sg_gallery-dataframe.css?v=2082cf3c" />
       <link rel="stylesheet" type="text/css" href="../_static/sg_gallery-rendered-html.css?v=1277b6f3" />
@@ -211,10 +211,9 @@ to download the full example code.</p>
 </div>
 <section class="sphx-glr-example-title" id="making-grib-dataset-cf-compatible">
 <span id="sphx-glr-gallery-example-grib-cf-py"></span><h1>Making GRIB dataset CF-compatible<a class="headerlink" href="#making-grib-dataset-cf-compatible" title="Link to this heading"></a></h1>
-<div class="highlight-Python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">datetime</span><span class="w"> </span><span class="kn">import</span> <span class="n">datetime</span><span class="p">,</span> <span class="n">timedelta</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">opendrift.models.windblow</span><span class="w"> </span><span class="kn">import</span> <span class="n">WindBlow</span>
-</pre></div>
-</div>
+<div class="highlight-Python notranslate"><div class="highlight"><pre><span class="kn">from</span><span class="w"> </span><span class="nn">datetime</span><span class="w"> </span><span class="kn">import</span> <span class="n">datetime</span><span class="p">,</span> <span class="n">timedelta</span><span class="w">
+</span><span class="kn">from</span><span class="w"> </span><span class="nn">opendrift</span><span class="nn">.</span><span class="nn">models</span><span class="nn">.</span><span class="nn">windblow</span><span class="w"> </span><span class="kn">import</span> <a class="sphx-glr-backref-module-opendrift-models-windblow sphx-glr-backref-type-py-class reference internal" href="../autoapi/opendrift/models/windblow/index.html#opendrift.models.windblow.WindBlow" title="opendrift.models.windblow.WindBlow"><span class="n">WindBlow</span></a><span class="w">
+</span></pre></div></div>
 <p>Comparing / using two different wind datasets</p>
 <dl>
 <dt>The first dataset (UCAR) is a GRIB dataset served by Thredds as a netCDF dataset, but with GRIB attributes</dt><dd><dl class="simple">
@@ -225,149 +224,147 @@ to download the full example code.</p>
 </dd>
 </dl>
 <p>The second dataset (PACIOOS) is a netCDF4 dataset served by Thredds with CF attributes</p>
-<div class="highlight-Python notranslate"><div class="highlight"><pre><span></span><span class="n">wind_datasets</span> <span class="o">=</span> <span class="p">[</span>
-    <span class="s1">'https://thredds.ucar.edu/thredds/dodsC/grib/NCEP/GFS/Global_0p25deg/Best'</span><span class="p">,</span>
-    <span class="s1">'https://pae-paha.pacioos.hawaii.edu/thredds/dodsC/ncep_global/NCEP_Global_Atmospheric_Model_best.ncd'</span>
-    <span class="p">]</span>
-
-<span class="n">simulations</span> <span class="o">=</span> <span class="p">[]</span>
-
-<span class="n">time</span> <span class="o">=</span> <span class="n">datetime</span><span class="o">.</span><span class="n">now</span><span class="p">()</span> <span class="o">-</span> <span class="n">timedelta</span><span class="p">(</span><span class="n">days</span><span class="o">=</span><span class="mi">5</span><span class="p">)</span>
-<span class="k">for</span> <span class="n">wind</span> <span class="ow">in</span> <span class="n">wind_datasets</span><span class="p">:</span>
-    <span class="n">o</span> <span class="o">=</span> <span class="n">WindBlow</span><span class="p">(</span><span class="n">loglevel</span><span class="o">=</span><span class="mi">20</span><span class="p">)</span>
-    <span class="n">o</span><span class="o">.</span><span class="n">add_readers_from_list</span><span class="p">(</span><span class="n">wind</span><span class="p">)</span>
-    <span class="n">o</span><span class="o">.</span><span class="n">seed_elements</span><span class="p">(</span><span class="n">lon</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span> <span class="n">lat</span><span class="o">=</span><span class="mi">60</span><span class="p">,</span> <span class="n">time</span><span class="o">=</span><span class="n">time</span><span class="p">,</span> <span class="n">number</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span> <span class="n">radius</span><span class="o">=</span><span class="mi">10000</span><span class="p">)</span>
-    <span class="n">o</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">duration</span><span class="o">=</span><span class="n">timedelta</span><span class="p">(</span><span class="n">hours</span><span class="o">=</span><span class="mi">48</span><span class="p">))</span>
-    <span class="n">simulations</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">o</span><span class="p">)</span>
-</pre></div>
-</div>
-<div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>13:57:41 INFO    opendrift:569: OpenDriftSimulation initialised (version 1.14.11 / v1.14.12-9-g6f1a4a0)
-13:57:41 INFO    opendrift.models.basemodel.environment:227: Fallback values will be used for the following variables which have no readers:
-13:57:41 INFO    opendrift.models.basemodel.environment:230:    x_wind: 0.000000
-13:57:41 INFO    opendrift.models.basemodel.environment:230:    y_wind: 0.000000
-13:57:41 INFO    opendrift:1921: Storing previous values of element property lon because of condition (('general:coastline_action', 'in', ['stranding', 'previous']), 'or', ('general:seafloor_action', 'in', ['previous']))
-13:57:41 INFO    opendrift:1921: Storing previous values of element property lat because of condition (('general:coastline_action', 'in', ['stranding', 'previous']), 'or', ('general:seafloor_action', 'in', ['previous']))
-13:57:41 INFO    opendrift:2237: 2026-09-05 13:57:41.105251 - step 1 of 48 - 10 active elements (0 deactivated)
-13:57:41 INFO    opendrift.readers:67: Opening file with xr.open_dataset
-13:57:42 INFO    opendrift.readers.reader_netCDF_CF_generic:340: Detected dimensions: {'time': ['time', 'time1', 'time2', 'time3'], 'x': 'lon', 'y': 'lat'}
-13:57:42 INFO    opendrift.readers.basereader:175: Variable x_wind will be rotated from eastward_wind
-13:57:42 INFO    opendrift.readers.basereader:175: Variable y_wind will be rotated from northward_wind
-13:57:42 INFO    opendrift:2237: 2026-09-05 14:57:41.105251 - step 2 of 48 - 10 active elements (0 deactivated)
-13:57:42 INFO    opendrift:2237: 2026-09-05 15:57:41.105251 - step 3 of 48 - 10 active elements (0 deactivated)
-13:57:43 INFO    opendrift:2237: 2026-09-05 16:57:41.105251 - step 4 of 48 - 10 active elements (0 deactivated)
-13:57:43 INFO    opendrift:2237: 2026-09-05 17:57:41.105251 - step 5 of 48 - 10 active elements (0 deactivated)
-13:57:43 INFO    opendrift:2237: 2026-09-05 18:57:41.105251 - step 6 of 48 - 10 active elements (0 deactivated)
-13:57:43 INFO    opendrift:2237: 2026-09-05 19:57:41.105251 - step 7 of 48 - 10 active elements (0 deactivated)
-13:57:43 INFO    opendrift:2237: 2026-09-05 20:57:41.105251 - step 8 of 48 - 10 active elements (0 deactivated)
-13:57:43 INFO    opendrift:2237: 2026-09-05 21:57:41.105251 - step 9 of 48 - 10 active elements (0 deactivated)
-13:57:43 INFO    opendrift:2237: 2026-09-05 22:57:41.105251 - step 10 of 48 - 10 active elements (0 deactivated)
-13:57:43 INFO    opendrift:2237: 2026-09-05 23:57:41.105251 - step 11 of 48 - 10 active elements (0 deactivated)
-13:57:43 INFO    opendrift:2237: 2026-09-06 00:57:41.105251 - step 12 of 48 - 10 active elements (0 deactivated)
-13:57:43 INFO    opendrift:2237: 2026-09-06 01:57:41.105251 - step 13 of 48 - 10 active elements (0 deactivated)
-13:57:43 INFO    opendrift:2237: 2026-09-06 02:57:41.105251 - step 14 of 48 - 10 active elements (0 deactivated)
-13:57:43 INFO    opendrift:2237: 2026-09-06 03:57:41.105251 - step 15 of 48 - 10 active elements (0 deactivated)
-13:57:43 INFO    opendrift:2237: 2026-09-06 04:57:41.105251 - step 16 of 48 - 10 active elements (0 deactivated)
-13:57:43 INFO    opendrift:2237: 2026-09-06 05:57:41.105251 - step 17 of 48 - 10 active elements (0 deactivated)
-13:57:43 WARNING opendrift.readers.basereader.structured:324: Data block from https://thredds.ucar.edu/thredds/dodsC/grib/NCEP/GFS/Global_0p25deg/Best not large enough to cover element positions within timestep. Buffer size (12) must be increased. See `Variables.set_buffer_size`.
-13:57:43 INFO    opendrift:2237: 2026-09-06 06:57:41.105251 - step 18 of 48 - 10 active elements (0 deactivated)
-13:57:44 INFO    opendrift:2237: 2026-09-06 07:57:41.105251 - step 19 of 48 - 10 active elements (0 deactivated)
-13:57:44 INFO    opendrift:2237: 2026-09-06 08:57:41.105251 - step 20 of 48 - 10 active elements (0 deactivated)
-13:57:44 INFO    opendrift:2237: 2026-09-06 09:57:41.105251 - step 21 of 48 - 10 active elements (0 deactivated)
-13:57:44 INFO    opendrift:2237: 2026-09-06 10:57:41.105251 - step 22 of 48 - 10 active elements (0 deactivated)
-13:57:44 INFO    opendrift:2237: 2026-09-06 11:57:41.105251 - step 23 of 48 - 10 active elements (0 deactivated)
-13:57:44 INFO    opendrift:2237: 2026-09-06 12:57:41.105251 - step 24 of 48 - 10 active elements (0 deactivated)
-13:57:44 INFO    opendrift:2237: 2026-09-06 13:57:41.105251 - step 25 of 48 - 10 active elements (0 deactivated)
-13:57:44 INFO    opendrift:2237: 2026-09-06 14:57:41.105251 - step 26 of 48 - 10 active elements (0 deactivated)
-13:57:44 INFO    opendrift:2237: 2026-09-06 15:57:41.105251 - step 27 of 48 - 10 active elements (0 deactivated)
-13:57:44 INFO    opendrift:2237: 2026-09-06 16:57:41.105251 - step 28 of 48 - 10 active elements (0 deactivated)
-13:57:44 INFO    opendrift:2237: 2026-09-06 17:57:41.105251 - step 29 of 48 - 10 active elements (0 deactivated)
-13:57:44 INFO    opendrift:2237: 2026-09-06 18:57:41.105251 - step 30 of 48 - 10 active elements (0 deactivated)
-13:57:44 INFO    opendrift:2237: 2026-09-06 19:57:41.105251 - step 31 of 48 - 10 active elements (0 deactivated)
-13:57:44 INFO    opendrift:2237: 2026-09-06 20:57:41.105251 - step 32 of 48 - 10 active elements (0 deactivated)
-13:57:44 INFO    opendrift:2237: 2026-09-06 21:57:41.105251 - step 33 of 48 - 10 active elements (0 deactivated)
-13:57:45 INFO    opendrift:2237: 2026-09-06 22:57:41.105251 - step 34 of 48 - 10 active elements (0 deactivated)
-13:57:45 INFO    opendrift:2237: 2026-09-06 23:57:41.105251 - step 35 of 48 - 10 active elements (0 deactivated)
-13:57:45 INFO    opendrift:2237: 2026-09-07 00:57:41.105251 - step 36 of 48 - 10 active elements (0 deactivated)
-13:57:45 INFO    opendrift:2237: 2026-09-07 01:57:41.105251 - step 37 of 48 - 10 active elements (0 deactivated)
-13:57:45 INFO    opendrift:2237: 2026-09-07 02:57:41.105251 - step 38 of 48 - 10 active elements (0 deactivated)
-13:57:45 INFO    opendrift:2237: 2026-09-07 03:57:41.105251 - step 39 of 48 - 10 active elements (0 deactivated)
-13:57:45 INFO    opendrift:2237: 2026-09-07 04:57:41.105251 - step 40 of 48 - 10 active elements (0 deactivated)
-13:57:45 INFO    opendrift:2237: 2026-09-07 05:57:41.105251 - step 41 of 48 - 10 active elements (0 deactivated)
-13:57:45 INFO    opendrift:2237: 2026-09-07 06:57:41.105251 - step 42 of 48 - 10 active elements (0 deactivated)
-13:57:45 INFO    opendrift:2237: 2026-09-07 07:57:41.105251 - step 43 of 48 - 10 active elements (0 deactivated)
-13:57:45 INFO    opendrift:2237: 2026-09-07 08:57:41.105251 - step 44 of 48 - 10 active elements (0 deactivated)
-13:57:45 INFO    opendrift:2237: 2026-09-07 09:57:41.105251 - step 45 of 48 - 10 active elements (0 deactivated)
-13:57:45 INFO    opendrift:2237: 2026-09-07 10:57:41.105251 - step 46 of 48 - 10 active elements (0 deactivated)
-13:57:45 INFO    opendrift:2237: 2026-09-07 11:57:41.105251 - step 47 of 48 - 10 active elements (0 deactivated)
-13:57:45 INFO    opendrift:2237: 2026-09-07 12:57:41.105251 - step 48 of 48 - 10 active elements (0 deactivated)
-13:57:46 INFO    opendrift:569: OpenDriftSimulation initialised (version 1.14.11 / v1.14.12-9-g6f1a4a0)
-13:57:46 INFO    opendrift.models.basemodel.environment:227: Fallback values will be used for the following variables which have no readers:
-13:57:46 INFO    opendrift.models.basemodel.environment:230:    x_wind: 0.000000
-13:57:46 INFO    opendrift.models.basemodel.environment:230:    y_wind: 0.000000
-13:57:46 INFO    opendrift:1921: Storing previous values of element property lon because of condition (('general:coastline_action', 'in', ['stranding', 'previous']), 'or', ('general:seafloor_action', 'in', ['previous']))
-13:57:46 INFO    opendrift:1921: Storing previous values of element property lat because of condition (('general:coastline_action', 'in', ['stranding', 'previous']), 'or', ('general:seafloor_action', 'in', ['previous']))
-13:57:46 INFO    opendrift:2237: 2026-09-05 13:57:41.105251 - step 1 of 48 - 10 active elements (0 deactivated)
-13:57:46 INFO    opendrift.readers:67: Opening file with xr.open_dataset
-13:57:48 INFO    opendrift.readers.reader_netCDF_CF_generic:340: Detected dimensions: {'time': 'time', 'x': 'longitude', 'y': 'latitude'}
-13:57:48 INFO    opendrift.readers.basereader:175: Variable x_wind will be rotated from eastward_wind
-13:57:48 INFO    opendrift.readers.basereader:175: Variable y_wind will be rotated from northward_wind
-13:57:48 INFO    opendrift:2237: 2026-09-05 14:57:41.105251 - step 2 of 48 - 10 active elements (0 deactivated)
-13:57:48 INFO    opendrift:2237: 2026-09-05 15:57:41.105251 - step 3 of 48 - 10 active elements (0 deactivated)
-13:57:49 INFO    opendrift:2237: 2026-09-05 16:57:41.105251 - step 4 of 48 - 10 active elements (0 deactivated)
-13:57:49 INFO    opendrift:2237: 2026-09-05 17:57:41.105251 - step 5 of 48 - 10 active elements (0 deactivated)
-13:57:49 INFO    opendrift:2237: 2026-09-05 18:57:41.105251 - step 6 of 48 - 10 active elements (0 deactivated)
-13:57:49 INFO    opendrift:2237: 2026-09-05 19:57:41.105251 - step 7 of 48 - 10 active elements (0 deactivated)
-13:57:49 INFO    opendrift:2237: 2026-09-05 20:57:41.105251 - step 8 of 48 - 10 active elements (0 deactivated)
-13:57:49 INFO    opendrift:2237: 2026-09-05 21:57:41.105251 - step 9 of 48 - 10 active elements (0 deactivated)
-13:57:49 INFO    opendrift:2237: 2026-09-05 22:57:41.105251 - step 10 of 48 - 10 active elements (0 deactivated)
-13:57:49 INFO    opendrift:2237: 2026-09-05 23:57:41.105251 - step 11 of 48 - 10 active elements (0 deactivated)
-13:57:49 INFO    opendrift:2237: 2026-09-06 00:57:41.105251 - step 12 of 48 - 10 active elements (0 deactivated)
-13:57:50 INFO    opendrift:2237: 2026-09-06 01:57:41.105251 - step 13 of 48 - 10 active elements (0 deactivated)
-13:57:50 INFO    opendrift:2237: 2026-09-06 02:57:41.105251 - step 14 of 48 - 10 active elements (0 deactivated)
-13:57:50 INFO    opendrift:2237: 2026-09-06 03:57:41.105251 - step 15 of 48 - 10 active elements (0 deactivated)
-13:57:50 INFO    opendrift:2237: 2026-09-06 04:57:41.105251 - step 16 of 48 - 10 active elements (0 deactivated)
-13:57:50 INFO    opendrift:2237: 2026-09-06 05:57:41.105251 - step 17 of 48 - 10 active elements (0 deactivated)
-13:57:50 INFO    opendrift:2237: 2026-09-06 06:57:41.105251 - step 18 of 48 - 10 active elements (0 deactivated)
-13:57:50 INFO    opendrift:2237: 2026-09-06 07:57:41.105251 - step 19 of 48 - 10 active elements (0 deactivated)
-13:57:50 INFO    opendrift:2237: 2026-09-06 08:57:41.105251 - step 20 of 48 - 10 active elements (0 deactivated)
-13:57:50 INFO    opendrift:2237: 2026-09-06 09:57:41.105251 - step 21 of 48 - 10 active elements (0 deactivated)
-13:57:51 INFO    opendrift:2237: 2026-09-06 10:57:41.105251 - step 22 of 48 - 10 active elements (0 deactivated)
-13:57:51 INFO    opendrift:2237: 2026-09-06 11:57:41.105251 - step 23 of 48 - 10 active elements (0 deactivated)
-13:57:51 INFO    opendrift:2237: 2026-09-06 12:57:41.105251 - step 24 of 48 - 10 active elements (0 deactivated)
-13:57:51 INFO    opendrift:2237: 2026-09-06 13:57:41.105251 - step 25 of 48 - 10 active elements (0 deactivated)
-13:57:51 INFO    opendrift:2237: 2026-09-06 14:57:41.105251 - step 26 of 48 - 10 active elements (0 deactivated)
-13:57:51 INFO    opendrift:2237: 2026-09-06 15:57:41.105251 - step 27 of 48 - 10 active elements (0 deactivated)
-13:57:51 INFO    opendrift:2237: 2026-09-06 16:57:41.105251 - step 28 of 48 - 10 active elements (0 deactivated)
-13:57:51 INFO    opendrift:2237: 2026-09-06 17:57:41.105251 - step 29 of 48 - 10 active elements (0 deactivated)
-13:57:51 INFO    opendrift:2237: 2026-09-06 18:57:41.105251 - step 30 of 48 - 10 active elements (0 deactivated)
-13:57:52 INFO    opendrift:2237: 2026-09-06 19:57:41.105251 - step 31 of 48 - 10 active elements (0 deactivated)
-13:57:52 INFO    opendrift:2237: 2026-09-06 20:57:41.105251 - step 32 of 48 - 10 active elements (0 deactivated)
-13:57:52 INFO    opendrift:2237: 2026-09-06 21:57:41.105251 - step 33 of 48 - 10 active elements (0 deactivated)
-13:57:52 INFO    opendrift:2237: 2026-09-06 22:57:41.105251 - step 34 of 48 - 10 active elements (0 deactivated)
-13:57:52 INFO    opendrift:2237: 2026-09-06 23:57:41.105251 - step 35 of 48 - 10 active elements (0 deactivated)
-13:57:52 INFO    opendrift:2237: 2026-09-07 00:57:41.105251 - step 36 of 48 - 10 active elements (0 deactivated)
-13:57:52 INFO    opendrift:2237: 2026-09-07 01:57:41.105251 - step 37 of 48 - 10 active elements (0 deactivated)
-13:57:52 INFO    opendrift:2237: 2026-09-07 02:57:41.105251 - step 38 of 48 - 10 active elements (0 deactivated)
-13:57:52 INFO    opendrift:2237: 2026-09-07 03:57:41.105251 - step 39 of 48 - 10 active elements (0 deactivated)
-13:57:53 INFO    opendrift:2237: 2026-09-07 04:57:41.105251 - step 40 of 48 - 10 active elements (0 deactivated)
-13:57:53 INFO    opendrift:2237: 2026-09-07 05:57:41.105251 - step 41 of 48 - 10 active elements (0 deactivated)
-13:57:53 INFO    opendrift:2237: 2026-09-07 06:57:41.105251 - step 42 of 48 - 10 active elements (0 deactivated)
-13:57:53 INFO    opendrift:2237: 2026-09-07 07:57:41.105251 - step 43 of 48 - 10 active elements (0 deactivated)
-13:57:53 INFO    opendrift:2237: 2026-09-07 08:57:41.105251 - step 44 of 48 - 10 active elements (0 deactivated)
-13:57:53 INFO    opendrift:2237: 2026-09-07 09:57:41.105251 - step 45 of 48 - 10 active elements (0 deactivated)
-13:57:53 INFO    opendrift:2237: 2026-09-07 10:57:41.105251 - step 46 of 48 - 10 active elements (0 deactivated)
-13:57:53 INFO    opendrift:2237: 2026-09-07 11:57:41.105251 - step 47 of 48 - 10 active elements (0 deactivated)
-13:57:53 INFO    opendrift:2237: 2026-09-07 12:57:41.105251 - step 48 of 48 - 10 active elements (0 deactivated)
+<div class="highlight-Python notranslate"><div class="highlight"><pre><span class="n">wind_datasets</span> <span class="o">=</span> <span class="p">[</span><span class="w">
+</span>    <span class="s1">'</span><span class="s1">https://thredds.ucar.edu/thredds/dodsC/grib/NCEP/GFS/Global_0p25deg/Best</span><span class="s1">'</span><span class="p">,</span><span class="w">
+</span>    <span class="s1">'</span><span class="s1">https://pae-paha.pacioos.hawaii.edu/thredds/dodsC/ncep_global/NCEP_Global_Atmospheric_Model_best.ncd</span><span class="s1">'</span><span class="w">
+</span>    <span class="p">]</span><span class="w">
+</span><span class="w">
+</span><span class="n">simulations</span> <span class="o">=</span> <span class="p">[</span><span class="p">]</span><span class="w">
+</span><span class="w">
+</span><span class="n">time</span> <span class="o">=</span> <span class="n">datetime</span><span class="o">.</span><span class="n">now</span><span class="p">(</span><span class="p">)</span> <span class="o">-</span> <span class="n">timedelta</span><span class="p">(</span><span class="n">days</span><span class="o">=</span><span class="mi">5</span><span class="p">)</span><span class="w">
+</span><span class="k">for</span> <span class="n">wind</span> <span class="ow">in</span> <span class="n">wind_datasets</span><span class="p">:</span><span class="w">
+</span>    <a class="sphx-glr-backref-module-opendrift-models-windblow sphx-glr-backref-type-py-class sphx-glr-backref-instance reference internal" href="../autoapi/opendrift/models/windblow/index.html#opendrift.models.windblow.WindBlow" title="opendrift.models.windblow.WindBlow"><span class="n">o</span></a> <span class="o">=</span> <a class="sphx-glr-backref-module-opendrift-models-windblow sphx-glr-backref-type-py-class reference internal" href="../autoapi/opendrift/models/windblow/index.html#opendrift.models.windblow.WindBlow" title="opendrift.models.windblow.WindBlow"><span class="n">WindBlow</span></a><span class="p">(</span><span class="n">loglevel</span><span class="o">=</span><span class="mi">20</span><span class="p">)</span><span class="w">
+</span>    <a class="sphx-glr-backref-module-opendrift-models-basemodel sphx-glr-backref-type-py-method reference internal" href="../autoapi/opendrift/models/basemodel/index.html#opendrift.models.basemodel.OpenDriftSimulation.add_readers_from_list" title="opendrift.models.basemodel.OpenDriftSimulation.add_readers_from_list"><span class="n">o</span><span class="o">.</span><span class="n">add_readers_from_list</span></a><span class="p">(</span><span class="n">wind</span><span class="p">)</span><span class="w">
+</span>    <a class="sphx-glr-backref-module-opendrift-models-basemodel sphx-glr-backref-type-py-method reference internal" href="../autoapi/opendrift/models/basemodel/index.html#opendrift.models.basemodel.OpenDriftSimulation.seed_elements" title="opendrift.models.basemodel.OpenDriftSimulation.seed_elements"><span class="n">o</span><span class="o">.</span><span class="n">seed_elements</span></a><span class="p">(</span><span class="n">lon</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span> <span class="n">lat</span><span class="o">=</span><span class="mi">60</span><span class="p">,</span> <span class="n">time</span><span class="o">=</span><span class="n">time</span><span class="p">,</span> <span class="n">number</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span> <span class="n">radius</span><span class="o">=</span><span class="mi">10000</span><span class="p">)</span><span class="w">
+</span>    <a class="sphx-glr-backref-module-opendrift-models-basemodel sphx-glr-backref-type-py-method reference internal" href="../autoapi/opendrift/models/basemodel/index.html#opendrift.models.basemodel.OpenDriftSimulation.run" title="opendrift.models.basemodel.OpenDriftSimulation.run"><span class="n">o</span><span class="o">.</span><span class="n">run</span></a><span class="p">(</span><span class="n">duration</span><span class="o">=</span><span class="n">timedelta</span><span class="p">(</span><span class="n">hours</span><span class="o">=</span><span class="mi">48</span><span class="p">)</span><span class="p">)</span><span class="w">
+</span>    <span class="n">simulations</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><a class="sphx-glr-backref-module-opendrift-models-windblow sphx-glr-backref-type-py-class sphx-glr-backref-instance reference internal" href="../autoapi/opendrift/models/windblow/index.html#opendrift.models.windblow.WindBlow" title="opendrift.models.windblow.WindBlow"><span class="n">o</span></a><span class="p">)</span><span class="w">
+</span></pre></div></div>
+<div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>09:35:41 INFO    opendrift:569: OpenDriftSimulation initialised (version 1.14.11 / v1.14.12-26-g8782b63)
+09:35:41 INFO    opendrift.models.basemodel.environment:227: Fallback values will be used for the following variables which have no readers:
+09:35:41 INFO    opendrift.models.basemodel.environment:230:    x_wind: 0.000000
+09:35:41 INFO    opendrift.models.basemodel.environment:230:    y_wind: 0.000000
+09:35:41 INFO    opendrift:1921: Storing previous values of element property lon because of condition (('general:coastline_action', 'in', ['stranding', 'previous']), 'or', ('general:seafloor_action', 'in', ['previous']))
+09:35:41 INFO    opendrift:1921: Storing previous values of element property lat because of condition (('general:coastline_action', 'in', ['stranding', 'previous']), 'or', ('general:seafloor_action', 'in', ['previous']))
+09:35:41 INFO    opendrift:2237: 2026-09-23 09:35:41.143470 - step 1 of 48 - 10 active elements (0 deactivated)
+09:35:41 INFO    opendrift.readers:67: Opening file with xr.open_dataset
+09:35:42 INFO    opendrift.readers.reader_netCDF_CF_generic:340: Detected dimensions: {'time': ['time', 'time1', 'time2', 'time3'], 'x': 'lon', 'y': 'lat'}
+09:35:42 INFO    opendrift.readers.basereader:175: Variable x_wind will be rotated from eastward_wind
+09:35:42 INFO    opendrift.readers.basereader:175: Variable y_wind will be rotated from northward_wind
+09:35:42 INFO    opendrift:2237: 2026-09-23 10:35:41.143470 - step 2 of 48 - 10 active elements (0 deactivated)
+09:35:42 INFO    opendrift:2237: 2026-09-23 11:35:41.143470 - step 3 of 48 - 10 active elements (0 deactivated)
+09:35:42 INFO    opendrift:2237: 2026-09-23 12:35:41.143470 - step 4 of 48 - 10 active elements (0 deactivated)
+09:35:43 INFO    opendrift:2237: 2026-09-23 13:35:41.143470 - step 5 of 48 - 10 active elements (0 deactivated)
+09:35:43 INFO    opendrift:2237: 2026-09-23 14:35:41.143470 - step 6 of 48 - 10 active elements (0 deactivated)
+09:35:43 INFO    opendrift:2237: 2026-09-23 15:35:41.143470 - step 7 of 48 - 10 active elements (0 deactivated)
+09:35:43 INFO    opendrift:2237: 2026-09-23 16:35:41.143470 - step 8 of 48 - 10 active elements (0 deactivated)
+09:35:43 INFO    opendrift:2237: 2026-09-23 17:35:41.143470 - step 9 of 48 - 10 active elements (0 deactivated)
+09:35:43 INFO    opendrift:2237: 2026-09-23 18:35:41.143470 - step 10 of 48 - 10 active elements (0 deactivated)
+09:35:43 INFO    opendrift:2237: 2026-09-23 19:35:41.143470 - step 11 of 48 - 10 active elements (0 deactivated)
+09:35:43 INFO    opendrift:2237: 2026-09-23 20:35:41.143470 - step 12 of 48 - 10 active elements (0 deactivated)
+09:35:43 INFO    opendrift:2237: 2026-09-23 21:35:41.143470 - step 13 of 48 - 10 active elements (0 deactivated)
+09:35:43 INFO    opendrift:2237: 2026-09-23 22:35:41.143470 - step 14 of 48 - 10 active elements (0 deactivated)
+09:35:43 INFO    opendrift:2237: 2026-09-23 23:35:41.143470 - step 15 of 48 - 10 active elements (0 deactivated)
+09:35:43 INFO    opendrift:2237: 2026-09-24 00:35:41.143470 - step 16 of 48 - 10 active elements (0 deactivated)
+09:35:43 INFO    opendrift:2237: 2026-09-24 01:35:41.143470 - step 17 of 48 - 10 active elements (0 deactivated)
+09:35:43 INFO    opendrift:2237: 2026-09-24 02:35:41.143470 - step 18 of 48 - 10 active elements (0 deactivated)
+09:35:43 INFO    opendrift:2237: 2026-09-24 03:35:41.143470 - step 19 of 48 - 10 active elements (0 deactivated)
+09:35:44 INFO    opendrift:2237: 2026-09-24 04:35:41.143470 - step 20 of 48 - 10 active elements (0 deactivated)
+09:35:44 INFO    opendrift:2237: 2026-09-24 05:35:41.143470 - step 21 of 48 - 10 active elements (0 deactivated)
+09:35:44 INFO    opendrift:2237: 2026-09-24 06:35:41.143470 - step 22 of 48 - 10 active elements (0 deactivated)
+09:35:44 INFO    opendrift:2237: 2026-09-24 07:35:41.143470 - step 23 of 48 - 10 active elements (0 deactivated)
+09:35:44 INFO    opendrift:2237: 2026-09-24 08:35:41.143470 - step 24 of 48 - 10 active elements (0 deactivated)
+09:35:44 INFO    opendrift:2237: 2026-09-24 09:35:41.143470 - step 25 of 48 - 10 active elements (0 deactivated)
+09:35:44 INFO    opendrift:2237: 2026-09-24 10:35:41.143470 - step 26 of 48 - 10 active elements (0 deactivated)
+09:35:44 INFO    opendrift:2237: 2026-09-24 11:35:41.143470 - step 27 of 48 - 10 active elements (0 deactivated)
+09:35:44 INFO    opendrift:2237: 2026-09-24 12:35:41.143470 - step 28 of 48 - 10 active elements (0 deactivated)
+09:35:44 INFO    opendrift:2237: 2026-09-24 13:35:41.143470 - step 29 of 48 - 10 active elements (0 deactivated)
+09:35:44 INFO    opendrift:2237: 2026-09-24 14:35:41.143470 - step 30 of 48 - 10 active elements (0 deactivated)
+09:35:44 INFO    opendrift:2237: 2026-09-24 15:35:41.143470 - step 31 of 48 - 10 active elements (0 deactivated)
+09:35:45 INFO    opendrift:2237: 2026-09-24 16:35:41.143470 - step 32 of 48 - 10 active elements (0 deactivated)
+09:35:45 INFO    opendrift:2237: 2026-09-24 17:35:41.143470 - step 33 of 48 - 10 active elements (0 deactivated)
+09:35:45 INFO    opendrift:2237: 2026-09-24 18:35:41.143470 - step 34 of 48 - 10 active elements (0 deactivated)
+09:35:45 INFO    opendrift:2237: 2026-09-24 19:35:41.143470 - step 35 of 48 - 10 active elements (0 deactivated)
+09:35:45 INFO    opendrift:2237: 2026-09-24 20:35:41.143470 - step 36 of 48 - 10 active elements (0 deactivated)
+09:35:45 INFO    opendrift:2237: 2026-09-24 21:35:41.143470 - step 37 of 48 - 10 active elements (0 deactivated)
+09:35:45 INFO    opendrift:2237: 2026-09-24 22:35:41.143470 - step 38 of 48 - 10 active elements (0 deactivated)
+09:35:45 INFO    opendrift:2237: 2026-09-24 23:35:41.143470 - step 39 of 48 - 10 active elements (0 deactivated)
+09:35:45 INFO    opendrift:2237: 2026-09-25 00:35:41.143470 - step 40 of 48 - 10 active elements (0 deactivated)
+09:35:45 INFO    opendrift:2237: 2026-09-25 01:35:41.143470 - step 41 of 48 - 10 active elements (0 deactivated)
+09:35:45 INFO    opendrift:2237: 2026-09-25 02:35:41.143470 - step 42 of 48 - 10 active elements (0 deactivated)
+09:35:45 INFO    opendrift:2237: 2026-09-25 03:35:41.143470 - step 43 of 48 - 10 active elements (0 deactivated)
+09:35:45 INFO    opendrift:2237: 2026-09-25 04:35:41.143470 - step 44 of 48 - 10 active elements (0 deactivated)
+09:35:45 INFO    opendrift:2237: 2026-09-25 05:35:41.143470 - step 45 of 48 - 10 active elements (0 deactivated)
+09:35:45 INFO    opendrift:2237: 2026-09-25 06:35:41.143470 - step 46 of 48 - 10 active elements (0 deactivated)
+09:35:46 INFO    opendrift:2237: 2026-09-25 07:35:41.143470 - step 47 of 48 - 10 active elements (0 deactivated)
+09:35:46 INFO    opendrift:2237: 2026-09-25 08:35:41.143470 - step 48 of 48 - 10 active elements (0 deactivated)
+09:35:46 INFO    opendrift:569: OpenDriftSimulation initialised (version 1.14.11 / v1.14.12-26-g8782b63)
+09:35:46 INFO    opendrift.models.basemodel.environment:227: Fallback values will be used for the following variables which have no readers:
+09:35:46 INFO    opendrift.models.basemodel.environment:230:    x_wind: 0.000000
+09:35:46 INFO    opendrift.models.basemodel.environment:230:    y_wind: 0.000000
+09:35:46 INFO    opendrift:1921: Storing previous values of element property lon because of condition (('general:coastline_action', 'in', ['stranding', 'previous']), 'or', ('general:seafloor_action', 'in', ['previous']))
+09:35:46 INFO    opendrift:1921: Storing previous values of element property lat because of condition (('general:coastline_action', 'in', ['stranding', 'previous']), 'or', ('general:seafloor_action', 'in', ['previous']))
+09:35:46 INFO    opendrift:2237: 2026-09-23 09:35:41.143470 - step 1 of 48 - 10 active elements (0 deactivated)
+09:35:46 INFO    opendrift.readers:67: Opening file with xr.open_dataset
+09:35:48 INFO    opendrift.readers.reader_netCDF_CF_generic:340: Detected dimensions: {'time': 'time', 'x': 'longitude', 'y': 'latitude'}
+09:35:48 INFO    opendrift.readers.basereader:175: Variable x_wind will be rotated from eastward_wind
+09:35:48 INFO    opendrift.readers.basereader:175: Variable y_wind will be rotated from northward_wind
+09:35:49 INFO    opendrift:2237: 2026-09-23 10:35:41.143470 - step 2 of 48 - 10 active elements (0 deactivated)
+09:35:49 INFO    opendrift:2237: 2026-09-23 11:35:41.143470 - step 3 of 48 - 10 active elements (0 deactivated)
+09:35:49 INFO    opendrift:2237: 2026-09-23 12:35:41.143470 - step 4 of 48 - 10 active elements (0 deactivated)
+09:35:49 INFO    opendrift:2237: 2026-09-23 13:35:41.143470 - step 5 of 48 - 10 active elements (0 deactivated)
+09:35:49 INFO    opendrift:2237: 2026-09-23 14:35:41.143470 - step 6 of 48 - 10 active elements (0 deactivated)
+09:35:49 INFO    opendrift:2237: 2026-09-23 15:35:41.143470 - step 7 of 48 - 10 active elements (0 deactivated)
+09:35:50 INFO    opendrift:2237: 2026-09-23 16:35:41.143470 - step 8 of 48 - 10 active elements (0 deactivated)
+09:35:50 INFO    opendrift:2237: 2026-09-23 17:35:41.143470 - step 9 of 48 - 10 active elements (0 deactivated)
+09:35:50 INFO    opendrift:2237: 2026-09-23 18:35:41.143470 - step 10 of 48 - 10 active elements (0 deactivated)
+09:35:50 INFO    opendrift:2237: 2026-09-23 19:35:41.143470 - step 11 of 48 - 10 active elements (0 deactivated)
+09:35:50 INFO    opendrift:2237: 2026-09-23 20:35:41.143470 - step 12 of 48 - 10 active elements (0 deactivated)
+09:35:50 INFO    opendrift:2237: 2026-09-23 21:35:41.143470 - step 13 of 48 - 10 active elements (0 deactivated)
+09:35:50 INFO    opendrift:2237: 2026-09-23 22:35:41.143470 - step 14 of 48 - 10 active elements (0 deactivated)
+09:35:50 INFO    opendrift:2237: 2026-09-23 23:35:41.143470 - step 15 of 48 - 10 active elements (0 deactivated)
+09:35:50 WARNING opendrift.readers.basereader.structured:324: Data block from https://pae-paha.pacioos.hawaii.edu/thredds/dodsC/ncep_global/NCEP_Global_Atmospheric_Model_best.ncd not large enough to cover element positions within timestep. Buffer size (7) must be increased. See `Variables.set_buffer_size`.
+09:35:50 INFO    opendrift:2237: 2026-09-24 00:35:41.143470 - step 16 of 48 - 10 active elements (0 deactivated)
+09:35:51 INFO    opendrift:2237: 2026-09-24 01:35:41.143470 - step 17 of 48 - 10 active elements (0 deactivated)
+09:35:51 INFO    opendrift:2237: 2026-09-24 02:35:41.143470 - step 18 of 48 - 10 active elements (0 deactivated)
+09:35:51 INFO    opendrift:2237: 2026-09-24 03:35:41.143470 - step 19 of 48 - 10 active elements (0 deactivated)
+09:35:51 INFO    opendrift:2237: 2026-09-24 04:35:41.143470 - step 20 of 48 - 10 active elements (0 deactivated)
+09:35:51 INFO    opendrift:2237: 2026-09-24 05:35:41.143470 - step 21 of 48 - 10 active elements (0 deactivated)
+09:35:51 INFO    opendrift:2237: 2026-09-24 06:35:41.143470 - step 22 of 48 - 10 active elements (0 deactivated)
+09:35:52 INFO    opendrift:2237: 2026-09-24 07:35:41.143470 - step 23 of 48 - 10 active elements (0 deactivated)
+09:35:52 INFO    opendrift:2237: 2026-09-24 08:35:41.143470 - step 24 of 48 - 10 active elements (0 deactivated)
+09:35:52 INFO    opendrift:2237: 2026-09-24 09:35:41.143470 - step 25 of 48 - 10 active elements (0 deactivated)
+09:35:52 INFO    opendrift:2237: 2026-09-24 10:35:41.143470 - step 26 of 48 - 10 active elements (0 deactivated)
+09:35:52 INFO    opendrift:2237: 2026-09-24 11:35:41.143470 - step 27 of 48 - 10 active elements (0 deactivated)
+09:35:52 INFO    opendrift:2237: 2026-09-24 12:35:41.143470 - step 28 of 48 - 10 active elements (0 deactivated)
+09:35:52 INFO    opendrift:2237: 2026-09-24 13:35:41.143470 - step 29 of 48 - 10 active elements (0 deactivated)
+09:35:52 INFO    opendrift:2237: 2026-09-24 14:35:41.143470 - step 30 of 48 - 10 active elements (0 deactivated)
+09:35:52 INFO    opendrift:2237: 2026-09-24 15:35:41.143470 - step 31 of 48 - 10 active elements (0 deactivated)
+09:35:53 INFO    opendrift:2237: 2026-09-24 16:35:41.143470 - step 32 of 48 - 10 active elements (0 deactivated)
+09:35:53 INFO    opendrift:2237: 2026-09-24 17:35:41.143470 - step 33 of 48 - 10 active elements (0 deactivated)
+09:35:53 INFO    opendrift:2237: 2026-09-24 18:35:41.143470 - step 34 of 48 - 10 active elements (0 deactivated)
+09:35:53 INFO    opendrift:2237: 2026-09-24 19:35:41.143470 - step 35 of 48 - 10 active elements (0 deactivated)
+09:35:53 INFO    opendrift:2237: 2026-09-24 20:35:41.143470 - step 36 of 48 - 10 active elements (0 deactivated)
+09:35:53 INFO    opendrift:2237: 2026-09-24 21:35:41.143470 - step 37 of 48 - 10 active elements (0 deactivated)
+09:35:53 INFO    opendrift:2237: 2026-09-24 22:35:41.143470 - step 38 of 48 - 10 active elements (0 deactivated)
+09:35:53 INFO    opendrift:2237: 2026-09-24 23:35:41.143470 - step 39 of 48 - 10 active elements (0 deactivated)
+09:35:53 INFO    opendrift:2237: 2026-09-25 00:35:41.143470 - step 40 of 48 - 10 active elements (0 deactivated)
+09:35:54 INFO    opendrift:2237: 2026-09-25 01:35:41.143470 - step 41 of 48 - 10 active elements (0 deactivated)
+09:35:54 INFO    opendrift:2237: 2026-09-25 02:35:41.143470 - step 42 of 48 - 10 active elements (0 deactivated)
+09:35:54 INFO    opendrift:2237: 2026-09-25 03:35:41.143470 - step 43 of 48 - 10 active elements (0 deactivated)
+09:35:54 INFO    opendrift:2237: 2026-09-25 04:35:41.143470 - step 44 of 48 - 10 active elements (0 deactivated)
+09:35:54 INFO    opendrift:2237: 2026-09-25 05:35:41.143470 - step 45 of 48 - 10 active elements (0 deactivated)
+09:35:54 INFO    opendrift:2237: 2026-09-25 06:35:41.143470 - step 46 of 48 - 10 active elements (0 deactivated)
+09:35:54 INFO    opendrift:2237: 2026-09-25 07:35:41.143470 - step 47 of 48 - 10 active elements (0 deactivated)
+09:35:54 INFO    opendrift:2237: 2026-09-25 08:35:41.143470 - step 48 of 48 - 10 active elements (0 deactivated)
 </pre></div>
 </div>
 <p>Some differences are expected as datasets may origin from different runs</p>
-<div class="highlight-Python notranslate"><div class="highlight"><pre><span></span><span class="n">simulations</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">compare</span><span class="o">=</span><span class="n">simulations</span><span class="p">[</span><span class="mi">1</span><span class="p">:],</span> <span class="n">lscale</span><span class="o">=</span><span class="s1">'i'</span><span class="p">,</span> <span class="n">legend</span><span class="o">=</span><span class="p">[</span><span class="s1">'GRIB converted'</span><span class="p">,</span> <span class="s1">'netCDF CF compatible'</span><span class="p">])</span>
+<div class="highlight-Python notranslate"><div class="highlight"><pre><span class="n">simulations</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">compare</span><span class="o">=</span><span class="n">simulations</span><span class="p">[</span><span class="mi">1</span><span class="p">:</span><span class="p">]</span><span class="p">,</span> <span class="n">lscale</span><span class="o">=</span><span class="s1">'</span><span class="s1">i</span><span class="s1">'</span><span class="p">,</span> <span class="n">legend</span><span class="o">=</span><span class="p">[</span><span class="s1">'</span><span class="s1">GRIB converted</span><span class="s1">'</span><span class="p">,</span> <span class="s1">'</span><span class="s1">netCDF CF compatible</span><span class="s1">'</span><span class="p">]</span><span class="p">)</span><span class="w">
+</span></pre></div></div>
+<img src="../_images/sphx_glr_example_grib_cf_001.png" srcset="../_images/sphx_glr_example_grib_cf_001.png" alt="OpenDrift - WindBlow 2026-09-23 09:35 to 2026-09-25 09:35 UTC (49 steps)" class = "sphx-glr-single-img"/><div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>(&lt;GeoAxes: title={'center': 'OpenDrift - WindBlow\n2026-09-23 09:35 to 2026-09-25 09:35 UTC (49 steps)'}&gt;, &lt;Figure size 1100x1081.07 with 1 Axes&gt;)
 </pre></div>
 </div>
-<img src="../_images/sphx_glr_example_grib_cf_001.png" srcset="../_images/sphx_glr_example_grib_cf_001.png" alt="OpenDrift - WindBlow 2026-09-05 13:57 to 2026-09-07 13:57 UTC (49 steps)" class = "sphx-glr-single-img"/><div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>(&lt;GeoAxes: title={'center': 'OpenDrift - WindBlow\n2026-09-05 13:57 to 2026-09-07 13:57 UTC (49 steps)'}&gt;, &lt;Figure size 1100x673.929 with 1 Axes&gt;)
-</pre></div>
-</div>
-<p class="sphx-glr-timing"><strong>Total running time of the script:</strong> (0 minutes 24.931 seconds)</p>
+<p class="sphx-glr-timing"><strong>Total running time of the script:</strong> (0 minutes 24.883 seconds)</p>
 <div class="sphx-glr-footer sphx-glr-footer-example docutils container" id="sphx-glr-download-gallery-example-grib-cf-py">
 <div class="sphx-glr-download sphx-glr-download-jupyter docutils container">
 <p><a class="reference download internal" download="" href="../_downloads/7555984a2cce5c221fb9c31056e6b35c/example_grib_cf.ipynb"><code class="xref download docutils literal notranslate"><span class="pre">Download</span> <span class="pre">Jupyter</span> <span class="pre">notebook:</span> <span class="pre">example_grib_cf.ipynb</span></code></a></p>

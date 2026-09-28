@@ -11,7 +11,7 @@
       <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=9edc463e" />
       <link rel="stylesheet" type="text/css" href="../_static/graphviz.css?v=4ae1632d" />
       <link rel="stylesheet" type="text/css" href="../_static/plot_directive.css" />
-      <link rel="stylesheet" type="text/css" href="../_static/sg_gallery.css?v=fd6457a4" />
+      <link rel="stylesheet" type="text/css" href="../_static/sg_gallery.css?v=c83e6b79" />
       <link rel="stylesheet" type="text/css" href="../_static/sg_gallery-binder.css?v=f4aeca0c" />
       <link rel="stylesheet" type="text/css" href="../_static/sg_gallery-dataframe.css?v=2082cf3c" />
       <link rel="stylesheet" type="text/css" href="../_static/sg_gallery-rendered-html.css?v=1277b6f3" />
@@ -211,133 +211,131 @@ to download the full example code.</p>
 </div>
 <section class="sphx-glr-example-title" id="static-2d-current-field">
 <span id="sphx-glr-gallery-example-static-2d-current-py"></span><h1>Static 2D current field<a class="headerlink" href="#static-2d-current-field" title="Link to this heading"></a></h1>
-<div class="highlight-Python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">datetime</span><span class="w"> </span><span class="kn">import</span> <span class="n">datetime</span><span class="p">,</span> <span class="n">timedelta</span>
-<span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
-
-<span class="kn">from</span><span class="w"> </span><span class="nn">opendrift.readers.reader_constant_2d</span><span class="w"> </span><span class="kn">import</span> <span class="n">Reader</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">opendrift.models.oceandrift</span><span class="w"> </span><span class="kn">import</span> <span class="n">OceanDrift</span>
-</pre></div>
-</div>
+<div class="highlight-Python notranslate"><div class="highlight"><pre><span class="kn">from</span><span class="w"> </span><span class="nn">datetime</span><span class="w"> </span><span class="kn">import</span> <span class="n">datetime</span><span class="p">,</span> <span class="n">timedelta</span><span class="w">
+</span><span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span><span class="w">
+</span><span class="w">
+</span><span class="kn">from</span><span class="w"> </span><span class="nn">opendrift</span><span class="nn">.</span><span class="nn">readers</span><span class="nn">.</span><span class="nn">reader_constant_2d</span><span class="w"> </span><span class="kn">import</span> <a class="sphx-glr-backref-module-opendrift-readers-reader_constant_2d sphx-glr-backref-type-py-class reference internal" href="../autoapi/opendrift/readers/reader_constant_2d/index.html#opendrift.readers.reader_constant_2d.Reader" title="opendrift.readers.reader_constant_2d.Reader"><span class="n">Reader</span></a><span class="w">
+</span><span class="kn">from</span><span class="w"> </span><span class="nn">opendrift</span><span class="nn">.</span><span class="nn">models</span><span class="nn">.</span><span class="nn">oceandrift</span><span class="w"> </span><span class="kn">import</span> <a class="sphx-glr-backref-module-opendrift-models-oceandrift sphx-glr-backref-type-py-class reference internal" href="../autoapi/opendrift/models/oceandrift/index.html#opendrift.models.oceandrift.OceanDrift" title="opendrift.models.oceandrift.OceanDrift"><span class="n">OceanDrift</span></a><span class="w">
+</span></pre></div></div>
 <p>Constructing a static, rotating ocean current field,</p>
-<div class="highlight-Python notranslate"><div class="highlight"><pre><span></span><span class="n">lon</span><span class="p">,</span> <span class="n">lat</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">meshgrid</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span><span class="mi">6</span><span class="p">,</span><span class="mi">30</span><span class="p">),</span> <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="mi">59</span><span class="p">,</span><span class="mi">62</span><span class="p">,</span><span class="mi">30</span><span class="p">))</span>
-<span class="n">lon0</span> <span class="o">=</span> <span class="mi">4</span>
-<span class="n">lat0</span> <span class="o">=</span> <span class="mf">60.5</span>
-<span class="n">u</span> <span class="o">=</span> <span class="o">-</span><span class="p">(</span><span class="n">lat</span><span class="o">-</span><span class="n">lat0</span><span class="p">)</span><span class="o">/</span><span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">((</span><span class="n">lon</span><span class="o">-</span><span class="n">lon0</span><span class="p">)</span><span class="o">**</span><span class="mi">2</span> <span class="o">+</span> <span class="p">(</span><span class="n">lat</span><span class="o">-</span><span class="n">lat0</span><span class="p">)</span><span class="o">**</span><span class="mi">2</span><span class="p">)</span>
-<span class="n">v</span> <span class="o">=</span> <span class="p">(</span><span class="n">lon</span><span class="o">-</span><span class="n">lon0</span><span class="p">)</span><span class="o">/</span><span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">((</span><span class="n">lon</span><span class="o">-</span><span class="n">lon0</span><span class="p">)</span><span class="o">**</span><span class="mi">2</span> <span class="o">+</span> <span class="p">(</span><span class="n">lat</span><span class="o">-</span><span class="n">lat0</span><span class="p">)</span><span class="o">**</span><span class="mi">2</span><span class="p">)</span>
-<span class="n">lon</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="mi">5</span><span class="p">,</span><span class="mi">30</span><span class="p">)</span>
-<span class="n">lat</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="mi">59</span><span class="p">,</span><span class="mi">62</span><span class="p">,</span><span class="mi">30</span><span class="p">)</span>
-
-<span class="n">r</span> <span class="o">=</span> <span class="n">Reader</span><span class="p">(</span><span class="n">x</span><span class="o">=</span><span class="n">lon</span><span class="p">,</span> <span class="n">y</span><span class="o">=</span><span class="n">lat</span><span class="p">,</span> <span class="n">proj4</span><span class="o">=</span><span class="s1">'+proj=latlong'</span><span class="p">,</span>
-           <span class="n">array_dict</span> <span class="o">=</span> <span class="p">{</span><span class="s1">'x_sea_water_velocity'</span><span class="p">:</span> <span class="n">u</span><span class="p">,</span> <span class="s1">'y_sea_water_velocity'</span><span class="p">:</span> <span class="n">v</span><span class="p">})</span>
-
-<span class="n">o</span> <span class="o">=</span> <span class="n">OceanDrift</span><span class="p">(</span><span class="n">loglevel</span><span class="o">=</span><span class="mi">20</span><span class="p">)</span>
-<span class="n">o</span><span class="o">.</span><span class="n">set_config</span><span class="p">(</span><span class="s1">'environment:fallback:land_binary_mask'</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
-<span class="n">o</span><span class="o">.</span><span class="n">add_reader</span><span class="p">(</span><span class="n">r</span><span class="p">)</span>
-<span class="n">o</span><span class="o">.</span><span class="n">seed_elements</span><span class="p">(</span><span class="n">lon</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span> <span class="n">lat</span><span class="o">=</span><span class="mf">60.5</span><span class="p">,</span> <span class="n">number</span><span class="o">=</span><span class="mi">1000</span><span class="p">,</span> <span class="n">radius</span><span class="o">=</span><span class="mi">30000</span><span class="p">,</span> <span class="n">time</span><span class="o">=</span><span class="n">datetime</span><span class="o">.</span><span class="n">now</span><span class="p">())</span>
-<span class="n">o</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">duration</span><span class="o">=</span><span class="n">timedelta</span><span class="p">(</span><span class="n">hours</span><span class="o">=</span><span class="mi">72</span><span class="p">))</span>
-<span class="n">o</span><span class="o">.</span><span class="n">animation</span><span class="p">(</span><span class="n">fast</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
-</pre></div>
-</div>
-<div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>13:55:18 INFO    opendrift:569: OpenDriftSimulation initialised (version 1.14.11 / v1.14.12-9-g6f1a4a0)
-13:55:18 INFO    opendrift.models.basemodel.environment:203: Adding a global landmask from GSHHG
-13:55:25 INFO    opendrift.models.basemodel.environment:227: Fallback values will be used for the following variables which have no readers:
-13:55:25 INFO    opendrift.models.basemodel.environment:230:    sea_surface_height: 0.000000
-13:55:25 INFO    opendrift.models.basemodel.environment:230:    x_wind: 0.000000
-13:55:25 INFO    opendrift.models.basemodel.environment:230:    y_wind: 0.000000
-13:55:25 INFO    opendrift.models.basemodel.environment:230:    upward_sea_water_velocity: 0.000000
-13:55:25 INFO    opendrift.models.basemodel.environment:230:    ocean_vertical_diffusivity: 0.000000
-13:55:25 INFO    opendrift.models.basemodel.environment:230:    horizontal_diffusivity: 0.000000
-13:55:25 INFO    opendrift.models.basemodel.environment:230:    sea_surface_wave_significant_height: 0.000000
-13:55:25 INFO    opendrift.models.basemodel.environment:230:    sea_surface_wave_stokes_drift_x_velocity: 0.000000
-13:55:25 INFO    opendrift.models.basemodel.environment:230:    sea_surface_wave_stokes_drift_y_velocity: 0.000000
-13:55:25 INFO    opendrift.models.basemodel.environment:230:    ocean_mixed_layer_thickness: 50.000000
-13:55:25 INFO    opendrift.models.basemodel.environment:230:    sea_floor_depth_below_sea_level: 10000.000000
-13:55:25 INFO    opendrift:1910: Skipping environment variable ocean_vertical_diffusivity because of condition ['drift:vertical_mixing', 'is', False]
-13:55:25 INFO    opendrift:1910: Skipping environment variable ocean_mixed_layer_thickness because of condition ['drift:vertical_mixing', 'is', False]
-13:55:25 INFO    opendrift:1921: Storing previous values of element property lon because of condition (('general:coastline_action', 'in', ['stranding', 'previous']), 'or', ('general:seafloor_action', 'in', ['previous']))
-13:55:25 INFO    opendrift:1921: Storing previous values of element property lat because of condition (('general:coastline_action', 'in', ['stranding', 'previous']), 'or', ('general:seafloor_action', 'in', ['previous']))
-13:55:25 INFO    opendrift:1929: Storing previous values of environment variable sea_surface_height because of condition ['drift:vertical_advection', 'is', True]
-13:55:25 INFO    opendrift:958: Using existing reader for land_binary_mask to move elements to ocean
-13:55:25 INFO    opendrift:989: All points are in ocean
-13:55:25 INFO    opendrift:2237: 2026-09-10 13:55:18.900887 - step 1 of 72 - 1000 active elements (0 deactivated)
-13:55:25 INFO    opendrift:2237: 2026-09-10 14:55:18.900887 - step 2 of 72 - 1000 active elements (0 deactivated)
-13:55:26 INFO    opendrift:2237: 2026-09-10 15:55:18.900887 - step 3 of 72 - 1000 active elements (0 deactivated)
-13:55:26 INFO    opendrift:2237: 2026-09-10 16:55:18.900887 - step 4 of 72 - 1000 active elements (0 deactivated)
-13:55:26 INFO    opendrift:2237: 2026-09-10 17:55:18.900887 - step 5 of 72 - 1000 active elements (0 deactivated)
-13:55:26 INFO    opendrift:2237: 2026-09-10 18:55:18.900887 - step 6 of 72 - 1000 active elements (0 deactivated)
-13:55:26 INFO    opendrift:2237: 2026-09-10 19:55:18.900887 - step 7 of 72 - 1000 active elements (0 deactivated)
-13:55:26 INFO    opendrift:2237: 2026-09-10 20:55:18.900887 - step 8 of 72 - 1000 active elements (0 deactivated)
-13:55:26 INFO    opendrift:2237: 2026-09-10 21:55:18.900887 - step 9 of 72 - 1000 active elements (0 deactivated)
-13:55:26 INFO    opendrift:2237: 2026-09-10 22:55:18.900887 - step 10 of 72 - 1000 active elements (0 deactivated)
-13:55:26 INFO    opendrift:2237: 2026-09-10 23:55:18.900887 - step 11 of 72 - 1000 active elements (0 deactivated)
-13:55:26 INFO    opendrift:2237: 2026-09-11 00:55:18.900887 - step 12 of 72 - 1000 active elements (0 deactivated)
-13:55:26 INFO    opendrift:2237: 2026-09-11 01:55:18.900887 - step 13 of 72 - 1000 active elements (0 deactivated)
-13:55:26 INFO    opendrift:2237: 2026-09-11 02:55:18.900887 - step 14 of 72 - 1000 active elements (0 deactivated)
-13:55:26 INFO    opendrift:2237: 2026-09-11 03:55:18.900887 - step 15 of 72 - 1000 active elements (0 deactivated)
-13:55:26 INFO    opendrift:2237: 2026-09-11 04:55:18.900887 - step 16 of 72 - 1000 active elements (0 deactivated)
-13:55:26 INFO    opendrift:2237: 2026-09-11 05:55:18.900887 - step 17 of 72 - 1000 active elements (0 deactivated)
-13:55:26 INFO    opendrift:2237: 2026-09-11 06:55:18.900887 - step 18 of 72 - 1000 active elements (0 deactivated)
-13:55:26 INFO    opendrift:2237: 2026-09-11 07:55:18.900887 - step 19 of 72 - 1000 active elements (0 deactivated)
-13:55:26 INFO    opendrift:2237: 2026-09-11 08:55:18.900887 - step 20 of 72 - 1000 active elements (0 deactivated)
-13:55:26 INFO    opendrift:2237: 2026-09-11 09:55:18.900887 - step 21 of 72 - 1000 active elements (0 deactivated)
-13:55:26 INFO    opendrift:2237: 2026-09-11 10:55:18.900887 - step 22 of 72 - 1000 active elements (0 deactivated)
-13:55:26 INFO    opendrift:2237: 2026-09-11 11:55:18.900887 - step 23 of 72 - 1000 active elements (0 deactivated)
-13:55:26 INFO    opendrift:2237: 2026-09-11 12:55:18.900887 - step 24 of 72 - 1000 active elements (0 deactivated)
-13:55:26 INFO    opendrift:2237: 2026-09-11 13:55:18.900887 - step 25 of 72 - 1000 active elements (0 deactivated)
-13:55:26 INFO    opendrift:2237: 2026-09-11 14:55:18.900887 - step 26 of 72 - 1000 active elements (0 deactivated)
-13:55:26 INFO    opendrift:2237: 2026-09-11 15:55:18.900887 - step 27 of 72 - 1000 active elements (0 deactivated)
-13:55:26 INFO    opendrift:2237: 2026-09-11 16:55:18.900887 - step 28 of 72 - 1000 active elements (0 deactivated)
-13:55:26 INFO    opendrift:2237: 2026-09-11 17:55:18.900887 - step 29 of 72 - 1000 active elements (0 deactivated)
-13:55:27 INFO    opendrift:2237: 2026-09-11 18:55:18.900887 - step 30 of 72 - 1000 active elements (0 deactivated)
-13:55:27 INFO    opendrift:2237: 2026-09-11 19:55:18.900887 - step 31 of 72 - 1000 active elements (0 deactivated)
-13:55:27 INFO    opendrift:2237: 2026-09-11 20:55:18.900887 - step 32 of 72 - 1000 active elements (0 deactivated)
-13:55:27 INFO    opendrift:2237: 2026-09-11 21:55:18.900887 - step 33 of 72 - 1000 active elements (0 deactivated)
-13:55:27 INFO    opendrift:2237: 2026-09-11 22:55:18.900887 - step 34 of 72 - 1000 active elements (0 deactivated)
-13:55:27 INFO    opendrift:2237: 2026-09-11 23:55:18.900887 - step 35 of 72 - 1000 active elements (0 deactivated)
-13:55:27 INFO    opendrift:2237: 2026-09-12 00:55:18.900887 - step 36 of 72 - 1000 active elements (0 deactivated)
-13:55:27 INFO    opendrift:2237: 2026-09-12 01:55:18.900887 - step 37 of 72 - 1000 active elements (0 deactivated)
-13:55:27 INFO    opendrift:2237: 2026-09-12 02:55:18.900887 - step 38 of 72 - 1000 active elements (0 deactivated)
-13:55:27 INFO    opendrift:2237: 2026-09-12 03:55:18.900887 - step 39 of 72 - 1000 active elements (0 deactivated)
-13:55:27 INFO    opendrift:2237: 2026-09-12 04:55:18.900887 - step 40 of 72 - 1000 active elements (0 deactivated)
-13:55:27 INFO    opendrift:2237: 2026-09-12 05:55:18.900887 - step 41 of 72 - 1000 active elements (0 deactivated)
-13:55:27 INFO    opendrift:2237: 2026-09-12 06:55:18.900887 - step 42 of 72 - 1000 active elements (0 deactivated)
-13:55:27 INFO    opendrift:2237: 2026-09-12 07:55:18.900887 - step 43 of 72 - 1000 active elements (0 deactivated)
-13:55:27 INFO    opendrift:2237: 2026-09-12 08:55:18.900887 - step 44 of 72 - 1000 active elements (0 deactivated)
-13:55:27 INFO    opendrift:2237: 2026-09-12 09:55:18.900887 - step 45 of 72 - 1000 active elements (0 deactivated)
-13:55:27 INFO    opendrift:2237: 2026-09-12 10:55:18.900887 - step 46 of 72 - 1000 active elements (0 deactivated)
-13:55:27 INFO    opendrift:2237: 2026-09-12 11:55:18.900887 - step 47 of 72 - 1000 active elements (0 deactivated)
-13:55:27 INFO    opendrift:2237: 2026-09-12 12:55:18.900887 - step 48 of 72 - 1000 active elements (0 deactivated)
-13:55:27 INFO    opendrift:2237: 2026-09-12 13:55:18.900887 - step 49 of 72 - 1000 active elements (0 deactivated)
-13:55:27 INFO    opendrift:2237: 2026-09-12 14:55:18.900887 - step 50 of 72 - 1000 active elements (0 deactivated)
-13:55:27 INFO    opendrift:2237: 2026-09-12 15:55:18.900887 - step 51 of 72 - 1000 active elements (0 deactivated)
-13:55:27 INFO    opendrift:2237: 2026-09-12 16:55:18.900887 - step 52 of 72 - 1000 active elements (0 deactivated)
-13:55:27 INFO    opendrift:2237: 2026-09-12 17:55:18.900887 - step 53 of 72 - 1000 active elements (0 deactivated)
-13:55:27 INFO    opendrift:2237: 2026-09-12 18:55:18.900887 - step 54 of 72 - 1000 active elements (0 deactivated)
-13:55:27 INFO    opendrift:2237: 2026-09-12 19:55:18.900887 - step 55 of 72 - 1000 active elements (0 deactivated)
-13:55:28 INFO    opendrift:2237: 2026-09-12 20:55:18.900887 - step 56 of 72 - 1000 active elements (0 deactivated)
-13:55:28 INFO    opendrift:2237: 2026-09-12 21:55:18.900887 - step 57 of 72 - 1000 active elements (0 deactivated)
-13:55:28 INFO    opendrift:2237: 2026-09-12 22:55:18.900887 - step 58 of 72 - 1000 active elements (0 deactivated)
-13:55:28 INFO    opendrift:2237: 2026-09-12 23:55:18.900887 - step 59 of 72 - 1000 active elements (0 deactivated)
-13:55:28 INFO    opendrift:2237: 2026-09-13 00:55:18.900887 - step 60 of 72 - 1000 active elements (0 deactivated)
-13:55:28 INFO    opendrift:2237: 2026-09-13 01:55:18.900887 - step 61 of 72 - 1000 active elements (0 deactivated)
-13:55:28 INFO    opendrift:2237: 2026-09-13 02:55:18.900887 - step 62 of 72 - 1000 active elements (0 deactivated)
-13:55:28 INFO    opendrift:2237: 2026-09-13 03:55:18.900887 - step 63 of 72 - 1000 active elements (0 deactivated)
-13:55:28 INFO    opendrift:2237: 2026-09-13 04:55:18.900887 - step 64 of 72 - 1000 active elements (0 deactivated)
-13:55:28 INFO    opendrift:2237: 2026-09-13 05:55:18.900887 - step 65 of 72 - 1000 active elements (0 deactivated)
-13:55:28 INFO    opendrift:2237: 2026-09-13 06:55:18.900887 - step 66 of 72 - 1000 active elements (0 deactivated)
-13:55:28 INFO    opendrift:2237: 2026-09-13 07:55:18.900887 - step 67 of 72 - 1000 active elements (0 deactivated)
-13:55:28 INFO    opendrift:2237: 2026-09-13 08:55:18.900887 - step 68 of 72 - 1000 active elements (0 deactivated)
-13:55:28 INFO    opendrift:2237: 2026-09-13 09:55:18.900887 - step 69 of 72 - 1000 active elements (0 deactivated)
-13:55:28 INFO    opendrift:2237: 2026-09-13 10:55:18.900887 - step 70 of 72 - 1000 active elements (0 deactivated)
-13:55:28 INFO    opendrift:2237: 2026-09-13 11:55:18.900887 - step 71 of 72 - 1000 active elements (0 deactivated)
-13:55:28 INFO    opendrift:2237: 2026-09-13 12:55:18.900887 - step 72 of 72 - 1000 active elements (0 deactivated)
-13:55:28 WARNING opendrift:2613: Plotting fast. This will make your plots less accurate.
-13:55:30 INFO    opendrift:4823: Saving animation to /root/project/docs/source/gallery/animations/example_static_2d_current_0.gif...
-13:56:08 INFO    opendrift:3241: Time to make animation: 0:00:40.007263
+<div class="highlight-Python notranslate"><div class="highlight"><pre><span class="n">lon</span><span class="p">,</span> <span class="n">lat</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">meshgrid</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span><span class="mi">6</span><span class="p">,</span><span class="mi">30</span><span class="p">)</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="mi">59</span><span class="p">,</span><span class="mi">62</span><span class="p">,</span><span class="mi">30</span><span class="p">)</span><span class="p">)</span><span class="w">
+</span><span class="n">lon0</span> <span class="o">=</span> <span class="mi">4</span><span class="w">
+</span><span class="n">lat0</span> <span class="o">=</span> <span class="mf">60.5</span><span class="w">
+</span><span class="n">u</span> <span class="o">=</span> <span class="o">-</span><span class="p">(</span><span class="n">lat</span><span class="o">-</span><span class="n">lat0</span><span class="p">)</span><span class="o">/</span><span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="p">(</span><span class="n">lon</span><span class="o">-</span><span class="n">lon0</span><span class="p">)</span><span class="o">*</span><span class="o">*</span><span class="mi">2</span> <span class="o">+</span> <span class="p">(</span><span class="n">lat</span><span class="o">-</span><span class="n">lat0</span><span class="p">)</span><span class="o">*</span><span class="o">*</span><span class="mi">2</span><span class="p">)</span><span class="w">
+</span><span class="n">v</span> <span class="o">=</span> <span class="p">(</span><span class="n">lon</span><span class="o">-</span><span class="n">lon0</span><span class="p">)</span><span class="o">/</span><span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="p">(</span><span class="n">lon</span><span class="o">-</span><span class="n">lon0</span><span class="p">)</span><span class="o">*</span><span class="o">*</span><span class="mi">2</span> <span class="o">+</span> <span class="p">(</span><span class="n">lat</span><span class="o">-</span><span class="n">lat0</span><span class="p">)</span><span class="o">*</span><span class="o">*</span><span class="mi">2</span><span class="p">)</span><span class="w">
+</span><span class="n">lon</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="mi">5</span><span class="p">,</span><span class="mi">30</span><span class="p">)</span><span class="w">
+</span><span class="n">lat</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="mi">59</span><span class="p">,</span><span class="mi">62</span><span class="p">,</span><span class="mi">30</span><span class="p">)</span><span class="w">
+</span><span class="w">
+</span><a class="sphx-glr-backref-module-opendrift-readers-reader_constant_2d sphx-glr-backref-type-py-class sphx-glr-backref-instance reference internal" href="../autoapi/opendrift/readers/reader_constant_2d/index.html#opendrift.readers.reader_constant_2d.Reader" title="opendrift.readers.reader_constant_2d.Reader"><span class="n">r</span></a> <span class="o">=</span> <a class="sphx-glr-backref-module-opendrift-readers-reader_constant_2d sphx-glr-backref-type-py-class reference internal" href="../autoapi/opendrift/readers/reader_constant_2d/index.html#opendrift.readers.reader_constant_2d.Reader" title="opendrift.readers.reader_constant_2d.Reader"><span class="n">Reader</span></a><span class="p">(</span><span class="n">x</span><span class="o">=</span><span class="n">lon</span><span class="p">,</span> <span class="n">y</span><span class="o">=</span><span class="n">lat</span><span class="p">,</span> <span class="n">proj4</span><span class="o">=</span><span class="s1">'</span><span class="s1">+proj=latlong</span><span class="s1">'</span><span class="p">,</span><span class="w">
+</span>           <span class="n">array_dict</span> <span class="o">=</span> <span class="p">{</span><span class="s1">'</span><span class="s1">x_sea_water_velocity</span><span class="s1">'</span><span class="p">:</span> <span class="n">u</span><span class="p">,</span> <span class="s1">'</span><span class="s1">y_sea_water_velocity</span><span class="s1">'</span><span class="p">:</span> <span class="n">v</span><span class="p">}</span><span class="p">)</span><span class="w">
+</span><span class="w">
+</span><a class="sphx-glr-backref-module-opendrift-models-oceandrift sphx-glr-backref-type-py-class sphx-glr-backref-instance reference internal" href="../autoapi/opendrift/models/oceandrift/index.html#opendrift.models.oceandrift.OceanDrift" title="opendrift.models.oceandrift.OceanDrift"><span class="n">o</span></a> <span class="o">=</span> <a class="sphx-glr-backref-module-opendrift-models-oceandrift sphx-glr-backref-type-py-class reference internal" href="../autoapi/opendrift/models/oceandrift/index.html#opendrift.models.oceandrift.OceanDrift" title="opendrift.models.oceandrift.OceanDrift"><span class="n">OceanDrift</span></a><span class="p">(</span><span class="n">loglevel</span><span class="o">=</span><span class="mi">20</span><span class="p">)</span><span class="w">
+</span><a class="sphx-glr-backref-module-opendrift-models-basemodel sphx-glr-backref-type-py-method reference internal" href="../autoapi/opendrift/models/basemodel/index.html#opendrift.models.basemodel.OpenDriftSimulation.set_config" title="opendrift.models.basemodel.OpenDriftSimulation.set_config"><span class="n">o</span><span class="o">.</span><span class="n">set_config</span></a><span class="p">(</span><span class="s1">'</span><span class="s1">environment:fallback:land_binary_mask</span><span class="s1">'</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span><span class="w">
+</span><a class="sphx-glr-backref-module-opendrift-models-basemodel sphx-glr-backref-type-py-method reference internal" href="../autoapi/opendrift/models/basemodel/index.html#opendrift.models.basemodel.OpenDriftSimulation.add_reader" title="opendrift.models.basemodel.OpenDriftSimulation.add_reader"><span class="n">o</span><span class="o">.</span><span class="n">add_reader</span></a><span class="p">(</span><a class="sphx-glr-backref-module-opendrift-readers-reader_constant_2d sphx-glr-backref-type-py-class sphx-glr-backref-instance reference internal" href="../autoapi/opendrift/readers/reader_constant_2d/index.html#opendrift.readers.reader_constant_2d.Reader" title="opendrift.readers.reader_constant_2d.Reader"><span class="n">r</span></a><span class="p">)</span><span class="w">
+</span><a class="sphx-glr-backref-module-opendrift-models-basemodel sphx-glr-backref-type-py-method reference internal" href="../autoapi/opendrift/models/basemodel/index.html#opendrift.models.basemodel.OpenDriftSimulation.seed_elements" title="opendrift.models.basemodel.OpenDriftSimulation.seed_elements"><span class="n">o</span><span class="o">.</span><span class="n">seed_elements</span></a><span class="p">(</span><span class="n">lon</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span> <span class="n">lat</span><span class="o">=</span><span class="mf">60.5</span><span class="p">,</span> <span class="n">number</span><span class="o">=</span><span class="mi">1000</span><span class="p">,</span> <span class="n">radius</span><span class="o">=</span><span class="mi">30000</span><span class="p">,</span> <span class="n">time</span><span class="o">=</span><span class="n">datetime</span><span class="o">.</span><span class="n">now</span><span class="p">(</span><span class="p">)</span><span class="p">)</span><span class="w">
+</span><a class="sphx-glr-backref-module-opendrift-models-basemodel sphx-glr-backref-type-py-method reference internal" href="../autoapi/opendrift/models/basemodel/index.html#opendrift.models.basemodel.OpenDriftSimulation.run" title="opendrift.models.basemodel.OpenDriftSimulation.run"><span class="n">o</span><span class="o">.</span><span class="n">run</span></a><span class="p">(</span><span class="n">duration</span><span class="o">=</span><span class="n">timedelta</span><span class="p">(</span><span class="n">hours</span><span class="o">=</span><span class="mi">72</span><span class="p">)</span><span class="p">)</span><span class="w">
+</span><a class="sphx-glr-backref-module-opendrift-models-basemodel sphx-glr-backref-type-py-method reference internal" href="../autoapi/opendrift/models/basemodel/index.html#opendrift.models.basemodel.OpenDriftSimulation.animation" title="opendrift.models.basemodel.OpenDriftSimulation.animation"><span class="n">o</span><span class="o">.</span><span class="n">animation</span></a><span class="p">(</span><span class="n">fast</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span><span class="w">
+</span></pre></div></div>
+<div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>09:33:35 INFO    opendrift:569: OpenDriftSimulation initialised (version 1.14.11 / v1.14.12-26-g8782b63)
+09:33:35 INFO    opendrift.models.basemodel.environment:203: Adding a global landmask from GSHHG
+09:33:41 INFO    opendrift.models.basemodel.environment:227: Fallback values will be used for the following variables which have no readers:
+09:33:41 INFO    opendrift.models.basemodel.environment:230:    sea_surface_height: 0.000000
+09:33:41 INFO    opendrift.models.basemodel.environment:230:    x_wind: 0.000000
+09:33:41 INFO    opendrift.models.basemodel.environment:230:    y_wind: 0.000000
+09:33:41 INFO    opendrift.models.basemodel.environment:230:    upward_sea_water_velocity: 0.000000
+09:33:41 INFO    opendrift.models.basemodel.environment:230:    ocean_vertical_diffusivity: 0.000000
+09:33:41 INFO    opendrift.models.basemodel.environment:230:    horizontal_diffusivity: 0.000000
+09:33:41 INFO    opendrift.models.basemodel.environment:230:    sea_surface_wave_significant_height: 0.000000
+09:33:41 INFO    opendrift.models.basemodel.environment:230:    sea_surface_wave_stokes_drift_x_velocity: 0.000000
+09:33:41 INFO    opendrift.models.basemodel.environment:230:    sea_surface_wave_stokes_drift_y_velocity: 0.000000
+09:33:41 INFO    opendrift.models.basemodel.environment:230:    ocean_mixed_layer_thickness: 50.000000
+09:33:41 INFO    opendrift.models.basemodel.environment:230:    sea_floor_depth_below_sea_level: 10000.000000
+09:33:41 INFO    opendrift:1910: Skipping environment variable ocean_vertical_diffusivity because of condition ['drift:vertical_mixing', 'is', False]
+09:33:41 INFO    opendrift:1910: Skipping environment variable ocean_mixed_layer_thickness because of condition ['drift:vertical_mixing', 'is', False]
+09:33:41 INFO    opendrift:1921: Storing previous values of element property lon because of condition (('general:coastline_action', 'in', ['stranding', 'previous']), 'or', ('general:seafloor_action', 'in', ['previous']))
+09:33:41 INFO    opendrift:1921: Storing previous values of element property lat because of condition (('general:coastline_action', 'in', ['stranding', 'previous']), 'or', ('general:seafloor_action', 'in', ['previous']))
+09:33:41 INFO    opendrift:1929: Storing previous values of environment variable sea_surface_height because of condition ['drift:vertical_advection', 'is', True]
+09:33:41 INFO    opendrift:958: Using existing reader for land_binary_mask to move elements to ocean
+09:33:41 INFO    opendrift:989: All points are in ocean
+09:33:41 INFO    opendrift:2237: 2026-09-28 09:33:35.925638 - step 1 of 72 - 1000 active elements (0 deactivated)
+09:33:41 INFO    opendrift:2237: 2026-09-28 10:33:35.925638 - step 2 of 72 - 1000 active elements (0 deactivated)
+09:33:41 INFO    opendrift:2237: 2026-09-28 11:33:35.925638 - step 3 of 72 - 1000 active elements (0 deactivated)
+09:33:41 INFO    opendrift:2237: 2026-09-28 12:33:35.925638 - step 4 of 72 - 1000 active elements (0 deactivated)
+09:33:41 INFO    opendrift:2237: 2026-09-28 13:33:35.925638 - step 5 of 72 - 1000 active elements (0 deactivated)
+09:33:41 INFO    opendrift:2237: 2026-09-28 14:33:35.925638 - step 6 of 72 - 1000 active elements (0 deactivated)
+09:33:41 INFO    opendrift:2237: 2026-09-28 15:33:35.925638 - step 7 of 72 - 1000 active elements (0 deactivated)
+09:33:41 INFO    opendrift:2237: 2026-09-28 16:33:35.925638 - step 8 of 72 - 1000 active elements (0 deactivated)
+09:33:41 INFO    opendrift:2237: 2026-09-28 17:33:35.925638 - step 9 of 72 - 1000 active elements (0 deactivated)
+09:33:41 INFO    opendrift:2237: 2026-09-28 18:33:35.925638 - step 10 of 72 - 1000 active elements (0 deactivated)
+09:33:41 INFO    opendrift:2237: 2026-09-28 19:33:35.925638 - step 11 of 72 - 1000 active elements (0 deactivated)
+09:33:42 INFO    opendrift:2237: 2026-09-28 20:33:35.925638 - step 12 of 72 - 1000 active elements (0 deactivated)
+09:33:42 INFO    opendrift:2237: 2026-09-28 21:33:35.925638 - step 13 of 72 - 1000 active elements (0 deactivated)
+09:33:42 INFO    opendrift:2237: 2026-09-28 22:33:35.925638 - step 14 of 72 - 1000 active elements (0 deactivated)
+09:33:42 INFO    opendrift:2237: 2026-09-28 23:33:35.925638 - step 15 of 72 - 1000 active elements (0 deactivated)
+09:33:42 INFO    opendrift:2237: 2026-09-29 00:33:35.925638 - step 16 of 72 - 1000 active elements (0 deactivated)
+09:33:42 INFO    opendrift:2237: 2026-09-29 01:33:35.925638 - step 17 of 72 - 1000 active elements (0 deactivated)
+09:33:42 INFO    opendrift:2237: 2026-09-29 02:33:35.925638 - step 18 of 72 - 1000 active elements (0 deactivated)
+09:33:42 INFO    opendrift:2237: 2026-09-29 03:33:35.925638 - step 19 of 72 - 1000 active elements (0 deactivated)
+09:33:42 INFO    opendrift:2237: 2026-09-29 04:33:35.925638 - step 20 of 72 - 1000 active elements (0 deactivated)
+09:33:42 INFO    opendrift:2237: 2026-09-29 05:33:35.925638 - step 21 of 72 - 1000 active elements (0 deactivated)
+09:33:42 INFO    opendrift:2237: 2026-09-29 06:33:35.925638 - step 22 of 72 - 1000 active elements (0 deactivated)
+09:33:42 INFO    opendrift:2237: 2026-09-29 07:33:35.925638 - step 23 of 72 - 1000 active elements (0 deactivated)
+09:33:42 INFO    opendrift:2237: 2026-09-29 08:33:35.925638 - step 24 of 72 - 1000 active elements (0 deactivated)
+09:33:42 INFO    opendrift:2237: 2026-09-29 09:33:35.925638 - step 25 of 72 - 1000 active elements (0 deactivated)
+09:33:42 INFO    opendrift:2237: 2026-09-29 10:33:35.925638 - step 26 of 72 - 1000 active elements (0 deactivated)
+09:33:42 INFO    opendrift:2237: 2026-09-29 11:33:35.925638 - step 27 of 72 - 1000 active elements (0 deactivated)
+09:33:42 INFO    opendrift:2237: 2026-09-29 12:33:35.925638 - step 28 of 72 - 1000 active elements (0 deactivated)
+09:33:42 INFO    opendrift:2237: 2026-09-29 13:33:35.925638 - step 29 of 72 - 1000 active elements (0 deactivated)
+09:33:42 INFO    opendrift:2237: 2026-09-29 14:33:35.925638 - step 30 of 72 - 1000 active elements (0 deactivated)
+09:33:42 INFO    opendrift:2237: 2026-09-29 15:33:35.925638 - step 31 of 72 - 1000 active elements (0 deactivated)
+09:33:42 INFO    opendrift:2237: 2026-09-29 16:33:35.925638 - step 32 of 72 - 1000 active elements (0 deactivated)
+09:33:42 INFO    opendrift:2237: 2026-09-29 17:33:35.925638 - step 33 of 72 - 1000 active elements (0 deactivated)
+09:33:42 INFO    opendrift:2237: 2026-09-29 18:33:35.925638 - step 34 of 72 - 1000 active elements (0 deactivated)
+09:33:42 INFO    opendrift:2237: 2026-09-29 19:33:35.925638 - step 35 of 72 - 1000 active elements (0 deactivated)
+09:33:42 INFO    opendrift:2237: 2026-09-29 20:33:35.925638 - step 36 of 72 - 1000 active elements (0 deactivated)
+09:33:42 INFO    opendrift:2237: 2026-09-29 21:33:35.925638 - step 37 of 72 - 1000 active elements (0 deactivated)
+09:33:42 INFO    opendrift:2237: 2026-09-29 22:33:35.925638 - step 38 of 72 - 1000 active elements (0 deactivated)
+09:33:42 INFO    opendrift:2237: 2026-09-29 23:33:35.925638 - step 39 of 72 - 1000 active elements (0 deactivated)
+09:33:42 INFO    opendrift:2237: 2026-09-30 00:33:35.925638 - step 40 of 72 - 1000 active elements (0 deactivated)
+09:33:42 INFO    opendrift:2237: 2026-09-30 01:33:35.925638 - step 41 of 72 - 1000 active elements (0 deactivated)
+09:33:43 INFO    opendrift:2237: 2026-09-30 02:33:35.925638 - step 42 of 72 - 1000 active elements (0 deactivated)
+09:33:43 INFO    opendrift:2237: 2026-09-30 03:33:35.925638 - step 43 of 72 - 1000 active elements (0 deactivated)
+09:33:43 INFO    opendrift:2237: 2026-09-30 04:33:35.925638 - step 44 of 72 - 1000 active elements (0 deactivated)
+09:33:43 INFO    opendrift:2237: 2026-09-30 05:33:35.925638 - step 45 of 72 - 1000 active elements (0 deactivated)
+09:33:43 INFO    opendrift:2237: 2026-09-30 06:33:35.925638 - step 46 of 72 - 1000 active elements (0 deactivated)
+09:33:43 INFO    opendrift:2237: 2026-09-30 07:33:35.925638 - step 47 of 72 - 1000 active elements (0 deactivated)
+09:33:43 INFO    opendrift:2237: 2026-09-30 08:33:35.925638 - step 48 of 72 - 1000 active elements (0 deactivated)
+09:33:43 INFO    opendrift:2237: 2026-09-30 09:33:35.925638 - step 49 of 72 - 1000 active elements (0 deactivated)
+09:33:43 INFO    opendrift:2237: 2026-09-30 10:33:35.925638 - step 50 of 72 - 1000 active elements (0 deactivated)
+09:33:43 INFO    opendrift:2237: 2026-09-30 11:33:35.925638 - step 51 of 72 - 1000 active elements (0 deactivated)
+09:33:43 INFO    opendrift:2237: 2026-09-30 12:33:35.925638 - step 52 of 72 - 1000 active elements (0 deactivated)
+09:33:43 INFO    opendrift:2237: 2026-09-30 13:33:35.925638 - step 53 of 72 - 1000 active elements (0 deactivated)
+09:33:43 INFO    opendrift:2237: 2026-09-30 14:33:35.925638 - step 54 of 72 - 1000 active elements (0 deactivated)
+09:33:43 INFO    opendrift:2237: 2026-09-30 15:33:35.925638 - step 55 of 72 - 1000 active elements (0 deactivated)
+09:33:43 INFO    opendrift:2237: 2026-09-30 16:33:35.925638 - step 56 of 72 - 1000 active elements (0 deactivated)
+09:33:43 INFO    opendrift:2237: 2026-09-30 17:33:35.925638 - step 57 of 72 - 1000 active elements (0 deactivated)
+09:33:43 INFO    opendrift:2237: 2026-09-30 18:33:35.925638 - step 58 of 72 - 1000 active elements (0 deactivated)
+09:33:43 INFO    opendrift:2237: 2026-09-30 19:33:35.925638 - step 59 of 72 - 1000 active elements (0 deactivated)
+09:33:43 INFO    opendrift:2237: 2026-09-30 20:33:35.925638 - step 60 of 72 - 1000 active elements (0 deactivated)
+09:33:43 INFO    opendrift:2237: 2026-09-30 21:33:35.925638 - step 61 of 72 - 1000 active elements (0 deactivated)
+09:33:43 INFO    opendrift:2237: 2026-09-30 22:33:35.925638 - step 62 of 72 - 1000 active elements (0 deactivated)
+09:33:43 INFO    opendrift:2237: 2026-09-30 23:33:35.925638 - step 63 of 72 - 1000 active elements (0 deactivated)
+09:33:43 INFO    opendrift:2237: 2026-10-01 00:33:35.925638 - step 64 of 72 - 1000 active elements (0 deactivated)
+09:33:43 INFO    opendrift:2237: 2026-10-01 01:33:35.925638 - step 65 of 72 - 1000 active elements (0 deactivated)
+09:33:43 INFO    opendrift:2237: 2026-10-01 02:33:35.925638 - step 66 of 72 - 1000 active elements (0 deactivated)
+09:33:43 INFO    opendrift:2237: 2026-10-01 03:33:35.925638 - step 67 of 72 - 1000 active elements (0 deactivated)
+09:33:43 INFO    opendrift:2237: 2026-10-01 04:33:35.925638 - step 68 of 72 - 1000 active elements (0 deactivated)
+09:33:43 INFO    opendrift:2237: 2026-10-01 05:33:35.925638 - step 69 of 72 - 1000 active elements (0 deactivated)
+09:33:43 INFO    opendrift:2237: 2026-10-01 06:33:35.925638 - step 70 of 72 - 1000 active elements (0 deactivated)
+09:33:43 INFO    opendrift:2237: 2026-10-01 07:33:35.925638 - step 71 of 72 - 1000 active elements (0 deactivated)
+09:33:43 INFO    opendrift:2237: 2026-10-01 08:33:35.925638 - step 72 of 72 - 1000 active elements (0 deactivated)
+09:33:43 WARNING opendrift:2613: Plotting fast. This will make your plots less accurate.
+09:33:45 INFO    opendrift:4823: Saving animation to /root/project/docs/source/gallery/animations/example_static_2d_current_0.gif...
+09:34:13 INFO    opendrift:3241: Time to make animation: 0:00:29.465688
 </pre></div>
 </div>
 <img alt="../_images/example_static_2d_current_0.gif" src="../_images/example_static_2d_current_0.gif" />
-<p class="sphx-glr-timing"><strong>Total running time of the script:</strong> (0 minutes 59.966 seconds)</p>
+<p class="sphx-glr-timing"><strong>Total running time of the script:</strong> (0 minutes 45.554 seconds)</p>
 <div class="sphx-glr-footer sphx-glr-footer-example docutils container" id="sphx-glr-download-gallery-example-static-2d-current-py">
 <div class="sphx-glr-download sphx-glr-download-jupyter docutils container">
 <p><a class="reference download internal" download="" href="../_downloads/2bf52edd950135bfb2659fdff6bdfa74/example_static_2d_current.ipynb"><code class="xref download docutils literal notranslate"><span class="pre">Download</span> <span class="pre">Jupyter</span> <span class="pre">notebook:</span> <span class="pre">example_static_2d_current.ipynb</span></code></a></p>

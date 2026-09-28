@@ -10,7 +10,7 @@
       <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=9edc463e" />
       <link rel="stylesheet" type="text/css" href="../../../_static/graphviz.css?v=4ae1632d" />
       <link rel="stylesheet" type="text/css" href="../../../_static/plot_directive.css" />
-      <link rel="stylesheet" type="text/css" href="../../../_static/sg_gallery.css?v=fd6457a4" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/sg_gallery.css?v=c83e6b79" />
       <link rel="stylesheet" type="text/css" href="../../../_static/sg_gallery-binder.css?v=f4aeca0c" />
       <link rel="stylesheet" type="text/css" href="../../../_static/sg_gallery-dataframe.css?v=2082cf3c" />
       <link rel="stylesheet" type="text/css" href="../../../_static/sg_gallery-rendered-html.css?v=1277b6f3" />
@@ -121,6 +121,47 @@
 <span class="kn">import</span><span class="w"> </span><span class="nn">matplotlib.pyplot</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">plt</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">pyproj</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">cmocean</span>
+
+
+<div class="viewcode-block" id="wdf_and_cdf_from_trajectory">
+<a class="viewcode-back" href="../../../autoapi/opendrift/models/physics_methods/index.html#opendrift.models.basemodel.wdf_and_cdf_from_trajectory">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">wdf_and_cdf_from_trajectory</span><span class="p">(</span><span class="n">trajectory_dict</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">'''Estimate wind_drift_fator and current_drift_factor based on wind and current along given trajectory</span>
+
+<span class="sd">    trajectory_dict: dictionary with arrays of same length of the following variables:</span>
+<span class="sd">    time, lon, lat, x_wind, y_wind, x_sea_water_velocity, y_sea_water_velocity</span>
+
+<span class="sd">    Returns array of same length minus one of the fitted wind_drift_factor</span>
+<span class="sd">    '''</span>
+
+    <span class="n">geod</span> <span class="o">=</span> <span class="n">pyproj</span><span class="o">.</span><span class="n">Geod</span><span class="p">(</span><span class="n">ellps</span><span class="o">=</span><span class="s1">'WGS84'</span><span class="p">)</span>
+
+    <span class="n">time</span> <span class="o">=</span> <span class="n">trajectory_dict</span><span class="p">[</span><span class="s1">'time'</span><span class="p">][:</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+    <span class="n">delta_T</span> <span class="o">=</span> <span class="p">(</span><span class="n">time</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">-</span> <span class="n">time</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span><span class="o">.</span><span class="n">total_seconds</span><span class="p">()</span>
+    <span class="n">cx</span> <span class="o">=</span> <span class="n">trajectory_dict</span><span class="p">[</span><span class="s1">'x_sea_water_velocity'</span><span class="p">][:</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+    <span class="n">cy</span> <span class="o">=</span> <span class="n">trajectory_dict</span><span class="p">[</span><span class="s1">'y_sea_water_velocity'</span><span class="p">][:</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+    <span class="n">wx</span> <span class="o">=</span> <span class="n">trajectory_dict</span><span class="p">[</span><span class="s1">'x_wind'</span><span class="p">][:</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+    <span class="n">wy</span> <span class="o">=</span> <span class="n">trajectory_dict</span><span class="p">[</span><span class="s1">'y_wind'</span><span class="p">][:</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+
+    <span class="n">lon</span> <span class="o">=</span> <span class="n">trajectory_dict</span><span class="p">[</span><span class="s1">'lon'</span><span class="p">]</span>
+    <span class="n">lat</span> <span class="o">=</span> <span class="n">trajectory_dict</span><span class="p">[</span><span class="s1">'lat'</span><span class="p">]</span>
+    <span class="n">easting</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">time</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">nan</span>
+    <span class="n">northing</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">time</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">nan</span>
+    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">lon</span><span class="p">)</span> <span class="o">-</span> <span class="mi">1</span><span class="p">):</span>
+        <span class="n">lon1</span><span class="p">,</span> <span class="n">lat1</span> <span class="o">=</span> <span class="n">lon</span><span class="p">[</span><span class="n">i</span><span class="p">],</span> <span class="n">lat</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
+        <span class="n">lon2</span><span class="p">,</span> <span class="n">lat2</span> <span class="o">=</span> <span class="n">lon</span><span class="p">[</span><span class="n">i</span> <span class="o">+</span> <span class="mi">1</span><span class="p">],</span> <span class="n">lat</span><span class="p">[</span><span class="n">i</span> <span class="o">+</span> <span class="mi">1</span><span class="p">]</span>
+        <span class="n">proj_string</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">"+proj=aeqd +lat_0=</span><span class="si">{</span><span class="n">lat1</span><span class="o">.</span><span class="n">values</span><span class="si">}</span><span class="s2"> +lon_0=</span><span class="si">{</span><span class="n">lon1</span><span class="o">.</span><span class="n">values</span><span class="si">}</span><span class="s2"> +x_0=0 +y_0=0"</span>
+        <span class="n">local_proj</span> <span class="o">=</span> <span class="n">pyproj</span><span class="o">.</span><span class="n">Proj</span><span class="p">(</span><span class="n">proj_string</span><span class="p">)</span>
+        <span class="n">x1</span><span class="p">,</span> <span class="n">y1</span> <span class="o">=</span> <span class="n">local_proj</span><span class="p">(</span><span class="n">lon1</span><span class="p">,</span> <span class="n">lat1</span><span class="p">)</span>
+        <span class="n">x2</span><span class="p">,</span> <span class="n">y2</span> <span class="o">=</span> <span class="n">local_proj</span><span class="p">(</span><span class="n">lon2</span><span class="p">,</span> <span class="n">lat2</span><span class="p">)</span>
+        <span class="n">easting</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">x2</span> <span class="o">-</span> <span class="n">x1</span>
+        <span class="n">northing</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">y2</span> <span class="o">-</span> <span class="n">y1</span>
+    <span class="n">east_vel</span> <span class="o">=</span> <span class="n">easting</span><span class="o">/</span><span class="n">delta_T</span>
+    <span class="n">north_vel</span> <span class="o">=</span> <span class="n">northing</span><span class="o">/</span><span class="n">delta_T</span>
+
+    <span class="n">wdf</span> <span class="o">=</span> <span class="p">(</span><span class="n">east_vel</span><span class="o">*</span><span class="n">wy</span> <span class="o">-</span> <span class="n">north_vel</span><span class="o">*</span><span class="n">wx</span><span class="p">)</span> <span class="o">/</span> <span class="p">(</span><span class="n">cx</span><span class="o">*</span><span class="n">wy</span> <span class="o">-</span> <span class="n">cy</span><span class="o">*</span><span class="n">wx</span><span class="p">)</span>
+    <span class="n">cdf</span> <span class="o">=</span> <span class="p">(</span><span class="n">cx</span><span class="o">*</span><span class="n">north_vel</span> <span class="o">-</span> <span class="n">cy</span><span class="o">*</span><span class="n">east_vel</span><span class="p">)</span> <span class="o">/</span> <span class="p">(</span><span class="n">cx</span><span class="o">*</span><span class="n">wy</span> <span class="o">-</span> <span class="n">cy</span><span class="o">*</span><span class="n">wx</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">wdf</span><span class="p">,</span> <span class="n">cdf</span></div>
 
 
 <div class="viewcode-block" id="wind_drift_factor_from_trajectory">

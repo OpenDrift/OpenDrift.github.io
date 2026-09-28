@@ -11,7 +11,7 @@
       <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=9edc463e" />
       <link rel="stylesheet" type="text/css" href="../_static/graphviz.css?v=4ae1632d" />
       <link rel="stylesheet" type="text/css" href="../_static/plot_directive.css" />
-      <link rel="stylesheet" type="text/css" href="../_static/sg_gallery.css?v=fd6457a4" />
+      <link rel="stylesheet" type="text/css" href="../_static/sg_gallery.css?v=c83e6b79" />
       <link rel="stylesheet" type="text/css" href="../_static/sg_gallery-binder.css?v=f4aeca0c" />
       <link rel="stylesheet" type="text/css" href="../_static/sg_gallery-dataframe.css?v=2082cf3c" />
       <link rel="stylesheet" type="text/css" href="../_static/sg_gallery-rendered-html.css?v=1277b6f3" />
@@ -211,13 +211,12 @@ to download the full example code.</p>
 </div>
 <section class="sphx-glr-example-title" id="element-dependent-environment">
 <span id="sphx-glr-gallery-example-element-dependent-environment-py"></span><h1>Element dependent environment<a class="headerlink" href="#element-dependent-environment" title="Link to this heading"></a></h1>
-<div class="highlight-Python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">datetime</span><span class="w"> </span><span class="kn">import</span> <span class="n">datetime</span>
-<span class="kn">import</span><span class="w"> </span><span class="nn">matplotlib.pyplot</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">plt</span>
-<span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">opendrift.models.oceandrift</span><span class="w"> </span><span class="kn">import</span> <span class="n">OceanDrift</span>
-<span class="kn">import</span><span class="w"> </span><span class="nn">trajan</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">ta</span>
-</pre></div>
-</div>
+<div class="highlight-Python notranslate"><div class="highlight"><pre><span class="kn">from</span><span class="w"> </span><span class="nn">datetime</span><span class="w"> </span><span class="kn">import</span> <span class="n">datetime</span><span class="w">
+</span><span class="kn">import</span><span class="w"> </span><span class="nn">matplotlib</span><span class="nn">.</span><span class="nn">pyplot</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">plt</span><span class="w">
+</span><span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span><span class="w">
+</span><span class="kn">from</span><span class="w"> </span><span class="nn">opendrift</span><span class="nn">.</span><span class="nn">models</span><span class="nn">.</span><span class="nn">oceandrift</span><span class="w"> </span><span class="kn">import</span> <a class="sphx-glr-backref-module-opendrift-models-oceandrift sphx-glr-backref-type-py-class reference internal" href="../autoapi/opendrift/models/oceandrift/index.html#opendrift.models.oceandrift.OceanDrift" title="opendrift.models.oceandrift.OceanDrift"><span class="n">OceanDrift</span></a><span class="w">
+</span><span class="kn">import</span><span class="w"> </span><span class="nn">trajan</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">ta</span><span class="w">
+</span></pre></div></div>
 <p>OpenDrift elements have properties such as lon, lat, z, size etc.
 These elements are moved and changed based on environment properties such as current, wind, temperature etc.
 In principle the element properties do not affect the environment, however,
@@ -226,121 +225,119 @@ the same simulation be exposed to different environment.
 This is made possible by specifying the (constant) environment values
 for all elements of a seed call as illustrated below</p>
 <p>First an example with two different seedings with two different environments</p>
-<div class="highlight-Python notranslate"><div class="highlight"><pre><span></span><span class="n">o</span> <span class="o">=</span> <span class="n">OceanDrift</span><span class="p">(</span><span class="n">loglevel</span><span class="o">=</span><span class="mi">20</span><span class="p">)</span>
-<span class="c1"># First seeding 200 elements that will be exposed to eastward current and a horizontal diffusivity of 10 m2/s</span>
-<span class="n">number</span> <span class="o">=</span> <span class="mi">200</span>
-<span class="n">o</span><span class="o">.</span><span class="n">seed_elements</span><span class="p">(</span><span class="n">lon</span><span class="o">=-</span><span class="mi">60</span><span class="p">,</span> <span class="n">lat</span><span class="o">=</span><span class="mi">40</span><span class="p">,</span> <span class="n">time</span><span class="o">=</span><span class="n">datetime</span><span class="p">(</span><span class="mi">2022</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">),</span> <span class="n">number</span><span class="o">=</span><span class="n">number</span><span class="p">,</span> <span class="n">radius</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span>
-                <span class="n">environment</span><span class="o">=</span><span class="p">{</span><span class="s1">'horizontal_diffusivity'</span><span class="p">:</span> <span class="mi">10</span><span class="p">,</span>
-                             <span class="s1">'x_sea_water_velocity'</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span>
-                             <span class="s1">'y_sea_water_velocity'</span><span class="p">:</span> <span class="mi">0</span><span class="p">})</span>
-<span class="c1"># Then seeding 100 elements that will be exposed to northward current and less diffusivity (1 m2/s)</span>
-<span class="n">number</span> <span class="o">=</span> <span class="mi">100</span>
-<span class="n">o</span><span class="o">.</span><span class="n">seed_elements</span><span class="p">(</span><span class="n">lon</span><span class="o">=-</span><span class="mi">60</span><span class="p">,</span> <span class="n">lat</span><span class="o">=</span><span class="mi">40</span><span class="p">,</span> <span class="n">time</span><span class="o">=</span><span class="n">datetime</span><span class="p">(</span><span class="mi">2022</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">),</span> <span class="n">number</span><span class="o">=</span><span class="n">number</span><span class="p">,</span> <span class="n">radius</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span>
-                <span class="n">environment</span><span class="o">=</span><span class="p">{</span><span class="s1">'horizontal_diffusivity'</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span>
-                             <span class="s1">'x_sea_water_velocity'</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>
-                             <span class="s1">'y_sea_water_velocity'</span><span class="p">:</span> <span class="mf">.5</span><span class="p">})</span>
-<span class="n">o</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">steps</span><span class="o">=</span><span class="mi">10</span><span class="p">)</span>
-<span class="n">o</span><span class="o">.</span><span class="n">plot</span><span class="p">()</span>
-</pre></div>
-</div>
-<img src="../_images/sphx_glr_example_element_dependent_environment_001.png" srcset="../_images/sphx_glr_example_element_dependent_environment_001.png" alt="OpenDrift - OceanDrift 2022-01-01 00:00 to 2022-01-01 10:00 UTC (11 steps)" class = "sphx-glr-single-img"/><div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>13:56:22 INFO    opendrift:569: OpenDriftSimulation initialised (version 1.14.11 / v1.14.12-9-g6f1a4a0)
-13:56:22 INFO    opendrift.models.basemodel.environment:203: Adding a global landmask from GSHHG
-13:56:28 INFO    opendrift.models.basemodel.environment:227: Fallback values will be used for the following variables which have no readers:
-13:56:28 INFO    opendrift.models.basemodel.environment:230:    x_sea_water_velocity: 0.000000
-13:56:28 INFO    opendrift.models.basemodel.environment:230:    y_sea_water_velocity: 0.000000
-13:56:28 INFO    opendrift.models.basemodel.environment:230:    sea_surface_height: 0.000000
-13:56:28 INFO    opendrift.models.basemodel.environment:230:    x_wind: 0.000000
-13:56:28 INFO    opendrift.models.basemodel.environment:230:    y_wind: 0.000000
-13:56:28 INFO    opendrift.models.basemodel.environment:230:    upward_sea_water_velocity: 0.000000
-13:56:28 INFO    opendrift.models.basemodel.environment:230:    ocean_vertical_diffusivity: 0.000000
-13:56:28 INFO    opendrift.models.basemodel.environment:230:    horizontal_diffusivity: 0.000000
-13:56:28 INFO    opendrift.models.basemodel.environment:230:    sea_surface_wave_significant_height: 0.000000
-13:56:28 INFO    opendrift.models.basemodel.environment:230:    sea_surface_wave_stokes_drift_x_velocity: 0.000000
-13:56:28 INFO    opendrift.models.basemodel.environment:230:    sea_surface_wave_stokes_drift_y_velocity: 0.000000
-13:56:28 INFO    opendrift.models.basemodel.environment:230:    ocean_mixed_layer_thickness: 50.000000
-13:56:28 INFO    opendrift.models.basemodel.environment:230:    sea_floor_depth_below_sea_level: 10000.000000
-13:56:28 INFO    opendrift:1910: Skipping environment variable ocean_vertical_diffusivity because of condition ['drift:vertical_mixing', 'is', False]
-13:56:28 INFO    opendrift:1910: Skipping environment variable ocean_mixed_layer_thickness because of condition ['drift:vertical_mixing', 'is', False]
-13:56:28 INFO    opendrift:1921: Storing previous values of element property lon because of condition (('general:coastline_action', 'in', ['stranding', 'previous']), 'or', ('general:seafloor_action', 'in', ['previous']))
-13:56:28 INFO    opendrift:1921: Storing previous values of element property lat because of condition (('general:coastline_action', 'in', ['stranding', 'previous']), 'or', ('general:seafloor_action', 'in', ['previous']))
-13:56:28 INFO    opendrift:1929: Storing previous values of environment variable sea_surface_height because of condition ['drift:vertical_advection', 'is', True]
-13:56:28 INFO    opendrift:958: Using existing reader for land_binary_mask to move elements to ocean
-13:56:28 INFO    opendrift:989: All points are in ocean
-13:56:28 INFO    opendrift:2237: 2022-01-01 00:00:00 - step 1 of 10 - 300 active elements (0 deactivated)
-13:56:28 INFO    opendrift:2237: 2022-01-01 01:00:00 - step 2 of 10 - 300 active elements (0 deactivated)
-13:56:28 INFO    opendrift:2237: 2022-01-01 02:00:00 - step 3 of 10 - 300 active elements (0 deactivated)
-13:56:28 INFO    opendrift:2237: 2022-01-01 03:00:00 - step 4 of 10 - 300 active elements (0 deactivated)
-13:56:28 INFO    opendrift:2237: 2022-01-01 04:00:00 - step 5 of 10 - 300 active elements (0 deactivated)
-13:56:28 INFO    opendrift:2237: 2022-01-01 05:00:00 - step 6 of 10 - 300 active elements (0 deactivated)
-13:56:28 INFO    opendrift:2237: 2022-01-01 06:00:00 - step 7 of 10 - 300 active elements (0 deactivated)
-13:56:28 INFO    opendrift:2237: 2022-01-01 07:00:00 - step 8 of 10 - 300 active elements (0 deactivated)
-13:56:28 INFO    opendrift:2237: 2022-01-01 08:00:00 - step 9 of 10 - 300 active elements (0 deactivated)
-13:56:28 INFO    opendrift:2237: 2022-01-01 09:00:00 - step 10 of 10 - 300 active elements (0 deactivated)
+<div class="highlight-Python notranslate"><div class="highlight"><pre><a class="sphx-glr-backref-module-opendrift-models-oceandrift sphx-glr-backref-type-py-class sphx-glr-backref-instance reference internal" href="../autoapi/opendrift/models/oceandrift/index.html#opendrift.models.oceandrift.OceanDrift" title="opendrift.models.oceandrift.OceanDrift"><span class="n">o</span></a> <span class="o">=</span> <a class="sphx-glr-backref-module-opendrift-models-oceandrift sphx-glr-backref-type-py-class reference internal" href="../autoapi/opendrift/models/oceandrift/index.html#opendrift.models.oceandrift.OceanDrift" title="opendrift.models.oceandrift.OceanDrift"><span class="n">OceanDrift</span></a><span class="p">(</span><span class="n">loglevel</span><span class="o">=</span><span class="mi">20</span><span class="p">)</span><span class="w">
+</span><span class="c1"># First seeding 200 elements that will be exposed to eastward current and a horizontal diffusivity of 10 m2/s</span><span class="w">
+</span><span class="n">number</span> <span class="o">=</span> <span class="mi">200</span><span class="w">
+</span><a class="sphx-glr-backref-module-opendrift-models-basemodel sphx-glr-backref-type-py-method reference internal" href="../autoapi/opendrift/models/basemodel/index.html#opendrift.models.basemodel.OpenDriftSimulation.seed_elements" title="opendrift.models.basemodel.OpenDriftSimulation.seed_elements"><span class="n">o</span><span class="o">.</span><span class="n">seed_elements</span></a><span class="p">(</span><span class="n">lon</span><span class="o">=</span><span class="o">-</span><span class="mi">60</span><span class="p">,</span> <span class="n">lat</span><span class="o">=</span><span class="mi">40</span><span class="p">,</span> <span class="n">time</span><span class="o">=</span><span class="n">datetime</span><span class="p">(</span><span class="mi">2022</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">)</span><span class="p">,</span> <span class="n">number</span><span class="o">=</span><span class="n">number</span><span class="p">,</span> <span class="n">radius</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span><span class="w">
+</span>                <span class="n">environment</span><span class="o">=</span><span class="p">{</span><span class="s1">'</span><span class="s1">horizontal_diffusivity</span><span class="s1">'</span><span class="p">:</span> <span class="mi">10</span><span class="p">,</span><span class="w">
+</span>                             <span class="s1">'</span><span class="s1">x_sea_water_velocity</span><span class="s1">'</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span><span class="w">
+</span>                             <span class="s1">'</span><span class="s1">y_sea_water_velocity</span><span class="s1">'</span><span class="p">:</span> <span class="mi">0</span><span class="p">}</span><span class="p">)</span><span class="w">
+</span><span class="c1"># Then seeding 100 elements that will be exposed to northward current and less diffusivity (1 m2/s)</span><span class="w">
+</span><span class="n">number</span> <span class="o">=</span> <span class="mi">100</span><span class="w">
+</span><a class="sphx-glr-backref-module-opendrift-models-basemodel sphx-glr-backref-type-py-method reference internal" href="../autoapi/opendrift/models/basemodel/index.html#opendrift.models.basemodel.OpenDriftSimulation.seed_elements" title="opendrift.models.basemodel.OpenDriftSimulation.seed_elements"><span class="n">o</span><span class="o">.</span><span class="n">seed_elements</span></a><span class="p">(</span><span class="n">lon</span><span class="o">=</span><span class="o">-</span><span class="mi">60</span><span class="p">,</span> <span class="n">lat</span><span class="o">=</span><span class="mi">40</span><span class="p">,</span> <span class="n">time</span><span class="o">=</span><span class="n">datetime</span><span class="p">(</span><span class="mi">2022</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">)</span><span class="p">,</span> <span class="n">number</span><span class="o">=</span><span class="n">number</span><span class="p">,</span> <span class="n">radius</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span><span class="w">
+</span>                <span class="n">environment</span><span class="o">=</span><span class="p">{</span><span class="s1">'</span><span class="s1">horizontal_diffusivity</span><span class="s1">'</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span><span class="w">
+</span>                             <span class="s1">'</span><span class="s1">x_sea_water_velocity</span><span class="s1">'</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span><span class="w">
+</span>                             <span class="s1">'</span><span class="s1">y_sea_water_velocity</span><span class="s1">'</span><span class="p">:</span> <span class="mf">.5</span><span class="p">}</span><span class="p">)</span><span class="w">
+</span><a class="sphx-glr-backref-module-opendrift-models-basemodel sphx-glr-backref-type-py-method reference internal" href="../autoapi/opendrift/models/basemodel/index.html#opendrift.models.basemodel.OpenDriftSimulation.run" title="opendrift.models.basemodel.OpenDriftSimulation.run"><span class="n">o</span><span class="o">.</span><span class="n">run</span></a><span class="p">(</span><span class="n">steps</span><span class="o">=</span><span class="mi">10</span><span class="p">)</span><span class="w">
+</span><a class="sphx-glr-backref-module-opendrift-models-basemodel sphx-glr-backref-type-py-method reference internal" href="../autoapi/opendrift/models/basemodel/index.html#opendrift.models.basemodel.OpenDriftSimulation.plot" title="opendrift.models.basemodel.OpenDriftSimulation.plot"><span class="n">o</span><span class="o">.</span><span class="n">plot</span></a><span class="p">(</span><span class="p">)</span><span class="w">
+</span></pre></div></div>
+<img src="../_images/sphx_glr_example_element_dependent_environment_001.png" srcset="../_images/sphx_glr_example_element_dependent_environment_001.png" alt="OpenDrift - OceanDrift 2022-01-01 00:00 to 2022-01-01 10:00 UTC (11 steps)" class = "sphx-glr-single-img"/><div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>09:34:30 INFO    opendrift:569: OpenDriftSimulation initialised (version 1.14.11 / v1.14.12-26-g8782b63)
+09:34:30 INFO    opendrift.models.basemodel.environment:203: Adding a global landmask from GSHHG
+09:34:37 INFO    opendrift.models.basemodel.environment:227: Fallback values will be used for the following variables which have no readers:
+09:34:37 INFO    opendrift.models.basemodel.environment:230:    x_sea_water_velocity: 0.000000
+09:34:37 INFO    opendrift.models.basemodel.environment:230:    y_sea_water_velocity: 0.000000
+09:34:37 INFO    opendrift.models.basemodel.environment:230:    sea_surface_height: 0.000000
+09:34:37 INFO    opendrift.models.basemodel.environment:230:    x_wind: 0.000000
+09:34:37 INFO    opendrift.models.basemodel.environment:230:    y_wind: 0.000000
+09:34:37 INFO    opendrift.models.basemodel.environment:230:    upward_sea_water_velocity: 0.000000
+09:34:37 INFO    opendrift.models.basemodel.environment:230:    ocean_vertical_diffusivity: 0.000000
+09:34:37 INFO    opendrift.models.basemodel.environment:230:    horizontal_diffusivity: 0.000000
+09:34:37 INFO    opendrift.models.basemodel.environment:230:    sea_surface_wave_significant_height: 0.000000
+09:34:37 INFO    opendrift.models.basemodel.environment:230:    sea_surface_wave_stokes_drift_x_velocity: 0.000000
+09:34:37 INFO    opendrift.models.basemodel.environment:230:    sea_surface_wave_stokes_drift_y_velocity: 0.000000
+09:34:37 INFO    opendrift.models.basemodel.environment:230:    ocean_mixed_layer_thickness: 50.000000
+09:34:37 INFO    opendrift.models.basemodel.environment:230:    sea_floor_depth_below_sea_level: 10000.000000
+09:34:37 INFO    opendrift:1910: Skipping environment variable ocean_vertical_diffusivity because of condition ['drift:vertical_mixing', 'is', False]
+09:34:37 INFO    opendrift:1910: Skipping environment variable ocean_mixed_layer_thickness because of condition ['drift:vertical_mixing', 'is', False]
+09:34:37 INFO    opendrift:1921: Storing previous values of element property lon because of condition (('general:coastline_action', 'in', ['stranding', 'previous']), 'or', ('general:seafloor_action', 'in', ['previous']))
+09:34:37 INFO    opendrift:1921: Storing previous values of element property lat because of condition (('general:coastline_action', 'in', ['stranding', 'previous']), 'or', ('general:seafloor_action', 'in', ['previous']))
+09:34:37 INFO    opendrift:1929: Storing previous values of environment variable sea_surface_height because of condition ['drift:vertical_advection', 'is', True]
+09:34:37 INFO    opendrift:958: Using existing reader for land_binary_mask to move elements to ocean
+09:34:37 INFO    opendrift:989: All points are in ocean
+09:34:37 INFO    opendrift:2237: 2022-01-01 00:00:00 - step 1 of 10 - 300 active elements (0 deactivated)
+09:34:37 INFO    opendrift:2237: 2022-01-01 01:00:00 - step 2 of 10 - 300 active elements (0 deactivated)
+09:34:37 INFO    opendrift:2237: 2022-01-01 02:00:00 - step 3 of 10 - 300 active elements (0 deactivated)
+09:34:37 INFO    opendrift:2237: 2022-01-01 03:00:00 - step 4 of 10 - 300 active elements (0 deactivated)
+09:34:37 INFO    opendrift:2237: 2022-01-01 04:00:00 - step 5 of 10 - 300 active elements (0 deactivated)
+09:34:37 INFO    opendrift:2237: 2022-01-01 05:00:00 - step 6 of 10 - 300 active elements (0 deactivated)
+09:34:37 INFO    opendrift:2237: 2022-01-01 06:00:00 - step 7 of 10 - 300 active elements (0 deactivated)
+09:34:37 INFO    opendrift:2237: 2022-01-01 07:00:00 - step 8 of 10 - 300 active elements (0 deactivated)
+09:34:37 INFO    opendrift:2237: 2022-01-01 08:00:00 - step 9 of 10 - 300 active elements (0 deactivated)
+09:34:37 INFO    opendrift:2237: 2022-01-01 09:00:00 - step 10 of 10 - 300 active elements (0 deactivated)
 
 (&lt;GeoAxes: title={'center': 'OpenDrift - OceanDrift\n2022-01-01 00:00 to 2022-01-01 10:00 UTC (11 steps)'}&gt;, &lt;Figure size 1100x639.989 with 1 Axes&gt;)
 </pre></div>
 </div>
 <p>Second example with a single seeding where each element will be exposed to different diffusivity values</p>
-<div class="highlight-Python notranslate"><div class="highlight"><pre><span></span><span class="n">o</span> <span class="o">=</span> <span class="n">OceanDrift</span><span class="p">(</span><span class="n">loglevel</span><span class="o">=</span><span class="mi">20</span><span class="p">)</span>
-<span class="c1"># Seeding 1000 elements that will be exposed to north-eastward current with diffusivities ranging from 0 to 50 m2/s</span>
-<span class="n">number</span> <span class="o">=</span> <span class="mi">1000</span>
-<span class="n">diffusivity_values</span> <span class="o">=</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">5</span><span class="p">,</span> <span class="mi">10</span><span class="p">,</span> <span class="mi">50</span><span class="p">]</span>
-<span class="c1"># Repeating values so that 200 elements get each diffusivity</span>
-<span class="n">diffusivities</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">repeat</span><span class="p">(</span><span class="n">diffusivity_values</span><span class="p">,</span> <span class="n">number</span><span class="o">/</span><span class="nb">len</span><span class="p">(</span><span class="n">diffusivity_values</span><span class="p">))</span>
-
-<span class="n">o</span><span class="o">.</span><span class="n">seed_elements</span><span class="p">(</span><span class="n">lon</span><span class="o">=-</span><span class="mi">60</span><span class="p">,</span> <span class="n">lat</span><span class="o">=</span><span class="mi">40</span><span class="p">,</span> <span class="n">time</span><span class="o">=</span><span class="n">datetime</span><span class="p">(</span><span class="mi">2022</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">),</span> <span class="n">number</span><span class="o">=</span><span class="n">number</span><span class="p">,</span> <span class="n">radius</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span>
-                <span class="n">environment</span><span class="o">=</span><span class="p">{</span><span class="s1">'horizontal_diffusivity'</span><span class="p">:</span> <span class="n">diffusivities</span><span class="p">,</span>
-                             <span class="s1">'x_sea_water_velocity'</span><span class="p">:</span> <span class="mf">.2</span><span class="p">,</span>
-                             <span class="s1">'y_sea_water_velocity'</span><span class="p">:</span> <span class="mf">.2</span><span class="p">})</span>
-<span class="n">ds</span> <span class="o">=</span> <span class="n">o</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">steps</span><span class="o">=</span><span class="mi">10</span><span class="p">)</span>
-<span class="n">ds</span><span class="o">.</span><span class="n">traj</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">land</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">margin</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
-<span class="c1"># Plotting the convex hull around end positions separately for each diffusivity value</span>
-<span class="n">ds</span> <span class="o">=</span> <span class="n">ds</span><span class="o">.</span><span class="n">isel</span><span class="p">(</span><span class="n">time</span><span class="o">=-</span><span class="mi">1</span><span class="p">)</span>
-<span class="n">colors</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">cm</span><span class="o">.</span><span class="n">jet</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">5</span><span class="p">))</span>
-<span class="k">for</span> <span class="n">d</span><span class="p">,</span> <span class="n">color</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">diffusivity_values</span><span class="p">,</span> <span class="n">colors</span><span class="p">):</span>
-    <span class="n">ds</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">ds</span><span class="o">.</span><span class="n">horizontal_diffusivity</span><span class="o">==</span><span class="n">d</span><span class="p">)</span><span class="o">.</span><span class="n">traj</span><span class="o">.</span><span class="n">plot</span><span class="o">.</span><span class="n">convex_hull</span><span class="p">(</span><span class="n">label</span><span class="o">=</span><span class="sa">f</span><span class="s1">'Diffusivity </span><span class="si">{</span><span class="n">d</span><span class="si">}</span><span class="s1"> m2/s'</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="n">color</span><span class="p">)</span>
-<span class="n">plt</span><span class="o">.</span><span class="n">legend</span><span class="p">()</span>
-<span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
-</pre></div>
-</div>
-<img src="../_images/sphx_glr_example_element_dependent_environment_002.png" srcset="../_images/sphx_glr_example_element_dependent_environment_002.png" alt="example element dependent environment" class = "sphx-glr-single-img"/><div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>13:56:30 INFO    opendrift:569: OpenDriftSimulation initialised (version 1.14.11 / v1.14.12-9-g6f1a4a0)
-13:56:30 INFO    opendrift.models.basemodel.environment:203: Adding a global landmask from GSHHG
-13:56:30 INFO    opendrift.models.basemodel.environment:227: Fallback values will be used for the following variables which have no readers:
-13:56:30 INFO    opendrift.models.basemodel.environment:230:    x_sea_water_velocity: 0.000000
-13:56:30 INFO    opendrift.models.basemodel.environment:230:    y_sea_water_velocity: 0.000000
-13:56:30 INFO    opendrift.models.basemodel.environment:230:    sea_surface_height: 0.000000
-13:56:30 INFO    opendrift.models.basemodel.environment:230:    x_wind: 0.000000
-13:56:30 INFO    opendrift.models.basemodel.environment:230:    y_wind: 0.000000
-13:56:30 INFO    opendrift.models.basemodel.environment:230:    upward_sea_water_velocity: 0.000000
-13:56:30 INFO    opendrift.models.basemodel.environment:230:    ocean_vertical_diffusivity: 0.000000
-13:56:30 INFO    opendrift.models.basemodel.environment:230:    horizontal_diffusivity: 0.000000
-13:56:30 INFO    opendrift.models.basemodel.environment:230:    sea_surface_wave_significant_height: 0.000000
-13:56:30 INFO    opendrift.models.basemodel.environment:230:    sea_surface_wave_stokes_drift_x_velocity: 0.000000
-13:56:30 INFO    opendrift.models.basemodel.environment:230:    sea_surface_wave_stokes_drift_y_velocity: 0.000000
-13:56:30 INFO    opendrift.models.basemodel.environment:230:    ocean_mixed_layer_thickness: 50.000000
-13:56:30 INFO    opendrift.models.basemodel.environment:230:    sea_floor_depth_below_sea_level: 10000.000000
-13:56:30 INFO    opendrift:1910: Skipping environment variable ocean_vertical_diffusivity because of condition ['drift:vertical_mixing', 'is', False]
-13:56:30 INFO    opendrift:1910: Skipping environment variable ocean_mixed_layer_thickness because of condition ['drift:vertical_mixing', 'is', False]
-13:56:30 INFO    opendrift:1921: Storing previous values of element property lon because of condition (('general:coastline_action', 'in', ['stranding', 'previous']), 'or', ('general:seafloor_action', 'in', ['previous']))
-13:56:30 INFO    opendrift:1921: Storing previous values of element property lat because of condition (('general:coastline_action', 'in', ['stranding', 'previous']), 'or', ('general:seafloor_action', 'in', ['previous']))
-13:56:30 INFO    opendrift:1929: Storing previous values of environment variable sea_surface_height because of condition ['drift:vertical_advection', 'is', True]
-13:56:30 INFO    opendrift:958: Using existing reader for land_binary_mask to move elements to ocean
-13:56:30 INFO    opendrift:989: All points are in ocean
-13:56:30 INFO    opendrift:2237: 2022-01-01 00:00:00 - step 1 of 10 - 1000 active elements (0 deactivated)
-13:56:30 INFO    opendrift:2237: 2022-01-01 01:00:00 - step 2 of 10 - 1000 active elements (0 deactivated)
-13:56:30 INFO    opendrift:2237: 2022-01-01 02:00:00 - step 3 of 10 - 1000 active elements (0 deactivated)
-13:56:30 INFO    opendrift:2237: 2022-01-01 03:00:00 - step 4 of 10 - 1000 active elements (0 deactivated)
-13:56:30 INFO    opendrift:2237: 2022-01-01 04:00:00 - step 5 of 10 - 1000 active elements (0 deactivated)
-13:56:30 INFO    opendrift:2237: 2022-01-01 05:00:00 - step 6 of 10 - 1000 active elements (0 deactivated)
-13:56:30 INFO    opendrift:2237: 2022-01-01 06:00:00 - step 7 of 10 - 1000 active elements (0 deactivated)
-13:56:30 INFO    opendrift:2237: 2022-01-01 07:00:00 - step 8 of 10 - 1000 active elements (0 deactivated)
-13:56:30 INFO    opendrift:2237: 2022-01-01 08:00:00 - step 9 of 10 - 1000 active elements (0 deactivated)
-13:56:30 INFO    opendrift:2237: 2022-01-01 09:00:00 - step 10 of 10 - 1000 active elements (0 deactivated)
+<div class="highlight-Python notranslate"><div class="highlight"><pre><a class="sphx-glr-backref-module-opendrift-models-oceandrift sphx-glr-backref-type-py-class sphx-glr-backref-instance reference internal" href="../autoapi/opendrift/models/oceandrift/index.html#opendrift.models.oceandrift.OceanDrift" title="opendrift.models.oceandrift.OceanDrift"><span class="n">o</span></a> <span class="o">=</span> <a class="sphx-glr-backref-module-opendrift-models-oceandrift sphx-glr-backref-type-py-class reference internal" href="../autoapi/opendrift/models/oceandrift/index.html#opendrift.models.oceandrift.OceanDrift" title="opendrift.models.oceandrift.OceanDrift"><span class="n">OceanDrift</span></a><span class="p">(</span><span class="n">loglevel</span><span class="o">=</span><span class="mi">20</span><span class="p">)</span><span class="w">
+</span><span class="c1"># Seeding 1000 elements that will be exposed to north-eastward current with diffusivities ranging from 0 to 50 m2/s</span><span class="w">
+</span><span class="n">number</span> <span class="o">=</span> <span class="mi">1000</span><span class="w">
+</span><span class="n">diffusivity_values</span> <span class="o">=</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">5</span><span class="p">,</span> <span class="mi">10</span><span class="p">,</span> <span class="mi">50</span><span class="p">]</span><span class="w">
+</span><span class="c1"># Repeating values so that 200 elements get each diffusivity</span><span class="w">
+</span><span class="n">diffusivities</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">repeat</span><span class="p">(</span><span class="n">diffusivity_values</span><span class="p">,</span> <span class="n">number</span><span class="o">/</span><span class="nb">len</span><span class="p">(</span><span class="n">diffusivity_values</span><span class="p">)</span><span class="p">)</span><span class="w">
+</span><span class="w">
+</span><a class="sphx-glr-backref-module-opendrift-models-basemodel sphx-glr-backref-type-py-method reference internal" href="../autoapi/opendrift/models/basemodel/index.html#opendrift.models.basemodel.OpenDriftSimulation.seed_elements" title="opendrift.models.basemodel.OpenDriftSimulation.seed_elements"><span class="n">o</span><span class="o">.</span><span class="n">seed_elements</span></a><span class="p">(</span><span class="n">lon</span><span class="o">=</span><span class="o">-</span><span class="mi">60</span><span class="p">,</span> <span class="n">lat</span><span class="o">=</span><span class="mi">40</span><span class="p">,</span> <span class="n">time</span><span class="o">=</span><span class="n">datetime</span><span class="p">(</span><span class="mi">2022</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">)</span><span class="p">,</span> <span class="n">number</span><span class="o">=</span><span class="n">number</span><span class="p">,</span> <span class="n">radius</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span><span class="w">
+</span>                <span class="n">environment</span><span class="o">=</span><span class="p">{</span><span class="s1">'</span><span class="s1">horizontal_diffusivity</span><span class="s1">'</span><span class="p">:</span> <span class="n">diffusivities</span><span class="p">,</span><span class="w">
+</span>                             <span class="s1">'</span><span class="s1">x_sea_water_velocity</span><span class="s1">'</span><span class="p">:</span> <span class="mf">.2</span><span class="p">,</span><span class="w">
+</span>                             <span class="s1">'</span><span class="s1">y_sea_water_velocity</span><span class="s1">'</span><span class="p">:</span> <span class="mf">.2</span><span class="p">}</span><span class="p">)</span><span class="w">
+</span><span class="n">ds</span> <span class="o">=</span> <a class="sphx-glr-backref-module-opendrift-models-basemodel sphx-glr-backref-type-py-method reference internal" href="../autoapi/opendrift/models/basemodel/index.html#opendrift.models.basemodel.OpenDriftSimulation.run" title="opendrift.models.basemodel.OpenDriftSimulation.run"><span class="n">o</span><span class="o">.</span><span class="n">run</span></a><span class="p">(</span><span class="n">steps</span><span class="o">=</span><span class="mi">10</span><span class="p">)</span><span class="w">
+</span><span class="n">ds</span><span class="o">.</span><span class="n">traj</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">land</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">margin</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span><span class="w">
+</span><span class="c1"># Plotting the convex hull around end positions separately for each diffusivity value</span><span class="w">
+</span><span class="n">ds</span> <span class="o">=</span> <span class="n">ds</span><span class="o">.</span><span class="n">isel</span><span class="p">(</span><span class="n">time</span><span class="o">=</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span><span class="w">
+</span><span class="n">colors</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">cm</span><span class="o">.</span><span class="n">jet</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">5</span><span class="p">)</span><span class="p">)</span><span class="w">
+</span><span class="k">for</span> <span class="n">d</span><span class="p">,</span> <span class="n">color</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">diffusivity_values</span><span class="p">,</span> <span class="n">colors</span><span class="p">)</span><span class="p">:</span><span class="w">
+</span>    <span class="n">ds</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">ds</span><span class="o">.</span><span class="n">horizontal_diffusivity</span><span class="o">==</span><span class="n">d</span><span class="p">)</span><span class="o">.</span><span class="n">traj</span><span class="o">.</span><span class="n">plot</span><span class="o">.</span><span class="n">convex_hull</span><span class="p">(</span><span class="n">label</span><span class="o">=</span><span class="sa">f</span><span class="s1">'</span><span class="s1">Diffusivity </span><span class="si">{</span><span class="n">d</span><span class="si">}</span><span class="s1"> m2/s</span><span class="s1">'</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="n">color</span><span class="p">)</span><span class="w">
+</span><span class="n">plt</span><span class="o">.</span><span class="n">legend</span><span class="p">(</span><span class="p">)</span><span class="w">
+</span><span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">(</span><span class="p">)</span><span class="w">
+</span></pre></div></div>
+<img src="../_images/sphx_glr_example_element_dependent_environment_002.png" srcset="../_images/sphx_glr_example_element_dependent_environment_002.png" alt="example element dependent environment" class = "sphx-glr-single-img"/><div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>09:34:39 INFO    opendrift:569: OpenDriftSimulation initialised (version 1.14.11 / v1.14.12-26-g8782b63)
+09:34:39 INFO    opendrift.models.basemodel.environment:203: Adding a global landmask from GSHHG
+09:34:39 INFO    opendrift.models.basemodel.environment:227: Fallback values will be used for the following variables which have no readers:
+09:34:39 INFO    opendrift.models.basemodel.environment:230:    x_sea_water_velocity: 0.000000
+09:34:39 INFO    opendrift.models.basemodel.environment:230:    y_sea_water_velocity: 0.000000
+09:34:39 INFO    opendrift.models.basemodel.environment:230:    sea_surface_height: 0.000000
+09:34:39 INFO    opendrift.models.basemodel.environment:230:    x_wind: 0.000000
+09:34:39 INFO    opendrift.models.basemodel.environment:230:    y_wind: 0.000000
+09:34:39 INFO    opendrift.models.basemodel.environment:230:    upward_sea_water_velocity: 0.000000
+09:34:39 INFO    opendrift.models.basemodel.environment:230:    ocean_vertical_diffusivity: 0.000000
+09:34:39 INFO    opendrift.models.basemodel.environment:230:    horizontal_diffusivity: 0.000000
+09:34:39 INFO    opendrift.models.basemodel.environment:230:    sea_surface_wave_significant_height: 0.000000
+09:34:39 INFO    opendrift.models.basemodel.environment:230:    sea_surface_wave_stokes_drift_x_velocity: 0.000000
+09:34:39 INFO    opendrift.models.basemodel.environment:230:    sea_surface_wave_stokes_drift_y_velocity: 0.000000
+09:34:39 INFO    opendrift.models.basemodel.environment:230:    ocean_mixed_layer_thickness: 50.000000
+09:34:39 INFO    opendrift.models.basemodel.environment:230:    sea_floor_depth_below_sea_level: 10000.000000
+09:34:39 INFO    opendrift:1910: Skipping environment variable ocean_vertical_diffusivity because of condition ['drift:vertical_mixing', 'is', False]
+09:34:39 INFO    opendrift:1910: Skipping environment variable ocean_mixed_layer_thickness because of condition ['drift:vertical_mixing', 'is', False]
+09:34:39 INFO    opendrift:1921: Storing previous values of element property lon because of condition (('general:coastline_action', 'in', ['stranding', 'previous']), 'or', ('general:seafloor_action', 'in', ['previous']))
+09:34:39 INFO    opendrift:1921: Storing previous values of element property lat because of condition (('general:coastline_action', 'in', ['stranding', 'previous']), 'or', ('general:seafloor_action', 'in', ['previous']))
+09:34:39 INFO    opendrift:1929: Storing previous values of environment variable sea_surface_height because of condition ['drift:vertical_advection', 'is', True]
+09:34:39 INFO    opendrift:958: Using existing reader for land_binary_mask to move elements to ocean
+09:34:39 INFO    opendrift:989: All points are in ocean
+09:34:39 INFO    opendrift:2237: 2022-01-01 00:00:00 - step 1 of 10 - 1000 active elements (0 deactivated)
+09:34:39 INFO    opendrift:2237: 2022-01-01 01:00:00 - step 2 of 10 - 1000 active elements (0 deactivated)
+09:34:39 INFO    opendrift:2237: 2022-01-01 02:00:00 - step 3 of 10 - 1000 active elements (0 deactivated)
+09:34:39 INFO    opendrift:2237: 2022-01-01 03:00:00 - step 4 of 10 - 1000 active elements (0 deactivated)
+09:34:39 INFO    opendrift:2237: 2022-01-01 04:00:00 - step 5 of 10 - 1000 active elements (0 deactivated)
+09:34:39 INFO    opendrift:2237: 2022-01-01 05:00:00 - step 6 of 10 - 1000 active elements (0 deactivated)
+09:34:39 INFO    opendrift:2237: 2022-01-01 06:00:00 - step 7 of 10 - 1000 active elements (0 deactivated)
+09:34:39 INFO    opendrift:2237: 2022-01-01 07:00:00 - step 8 of 10 - 1000 active elements (0 deactivated)
+09:34:39 INFO    opendrift:2237: 2022-01-01 08:00:00 - step 9 of 10 - 1000 active elements (0 deactivated)
+09:34:40 INFO    opendrift:2237: 2022-01-01 09:00:00 - step 10 of 10 - 1000 active elements (0 deactivated)
 </pre></div>
 </div>
 <p>The above could also be achieved by performing separate simulations for each value of diffusivity,
 but with more computational overhead/time and more complexity</p>
-<p class="sphx-glr-timing"><strong>Total running time of the script:</strong> (0 minutes 19.774 seconds)</p>
+<p class="sphx-glr-timing"><strong>Total running time of the script:</strong> (0 minutes 21.346 seconds)</p>
 <div class="sphx-glr-footer sphx-glr-footer-example docutils container" id="sphx-glr-download-gallery-example-element-dependent-environment-py">
 <div class="sphx-glr-download sphx-glr-download-jupyter docutils container">
 <p><a class="reference download internal" download="" href="../_downloads/a1b7d83e207bdaca29afa05b40292475/example_element_dependent_environment.ipynb"><code class="xref download docutils literal notranslate"><span class="pre">Download</span> <span class="pre">Jupyter</span> <span class="pre">notebook:</span> <span class="pre">example_element_dependent_environment.ipynb</span></code></a></p>

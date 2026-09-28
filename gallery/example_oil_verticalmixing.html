@@ -11,7 +11,7 @@
       <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=9edc463e" />
       <link rel="stylesheet" type="text/css" href="../_static/graphviz.css?v=4ae1632d" />
       <link rel="stylesheet" type="text/css" href="../_static/plot_directive.css" />
-      <link rel="stylesheet" type="text/css" href="../_static/sg_gallery.css?v=fd6457a4" />
+      <link rel="stylesheet" type="text/css" href="../_static/sg_gallery.css?v=c83e6b79" />
       <link rel="stylesheet" type="text/css" href="../_static/sg_gallery-binder.css?v=f4aeca0c" />
       <link rel="stylesheet" type="text/css" href="../_static/sg_gallery-dataframe.css?v=2082cf3c" />
       <link rel="stylesheet" type="text/css" href="../_static/sg_gallery-rendered-html.css?v=1277b6f3" />
@@ -211,143 +211,141 @@ to download the full example code.</p>
 </div>
 <section class="sphx-glr-example-title" id="oil-vertical-mixing">
 <span id="sphx-glr-gallery-example-oil-verticalmixing-py"></span><h1>Oil vertical mixing<a class="headerlink" href="#oil-vertical-mixing" title="Link to this heading"></a></h1>
-<div class="highlight-Python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">os</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">datetime</span><span class="w"> </span><span class="kn">import</span> <span class="n">timedelta</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">opendrift.readers</span><span class="w"> </span><span class="kn">import</span> <span class="n">reader_netCDF_CF_generic</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">opendrift.models.openoil</span><span class="w"> </span><span class="kn">import</span> <span class="n">OpenOil</span>
-
-
-<span class="n">o</span> <span class="o">=</span> <span class="n">OpenOil</span><span class="p">(</span><span class="n">loglevel</span><span class="o">=</span><span class="mi">20</span><span class="p">)</span>  <span class="c1"># Set loglevel to 0 for debug information</span>
-
-<span class="n">ncfile</span> <span class="o">=</span> <span class="s1">'oilmixing.nc'</span>
-<span class="n">import_file</span> <span class="o">=</span> <span class="kc">False</span>  <span class="c1"># Set to True to import previous run</span>
-
-<span class="k">if</span> <span class="n">import_file</span> <span class="ow">is</span> <span class="kc">True</span><span class="p">:</span>
-    <span class="n">o</span><span class="o">.</span><span class="n">io_import_file</span><span class="p">(</span><span class="n">ncfile</span><span class="p">)</span>
-<span class="k">else</span><span class="p">:</span>
-    <span class="n">reader_arome</span> <span class="o">=</span> <span class="n">reader_netCDF_CF_generic</span><span class="o">.</span><span class="n">Reader</span><span class="p">(</span><span class="s1">'https://thredds.met.no/thredds/dodsC/mepslatest/meps_lagged_6_h_latest_2_5km_latest.nc'</span><span class="p">)</span>
-    <span class="n">reader_norkyst</span> <span class="o">=</span> <span class="n">reader_netCDF_CF_generic</span><span class="o">.</span><span class="n">Reader</span><span class="p">(</span><span class="s1">'https://thredds.met.no/thredds/dodsC/fou-hi/norkystv3_800m_m00_be'</span><span class="p">)</span>
-
-    <span class="n">o</span><span class="o">.</span><span class="n">add_reader</span><span class="p">([</span><span class="n">reader_norkyst</span><span class="p">,</span> <span class="n">reader_arome</span><span class="p">])</span>
-
-    <span class="c1"># Adjusting some configuration</span>
-    <span class="c1">#o.set_config('vertical_mixing:diffusivitymodel', 'windspeed_Sundby1983')</span>
-
-    <span class="c1"># Seed oil elements at defined position and time</span>
-    <span class="n">o</span><span class="o">.</span><span class="n">seed_elements</span><span class="p">(</span><span class="n">lon</span><span class="o">=</span><span class="mf">4.9</span><span class="p">,</span> <span class="n">lat</span><span class="o">=</span><span class="mf">62.1</span><span class="p">,</span> <span class="n">z</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">radius</span><span class="o">=</span><span class="mi">1000</span><span class="p">,</span> <span class="n">number</span><span class="o">=</span><span class="mi">5000</span><span class="p">,</span>
-                    <span class="n">time</span><span class="o">=</span><span class="n">reader_arome</span><span class="o">.</span><span class="n">start_time</span><span class="p">,</span> <span class="n">oil_type</span><span class="o">=</span><span class="s1">'GENERIC DIESEL'</span><span class="p">)</span>
-
-    <span class="c1"># Running model</span>
-    <span class="n">o</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">end_time</span><span class="o">=</span><span class="n">reader_arome</span><span class="o">.</span><span class="n">start_time</span> <span class="o">+</span> <span class="n">timedelta</span><span class="p">(</span><span class="n">hours</span><span class="o">=</span><span class="mi">12</span><span class="p">),</span>
-          <span class="n">time_step</span><span class="o">=</span><span class="mi">900</span><span class="p">,</span> <span class="n">time_step_output</span><span class="o">=</span><span class="mi">1800</span><span class="p">,</span> <span class="n">outfile</span><span class="o">=</span><span class="n">ncfile</span><span class="p">)</span>
-</pre></div>
-</div>
-<div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>13:59:03 INFO    opendrift:569: OpenDriftSimulation initialised (version 1.14.11 / v1.14.12-9-g6f1a4a0)
-13:59:03 INFO    opendrift.readers:67: Opening file with xr.open_dataset
-13:59:05 INFO    opendrift.readers.reader_netCDF_CF_generic:340: Detected dimensions: {'time': 'time', 'x': 'x', 'y': 'y'}
-13:59:05 INFO    opendrift.readers:67: Opening file with xr.open_dataset
-13:59:08 INFO    opendrift.readers.reader_netCDF_CF_generic:340: Detected dimensions: {'x': 'X', 'y': 'Y', 'z': 'depth', 'time': 'time'}
-13:59:08 INFO    opendrift.readers.basereader:175: Variable x_sea_water_velocity will be rotated from eastward_sea_water_velocity
-13:59:08 INFO    opendrift.readers.basereader:175: Variable y_sea_water_velocity will be rotated from northward_sea_water_velocity
-13:59:08 INFO    opendrift.readers.basereader:175: Variable x_wind will be rotated from eastward_wind
-13:59:08 INFO    opendrift.readers.basereader:175: Variable y_wind will be rotated from northward_wind
-13:59:08 INFO    opendrift.models.openoil.adios.dirjs:86: Querying ADIOS database for oil: GENERIC DIESEL
-13:59:08 INFO    opendrift.models.openoil.openoil:1731: Using density 855.84763 and viscosity 8.644570579524577e-06 of oiltype GENERIC DIESEL
-13:59:08 INFO    opendrift.models.basemodel.environment:203: Adding a global landmask from GSHHG
-13:59:14 INFO    opendrift.models.basemodel.environment:227: Fallback values will be used for the following variables which have no readers:
-13:59:14 INFO    opendrift.models.basemodel.environment:230:    sea_surface_wave_significant_height: 0.000000
-13:59:14 INFO    opendrift.models.basemodel.environment:230:    sea_surface_wave_stokes_drift_x_velocity: 0.000000
-13:59:14 INFO    opendrift.models.basemodel.environment:230:    sea_surface_wave_stokes_drift_y_velocity: 0.000000
-13:59:14 INFO    opendrift.models.basemodel.environment:230:    sea_surface_wave_period_at_variance_spectral_density_maximum: 0.000000
-13:59:14 INFO    opendrift.models.basemodel.environment:230:    sea_surface_wave_mean_period_from_variance_spectral_density_second_frequency_moment: 0.000000
-13:59:14 INFO    opendrift.models.basemodel.environment:230:    sea_ice_area_fraction: 0.000000
-13:59:14 INFO    opendrift.models.basemodel.environment:230:    sea_ice_x_velocity: 0.000000
-13:59:14 INFO    opendrift.models.basemodel.environment:230:    sea_ice_y_velocity: 0.000000
-13:59:14 INFO    opendrift.models.basemodel.environment:230:    horizontal_diffusivity: 0.000000
-13:59:14 INFO    opendrift.models.basemodel.environment:230:    ocean_mixed_layer_thickness: 50.000000
-13:59:14 INFO    opendrift:1910: Skipping environment variable upward_sea_water_velocity because of condition ['drift:vertical_advection', 'is', False]
-13:59:14 INFO    opendrift:1921: Storing previous values of element property lon because of condition (('general:coastline_action', 'in', ['stranding', 'previous']), 'or', ('general:seafloor_action', 'in', ['previous']))
-13:59:14 INFO    opendrift:1921: Storing previous values of element property lat because of condition (('general:coastline_action', 'in', ['stranding', 'previous']), 'or', ('general:seafloor_action', 'in', ['previous']))
-13:59:14 INFO    opendrift:958: Using existing reader for land_binary_mask to move elements to ocean
-13:59:14 INFO    opendrift:989: All points are in ocean
-13:59:14 INFO    opendrift.models.openoil.openoil:697: Oil-water surface tension is 0.030314 Nm
-13:59:14 INFO    opendrift.models.openoil.openoil:710: Max water fraction not available for GENERIC DIESEL, using default
-13:59:14 INFO    opendrift:2237: 2026-09-10 12:00:00 - step 1 of 48 - 5000 active elements (0 deactivated)
-13:59:16 INFO    opendrift:2237: 2026-09-10 12:15:00 - step 2 of 48 - 5000 active elements (0 deactivated)
-13:59:18 INFO    opendrift:2237: 2026-09-10 12:30:00 - step 3 of 48 - 5000 active elements (0 deactivated)
-13:59:18 INFO    opendrift:2237: 2026-09-10 12:45:00 - step 4 of 48 - 5000 active elements (0 deactivated)
-13:59:18 INFO    opendrift:2237: 2026-09-10 13:00:00 - step 5 of 48 - 5000 active elements (0 deactivated)
-13:59:18 INFO    opendrift:2237: 2026-09-10 13:15:00 - step 6 of 48 - 5000 active elements (0 deactivated)
-13:59:20 INFO    opendrift:2237: 2026-09-10 13:30:00 - step 7 of 48 - 5000 active elements (0 deactivated)
-13:59:20 INFO    opendrift:2237: 2026-09-10 13:45:00 - step 8 of 48 - 5000 active elements (0 deactivated)
-13:59:21 INFO    opendrift:2237: 2026-09-10 14:00:00 - step 9 of 48 - 5000 active elements (0 deactivated)
-13:59:21 INFO    opendrift:2237: 2026-09-10 14:15:00 - step 10 of 48 - 5000 active elements (0 deactivated)
-13:59:22 INFO    opendrift:2237: 2026-09-10 14:30:00 - step 11 of 48 - 5000 active elements (0 deactivated)
-13:59:23 INFO    opendrift:2237: 2026-09-10 14:45:00 - step 12 of 48 - 5000 active elements (0 deactivated)
-13:59:23 INFO    opendrift:2237: 2026-09-10 15:00:00 - step 13 of 48 - 5000 active elements (0 deactivated)
-13:59:23 INFO    opendrift:2237: 2026-09-10 15:15:00 - step 14 of 48 - 5000 active elements (0 deactivated)
-13:59:25 INFO    opendrift:2237: 2026-09-10 15:30:00 - step 15 of 48 - 5000 active elements (0 deactivated)
-13:59:25 INFO    opendrift:2237: 2026-09-10 15:45:00 - step 16 of 48 - 5000 active elements (0 deactivated)
-13:59:25 INFO    opendrift:2237: 2026-09-10 16:00:00 - step 17 of 48 - 5000 active elements (0 deactivated)
-13:59:25 INFO    opendrift:2237: 2026-09-10 16:15:00 - step 18 of 48 - 5000 active elements (0 deactivated)
-13:59:27 INFO    opendrift:2237: 2026-09-10 16:30:00 - step 19 of 48 - 5000 active elements (0 deactivated)
-13:59:27 INFO    opendrift:2237: 2026-09-10 16:45:00 - step 20 of 48 - 5000 active elements (0 deactivated)
-13:59:27 INFO    opendrift:2237: 2026-09-10 17:00:00 - step 21 of 48 - 5000 active elements (0 deactivated)
-13:59:28 INFO    opendrift:2237: 2026-09-10 17:15:00 - step 22 of 48 - 5000 active elements (0 deactivated)
-13:59:29 INFO    opendrift:2237: 2026-09-10 17:30:00 - step 23 of 48 - 5000 active elements (0 deactivated)
-13:59:30 INFO    opendrift:2237: 2026-09-10 17:45:00 - step 24 of 48 - 5000 active elements (0 deactivated)
-13:59:30 INFO    opendrift:2237: 2026-09-10 18:00:00 - step 25 of 48 - 5000 active elements (0 deactivated)
-13:59:30 INFO    opendrift:2237: 2026-09-10 18:15:00 - step 26 of 48 - 5000 active elements (0 deactivated)
-13:59:32 INFO    opendrift:2237: 2026-09-10 18:30:00 - step 27 of 48 - 5000 active elements (0 deactivated)
-13:59:32 INFO    opendrift:2237: 2026-09-10 18:45:00 - step 28 of 48 - 5000 active elements (0 deactivated)
-13:59:32 INFO    opendrift:2237: 2026-09-10 19:00:00 - step 29 of 48 - 5000 active elements (0 deactivated)
-13:59:32 INFO    opendrift:2237: 2026-09-10 19:15:00 - step 30 of 48 - 5000 active elements (0 deactivated)
-13:59:34 INFO    opendrift:2237: 2026-09-10 19:30:00 - step 31 of 48 - 5000 active elements (0 deactivated)
-13:59:34 INFO    opendrift:2237: 2026-09-10 19:45:00 - step 32 of 48 - 5000 active elements (0 deactivated)
-13:59:34 INFO    opendrift:2237: 2026-09-10 20:00:00 - step 33 of 48 - 5000 active elements (0 deactivated)
-13:59:34 INFO    opendrift:2237: 2026-09-10 20:15:00 - step 34 of 48 - 5000 active elements (0 deactivated)
-13:59:36 INFO    opendrift:2237: 2026-09-10 20:30:00 - step 35 of 48 - 5000 active elements (0 deactivated)
-13:59:36 INFO    opendrift:2237: 2026-09-10 20:45:00 - step 36 of 48 - 5000 active elements (0 deactivated)
-13:59:36 INFO    opendrift:2237: 2026-09-10 21:00:00 - step 37 of 48 - 5000 active elements (0 deactivated)
-13:59:37 INFO    opendrift:2237: 2026-09-10 21:15:00 - step 38 of 48 - 5000 active elements (0 deactivated)
-13:59:39 INFO    opendrift:2237: 2026-09-10 21:30:00 - step 39 of 48 - 5000 active elements (0 deactivated)
-13:59:39 INFO    opendrift:2237: 2026-09-10 21:45:00 - step 40 of 48 - 5000 active elements (0 deactivated)
-13:59:39 INFO    opendrift:2237: 2026-09-10 22:00:00 - step 41 of 48 - 5000 active elements (0 deactivated)
-13:59:40 INFO    opendrift:2237: 2026-09-10 22:15:00 - step 42 of 48 - 5000 active elements (0 deactivated)
-13:59:41 INFO    opendrift:2237: 2026-09-10 22:30:00 - step 43 of 48 - 5000 active elements (0 deactivated)
-13:59:42 INFO    opendrift:2237: 2026-09-10 22:45:00 - step 44 of 48 - 5000 active elements (0 deactivated)
-13:59:42 INFO    opendrift:2237: 2026-09-10 23:00:00 - step 45 of 48 - 5000 active elements (0 deactivated)
-13:59:42 INFO    opendrift:2237: 2026-09-10 23:15:00 - step 46 of 48 - 5000 active elements (0 deactivated)
-13:59:44 INFO    opendrift:2237: 2026-09-10 23:30:00 - step 47 of 48 - 5000 active elements (0 deactivated)
-13:59:44 INFO    opendrift:2237: 2026-09-10 23:45:00 - step 48 of 48 - 5000 active elements (0 deactivated)
+<div class="highlight-Python notranslate"><div class="highlight"><pre><span class="kn">import</span><span class="w"> </span><span class="nn">os</span><span class="w">
+</span><span class="kn">from</span><span class="w"> </span><span class="nn">datetime</span><span class="w"> </span><span class="kn">import</span> <span class="n">timedelta</span><span class="w">
+</span><span class="kn">from</span><span class="w"> </span><span class="nn">opendrift</span><span class="nn">.</span><span class="nn">readers</span><span class="w"> </span><span class="kn">import</span> <span class="n">reader_netCDF_CF_generic</span><span class="w">
+</span><span class="kn">from</span><span class="w"> </span><span class="nn">opendrift</span><span class="nn">.</span><span class="nn">models</span><span class="nn">.</span><span class="nn">openoil</span><span class="w"> </span><span class="kn">import</span> <a class="sphx-glr-backref-module-opendrift-models-openoil sphx-glr-backref-type-py-class reference internal" href="../autoapi/opendrift/models/openoil/index.html#opendrift.models.openoil.OpenOil" title="opendrift.models.openoil.OpenOil"><span class="n">OpenOil</span></a><span class="w">
+</span><span class="w">
+</span><span class="w">
+</span><a class="sphx-glr-backref-module-opendrift-models-openoil sphx-glr-backref-type-py-class sphx-glr-backref-instance reference internal" href="../autoapi/opendrift/models/openoil/index.html#opendrift.models.openoil.OpenOil" title="opendrift.models.openoil.OpenOil"><span class="n">o</span></a> <span class="o">=</span> <a class="sphx-glr-backref-module-opendrift-models-openoil sphx-glr-backref-type-py-class reference internal" href="../autoapi/opendrift/models/openoil/index.html#opendrift.models.openoil.OpenOil" title="opendrift.models.openoil.OpenOil"><span class="n">OpenOil</span></a><span class="p">(</span><span class="n">loglevel</span><span class="o">=</span><span class="mi">20</span><span class="p">)</span>  <span class="c1"># Set loglevel to 0 for debug information</span><span class="w">
+</span><span class="w">
+</span><span class="n">ncfile</span> <span class="o">=</span> <span class="s1">'</span><span class="s1">oilmixing.nc</span><span class="s1">'</span><span class="w">
+</span><span class="n">import_file</span> <span class="o">=</span> <span class="kc">False</span>  <span class="c1"># Set to True to import previous run</span><span class="w">
+</span><span class="w">
+</span><span class="k">if</span> <span class="n">import_file</span> <span class="ow">is</span> <span class="kc">True</span><span class="p">:</span><span class="w">
+</span>    <a class="sphx-glr-backref-module-opendrift-models-basemodel sphx-glr-backref-type-py-attribute reference internal" href="../autoapi/opendrift/models/basemodel/index.html#opendrift.models.basemodel.OpenDriftSimulation.io_import_file" title="opendrift.models.basemodel.OpenDriftSimulation.io_import_file"><span class="n">o</span><span class="o">.</span><span class="n">io_import_file</span></a><span class="p">(</span><span class="n">ncfile</span><span class="p">)</span><span class="w">
+</span><span class="k">else</span><span class="p">:</span><span class="w">
+</span>    <a class="sphx-glr-backref-module-opendrift-readers-reader_netCDF_CF_generic sphx-glr-backref-type-py-class sphx-glr-backref-instance reference internal" href="../autoapi/opendrift/readers/reader_netCDF_CF_generic/index.html#opendrift.readers.reader_netCDF_CF_generic.Reader" title="opendrift.readers.reader_netCDF_CF_generic.Reader"><span class="n">reader_arome</span></a> <span class="o">=</span> <a class="sphx-glr-backref-module-opendrift-readers-reader_netCDF_CF_generic sphx-glr-backref-type-py-class reference internal" href="../autoapi/opendrift/readers/reader_netCDF_CF_generic/index.html#opendrift.readers.reader_netCDF_CF_generic.Reader" title="opendrift.readers.reader_netCDF_CF_generic.Reader"><span class="n">reader_netCDF_CF_generic</span><span class="o">.</span><span class="n">Reader</span></a><span class="p">(</span><span class="s1">'</span><span class="s1">https://thredds.met.no/thredds/dodsC/mepslatest/meps_lagged_6_h_latest_2_5km_latest.nc</span><span class="s1">'</span><span class="p">)</span><span class="w">
+</span>    <a class="sphx-glr-backref-module-opendrift-readers-reader_netCDF_CF_generic sphx-glr-backref-type-py-class sphx-glr-backref-instance reference internal" href="../autoapi/opendrift/readers/reader_netCDF_CF_generic/index.html#opendrift.readers.reader_netCDF_CF_generic.Reader" title="opendrift.readers.reader_netCDF_CF_generic.Reader"><span class="n">reader_norkyst</span></a> <span class="o">=</span> <a class="sphx-glr-backref-module-opendrift-readers-reader_netCDF_CF_generic sphx-glr-backref-type-py-class reference internal" href="../autoapi/opendrift/readers/reader_netCDF_CF_generic/index.html#opendrift.readers.reader_netCDF_CF_generic.Reader" title="opendrift.readers.reader_netCDF_CF_generic.Reader"><span class="n">reader_netCDF_CF_generic</span><span class="o">.</span><span class="n">Reader</span></a><span class="p">(</span><span class="s1">'</span><span class="s1">https://thredds.met.no/thredds/dodsC/fou-hi/norkystv3_800m_m00_be</span><span class="s1">'</span><span class="p">)</span><span class="w">
+</span><span class="w">
+</span>    <a class="sphx-glr-backref-module-opendrift-models-basemodel sphx-glr-backref-type-py-method reference internal" href="../autoapi/opendrift/models/basemodel/index.html#opendrift.models.basemodel.OpenDriftSimulation.add_reader" title="opendrift.models.basemodel.OpenDriftSimulation.add_reader"><span class="n">o</span><span class="o">.</span><span class="n">add_reader</span></a><span class="p">(</span><span class="p">[</span><a class="sphx-glr-backref-module-opendrift-readers-reader_netCDF_CF_generic sphx-glr-backref-type-py-class sphx-glr-backref-instance reference internal" href="../autoapi/opendrift/readers/reader_netCDF_CF_generic/index.html#opendrift.readers.reader_netCDF_CF_generic.Reader" title="opendrift.readers.reader_netCDF_CF_generic.Reader"><span class="n">reader_norkyst</span></a><span class="p">,</span> <a class="sphx-glr-backref-module-opendrift-readers-reader_netCDF_CF_generic sphx-glr-backref-type-py-class sphx-glr-backref-instance reference internal" href="../autoapi/opendrift/readers/reader_netCDF_CF_generic/index.html#opendrift.readers.reader_netCDF_CF_generic.Reader" title="opendrift.readers.reader_netCDF_CF_generic.Reader"><span class="n">reader_arome</span></a><span class="p">]</span><span class="p">)</span><span class="w">
+</span><span class="w">
+</span>    <span class="c1"># Adjusting some configuration</span><span class="w">
+</span>    <span class="c1">#o.set_config('vertical_mixing:diffusivitymodel', 'windspeed_Sundby1983')</span><span class="w">
+</span><span class="w">
+</span>    <span class="c1"># Seed oil elements at defined position and time</span><span class="w">
+</span>    <a class="sphx-glr-backref-module-opendrift-models-openoil sphx-glr-backref-type-py-method reference internal" href="../autoapi/opendrift/models/openoil/index.html#opendrift.models.openoil.OpenOil.seed_elements" title="opendrift.models.openoil.OpenOil.seed_elements"><span class="n">o</span><span class="o">.</span><span class="n">seed_elements</span></a><span class="p">(</span><span class="n">lon</span><span class="o">=</span><span class="mf">4.9</span><span class="p">,</span> <span class="n">lat</span><span class="o">=</span><span class="mf">62.1</span><span class="p">,</span> <span class="n">z</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">radius</span><span class="o">=</span><span class="mi">1000</span><span class="p">,</span> <span class="n">number</span><span class="o">=</span><span class="mi">5000</span><span class="p">,</span><span class="w">
+</span>                    <span class="n">time</span><span class="o">=</span><a class="sphx-glr-backref-module-opendrift-readers-reader_netCDF_CF_generic sphx-glr-backref-type-py-class sphx-glr-backref-instance reference internal" href="../autoapi/opendrift/readers/reader_netCDF_CF_generic/index.html#opendrift.readers.reader_netCDF_CF_generic.Reader" title="opendrift.readers.reader_netCDF_CF_generic.Reader"><span class="n">reader_arome</span></a><span class="o">.</span><span class="n">start_time</span><span class="p">,</span> <span class="n">oil_type</span><span class="o">=</span><span class="s1">'</span><span class="s1">GENERIC DIESEL</span><span class="s1">'</span><span class="p">)</span><span class="w">
+</span><span class="w">
+</span>    <span class="c1"># Running model</span><span class="w">
+</span>    <a class="sphx-glr-backref-module-opendrift-models-basemodel sphx-glr-backref-type-py-method reference internal" href="../autoapi/opendrift/models/basemodel/index.html#opendrift.models.basemodel.OpenDriftSimulation.run" title="opendrift.models.basemodel.OpenDriftSimulation.run"><span class="n">o</span><span class="o">.</span><span class="n">run</span></a><span class="p">(</span><span class="n">end_time</span><span class="o">=</span><a class="sphx-glr-backref-module-opendrift-readers-reader_netCDF_CF_generic sphx-glr-backref-type-py-class sphx-glr-backref-instance reference internal" href="../autoapi/opendrift/readers/reader_netCDF_CF_generic/index.html#opendrift.readers.reader_netCDF_CF_generic.Reader" title="opendrift.readers.reader_netCDF_CF_generic.Reader"><span class="n">reader_arome</span></a><span class="o">.</span><span class="n">start_time</span> <span class="o">+</span> <span class="n">timedelta</span><span class="p">(</span><span class="n">hours</span><span class="o">=</span><span class="mi">12</span><span class="p">)</span><span class="p">,</span><span class="w">
+</span>          <span class="n">time_step</span><span class="o">=</span><span class="mi">900</span><span class="p">,</span> <span class="n">time_step_output</span><span class="o">=</span><span class="mi">1800</span><span class="p">,</span> <span class="n">outfile</span><span class="o">=</span><span class="n">ncfile</span><span class="p">)</span><span class="w">
+</span></pre></div></div>
+<div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>09:37:25 INFO    opendrift:569: OpenDriftSimulation initialised (version 1.14.11 / v1.14.12-26-g8782b63)
+09:37:25 INFO    opendrift.readers:67: Opening file with xr.open_dataset
+09:37:26 INFO    opendrift.readers.reader_netCDF_CF_generic:340: Detected dimensions: {'time': 'time', 'x': 'x', 'y': 'y'}
+09:37:26 INFO    opendrift.readers:67: Opening file with xr.open_dataset
+09:37:29 INFO    opendrift.readers.reader_netCDF_CF_generic:340: Detected dimensions: {'x': 'X', 'y': 'Y', 'z': 'depth', 'time': 'time'}
+09:37:29 INFO    opendrift.readers.basereader:175: Variable x_sea_water_velocity will be rotated from eastward_sea_water_velocity
+09:37:29 INFO    opendrift.readers.basereader:175: Variable y_sea_water_velocity will be rotated from northward_sea_water_velocity
+09:37:29 INFO    opendrift.readers.basereader:175: Variable x_wind will be rotated from eastward_wind
+09:37:29 INFO    opendrift.readers.basereader:175: Variable y_wind will be rotated from northward_wind
+09:37:29 INFO    opendrift.models.openoil.adios.dirjs:86: Querying ADIOS database for oil: GENERIC DIESEL
+09:37:29 INFO    opendrift.models.openoil.openoil:1731: Using density 855.84763 and viscosity 8.644570579524577e-06 of oiltype GENERIC DIESEL
+09:37:29 INFO    opendrift.models.basemodel.environment:203: Adding a global landmask from GSHHG
+09:37:35 INFO    opendrift.models.basemodel.environment:227: Fallback values will be used for the following variables which have no readers:
+09:37:35 INFO    opendrift.models.basemodel.environment:230:    sea_surface_wave_significant_height: 0.000000
+09:37:35 INFO    opendrift.models.basemodel.environment:230:    sea_surface_wave_stokes_drift_x_velocity: 0.000000
+09:37:35 INFO    opendrift.models.basemodel.environment:230:    sea_surface_wave_stokes_drift_y_velocity: 0.000000
+09:37:35 INFO    opendrift.models.basemodel.environment:230:    sea_surface_wave_period_at_variance_spectral_density_maximum: 0.000000
+09:37:35 INFO    opendrift.models.basemodel.environment:230:    sea_surface_wave_mean_period_from_variance_spectral_density_second_frequency_moment: 0.000000
+09:37:35 INFO    opendrift.models.basemodel.environment:230:    sea_ice_area_fraction: 0.000000
+09:37:35 INFO    opendrift.models.basemodel.environment:230:    sea_ice_x_velocity: 0.000000
+09:37:35 INFO    opendrift.models.basemodel.environment:230:    sea_ice_y_velocity: 0.000000
+09:37:35 INFO    opendrift.models.basemodel.environment:230:    horizontal_diffusivity: 0.000000
+09:37:35 INFO    opendrift.models.basemodel.environment:230:    ocean_mixed_layer_thickness: 50.000000
+09:37:35 INFO    opendrift:1910: Skipping environment variable upward_sea_water_velocity because of condition ['drift:vertical_advection', 'is', False]
+09:37:35 INFO    opendrift:1921: Storing previous values of element property lon because of condition (('general:coastline_action', 'in', ['stranding', 'previous']), 'or', ('general:seafloor_action', 'in', ['previous']))
+09:37:35 INFO    opendrift:1921: Storing previous values of element property lat because of condition (('general:coastline_action', 'in', ['stranding', 'previous']), 'or', ('general:seafloor_action', 'in', ['previous']))
+09:37:35 INFO    opendrift:958: Using existing reader for land_binary_mask to move elements to ocean
+09:37:35 INFO    opendrift:989: All points are in ocean
+09:37:35 INFO    opendrift.models.openoil.openoil:697: Oil-water surface tension is 0.030314 Nm
+09:37:35 INFO    opendrift.models.openoil.openoil:710: Max water fraction not available for GENERIC DIESEL, using default
+09:37:35 INFO    opendrift:2237: 2026-09-28 07:00:00 - step 1 of 48 - 5000 active elements (0 deactivated)
+09:37:38 INFO    opendrift:2237: 2026-09-28 07:15:00 - step 2 of 48 - 5000 active elements (0 deactivated)
+09:37:40 INFO    opendrift:2237: 2026-09-28 07:30:00 - step 3 of 48 - 5000 active elements (0 deactivated)
+09:37:40 INFO    opendrift:2237: 2026-09-28 07:45:00 - step 4 of 48 - 5000 active elements (0 deactivated)
+09:37:41 INFO    opendrift:2237: 2026-09-28 08:00:00 - step 5 of 48 - 5000 active elements (0 deactivated)
+09:37:41 INFO    opendrift:2237: 2026-09-28 08:15:00 - step 6 of 48 - 5000 active elements (0 deactivated)
+09:37:43 INFO    opendrift:2237: 2026-09-28 08:30:00 - step 7 of 48 - 5000 active elements (0 deactivated)
+09:37:43 INFO    opendrift:2237: 2026-09-28 08:45:00 - step 8 of 48 - 5000 active elements (0 deactivated)
+09:37:43 INFO    opendrift:2237: 2026-09-28 09:00:00 - step 9 of 48 - 5000 active elements (0 deactivated)
+09:37:43 INFO    opendrift:2237: 2026-09-28 09:15:00 - step 10 of 48 - 5000 active elements (0 deactivated)
+09:37:45 INFO    opendrift:2237: 2026-09-28 09:30:00 - step 11 of 48 - 5000 active elements (0 deactivated)
+09:37:45 INFO    opendrift:2237: 2026-09-28 09:45:00 - step 12 of 48 - 5000 active elements (0 deactivated)
+09:37:45 INFO    opendrift:2237: 2026-09-28 10:00:00 - step 13 of 48 - 5000 active elements (0 deactivated)
+09:37:46 INFO    opendrift:2237: 2026-09-28 10:15:00 - step 14 of 48 - 5000 active elements (0 deactivated)
+09:37:48 INFO    opendrift:2237: 2026-09-28 10:30:00 - step 15 of 48 - 5000 active elements (0 deactivated)
+09:37:48 INFO    opendrift:2237: 2026-09-28 10:45:00 - step 16 of 48 - 5000 active elements (0 deactivated)
+09:37:48 INFO    opendrift:2237: 2026-09-28 11:00:00 - step 17 of 48 - 5000 active elements (0 deactivated)
+09:37:48 INFO    opendrift:2237: 2026-09-28 11:15:00 - step 18 of 48 - 5000 active elements (0 deactivated)
+09:37:50 INFO    opendrift:2237: 2026-09-28 11:30:00 - step 19 of 48 - 5000 active elements (0 deactivated)
+09:37:50 INFO    opendrift:2237: 2026-09-28 11:45:00 - step 20 of 48 - 5000 active elements (0 deactivated)
+09:37:51 INFO    opendrift:2237: 2026-09-28 12:00:00 - step 21 of 48 - 5000 active elements (0 deactivated)
+09:37:51 INFO    opendrift:2237: 2026-09-28 12:15:00 - step 22 of 48 - 5000 active elements (0 deactivated)
+09:37:53 INFO    opendrift:2237: 2026-09-28 12:30:00 - step 23 of 48 - 5000 active elements (0 deactivated)
+09:37:53 INFO    opendrift:2237: 2026-09-28 12:45:00 - step 24 of 48 - 5000 active elements (0 deactivated)
+09:37:53 INFO    opendrift:2237: 2026-09-28 13:00:00 - step 25 of 48 - 5000 active elements (0 deactivated)
+09:37:54 INFO    opendrift:2237: 2026-09-28 13:15:00 - step 26 of 48 - 5000 active elements (0 deactivated)
+09:37:56 INFO    opendrift:2237: 2026-09-28 13:30:00 - step 27 of 48 - 5000 active elements (0 deactivated)
+09:37:56 INFO    opendrift:2237: 2026-09-28 13:45:00 - step 28 of 48 - 5000 active elements (0 deactivated)
+09:37:56 INFO    opendrift:2237: 2026-09-28 14:00:00 - step 29 of 48 - 5000 active elements (0 deactivated)
+09:37:56 INFO    opendrift:2237: 2026-09-28 14:15:00 - step 30 of 48 - 5000 active elements (0 deactivated)
+09:37:58 INFO    opendrift:2237: 2026-09-28 14:30:00 - step 31 of 48 - 5000 active elements (0 deactivated)
+09:37:58 INFO    opendrift:2237: 2026-09-28 14:45:00 - step 32 of 48 - 5000 active elements (0 deactivated)
+09:37:58 INFO    opendrift:2237: 2026-09-28 15:00:00 - step 33 of 48 - 5000 active elements (0 deactivated)
+09:37:59 INFO    opendrift:2237: 2026-09-28 15:15:00 - step 34 of 48 - 5000 active elements (0 deactivated)
+09:38:01 INFO    opendrift:2237: 2026-09-28 15:30:00 - step 35 of 48 - 5000 active elements (0 deactivated)
+09:38:01 INFO    opendrift:2237: 2026-09-28 15:45:00 - step 36 of 48 - 5000 active elements (0 deactivated)
+09:38:02 INFO    opendrift:2237: 2026-09-28 16:00:00 - step 37 of 48 - 5000 active elements (0 deactivated)
+09:38:02 INFO    opendrift:2237: 2026-09-28 16:15:00 - step 38 of 48 - 5000 active elements (0 deactivated)
+09:38:04 INFO    opendrift:2237: 2026-09-28 16:30:00 - step 39 of 48 - 5000 active elements (0 deactivated)
+09:38:04 INFO    opendrift:2237: 2026-09-28 16:45:00 - step 40 of 48 - 5000 active elements (0 deactivated)
+09:38:04 INFO    opendrift:2237: 2026-09-28 17:00:00 - step 41 of 48 - 5000 active elements (0 deactivated)
+09:38:05 INFO    opendrift:2237: 2026-09-28 17:15:00 - step 42 of 48 - 5000 active elements (0 deactivated)
+09:38:06 INFO    opendrift:2237: 2026-09-28 17:30:00 - step 43 of 48 - 5000 active elements (0 deactivated)
+09:38:07 INFO    opendrift:2237: 2026-09-28 17:45:00 - step 44 of 48 - 5000 active elements (0 deactivated)
+09:38:07 INFO    opendrift:2237: 2026-09-28 18:00:00 - step 45 of 48 - 5000 active elements (0 deactivated)
+09:38:07 INFO    opendrift:2237: 2026-09-28 18:15:00 - step 46 of 48 - 5000 active elements (0 deactivated)
+09:38:09 INFO    opendrift:2237: 2026-09-28 18:30:00 - step 47 of 48 - 5000 active elements (0 deactivated)
+09:38:09 INFO    opendrift:2237: 2026-09-28 18:45:00 - step 48 of 48 - 5000 active elements (0 deactivated)
 </pre></div>
 </div>
 <p>Print and plot results</p>
-<div class="highlight-Python notranslate"><div class="highlight"><pre><span></span><span class="nb">print</span><span class="p">(</span><span class="n">o</span><span class="p">)</span>
-
-<span class="n">o</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">linecolor</span><span class="o">=</span><span class="s1">'z'</span><span class="p">,</span> <span class="n">fast</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
-<span class="n">o</span><span class="o">.</span><span class="n">plot_property</span><span class="p">(</span><span class="s1">'z'</span><span class="p">)</span>
-<span class="n">o</span><span class="o">.</span><span class="n">plot_oil_budget</span><span class="p">()</span>
-<span class="n">o</span><span class="o">.</span><span class="n">animation</span><span class="p">(</span><span class="n">fast</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
-<span class="n">o</span><span class="o">.</span><span class="n">animate_vertical_distribution</span><span class="p">()</span>
-
-<span class="n">os</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="n">ncfile</span><span class="p">)</span>  <span class="c1"># cleaning up</span>
-</pre></div>
-</div>
+<div class="highlight-Python notranslate"><div class="highlight"><pre><span class="nb">print</span><span class="p">(</span><a class="sphx-glr-backref-module-opendrift-models-openoil sphx-glr-backref-type-py-class sphx-glr-backref-instance reference internal" href="../autoapi/opendrift/models/openoil/index.html#opendrift.models.openoil.OpenOil" title="opendrift.models.openoil.OpenOil"><span class="n">o</span></a><span class="p">)</span><span class="w">
+</span><span class="w">
+</span><a class="sphx-glr-backref-module-opendrift-models-basemodel sphx-glr-backref-type-py-method reference internal" href="../autoapi/opendrift/models/basemodel/index.html#opendrift.models.basemodel.OpenDriftSimulation.plot" title="opendrift.models.basemodel.OpenDriftSimulation.plot"><span class="n">o</span><span class="o">.</span><span class="n">plot</span></a><span class="p">(</span><span class="n">linecolor</span><span class="o">=</span><span class="s1">'</span><span class="s1">z</span><span class="s1">'</span><span class="p">,</span> <span class="n">fast</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span><span class="w">
+</span><a class="sphx-glr-backref-module-opendrift-models-basemodel sphx-glr-backref-type-py-method reference internal" href="../autoapi/opendrift/models/basemodel/index.html#opendrift.models.basemodel.OpenDriftSimulation.plot_property" title="opendrift.models.basemodel.OpenDriftSimulation.plot_property"><span class="n">o</span><span class="o">.</span><span class="n">plot_property</span></a><span class="p">(</span><span class="s1">'</span><span class="s1">z</span><span class="s1">'</span><span class="p">)</span><span class="w">
+</span><a class="sphx-glr-backref-module-opendrift-models-openoil sphx-glr-backref-type-py-method reference internal" href="../autoapi/opendrift/models/openoil/index.html#opendrift.models.openoil.OpenOil.plot_oil_budget" title="opendrift.models.openoil.OpenOil.plot_oil_budget"><span class="n">o</span><span class="o">.</span><span class="n">plot_oil_budget</span></a><span class="p">(</span><span class="p">)</span><span class="w">
+</span><a class="sphx-glr-backref-module-opendrift-models-basemodel sphx-glr-backref-type-py-method reference internal" href="../autoapi/opendrift/models/basemodel/index.html#opendrift.models.basemodel.OpenDriftSimulation.animation" title="opendrift.models.basemodel.OpenDriftSimulation.animation"><span class="n">o</span><span class="o">.</span><span class="n">animation</span></a><span class="p">(</span><span class="n">fast</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span><span class="w">
+</span><a class="sphx-glr-backref-module-opendrift-models-oceandrift sphx-glr-backref-type-py-method reference internal" href="../autoapi/opendrift/models/oceandrift/index.html#opendrift.models.oceandrift.OceanDrift.animate_vertical_distribution" title="opendrift.models.oceandrift.OceanDrift.animate_vertical_distribution"><span class="n">o</span><span class="o">.</span><span class="n">animate_vertical_distribution</span></a><span class="p">(</span><span class="p">)</span><span class="w">
+</span><span class="w">
+</span><span class="n">os</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="n">ncfile</span><span class="p">)</span>  <span class="c1"># cleaning up</span><span class="w">
+</span></pre></div></div>
 <ul class="sphx-glr-horizontal">
-<li><img src="../_images/sphx_glr_example_oil_verticalmixing_001.png" srcset="../_images/sphx_glr_example_oil_verticalmixing_001.png" alt="OpenDrift - OpenOil (GENERIC DIESEL) 2026-09-10 12:00 to 2026-09-11 00:00 UTC (25 steps)" class = "sphx-glr-multi-img"/></li>
+<li><img src="../_images/sphx_glr_example_oil_verticalmixing_001.png" srcset="../_images/sphx_glr_example_oil_verticalmixing_001.png" alt="OpenDrift - OpenOil (GENERIC DIESEL) 2026-09-28 07:00 to 2026-09-28 19:00 UTC (25 steps)" class = "sphx-glr-multi-img"/></li>
 <li><img src="../_images/sphx_glr_example_oil_verticalmixing_002.png" srcset="../_images/sphx_glr_example_oil_verticalmixing_002.png" alt="z" class = "sphx-glr-multi-img"/></li>
-<li><img src="../_images/sphx_glr_example_oil_verticalmixing_003.png" srcset="../_images/sphx_glr_example_oil_verticalmixing_003.png" alt="GENERIC DIESEL (855.8 kg/m3) - 2026-09-10 12:00 to 2026-09-11 00:00" class = "sphx-glr-multi-img"/></li>
+<li><img src="../_images/sphx_glr_example_oil_verticalmixing_003.png" srcset="../_images/sphx_glr_example_oil_verticalmixing_003.png" alt="GENERIC DIESEL (855.8 kg/m3) - 2026-09-28 07:00 to 2026-09-28 19:00" class = "sphx-glr-multi-img"/></li>
 </ul>
 <div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>===========================
 --------------------
 Reader performance:
 --------------------
 https://thredds.met.no/thredds/dodsC/fou-hi/norkystv3_800m_m00_be
- 0:00:23.3  total
+ 0:00:27.7  total
  0:00:00.0  preparing
- 0:00:22.4  reading
- 0:00:02.3  interpolation
+ 0:00:26.9  reading
+ 0:00:02.1  interpolation
  0:00:00.0  interpolation_time
  0:00:00.8  rotating vectors
  0:00:00.0  masking
@@ -361,19 +359,19 @@ global_landmask
  0:00:00.0  masking
 --------------------
 Performance:
-   40.9 total time
-   11.1 configuration
+   44.1 total time
+   10.3 configuration
     0.0 preparing main loop
       0.0 moving elements to ocean
-   29.8 main loop
-      3.7 updating elements
-        0.7 oil weathering
+   33.8 main loop
+      3.2 updating elements
+        0.4 oil weathering
           0.0 updating viscosities
           0.0 updating densities
-          0.7 evaporation
+          0.3 evaporation
           0.0 emulsification
           0.0 dispersion
-        2.5 vertical mixing
+        2.4 vertical mixing
     0.0 cleaning up
 --------------------
 ===========================
@@ -414,23 +412,23 @@ Readers not added for the following variables:
 Discarded readers:
 
 Time:
-        Start: 2026-09-10 12:00:00 UTC
-        Present: 2026-09-11 00:00:00 UTC
+        Start: 2026-09-28 07:00:00 UTC
+        Present: 2026-09-28 19:00:00 UTC
         Calculation steps: 48 * 0:15:00 - total time: 12:00:00
         Output steps: 25 * 0:30:00
 ===========================
 
-13:59:45 WARNING opendrift:2613: Plotting fast. This will make your plots less accurate.
-14:00:57 WARNING opendrift:2613: Plotting fast. This will make your plots less accurate.
-14:00:58 INFO    opendrift:4823: Saving animation to /root/project/docs/source/gallery/animations/example_oil_verticalmixing_0.gif...
-14:01:07 INFO    opendrift:3241: Time to make animation: 0:00:09.855414
-14:01:07 INFO    opendrift:4823: Saving animation to /root/project/docs/source/gallery/animations/example_oil_verticalmixing_1.gif...
-14:01:13 INFO    opendrift.models.oceandrift:644: Time to make animation: 0:00:06.379839
+09:38:11 WARNING opendrift:2613: Plotting fast. This will make your plots less accurate.
+09:39:09 WARNING opendrift:2613: Plotting fast. This will make your plots less accurate.
+09:39:11 INFO    opendrift:4823: Saving animation to /root/project/docs/source/gallery/animations/example_oil_verticalmixing_0.gif...
+09:39:19 INFO    opendrift:3241: Time to make animation: 0:00:09.726151
+09:39:19 INFO    opendrift:4823: Saving animation to /root/project/docs/source/gallery/animations/example_oil_verticalmixing_1.gif...
+09:39:24 INFO    opendrift.models.oceandrift:644: Time to make animation: 0:00:05.792099
 </pre></div>
 </div>
 <img alt="../_images/example_oil_verticalmixing_0.gif" src="../_images/example_oil_verticalmixing_0.gif" />
 <img alt="../_images/example_oil_verticalmixing_1.gif" src="../_images/example_oil_verticalmixing_1.gif" />
-<p class="sphx-glr-timing"><strong>Total running time of the script:</strong> (2 minutes 29.810 seconds)</p>
+<p class="sphx-glr-timing"><strong>Total running time of the script:</strong> (2 minutes 16.256 seconds)</p>
 <div class="sphx-glr-footer sphx-glr-footer-example docutils container" id="sphx-glr-download-gallery-example-oil-verticalmixing-py">
 <div class="sphx-glr-download sphx-glr-download-jupyter docutils container">
 <p><a class="reference download internal" download="" href="../_downloads/0bb1828d1f8a83156cdd5b8df3b17496/example_oil_verticalmixing.ipynb"><code class="xref download docutils literal notranslate"><span class="pre">Download</span> <span class="pre">Jupyter</span> <span class="pre">notebook:</span> <span class="pre">example_oil_verticalmixing.ipynb</span></code></a></p>
