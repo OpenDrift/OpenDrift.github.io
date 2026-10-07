@@ -3436,6 +3436,11 @@
                                               <span class="n">transform</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">crs_lonlat</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
             <span class="n">plt</span><span class="o">.</span><span class="n">legend</span><span class="p">()</span>
 
+        <span class="c1"># Set the (two-line) title now, so that tight layout reserves space for it</span>
+        <span class="n">_title</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_figure_title</span><span class="p">()</span> <span class="k">if</span> <span class="n">title</span> <span class="o">==</span> <span class="s1">'auto'</span> <span class="k">else</span> <span class="n">title</span>
+        <span class="n">ax</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="s1">'</span><span class="si">%s</span><span class="se">\n</span><span class="si">%s</span><span class="s1"> UTC'</span> <span class="o">%</span> <span class="p">(</span><span class="n">_title</span><span class="p">,</span>
+                     <span class="n">np</span><span class="o">.</span><span class="n">datetime_as_string</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">result</span><span class="o">.</span><span class="n">time</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">unit</span><span class="o">=</span><span class="s1">'s'</span><span class="p">)))</span>
+
         <span class="n">fig</span><span class="o">.</span><span class="n">canvas</span><span class="o">.</span><span class="n">draw</span><span class="p">()</span>
         <span class="n">fig</span><span class="o">.</span><span class="n">set_layout_engine</span><span class="p">(</span><span class="s1">'tight'</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">colorbar</span> <span class="ow">is</span> <span class="kc">True</span><span class="p">:</span>
@@ -3467,6 +3472,24 @@
                               <span class="n">shrink</span><span class="o">=</span><span class="mf">.8</span><span class="p">,</span>
                               <span class="n">drawedges</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
             <span class="n">cb</span><span class="o">.</span><span class="n">set_label</span><span class="p">(</span><span class="n">clabel</span><span class="p">)</span>
+
+        <span class="c1"># Crop figure exactly to its content (map + labels + title + colorbar)</span>
+        <span class="n">pad_inches</span> <span class="o">=</span> <span class="mf">0.15</span>
+        <span class="n">fig</span><span class="o">.</span><span class="n">set_layout_engine</span><span class="p">(</span><span class="s1">'none'</span><span class="p">)</span>
+        <span class="n">fig</span><span class="o">.</span><span class="n">canvas</span><span class="o">.</span><span class="n">draw</span><span class="p">()</span>
+        <span class="k">for</span> <span class="n">a</span> <span class="ow">in</span> <span class="n">fig</span><span class="o">.</span><span class="n">axes</span><span class="p">:</span>
+            <span class="n">a</span><span class="o">.</span><span class="n">apply_aspect</span><span class="p">()</span>  <span class="c1"># make positions reflect the fixed map aspect</span>
+        <span class="n">bb</span> <span class="o">=</span> <span class="n">fig</span><span class="o">.</span><span class="n">get_tightbbox</span><span class="p">(</span><span class="n">fig</span><span class="o">.</span><span class="n">canvas</span><span class="o">.</span><span class="n">get_renderer</span><span class="p">())</span>  <span class="c1"># inches</span>
+        <span class="n">W</span><span class="p">,</span> <span class="n">HE</span> <span class="o">=</span> <span class="n">fig</span><span class="o">.</span><span class="n">get_size_inches</span><span class="p">()</span>
+        <span class="n">newW</span><span class="p">,</span> <span class="n">newH</span> <span class="o">=</span> <span class="n">bb</span><span class="o">.</span><span class="n">width</span> <span class="o">+</span> <span class="mi">2</span><span class="o">*</span><span class="n">pad_inches</span><span class="p">,</span> <span class="n">bb</span><span class="o">.</span><span class="n">height</span> <span class="o">+</span> <span class="mi">2</span><span class="o">*</span><span class="n">pad_inches</span>
+        <span class="k">for</span> <span class="n">a</span> <span class="ow">in</span> <span class="n">fig</span><span class="o">.</span><span class="n">axes</span><span class="p">:</span>
+            <span class="n">p</span> <span class="o">=</span> <span class="n">a</span><span class="o">.</span><span class="n">get_position</span><span class="p">()</span>
+            <span class="n">a</span><span class="o">.</span><span class="n">set_position</span><span class="p">([(</span><span class="n">p</span><span class="o">.</span><span class="n">x0</span><span class="o">*</span><span class="n">W</span> <span class="o">-</span> <span class="n">bb</span><span class="o">.</span><span class="n">x0</span> <span class="o">+</span> <span class="n">pad_inches</span><span class="p">)</span> <span class="o">/</span> <span class="n">newW</span><span class="p">,</span>
+                            <span class="p">(</span><span class="n">p</span><span class="o">.</span><span class="n">y0</span><span class="o">*</span><span class="n">HE</span> <span class="o">-</span> <span class="n">bb</span><span class="o">.</span><span class="n">y0</span> <span class="o">+</span> <span class="n">pad_inches</span><span class="p">)</span> <span class="o">/</span> <span class="n">newH</span><span class="p">,</span>
+                            <span class="n">p</span><span class="o">.</span><span class="n">width</span><span class="o">*</span><span class="n">W</span><span class="o">/</span><span class="n">newW</span><span class="p">,</span>
+                            <span class="n">p</span><span class="o">.</span><span class="n">height</span><span class="o">*</span><span class="n">HE</span><span class="o">/</span><span class="n">newH</span><span class="p">],</span> <span class="n">which</span><span class="o">=</span><span class="s1">'both'</span><span class="p">)</span>
+        <span class="n">fig</span><span class="o">.</span><span class="n">set_size_inches</span><span class="p">(</span><span class="n">newW</span><span class="p">,</span> <span class="n">newH</span><span class="p">)</span>
+        <span class="n">fig</span><span class="o">.</span><span class="n">canvas</span><span class="o">.</span><span class="n">draw</span><span class="p">()</span>
 
         <span class="n">frames</span> <span class="o">=</span> <span class="n">x</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="k">if</span> <span class="n">frames</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">frames</span>
 
