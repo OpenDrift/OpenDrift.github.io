@@ -1938,25 +1938,29 @@
             <span class="n">kwargs</span><span class="p">[</span><span class="s1">'density'</span><span class="p">]</span> <span class="o">=</span> <span class="n">oil_density</span>
             <span class="n">kwargs</span><span class="p">[</span><span class="s1">'viscosity'</span><span class="p">]</span> <span class="o">=</span> <span class="n">oil_viscosity</span>
 
-        <span class="k">if</span> <span class="s1">'m3_per_hour'</span> <span class="ow">in</span> <span class="n">kwargs</span><span class="p">:</span>
-            <span class="n">m3_per_hour</span> <span class="o">=</span> <span class="n">kwargs</span><span class="p">[</span><span class="s1">'m3_per_hour'</span><span class="p">]</span>
-            <span class="k">del</span> <span class="n">kwargs</span><span class="p">[</span><span class="s1">'m3_per_hour'</span><span class="p">]</span>
-        <span class="k">else</span><span class="p">:</span>
-            <span class="n">m3_per_hour</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_config</span><span class="p">(</span><span class="s1">'seed:m3_per_hour'</span><span class="p">)</span>
+        <span class="k">if</span> <span class="s1">'m3_per_hour'</span> <span class="ow">in</span> <span class="n">kwargs</span> <span class="ow">and</span> <span class="s1">'mass_oil'</span> <span class="ow">in</span> <span class="n">kwargs</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">'Please specify only one of m3_per_hour (total) or mass_oil (per element)'</span><span class="p">)</span>
 
-        <span class="k">if</span> <span class="s1">'number'</span> <span class="ow">in</span> <span class="n">kwargs</span><span class="p">:</span>
-            <span class="n">num_elements</span> <span class="o">=</span> <span class="n">kwargs</span><span class="p">[</span><span class="s1">'number'</span><span class="p">]</span>
-        <span class="k">else</span><span class="p">:</span>
-            <span class="n">num_elements</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_config</span><span class="p">(</span><span class="s1">'seed:number'</span><span class="p">)</span>
-        <span class="n">time</span> <span class="o">=</span> <span class="n">kwargs</span><span class="p">[</span><span class="s1">'time'</span><span class="p">]</span>
-        <span class="k">if</span> <span class="nb">type</span><span class="p">(</span><span class="n">time</span><span class="p">)</span> <span class="ow">is</span> <span class="nb">list</span><span class="p">:</span>
-            <span class="n">duration_hours</span> <span class="o">=</span> <span class="p">((</span><span class="n">time</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">-</span> <span class="n">time</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span><span class="o">.</span><span class="n">total_seconds</span><span class="p">())</span> <span class="o">/</span> <span class="mi">3600</span>
-            <span class="k">if</span> <span class="n">duration_hours</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
-                <span class="n">duration_hours</span> <span class="o">=</span> <span class="mf">1.</span>
-        <span class="k">else</span><span class="p">:</span>
-            <span class="n">duration_hours</span> <span class="o">=</span> <span class="mf">1.</span>  <span class="c1"># For instantaneous spill, we use 1h</span>
-        <span class="n">kwargs</span><span class="p">[</span><span class="s1">'mass_oil'</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="n">m3_per_hour</span> <span class="o">*</span> <span class="n">duration_hours</span> <span class="o">/</span> <span class="n">num_elements</span> <span class="o">*</span>
-                              <span class="n">kwargs</span><span class="p">[</span><span class="s1">'density'</span><span class="p">])</span>
+        <span class="k">if</span> <span class="s1">'mass_oil'</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">kwargs</span><span class="p">:</span>
+            <span class="k">if</span> <span class="s1">'m3_per_hour'</span> <span class="ow">in</span> <span class="n">kwargs</span><span class="p">:</span>
+                <span class="n">m3_per_hour</span> <span class="o">=</span> <span class="n">kwargs</span><span class="p">[</span><span class="s1">'m3_per_hour'</span><span class="p">]</span>
+                <span class="k">del</span> <span class="n">kwargs</span><span class="p">[</span><span class="s1">'m3_per_hour'</span><span class="p">]</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">m3_per_hour</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_config</span><span class="p">(</span><span class="s1">'seed:m3_per_hour'</span><span class="p">)</span>
+
+            <span class="k">if</span> <span class="s1">'number'</span> <span class="ow">in</span> <span class="n">kwargs</span><span class="p">:</span>
+                <span class="n">num_elements</span> <span class="o">=</span> <span class="n">kwargs</span><span class="p">[</span><span class="s1">'number'</span><span class="p">]</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">num_elements</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_config</span><span class="p">(</span><span class="s1">'seed:number'</span><span class="p">)</span>
+            <span class="n">time</span> <span class="o">=</span> <span class="n">kwargs</span><span class="p">[</span><span class="s1">'time'</span><span class="p">]</span>
+            <span class="k">if</span> <span class="nb">type</span><span class="p">(</span><span class="n">time</span><span class="p">)</span> <span class="ow">is</span> <span class="nb">list</span><span class="p">:</span>
+                <span class="n">duration_hours</span> <span class="o">=</span> <span class="p">((</span><span class="n">time</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">-</span> <span class="n">time</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span><span class="o">.</span><span class="n">total_seconds</span><span class="p">())</span> <span class="o">/</span> <span class="mi">3600</span>
+                <span class="k">if</span> <span class="n">duration_hours</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+                    <span class="n">duration_hours</span> <span class="o">=</span> <span class="mf">1.</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">duration_hours</span> <span class="o">=</span> <span class="mf">1.</span>  <span class="c1"># For instantaneous spill, we use 1h</span>
+            <span class="n">kwargs</span><span class="p">[</span><span class="s1">'mass_oil'</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="n">m3_per_hour</span> <span class="o">*</span> <span class="n">duration_hours</span> <span class="o">/</span> <span class="n">num_elements</span> <span class="o">*</span>
+                                  <span class="n">kwargs</span><span class="p">[</span><span class="s1">'density'</span><span class="p">])</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">store_oil_seed_metadata</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
 
