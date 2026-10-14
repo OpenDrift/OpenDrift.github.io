@@ -583,15 +583,14 @@
                         <span class="s1">'Simulation has no simulation_extent, cannot check reader coverage'</span>
                     <span class="p">)</span>
                     <span class="k">return</span> <span class="kc">False</span>
-                <span class="c1"># TODO</span>
-                <span class="c1"># need a better coverage/overlap check below</span>
-                <span class="n">corners</span> <span class="o">=</span> <span class="n">reader</span><span class="o">.</span><span class="n">xy2lonlat</span><span class="p">(</span>
-                    <span class="p">[</span><span class="n">reader</span><span class="o">.</span><span class="n">xmin</span><span class="p">,</span> <span class="n">reader</span><span class="o">.</span><span class="n">xmin</span><span class="p">,</span> <span class="n">reader</span><span class="o">.</span><span class="n">xmax</span><span class="p">,</span> <span class="n">reader</span><span class="o">.</span><span class="n">xmax</span><span class="p">],</span>
-                    <span class="p">[</span><span class="n">reader</span><span class="o">.</span><span class="n">ymax</span><span class="p">,</span> <span class="n">reader</span><span class="o">.</span><span class="n">ymin</span><span class="p">,</span> <span class="n">reader</span><span class="o">.</span><span class="n">ymax</span><span class="p">,</span> <span class="n">reader</span><span class="o">.</span><span class="n">ymin</span><span class="p">])</span>
-                <span class="n">rlonmin</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">min</span><span class="p">(</span><span class="n">corners</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
-                <span class="n">rlonmax</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="n">corners</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
-                <span class="n">rlatmin</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">min</span><span class="p">(</span><span class="n">corners</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
-                <span class="n">rlatmax</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="n">corners</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
+                <span class="c1"># NOTE: A better overlap test has been implemented</span>
+                <span class="n">bbox</span> <span class="o">=</span> <span class="n">reader</span><span class="o">.</span><span class="n">lonlat_bounds</span><span class="p">()</span>
+                <span class="n">rlonmin</span> <span class="o">=</span> <span class="n">bbox</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+                <span class="n">rlonmax</span> <span class="o">=</span> <span class="n">bbox</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span>
+                <span class="n">rlatmin</span> <span class="o">=</span> <span class="n">bbox</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+                <span class="n">rlatmax</span> <span class="o">=</span> <span class="n">bbox</span><span class="p">[</span><span class="mi">3</span><span class="p">]</span>
+                <span class="c1"># This seems like a fix e.g. for TOPAZ5</span>
+                <span class="c1"># TODO: We might handle the case of a dataset which covers the pole(s) in lonlat_bounds as well</span>
                 <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span>
                         <span class="n">reader</span><span class="p">,</span> <span class="s1">'proj4'</span>
                 <span class="p">)</span> <span class="ow">and</span> <span class="s1">'stere'</span> <span class="ow">in</span> <span class="n">reader</span><span class="o">.</span><span class="n">proj4</span> <span class="ow">and</span> <span class="s1">'lat_0=90'</span> <span class="ow">in</span> <span class="n">reader</span><span class="o">.</span><span class="n">proj4</span><span class="p">:</span>
