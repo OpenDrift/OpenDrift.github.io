@@ -922,6 +922,28 @@
                     <span class="n">factor</span><span class="o">*</span><span class="n">ice_velocity_y</span><span class="p">)</span></div>
 
 
+<div class="viewcode-block" id="PhysicsMethods._rotate_wind_components">
+<a class="viewcode-back" href="../../../autoapi/opendrift/models/physics_methods/index.html#opendrift.models.basemodel.PhysicsMethods._rotate_wind_components">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_rotate_wind_components</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x_wind</span><span class="p">,</span> <span class="n">y_wind</span><span class="p">,</span> <span class="n">angle_degrees</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">"""Rotate wind vectors clockwise by an angle (scalar or one per element).</span>
+
+<span class="sd">        A positive angle turns the wind to the right of its direction, and a</span>
+<span class="sd">        negative angle to the left, independent of hemisphere. The wind speed</span>
+<span class="sd">        is not changed by the rotation. Clockwise rotation matrix:</span>
+
+<span class="sd">            [x_rotated]   [ cos(theta)   sin(theta)] [x_wind]</span>
+<span class="sd">            [y_rotated] = [-sin(theta)   cos(theta)] [y_wind]</span>
+<span class="sd">        """</span>
+        <span class="n">angle_radians</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">radians</span><span class="p">(</span><span class="n">angle_degrees</span><span class="p">)</span>
+        <span class="n">cosine_of_angle</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">cos</span><span class="p">(</span><span class="n">angle_radians</span><span class="p">)</span>
+        <span class="n">sine_of_angle</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="n">angle_radians</span><span class="p">)</span>
+        <span class="c1"># Both new components must be calculated from the original</span>
+        <span class="c1"># velocity components, so that neither is overwritten before it is used again.</span>
+        <span class="n">rotated_x_wind</span> <span class="o">=</span> <span class="n">x_wind</span> <span class="o">*</span> <span class="n">cosine_of_angle</span> <span class="o">+</span> <span class="n">y_wind</span> <span class="o">*</span> <span class="n">sine_of_angle</span>
+        <span class="n">rotated_y_wind</span> <span class="o">=</span> <span class="o">-</span><span class="n">x_wind</span> <span class="o">*</span> <span class="n">sine_of_angle</span> <span class="o">+</span> <span class="n">y_wind</span> <span class="o">*</span> <span class="n">cosine_of_angle</span>
+        <span class="k">return</span> <span class="n">rotated_x_wind</span><span class="p">,</span> <span class="n">rotated_y_wind</span></div>
+
+
 <div class="viewcode-block" id="PhysicsMethods.advect_wind">
 <a class="viewcode-back" href="../../../autoapi/opendrift/models/physics_methods/index.html#opendrift.models.basemodel.PhysicsMethods.advect_wind">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">advect_wind</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">factor</span><span class="o">=</span><span class="mi">1</span><span class="p">):</span>
@@ -1002,6 +1024,13 @@
                           <span class="o">%</span> <span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">surface</span><span class="p">),</span> <span class="bp">self</span><span class="o">.</span><span class="n">num_elements_active</span><span class="p">(),</span>
                              <span class="n">wind_drift_depth</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span>
                              <span class="n">speed</span><span class="o">.</span><span class="n">min</span><span class="p">(),</span> <span class="n">speed</span><span class="o">.</span><span class="n">max</span><span class="p">()))</span>
+
+        <span class="n">wind_drift_angle</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_config</span><span class="p">(</span><span class="s1">'drift:wind_drift_angle'</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">wind_drift_angle</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="c1"># Rotate only the local copies of the wind, so that other</span>
+            <span class="c1"># processes reading self.environment are not affected</span>
+            <span class="n">x_wind</span><span class="p">,</span> <span class="n">y_wind</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_rotate_wind_components</span><span class="p">(</span>
+                <span class="n">x_wind</span><span class="p">,</span> <span class="n">y_wind</span><span class="p">,</span> <span class="n">wind_drift_angle</span><span class="p">)</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">update_positions</span><span class="p">(</span><span class="n">x_wind</span><span class="o">*</span><span class="n">wdf</span><span class="o">*</span><span class="n">factor</span><span class="p">,</span> <span class="n">y_wind</span><span class="o">*</span><span class="n">wdf</span><span class="o">*</span><span class="n">factor</span><span class="p">)</span></div>
 
