@@ -149,6 +149,9 @@
 <span class="sd">        :param interpolator_filename: If save_interpolator is True, user can input this string to control where interpolator is saved.</span>
 <span class="sd">        :type interpolator_filename: Path, str, optional</span>
 
+<span class="sd">        :param destagger_velocity: Average u/v from their staggered grid points onto the rho grid.</span>
+<span class="sd">        :type destagger_velocity: bool</span>
+
 <span class="sd">    Example:</span>
 
 <span class="sd">    .. code::</span>
@@ -183,8 +186,10 @@
     <span class="n">zero_velocity_on_land</span> <span class="o">=</span> <span class="kc">False</span>
 
     <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">filename</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">gridfile</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">standard_name_mapping</span><span class="o">=</span><span class="p">{},</span>
-                 <span class="n">save_interpolator</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">interpolator_filename</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+                 <span class="n">save_interpolator</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">interpolator_filename</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                 <span class="n">destagger_velocity</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
         
+        <span class="bp">self</span><span class="o">.</span><span class="n">destagger_velocity</span> <span class="o">=</span> <span class="n">destagger_velocity</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_mask_rho</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_mask_u</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_mask_v</span> <span class="o">=</span> <span class="kc">None</span>
@@ -556,6 +561,53 @@
         <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s1">'Time: '</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">datetime</span><span class="o">.</span><span class="n">now</span><span class="p">()</span> <span class="o">-</span> <span class="n">starttime</span><span class="p">))</span></div>
 
 
+<div class="viewcode-block" id="Reader._destagger_velocity_component">
+<a class="viewcode-back" href="../../../autoapi/opendrift/readers/reader_ROMS_native/index.html#opendrift.readers.reader_ROMS_native.Reader._destagger_velocity_component">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_destagger_velocity_component</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">par</span><span class="p">,</span> <span class="n">indxTime</span><span class="p">,</span> <span class="n">indy</span><span class="p">,</span> <span class="n">indx</span><span class="p">,</span> <span class="n">inds</span><span class="p">,</span> <span class="n">z_target</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">"""u/v (or ubar/vbar) at the other face of each rho cell, land as NaN"""</span>
+        <span class="n">varname</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">standard_name_mapping</span><span class="p">[</span><span class="n">par</span><span class="p">]</span>
+        <span class="k">if</span> <span class="n">varname</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">(</span><span class="s1">'u'</span><span class="p">,</span> <span class="s1">'v'</span><span class="p">,</span> <span class="s1">'ubar'</span><span class="p">,</span> <span class="s1">'vbar'</span><span class="p">):</span>
+            <span class="k">return</span> <span class="kc">None</span>  <span class="c1"># e.g. u_eastward/v_northward are already rho-grid</span>
+        <span class="n">shift_axis</span> <span class="o">=</span> <span class="s1">'x'</span> <span class="k">if</span> <span class="n">varname</span> <span class="ow">in</span> <span class="p">(</span><span class="s1">'u'</span><span class="p">,</span> <span class="s1">'ubar'</span><span class="p">)</span> <span class="k">else</span> <span class="s1">'y'</span>
+        <span class="n">mask_attr</span> <span class="o">=</span> <span class="s1">'mask_u'</span> <span class="k">if</span> <span class="n">shift_axis</span> <span class="o">==</span> <span class="s1">'x'</span> <span class="k">else</span> <span class="s1">'mask_v'</span>
+
+        <span class="k">if</span> <span class="n">shift_axis</span> <span class="o">==</span> <span class="s1">'x'</span><span class="p">:</span>
+            <span class="n">indx_shift</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">clip</span><span class="p">(</span><span class="n">indx</span> <span class="o">-</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+            <span class="n">indy_shift</span> <span class="o">=</span> <span class="n">indy</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">indx_shift</span> <span class="o">=</span> <span class="n">indx</span>
+            <span class="n">indy_shift</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">clip</span><span class="p">(</span><span class="n">indy</span> <span class="o">-</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+
+        <span class="n">var</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">Dataset</span><span class="o">.</span><span class="n">variables</span><span class="p">[</span><span class="n">varname</span><span class="p">]</span>
+        <span class="n">ixy_shift</span> <span class="o">=</span> <span class="p">(</span><span class="n">indy_shift</span><span class="p">,</span> <span class="n">indx_shift</span><span class="p">)</span>
+        <span class="n">itxy_shift</span> <span class="o">=</span> <span class="p">(</span><span class="n">indxTime</span><span class="p">,</span> <span class="n">indy_shift</span><span class="p">,</span> <span class="n">indx_shift</span><span class="p">)</span>
+        <span class="n">itsxy_shift</span> <span class="o">=</span> <span class="p">(</span><span class="n">indxTime</span><span class="p">,</span> <span class="n">inds</span><span class="p">,</span> <span class="n">indy_shift</span><span class="p">,</span> <span class="n">indx_shift</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">var</span><span class="o">.</span><span class="n">ndim</span> <span class="o">==</span> <span class="mi">3</span><span class="p">:</span>
+            <span class="n">raw_shift</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">var</span><span class="p">[</span><span class="n">itxy_shift</span><span class="p">])</span>
+        <span class="k">elif</span> <span class="n">var</span><span class="o">.</span><span class="n">ndim</span> <span class="o">==</span> <span class="mi">4</span><span class="p">:</span>
+            <span class="n">raw_shift</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">var</span><span class="p">[</span><span class="n">itsxy_shift</span><span class="p">])</span>
+            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">atleast_1d</span><span class="p">(</span><span class="n">inds</span><span class="p">))</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
+                <span class="c1"># same sigma-to-z sequence as get_variables, at the shifted index</span>
+                <span class="n">H_shift</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">sea_floor_depth_below_sea_level</span><span class="p">[</span><span class="n">indy_shift</span><span class="p">,</span> <span class="n">indx_shift</span><span class="p">]</span>
+                <span class="n">zeta_shift</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">zeta</span><span class="p">[</span><span class="n">itxy_shift</span><span class="p">])</span>
+                <span class="n">z_rho_shift</span> <span class="o">=</span> <span class="n">depth</span><span class="o">.</span><span class="n">sdepth</span><span class="p">(</span><span class="n">H_shift</span><span class="p">,</span> <span class="n">zeta_shift</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">hc</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">Cs_r</span><span class="p">,</span>
+                                            <span class="n">Vtransform</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">Vtransform</span><span class="p">,</span> <span class="n">Vstretching</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">Vstretching</span><span class="p">)</span>
+                <span class="n">z_rho_shift</span> <span class="o">=</span> <span class="n">z_rho_shift</span> <span class="o">-</span> <span class="n">zeta_shift</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">newaxis</span><span class="p">]</span>
+                <span class="n">z_rho_shift</span> <span class="o">=</span> <span class="n">z_rho_shift</span><span class="p">[</span><span class="n">inds</span><span class="p">,</span> <span class="p">:,</span> <span class="p">:]</span>
+                <span class="n">raw_shift</span><span class="p">,</span> <span class="n">_</span><span class="p">,</span> <span class="n">_</span><span class="p">,</span> <span class="n">_</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">depth</span><span class="o">.</span><span class="n">multi_zslice</span><span class="p">(</span><span class="n">raw_shift</span><span class="p">,</span> <span class="n">z_rho_shift</span><span class="p">,</span> <span class="n">z_target</span><span class="p">)</span>
+                <span class="n">raw_shift</span><span class="p">[</span><span class="n">raw_shift</span> <span class="o">&gt;</span> <span class="mf">1e+9</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="kc">None</span>
+
+        <span class="n">mask_obj</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">mask_attr</span><span class="p">)</span>  <span class="c1"># mask_u/mask_v: static (2D) or wetdry (3D)</span>
+        <span class="n">mask_shift</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">mask_obj</span><span class="p">[</span><span class="n">itxy_shift</span> <span class="k">if</span> <span class="n">mask_obj</span><span class="o">.</span><span class="n">ndim</span> <span class="o">==</span> <span class="mi">3</span> <span class="k">else</span> <span class="n">ixy_shift</span><span class="p">])</span>
+        <span class="k">if</span> <span class="n">mask_shift</span><span class="o">.</span><span class="n">min</span><span class="p">()</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="n">raw_shift</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">mask_shift</span> <span class="o">==</span> <span class="mi">0</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span><span class="p">,</span> <span class="n">raw_shift</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">raw_shift</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">float</span><span class="p">)</span></div>
+
+
 <div class="viewcode-block" id="Reader.get_variables">
 <a class="viewcode-back" href="../../../autoapi/opendrift/readers/reader_ROMS_native/index.html#opendrift.readers.reader_ROMS_native.Reader.get_variables">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">get_variables</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">requested_variables</span><span class="p">,</span> <span class="n">time</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
@@ -832,47 +884,18 @@
             <span class="c1"># Mask values outside domain</span>
             <span class="n">variables</span><span class="p">[</span><span class="n">par</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">ma</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">variables</span><span class="p">[</span><span class="n">par</span><span class="p">],</span> <span class="n">ndmin</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">mask</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
 
-            <span class="c1"># Skipping de-staggering, as it leads to invalid values at later interpolation</span>
-            <span class="c1">#if block is True:</span>
-            <span class="c1">#    # Unstagger grid for vectors</span>
-            <span class="c1">#    logger.debug('Unstaggering ' + par)</span>
-            <span class="c1">#    if 'eta_v' in var.dimensions:</span>
-            <span class="c1">#        variables[par] = np.ma.array(variables[par],</span>
-            <span class="c1">#                            mask=variables[par].mask)</span>
-            <span class="c1">#        variables[par][variables[par].mask] = 0</span>
-            <span class="c1">#        if variables[par].ndim == 2:</span>
-            <span class="c1">#            variables[par] = \</span>
-            <span class="c1">#                (variables[par][0:-1,0:-1] +</span>
-            <span class="c1">#                variables[par][0:-1,1::])/2</span>
-            <span class="c1">#        elif variables[par].ndim == 3:</span>
-            <span class="c1">#            variables[par] = \</span>
-            <span class="c1">#                (variables[par][:,0:-1,0:-1] +</span>
-            <span class="c1">#                variables[par][:,0:-1,1::])/2</span>
-            <span class="c1">#        variables[par] = np.ma.masked_where(variables[par]==0,</span>
-            <span class="c1">#                                            variables[par])</span>
-            <span class="c1">#    elif 'eta_u' in var.dimensions:</span>
-            <span class="c1">#        variables[par] = np.ma.array(variables[par],</span>
-            <span class="c1">#                            mask=variables[par].mask)</span>
-            <span class="c1">#        variables[par][variables[par].mask] = 0</span>
-            <span class="c1">#        if variables[par].ndim == 2:</span>
-            <span class="c1">#            variables[par] = \</span>
-            <span class="c1">#                (variables[par][0:-1,0:-1] +</span>
-            <span class="c1">#                 variables[par][1::,0:-1])/2</span>
-            <span class="c1">#        elif variables[par].ndim == 3:</span>
-            <span class="c1">#            variables[par] = \</span>
-            <span class="c1">#                (variables[par][:,0:-1,0:-1] +</span>
-            <span class="c1">#                 variables[par][:,1::,0:-1])/2</span>
-            <span class="c1">#        variables[par] = np.ma.masked_where(variables[par]==0,</span>
-            <span class="c1">#                                            variables[par])</span>
-            <span class="c1">#    else:</span>
-            <span class="c1">#        if variables[par].ndim == 2:</span>
-            <span class="c1">#            variables[par] = variables[par][1::, 1::]</span>
-            <span class="c1">#        elif variables[par].ndim == 3:</span>
-            <span class="c1">#            variables[par] = variables[par][:,1::, 1::]</span>
+            <span class="c1"># Mean of the two faces of each rho cell, ignoring land</span>
+            <span class="k">if</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">destagger_velocity</span>
+                    <span class="ow">and</span> <span class="n">par</span> <span class="ow">in</span> <span class="p">(</span><span class="s1">'x_sea_water_velocity'</span><span class="p">,</span> <span class="s1">'y_sea_water_velocity'</span><span class="p">)):</span>
+                <span class="n">shifted</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_destagger_velocity_component</span><span class="p">(</span>
+                    <span class="n">par</span><span class="p">,</span> <span class="n">indxTime</span><span class="p">,</span> <span class="n">indy</span><span class="p">,</span> <span class="n">indx</span><span class="p">,</span> <span class="n">inds</span><span class="p">,</span> <span class="n">variables</span><span class="p">[</span><span class="s1">'z'</span><span class="p">])</span>
+                <span class="k">if</span> <span class="n">shifted</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                    <span class="n">original</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">ma</span><span class="o">.</span><span class="n">filled</span><span class="p">(</span><span class="n">variables</span><span class="p">[</span><span class="n">par</span><span class="p">],</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span><span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">float</span><span class="p">)</span>
+                    <span class="n">stacked</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">stack</span><span class="p">([</span><span class="n">original</span><span class="p">,</span> <span class="n">shifted</span><span class="p">])</span>
+                    <span class="k">with</span> <span class="n">np</span><span class="o">.</span><span class="n">errstate</span><span class="p">(</span><span class="n">invalid</span><span class="o">=</span><span class="s1">'ignore'</span><span class="p">):</span>
+                        <span class="n">destaggered</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">nanmean</span><span class="p">(</span><span class="n">stacked</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+                    <span class="n">variables</span><span class="p">[</span><span class="n">par</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">ma</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">destaggered</span><span class="p">,</span> <span class="n">ndmin</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">mask</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
 
-        <span class="c1"># TODO: should be midpoints, but angle array below needs integer</span>
-        <span class="c1">#indx = indx[0:-1]  # Only if de-staggering has been performed</span>
-        <span class="c1">#indy = indy[1::]</span>
         <span class="n">variables</span><span class="p">[</span><span class="s1">'x'</span><span class="p">]</span> <span class="o">=</span> <span class="n">indx</span>
         <span class="n">variables</span><span class="p">[</span><span class="s1">'y'</span><span class="p">]</span> <span class="o">=</span> <span class="n">indy</span>
 
